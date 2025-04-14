@@ -73,6 +73,14 @@ void Game::processMarkedScenes() {
     }
 }
 
+void Game::killSprite(const std::shared_ptr<Sprite>& sprite) {
+    auto it = std::find(sprites.begin(), sprites.end(), sprite);
+    if (it != sprites.end()) {
+        *it = std::move(sprites.back());
+        sprites.pop_back();
+    }
+}
+
 Sprite* Game::getPlayer() {
     InGame* inGame = dynamic_cast<InGame*>(getScene("InGame"));
     if (!inGame) return nullptr;

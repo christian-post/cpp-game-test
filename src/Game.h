@@ -16,28 +16,29 @@ class Command;
 class Game {
 public:
     Game();
-    // actual window resolution
-    static constexpr int windowWidth = 768;
-    static constexpr int windowHeight = 576;
-    // in-game resolution
-    int gameScreenWidth = 256;
-    int gameScreenHeight = 192;
+    // actual window resolution (can be resized later)
+    static constexpr uint32_t windowWidth = 768;
+    static constexpr uint32_t windowHeight = 576;
+    // in-game resolution (stays constant, gets scaled up to window size)
+    uint32_t gameScreenWidth = 256;
+    uint32_t gameScreenHeight = 192;
 
-    RenderTexture2D target;
+    RenderTexture2D target; // texture surface for the ingame graphics
 
+    // basic game loop
     void events();
     void update(float dt);
     void draw();
     void run();
-    // scene managing
+
+    // scene management
     void startScene(const std::string& name);
     void stopScene(const std::string& name);
-    void processMarkedScenes();
-
     void sleepScene(const std::string& name);
     void wakeScene(const std::string& name);
     void pauseScene(const std::string& name);
     void resumeScene(const std::string& name);
+    void processMarkedScenes();
 
     template <typename T>
     void registerScene(const std::string& name) {
@@ -51,22 +52,22 @@ public:
         return (it != scenes.end()) ? it->second.get() : nullptr;
     }
 
-    EventManager eventManager;
+    EventManager eventManager; // event handling
 
     bool isRunning() const { return running; }
     void end() { running = false; }
 
+    // input management
     uint32_t buttonsPressed;
     uint32_t buttonsDown;
+
     AssetLoader loader;
 
     // game objects
-    std::vector<std::unique_ptr<Rectangle>> walls;  // everything with static collision
-    std::vector<std::shared_ptr<Sprite>> sprites;
+    std::vector<std::unique_ptr<Rectangle>> walls; // everything with static collision
+    std::vector<std::shared_ptr<Sprite>> sprites; // dynamic objects
 
-    void killSprite(const std::shared_ptr<Sprite>& sprite) {
-        sprites.erase(std::remove(sprites.begin(), sprites.end(), sprite), sprites.end());
-    }
+    void killSprite(const std::shared_ptr<Sprite>& sprite) {}
 
     // store a reference to the player sprite in case a scene other than InGame needs it
     Sprite* getPlayer();
