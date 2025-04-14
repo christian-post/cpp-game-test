@@ -1,0 +1,18 @@
+features
+- HUD
+- NPCs
+-- NPC factory pattern based on Tiled data
+-- NPC behavior as own class (allow multiple behaviors to be added to an NPC)
+-- behavior priority system
+- Cutscene command system (modular)
+-- Command_MoveToPath(target, posX, posY, duration) // benutzt pathfinding
+-- Command_ShowTextbox(text, target)  // target für Sprechblase
+- Load settings.json
+- events system
+- multiple maps
+- Tweens
+
+
+BUGS:
+- RandomWalkBehavior: choose new target after some time if the current target can't be reached
+- Behavior priorities/swiching is messy
