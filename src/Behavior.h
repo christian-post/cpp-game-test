@@ -80,4 +80,7 @@ private:
 	Sprite& self;
 	float lifetime;
 	bool done = false;
+	const Shader* shader;
+	int timeLoc = -1;
+	int flipXLoc = 0;
 };

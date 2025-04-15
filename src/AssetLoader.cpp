@@ -131,6 +131,12 @@ void  AssetLoader::LoadFont(const std::string& filename) {
     // TODO: still no idea how to disable anti-aliasing
 }
 
+void AssetLoader::LoadShaderFile(const std::string& filename) {
+    auto shader = std::make_shared<Shader>(LoadShader(0, filename.c_str()));
+    std::string baseName = std::filesystem::path(filename).stem().string();
+    shaders[baseName] = shader;
+}
+
 const std::vector<Texture2D>& AssetLoader::getTextures(const std::string& key) {
     return textureGroups[key]; // Returns and empty vector if key doesn't exist
 }
@@ -145,4 +151,12 @@ const TileMap& AssetLoader::getTilemap(const std::string& key) {
 
 const Font& AssetLoader::getFont(const std::string& key) {
     return fonts.at(key);
+}
+
+const Shader& AssetLoader::getShader(const std::string& key) {
+    auto it = shaders.find(key);
+    if (it == shaders.end()) {
+        throw std::runtime_error("Shader not found: " + key);
+    }
+    return *(it->second);
 }

@@ -133,10 +133,23 @@ void WeaponBehavior::update(float deltaTime) {
 }
 
 
-DeathBehavior::DeathBehavior(Sprite& self, float lifetime) : self{ self }, lifetime{ lifetime } {};
+DeathBehavior::DeathBehavior(Sprite& self, float lifetime) : self{ self }, lifetime{ lifetime } {
+    shader = &self.game.loader.getShader("crumble");
+    timeLoc = GetShaderLocation(*shader, "time");
+    flipXLoc = GetShaderLocation(*shader, "flipX");
+};
 
 void DeathBehavior::update(float deltaTime) {
     lifetime -= deltaTime;
+
+    if (!done) {
+        float t = GetTime();
+        SetShaderValue(*shader, timeLoc, &t, SHADER_UNIFORM_FLOAT);
+        int flip = 0; // 1 or 0
+        SetShaderValue(*shader, flipXLoc, &flip, SHADER_UNIFORM_INT);
+        self.currentShader = shader;
+    }
+
     if (lifetime < 0 && !done) {
         done = true;
     }

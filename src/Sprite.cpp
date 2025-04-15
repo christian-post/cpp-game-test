@@ -79,6 +79,8 @@ void Sprite::getControls() {
 void Sprite::executeBehavior(float deltaTime) {
     // runs update() on the behaviors in the order that they were given
     // TODO: behavior priority system?
+    currentShader = nullptr; // reset in case any behavior changes the shader
+
     for (auto& behavior : behaviors) {
         behavior->update(deltaTime);
     }
@@ -126,9 +128,7 @@ void Sprite::update(float deltaTime) {
 
 void Sprite::draw() {
     const std::string& key = (frames.count(currentTextureKey) > 0) ? currentTextureKey : "default";
-
     auto& textures = frames[key];
-    //if (textures.empty()) return;
 
     if (currentFrame >= textures.size()) {
         DrawRectangleRec(rect, BLUE);
@@ -160,6 +160,9 @@ void Sprite::draw() {
     }
     // draw the texture (change the tint if the sprite has been hit)
     // also rotate around the bottom center
+    // and apply a shader, if set
+    if (currentShader) BeginShaderMode(*currentShader);
     DrawTexturePro(texture, source, dest, origin, rotationAngle, tint);
+    if (currentShader) EndShaderMode();
 }
 

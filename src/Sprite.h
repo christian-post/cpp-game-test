@@ -21,6 +21,7 @@ public:
     int currentFrame = 0;
     bool doesAnimate = true;
     std::string currentTextureKey = "default";
+    const Shader* currentShader = nullptr;
     direction lastDirection = RIGHT;
     float rotationAngle = 0.0f;
     float frameTime = 0.12f; // animation speed
@@ -53,6 +54,9 @@ public:
     void addBehavior(std::unique_ptr<Behavior> behavior) {
         behaviors.push_back(std::move(behavior));
     };
+    void removeAllBehaviors() {
+        behaviors.clear();
+    }
     void executeBehavior(float deltaTime);
 
 private:

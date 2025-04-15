@@ -67,7 +67,7 @@ public:
     std::vector<std::unique_ptr<Rectangle>> walls; // everything with static collision
     std::vector<std::shared_ptr<Sprite>> sprites; // dynamic objects
 
-    void killSprite(const std::shared_ptr<Sprite>& sprite) {}
+    void killSprite(const std::shared_ptr<Sprite>& sprite);
 
     // store a reference to the player sprite in case a scene other than InGame needs it
     Sprite* getPlayer();

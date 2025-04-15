@@ -9,7 +9,7 @@
 void InGame::startup(Game* game) {
     // retrieve the tilemap
     tileMap = &game->loader.getTilemap("test_dungeon2");
-    int tileSize = tileMap->tileWidth; // just assume tiles are square
+    tileSize = tileMap->tileWidth; // just assume tiles are square
 
     // create the player sprite
     // the "spriteName" argument has to match the texture keys (the part before the "_")
@@ -54,31 +54,22 @@ void InGame::startup(Game* game) {
     npc->addBehavior(std::make_unique<RandomWalkBehavior>(*npc));
     npc->addBehavior(std::make_unique<WatchBehavior>(*npc, *player));
 
-    // test enemy
-    auto enemy = std::make_shared<Sprite>(
-        *game, float(9 * tileSize), float(5 * tileSize), 12.0f, 12.0f, "skelet"
-    );
-    game->sprites.push_back(enemy);
-    enemy->speed = 15.0f;
-    enemy->damage = 1;
-    enemy->health = 4;
-    enemy->canHurtPlayer = true;
-    enemy->setTextures({ "skelet_idle", "skelet_run" });
-    enemy->addBehavior(std::make_unique<RandomWalkBehavior>(*enemy));
-    enemy->addBehavior(std::make_unique<ChaseBehavior>(*enemy, *player, 48.0f, 2.0f, 64.0f));
+    // test enemies
+    // TODO: get them from Tiled data
+    spawnEnemy(*game, "skelet", 8, 5);
+    spawnEnemy(*game, "skelet", 10, 4);
 
     // queue a cutscene
-    /*game->eventManager.pushDelayedEvent("cutsceneStart", 0.1f, nullptr, [game, this]() {
-        cutsceneFlag = true;
-        Sprite& npcRef = *spriteMap["npc"];
-        float npcX = npcRef.position.x;
-        float npcY = npcRef.position.y + 3.0f * (float)tileMap->tileHeight;
-
-        cutsceneManager.queueCommand(new Command_Wait(1.0f));
-        cutsceneManager.queueCommand(new Command_MoveTo(npcRef, npcX, npcY, 2.0f));
-        cutsceneManager.queueCommand(new Command_Wait(0.5f));
-        cutsceneManager.queueCommand(new Command_Textbox(*game, "Please help me, Sir Knight! This skeleton there is up to no good. Do something about it!"));
-    });*/
+    //game->eventManager.pushDelayedEvent("cutsceneStart", 0.1f, nullptr, [game, this]() {
+    //    cutsceneFlag = true;
+    //    Sprite& npcRef = *spriteMap["npc"];
+    //    float npcX = npcRef.position.x;
+    //    float npcY = npcRef.position.y + 3.0f * (float)tileMap->tileHeight;
+    //    cutsceneManager.queueCommand(new Command_Wait(1.0f));
+    //    cutsceneManager.queueCommand(new Command_MoveTo(npcRef, npcX, npcY, 2.0f));
+    //    cutsceneManager.queueCommand(new Command_Wait(0.5f));
+    //    cutsceneManager.queueCommand(new Command_Textbox(*game, "Please help me, Sir Knight! These skeletons there are up to no good. Do something about them!!!"));
+    //});
 }
 
 Sprite* InGame::getSprite(const std::string& name) {
@@ -88,6 +79,25 @@ Sprite* InGame::getSprite(const std::string& name) {
     }
     return nullptr;
 }
+
+std::shared_ptr<Sprite> InGame::spawnEnemy(Game& game, const std::string& name, int tileX, int tileY) {
+    // helper function that creates an enemy on the map
+    // TODO: gets replaced with function that takes the data from TileMap
+    auto enemy = std::make_shared<Sprite>(
+        game, float(tileX * tileSize), float(tileY * tileSize), 12.0f, 12.0f, name
+    );
+    enemy->speed = 12.0f;
+    enemy->damage = 1;
+    enemy->health = 4;
+    enemy->canHurtPlayer = true;
+    enemy->setTextures({ name + "_idle", name + "_run" });
+    enemy->addBehavior(std::make_unique<RandomWalkBehavior>(*enemy));
+    enemy->addBehavior(std::make_unique<ChaseBehavior>(*enemy, *player, 48.0f, 2.0f, 64.0f));
+    game.sprites.push_back(enemy);
+
+    return enemy;
+}
+
 
 void InGame::events(Game* game) {
     // TODO
@@ -99,7 +109,11 @@ void InGame::update(Game* game, float dt) {
     // remove sprites that are dead
     for (const auto& sprite : game->sprites) {
         if (sprite && sprite->health < 1) {
-            game->killSprite(sprite);
+            sprite->removeAllBehaviors();
+            sprite->addBehavior(std::make_unique<DeathBehavior>(*sprite, 1.0f));
+            game->eventManager.pushDelayedEvent("killSprite", 1.0f, nullptr, [game, sprite]() {
+                game->killSprite(sprite);
+            });
         }
     }
     

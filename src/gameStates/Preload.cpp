@@ -78,15 +78,17 @@ void Preload::startup(Game* game) {
         }
     });
 
-    //game->loader.LoadTileset("./resources/textures/tilesets/tiles_test.png", 16);
+    // load the tileset (the textures)
     game->loader.LoadTilesetFromTiled("./resources/tilemaps/dungeon.tsj");
-
     // load the tile maps from text files
     game->loader.LoadTileMapFromTiled("./resources/tilemaps/test_dungeon.json");
     game->loader.LoadTileMapFromTiled("./resources/tilemaps/test_dungeon2.json");
 
     // load the font
     game->loader.LoadFont("./resources/fonts/slkscr.ttf");
+
+    // load shaders
+    game->loader.LoadShaderFile("./resources/shaders/crumble.fs");
 
     // advance to title after loading
     game->startScene("TitleScreen");

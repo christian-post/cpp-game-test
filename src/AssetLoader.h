@@ -17,6 +17,7 @@ private:
     std::unordered_map<std::string, std::vector<Texture2D>> textureGroups;
     std::unordered_map<std::string, Font> fonts;
     std::unordered_map<std::string, std::unique_ptr<TileMap>> tileMaps;
+    std::unordered_map<std::string, std::shared_ptr<Shader>> shaders;
     
 public:
     ~AssetLoader();
@@ -26,9 +27,11 @@ public:
     void LoadTilesetFromTiled(const std::string& filename);
     void LoadTileMapFromTiled(const std::string& filename);
     void LoadFont(const std::string& filename);
+    void LoadShaderFile(const std::string& filename);
 
     const std::vector<Texture2D>& getTextures(const std::string& key);
     const TileMap& getTilemap(const std::string& key);
     const Font& getFont(const std::string& key);
+    const Shader& getShader(const std::string& key);
     Texture2D fallbackTexture;
 };
