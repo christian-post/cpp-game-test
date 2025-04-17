@@ -2,6 +2,7 @@
 #include "raymath.h"
 #include <iostream>
 #include "Game.h"
+#include "Utils.h"
 
 
 Sprite::Sprite(Game& game, float x, float y, float w, float h, const std::string& spriteName)
@@ -11,7 +12,7 @@ Sprite::Sprite(Game& game, float x, float y, float w, float h, const std::string
     acc{ 0.0f, 0.0f },
     vel{ 0.0f, 0.0f },
     position{ (float)x, (float)y },
-    spriteName{ spriteName }, // is this even used?
+    spriteName{ spriteName },
     behaviors{},
     health{ 10 }, // default values
     maxHealth{ 10 }
@@ -79,7 +80,7 @@ void Sprite::getControls() {
 void Sprite::executeBehavior(float deltaTime) {
     // runs update() on the behaviors in the order that they were given
     // TODO: behavior priority system?
-    currentShader = nullptr; // reset in case any behavior changes the shader
+    //currentShader = nullptr; // reset in case any behavior changes the shader
 
     for (auto& behavior : behaviors) {
         behavior->update(deltaTime);
@@ -124,9 +125,15 @@ void Sprite::update(float deltaTime) {
         // sprite is invincible
         iFrameTimer -= deltaTime;
     }
+    // enemies that are already dead can't hurt the player any more
+    if (health < 1) {
+        canHurtPlayer = false;
+    }
 }
 
 void Sprite::draw() {
+    if (!visible) return;
+
     const std::string& key = (frames.count(currentTextureKey) > 0) ? currentTextureKey : "default";
     auto& textures = frames[key];
 
@@ -154,15 +161,23 @@ void Sprite::draw() {
     }
 
     Color tint = WHITE;
-    if (iFrameTimer > 0.0f) {
+    if (iFrameTimer > 0.0f && !dying) {
         bool flicker = ((int)(iFrameTimer * 10) % 2) == 0;
         tint = flicker ? Fade(WHITE, 0.5f) : WHITE;
     }
     // draw the texture (change the tint if the sprite has been hit)
     // also rotate around the bottom center
     // and apply a shader, if set
-    if (currentShader) BeginShaderMode(*currentShader);
+    if (activeShader) {
+        int timeLoc = GetShaderLocation(*activeShader->shader, "time");
+        int flipXLoc = GetShaderLocation(*activeShader->shader, "flipX");
+        int durationLoc = GetShaderLocation(*activeShader->shader, "duration");
+        SetShaderValue(*activeShader->shader, timeLoc, &activeShader->time, SHADER_UNIFORM_FLOAT);
+        SetShaderValue(*activeShader->shader, flipXLoc, &activeShader->flipX, SHADER_UNIFORM_INT);
+        SetShaderValue(*activeShader->shader, durationLoc, &activeShader->duration, SHADER_UNIFORM_FLOAT);
+        BeginShaderMode(*activeShader->shader);
+    }
     DrawTexturePro(texture, source, dest, origin, rotationAngle, tint);
-    if (currentShader) EndShaderMode();
+    if (activeShader) EndShaderMode();
 }
 

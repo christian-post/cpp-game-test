@@ -4,13 +4,13 @@
 #include "json.hpp"
 
 
-void Preload::startup(Game* game) {
+void Preload::startup() {
     // TODO: load asynchronous?
 
     // preload most of the assets that are persistent throughout the game
     // for an animated sprite, the keys have to contain the suffixes
     // _idle, _run, _hit, [...]
-    game->loader.loadTextures({
+    game.loader.loadTextures({
         {
             "player_idle", {
                 "./resources/textures/sprites/knight_f_idle_anim_f0.png",
@@ -79,27 +79,27 @@ void Preload::startup(Game* game) {
     });
 
     // load the tileset (the textures)
-    game->loader.LoadTilesetFromTiled("./resources/tilemaps/dungeon.tsj");
+    game.loader.LoadTilesetFromTiled("./resources/tilemaps/dungeon.tsj");
     // load the tile maps from text files
-    game->loader.LoadTileMapFromTiled("./resources/tilemaps/test_dungeon.json");
-    game->loader.LoadTileMapFromTiled("./resources/tilemaps/test_dungeon2.json");
+    game.loader.LoadTileMapFromTiled("./resources/tilemaps/test_dungeon.json");
+    game.loader.LoadTileMapFromTiled("./resources/tilemaps/test_dungeon2.json");
 
     // load the font
-    game->loader.LoadFont("./resources/fonts/slkscr.ttf");
+    game.loader.LoadFont("./resources/fonts/slkscr.ttf");
 
     // load shaders
-    game->loader.LoadShaderFile("./resources/shaders/crumble.fs");
+    game.loader.LoadShaderFile("./resources/shaders/crumble.fs");
 
     // advance to title after loading
-    game->startScene("TitleScreen");
-    game->stopScene("Preload");
+    game.startScene("TitleScreen");
+    game.stopScene("Preload");
 }
 
-void Preload::update(Game* game, float dt) {
+void Preload::update(float dt) {
     // TODO: calculate loading progress
 }
 
-void Preload::draw(Game* game) {
+void Preload::draw() {
     // TODO: draw loading bar, then finish
     ClearBackground(BLACK);
 }

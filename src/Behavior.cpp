@@ -2,6 +2,7 @@
 #include "Sprite.h"
 #include "Game.h"
 #include "Utils.h"
+#include <any>
 
 
 WatchBehavior::WatchBehavior(Sprite& self, Sprite& target)
@@ -133,25 +134,33 @@ void WeaponBehavior::update(float deltaTime) {
 }
 
 
-DeathBehavior::DeathBehavior(Sprite& self, float lifetime) : self{ self }, lifetime{ lifetime } {
+DeathBehavior::DeathBehavior(Sprite& self, float lifetime) : self{ self }, lifetime{ lifetime }, maxLifetime{ lifetime } {
     shader = &self.game.loader.getShader("crumble");
-    timeLoc = GetShaderLocation(*shader, "time");
-    flipXLoc = GetShaderLocation(*shader, "flipX");
-};
+}
 
 void DeathBehavior::update(float deltaTime) {
-    lifetime -= deltaTime;
-
     if (!done) {
-        float t = GetTime();
-        SetShaderValue(*shader, timeLoc, &t, SHADER_UNIFORM_FLOAT);
-        int flip = 0; // 1 or 0
-        SetShaderValue(*shader, flipXLoc, &flip, SHADER_UNIFORM_INT);
-        self.currentShader = shader;
+        float elapsed = maxLifetime - lifetime;
+        self.activeShader = ShaderState{ shader, elapsed, maxLifetime, 1 };
     }
-
+    lifetime -= deltaTime;
     if (lifetime < 0 && !done) {
         done = true;
+        self.visible = false;
     }
 }
 
+
+TeleportBehavior::TeleportBehavior(Game& game, Sprite& self, Sprite& other, const std::string& targetMap, Vector2 targetPos) : 
+    game{ game }, self {self }, other{ other }, targetMap{ targetMap }, targetPos{ targetPos } {
+}
+
+void TeleportBehavior::update(float deltaTime) {
+    if (!done) {
+        if (CheckCollisionRecs(self.rect, other.rect)) {
+            done = true;
+            TeleportEvent event{ targetMap, targetPos };
+            game.eventManager.pushEvent("teleport", std::any(event));
+        }
+    }
+}

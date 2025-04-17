@@ -1,6 +1,9 @@
 #pragma once
 #include "raylib.h"
+#include <string>
 
+
+class Game;
 class Sprite;
 
 enum direction {
@@ -79,8 +82,30 @@ public:
 private:
 	Sprite& self;
 	float lifetime;
+	float maxLifetime;
 	bool done = false;
 	const Shader* shader;
-	int timeLoc = -1;
-	int flipXLoc = 0;
+};
+
+
+struct TeleportEvent {
+	std::string targetMap;
+	Vector2 targetPos;
+};
+
+class TeleportBehavior : public Behavior {
+public:
+	TeleportBehavior(
+		Game& game, Sprite& self, Sprite& other, 
+		const std::string& targetMap, Vector2 targetPos
+	);
+	void update(float deltaTime) override;
+
+private:
+	Game& game;
+	Sprite& self;
+	Sprite& other;
+	std::string targetMap;
+	Vector2 targetPos;
+	bool done = false;
 };

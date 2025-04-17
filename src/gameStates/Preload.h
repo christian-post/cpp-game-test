@@ -5,9 +5,9 @@
 
 class Preload : public Scene {
 public:
-    Preload(const std::string& name) : Scene(name) {}
-    void startup(Game* game) override;
-    void update(Game* game, float dt) override;
-    void draw(Game* game) override;
+    Preload(Game& game, const std::string& name) : Scene(game, name) {}
+    void startup() override;
+    void update(float dt) override;
+    void draw() override;
     void end() override;
 };

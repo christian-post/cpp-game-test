@@ -1,17 +1,19 @@
 #pragma once
 #include <string>
+#include <any>
+#include <unordered_map>
 
 class Game;
 
 class Scene {
     // scene base class
 public:
-    Scene(std::string sceneName) : name(std::move(sceneName)) {}
+    Scene(Game& game, std::string sceneName) : game{ game }, name(std::move(sceneName)) {}
     virtual ~Scene() = default;
-    virtual void startup(Game* game) {}
-    virtual void events(Game* game) {}
-    virtual void update(Game* game, float dt) {}
-    virtual void draw(Game* game) {}
+    virtual void startup() {}
+    virtual void events(const std::unordered_map<std::string, std::any>& events) {}
+    virtual void update(float dt) {}
+    virtual void draw() {}
     virtual void end() {}
 
     std::string getName() const { return name; }
@@ -34,6 +36,7 @@ private:
     std::string name;
 
 protected:
+    Game& game;
     bool active = false;
     bool paused = false;
     bool markedForDeletion = false;
@@ -50,11 +53,11 @@ protected:
 //
 //class Preload : public Scene {
 //public:
-//    Preload(const std::string& name) : Scene(name) {}
-//    void startup(Game* game) override;
-//    void events(Game* game, int event) override;
-//    void update(Game* game, float dt) override;
-//    void draw(Game* game) override;
+//    Preload(Game& game, const std::string& name) : Scene(game, name) {}
+//    void startup() override;
+//    void events(int event) override;
+//    void update(float dt) override;
+//    void draw() override;
 //    void end() override;
 //};
 
@@ -64,18 +67,18 @@ protected:
 //#include "Game.h"
 //#include "raylib.h"
 //
-//void Name::startup(Game* game) {
+//void Name::startup() {
 //}
 //
-//void Name::events(Game* game) {
+//void Name::events() {
 //    // TODO 
 //}
 //
-//void Name::update(Game* game, float dt) {
+//void Name::update(float dt) {
 //
 //}
 //
-//void Name::draw(Game* game) {
+//void Name::draw(game) {
 //
 //}
 //

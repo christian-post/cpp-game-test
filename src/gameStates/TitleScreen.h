@@ -5,10 +5,9 @@
 
 class TitleScreen : public Scene {
 public:
-    TitleScreen(const std::string& name) : Scene(name) {}
-    void startup(Game* game) override;
-    void events(Game* game) override;
-    void update(Game* game, float dt) override;
-    void draw(Game* game) override;
+    TitleScreen(Game& game, const std::string& name) : Scene(game, name) {}
+    void startup() override;
+    void update(float dt) override;
+    void draw() override;
     void end() override;
 };

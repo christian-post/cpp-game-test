@@ -16,15 +16,28 @@ struct TileLayer {
 };
 
 struct TileObject {
-    std::string type;
+    std::string type, name;
     float x, y, width, height;
+    nlohmann::json properties;
 
-    TileObject(const nlohmann::json& objJson)
-        : type(objJson["type"]),
+    TileObject(const nlohmann::json& objJson) :
+        type(objJson["type"]),
+        name(objJson["name"]),
         x(objJson["x"]),
         y(objJson["y"]),
         width(objJson["width"]),
-        height(objJson["height"]) {
+        height(objJson["height"])
+    {
+        if (objJson.contains("properties") && objJson["properties"].is_array()) {
+            for (const auto& p : objJson["properties"]) {
+                if (p.contains("name") && p.contains("value")) {
+                    properties[p["name"]] = p["value"];
+                }
+            }
+        }
+        else {
+            properties = nlohmann::json::object();
+        }
     }
 };
 

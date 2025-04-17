@@ -12,6 +12,13 @@ features
 - multiple maps
 - Tweens
 
+TODO misc
+- rename "gameStates" dir to "scenes"
+- NPC death animation
+
+TODO: refactor
+- how textures are loaded for sprites from the Tiled Map data
+
 
 BUGS:
 - RandomWalkBehavior: choose new target after some time if the current target can't be reached

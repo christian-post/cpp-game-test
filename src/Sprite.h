@@ -5,9 +5,18 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <optional>
 #include "Behavior.h"
 
 class Game;
+
+
+struct ShaderState {
+    const Shader* shader = nullptr;
+    float time = 0.0f;
+    float duration = 2.0f;
+    int flipX = 0;
+};
 
 
 class Sprite {
@@ -20,14 +29,17 @@ public:
     std::string spriteName;
     int currentFrame = 0;
     bool doesAnimate = true;
+    bool visible = true;
+    bool persistent = false; // controls whether the sprite survives between map changes
     std::string currentTextureKey = "default";
-    const Shader* currentShader = nullptr;
+    std::optional<ShaderState> activeShader = std::nullopt;
     direction lastDirection = RIGHT;
     float rotationAngle = 0.0f;
     float frameTime = 0.12f; // animation speed
     float elapsedTime = 0.0f;
 
     // physics
+    bool isColliding = true;
     float speed = 20.0f; // movement speed
     Vector2 acc;
     Vector2 vel;
@@ -40,6 +52,7 @@ public:
     float iFrameTimer = 0.0f; // duration of invincibility (s)
     bool canHurtPlayer = false;
     uint32_t damage = 0;
+    bool dying = false; // flag for the death animation
     
     Sprite(Game& game, float x, float y, float w, float h, const std::string& spriteName);
     void setTextures(std::initializer_list<std::string> keys);

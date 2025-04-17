@@ -188,6 +188,7 @@ kernel32.lib
     <ResourceCompile Include="GameTest.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="resources\settings.json" />
     <None Include="resources\shaders\crumble.fs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

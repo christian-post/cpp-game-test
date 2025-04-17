@@ -9,16 +9,20 @@
 
 
 Game::Game() : buttonsDown{}, buttonsPressed{} {
+    loadSettings("./resources/settings.json");
     // Enable config flags for resizable window and vsync
     SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT);
-    InitWindow(windowWidth, windowHeight, "my first game");
+    //InitWindow(windowWidth, windowHeight, "my first game");
+    InitWindow(settings["windowWidth"], settings["windowHeight"], "My first game");
     SetWindowMinSize(320, 240);
 
     // Render texture initialization, used to hold the rendering result so we can easily resize it
     // see https://github.com/raysan5/raylib/blob/master/examples/core/core_window_letterbox.c
+    gameScreenWidth = settings["gameScreenWidth"];
+    gameScreenHeight = settings["gameScreenHeight"];
     target = LoadRenderTexture(gameScreenWidth, gameScreenHeight);
 
-    SetTargetFPS(120);
+    SetTargetFPS(settings["targetFPS"]);
 
     // define all Scenes as factory functions
     registerScene<Preload>("Preload");
@@ -26,6 +30,15 @@ Game::Game() : buttonsDown{}, buttonsPressed{} {
     registerScene<InGame>("InGame");
     registerScene<HUD>("HUD");
     registerScene<GameOver>("GameOver");
+}
+
+void Game::loadSettings(const std::string& filename) {
+    std::ifstream file(filename);
+    if (!file) {
+        std::cerr << "Failed to open settings file \"" << filename << "\"\n";
+        return;
+    }
+    file >> settings;
 }
 
 void Game::startScene(const std::string& name) {   
@@ -61,7 +74,7 @@ void Game::processMarkedScenes() {
     for (auto it = scenes.begin(); it != scenes.end(); ) {
         if (it->second->ismarkedForStarting()) {
             it->second->markedForStarting = false;
-            it->second->startup(this);
+            it->second->startup();
             it->second->setActive(true);
         }
         else if (it->second->isMarkedForDeletion()) {
@@ -81,6 +94,18 @@ void Game::killSprite(const std::shared_ptr<Sprite>& sprite) {
     }
 }
 
+void Game::clearSprites(bool clearPersistent) {
+    // removes all current sprites
+    // keeps the ones with the "persistent" flag, if not stated otherwise
+    sprites.erase(
+        std::remove_if(sprites.begin(), sprites.end(),
+            [clearPersistent](const std::shared_ptr<Sprite>& s) {
+                return clearPersistent || !s->persistent;
+            }),
+        sprites.end()
+    );
+}
+
 Sprite* Game::getPlayer() {
     InGame* inGame = dynamic_cast<InGame*>(getScene("InGame"));
     if (!inGame) return nullptr;
@@ -90,9 +115,10 @@ Sprite* Game::getPlayer() {
 }
 
 void Game::events() {
+    auto ev = eventManager.popEvents();
     for (auto& [name, scene] : scenes) {
         if (scene && scene->isActive() && !scene->isPaused()) {
-            scene->events(this);
+            scene->events(ev);
         }
     }
 }
@@ -102,7 +128,7 @@ void Game::update(float dt) {
 
     for (auto& [name, scene] : scenes) {  // Iterate over map
         if (scene && scene->isActive() && !scene->isPaused()) {
-            scene->update(this, dt);
+            scene->update(dt);
         }
     }
 }
@@ -116,7 +142,7 @@ void Game::draw() {
     BeginTextureMode(target);
         for (auto& [name, scene] : scenes) {  // Iterate over map
             if (scene && scene->isActive()) {
-                scene->draw(this);
+                scene->draw();
             }
         }
     EndTextureMode();

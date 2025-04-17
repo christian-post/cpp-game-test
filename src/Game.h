@@ -8,22 +8,22 @@
 #include "AssetLoader.h"
 #include "Sprite.h"
 #include "EventManager.h"
+#include "json.hpp"
 
 class Command;
-
 
 
 class Game {
 public:
     Game();
-    // actual window resolution (can be resized later)
-    static constexpr uint32_t windowWidth = 768;
-    static constexpr uint32_t windowHeight = 576;
     // in-game resolution (stays constant, gets scaled up to window size)
     uint32_t gameScreenWidth = 256;
     uint32_t gameScreenHeight = 192;
 
     RenderTexture2D target; // texture surface for the ingame graphics
+
+    nlohmann::json settings;
+    void loadSettings(const std::string& filename);
 
     // basic game loop
     void events();
@@ -42,8 +42,8 @@ public:
 
     template <typename T>
     void registerScene(const std::string& name) {
-        sceneRegistry[name] = [](const std::string& sceneName) {
-            return std::make_unique<T>(sceneName);
+        sceneRegistry[name] = [this](const std::string& sceneName) {
+            return std::make_unique<T>(*this, sceneName);
             };
     }
 
@@ -68,6 +68,7 @@ public:
     std::vector<std::shared_ptr<Sprite>> sprites; // dynamic objects
 
     void killSprite(const std::shared_ptr<Sprite>& sprite);
+    void clearSprites(bool clearPersistent = false);
 
     // store a reference to the player sprite in case a scene other than InGame needs it
     Sprite* getPlayer();

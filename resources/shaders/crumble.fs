@@ -5,6 +5,7 @@ in vec4 fragColor;
 
 uniform sampler2D texture0;
 uniform float time;
+uniform float duration;
 
 out vec4 finalColor;
 
@@ -22,7 +23,6 @@ void main() {
         uv.x = 1.0 - uv.x;
     }
 
-    float duration = 2.0;
     float threshold = mod(time, duration) / duration * 1.5;
     float noise = rand(floor(uv * 100.0));
 

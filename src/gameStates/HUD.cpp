@@ -3,27 +3,27 @@
 #include "raylib.h"
 #include "InGame.h"
 
-void HUD::startup(Game* game) {
-    heartImages = game->loader.getTextures("hearts");
+void HUD::startup() {
+    heartImages = game.loader.getTextures("hearts");
 }
 
-void HUD::events(Game* game) {
-    // TODO 
-}
-
-void HUD::update(Game* game, float dt) {
+void HUD::events(const std::unordered_map<std::string, std::any>& events) {
 
 }
 
-void HUD::draw(Game* game) {
+void HUD::update(float dt) {
+
+}
+
+void HUD::draw() {
     float x = 0.0f;
     float y = 0.0f;
     float height = 32.0f;
-    float width = float(game->gameScreenWidth);
+    float width = float(game.gameScreenWidth);
     DrawRectangle(int(x), int(y), int(width), int(height), BLACK);
 
     // draw player health as hearts
-    Sprite* player = game->getPlayer();
+    Sprite* player = game.getPlayer();
     if (player) {
         int spacing = heartImages[0].width + 2;
         int totalHearts = player->maxHealth / 2;

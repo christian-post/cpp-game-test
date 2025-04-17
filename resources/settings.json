@@ -1,0 +1,9 @@
+{
+  "windowWidth": 1152,
+  "windowHeight": 864,
+  "gameScreenWidth": 256,
+  "gameScreenHeight": 192,
+  "targetFPS": 120,
+  "PlayeriFrames": 1.0,
+  "HudHeight": 32.0
+}

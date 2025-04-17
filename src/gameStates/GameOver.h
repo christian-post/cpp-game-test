@@ -6,11 +6,10 @@
 
 class GameOver : public Scene {
 public:
-    GameOver(const std::string& name) : Scene(name) {}
-    void startup(Game* game) override;
-    void events(Game* game) override;
-    void update(Game* game, float dt) override;
-    void draw(Game* game) override;
+    GameOver(Game& game, const std::string& name) : Scene(game, name) {}
+    void startup() override;
+    void update(float dt) override;
+    void draw() override;
 private:
     bool showText1 = false;
     bool showText2 = false;

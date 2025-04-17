@@ -37,6 +37,12 @@ public:
 		return events;
 	}
 
+	std::unordered_map<std::string, std::any> popEvents() {
+		std::unordered_map<std::string, std::any> popped = std::move(events);
+		events.clear();
+		return popped;
+	}
+
 	void clearEvent(const std::string& key) {
 		events.erase(key);
 	}
