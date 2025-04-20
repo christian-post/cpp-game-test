@@ -3,6 +3,9 @@
 #include "raymath.h"
 #include "Sprite.h"
 #include <iostream>
+#include <string>
+#include <sstream>
+#include <vector>
 
 inline Vector2 GetRectCenter(Rectangle rect) {
     return { rect.x + rect.width / 2.0f, rect.y + rect.height / 2.0f };
@@ -40,4 +43,14 @@ inline void applyKnockback(Sprite& sourceSprite, Sprite& targetSprite, float str
     Vector2 targetCenter = GetRectCenter(targetSprite.rect);
     Vector2 direction = Vector2Normalize(Vector2Subtract(targetCenter, sourceCenter));
     targetSprite.vel = Vector2Scale(direction, strength);
+}
+
+inline std::vector<std::string> splitCSV(const std::string& input) {
+    std::vector<std::string> result;
+    std::istringstream ss(input);
+    std::string token;
+    while (std::getline(ss, token, ',')) {
+        result.push_back(token);
+    }
+    return result;
 }

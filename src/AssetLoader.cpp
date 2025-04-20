@@ -68,7 +68,7 @@ void AssetLoader::LoadTileset(const std::string& filename, int tileSize) {
 
     for (int y = 0; y < tilesY; y++) {
         for (int x = 0; x < tilesX; x++) {
-            Rectangle tileRect = { x * tileSize, y * tileSize, tileSize, tileSize };
+            Rectangle tileRect = { float(x * tileSize), float(y * tileSize), float(tileSize), float(tileSize) };
             Image tileImg = ImageFromImage(tilesetImg, tileRect);
             tiles.push_back(LoadTextureFromImage(tileImg));
             UnloadImage(tileImg);
@@ -135,6 +135,19 @@ void AssetLoader::LoadShaderFile(const std::string& filename) {
     auto shader = std::make_shared<Shader>(LoadShader(0, filename.c_str()));
     std::string baseName = std::filesystem::path(filename).stem().string();
     shaders[baseName] = shader;
+}
+
+void AssetLoader::loadSettings(const std::string& filename) {
+    std::ifstream file(filename);
+    if (!file) {
+        std::cerr << "Failed to open settings file \"" << filename << "\"\n";
+        return;
+    }
+    file >> settings;
+}
+
+const nlohmann::json& AssetLoader::getSettings() {
+    return settings;
 }
 
 const std::vector<Texture2D>& AssetLoader::getTextures(const std::string& key) {

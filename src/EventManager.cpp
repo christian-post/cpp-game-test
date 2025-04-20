@@ -26,6 +26,9 @@ void EventManager::addListener(const std::string& key, std::function<void(std::a
 	listeners[key].push_back(callback);
 }
 
+void EventManager::pushConditionalEvent(std::function<bool()> condition, std::function<void()> callback) {
+	conditionalEvents.push_back({ condition, callback });
+}
 
 void EventManager::removeListeners(const std::string& key) {
 	listeners.erase(key);
@@ -40,6 +43,16 @@ void EventManager::update(float deltaTime) {
 			}
 			pushEvent(it->key, it->value);
 			it = delayedEvents.erase(it);
+		}
+		else {
+			++it;
+		}
+	}
+
+	for (auto it = conditionalEvents.begin(); it != conditionalEvents.end(); ) {
+		if (it->condition()) {
+			it->callback();
+			it = conditionalEvents.erase(it);
 		}
 		else {
 			++it;

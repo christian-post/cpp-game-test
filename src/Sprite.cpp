@@ -80,9 +80,11 @@ void Sprite::getControls() {
 void Sprite::executeBehavior(float deltaTime) {
     // runs update() on the behaviors in the order that they were given
     // TODO: behavior priority system?
-    //currentShader = nullptr; // reset in case any behavior changes the shader
-
     for (auto& behavior : behaviors) {
+        if (!behavior) {
+            Log("Null behavior in " + spriteName);
+            continue;
+        }
         behavior->update(deltaTime);
     }
 }

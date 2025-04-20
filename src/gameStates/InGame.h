@@ -30,6 +30,4 @@ private:
     int worldWidth;
     int worldHeight;
     int tileSize = 0;
-
-    bool cutsceneFlag = false;
 };

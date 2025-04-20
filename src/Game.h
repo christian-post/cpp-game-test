@@ -14,6 +14,9 @@ class Command;
 
 
 class Game {
+private:
+    const nlohmann::json* settings = nullptr;
+
 public:
     Game();
     // in-game resolution (stays constant, gets scaled up to window size)
@@ -22,8 +25,8 @@ public:
 
     RenderTexture2D target; // texture surface for the ingame graphics
 
-    nlohmann::json settings;
-    void loadSettings(const std::string& filename);
+    AssetLoader loader;
+    const nlohmann::json& getSetting(const std::string& key) const;
 
     // basic game loop
     void events();
@@ -60,8 +63,6 @@ public:
     // input management
     uint32_t buttonsPressed;
     uint32_t buttonsDown;
-
-    AssetLoader loader;
 
     // game objects
     std::vector<std::unique_ptr<Rectangle>> walls; // everything with static collision

@@ -16,4 +16,10 @@ public:
 
 private:
     std::vector<Texture2D> heartImages;
+    bool retracting = false; // is in the process of retracting
+    bool visible = true; // fully retracted
+    float x = 0.0f;
+    float y = 0.0f;
+    float height = 32.0f; // TODO: get from game settings
+    float width = 0.0f;
 };

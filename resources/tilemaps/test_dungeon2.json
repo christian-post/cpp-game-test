@@ -344,9 +344,61 @@
                 }, 
                 {
                  "height":16,
-                 "id":21,
+                 "id":23,
                  "name":"enemy",
                  "properties":[
+                        {
+                         "name":"behaviors",
+                         "type":"string",
+                         "value":"RandomWalk,Chase"
+                        }, 
+                        {
+                         "name":"chaseTarget",
+                         "type":"string",
+                         "value":"player"
+                        }, 
+                        {
+                         "name":"damage",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"enemyType",
+                         "type":"string",
+                         "value":"skelet"
+                        }, 
+                        {
+                         "name":"health",
+                         "type":"int",
+                         "value":4
+                        }, 
+                        {
+                         "name":"speed",
+                         "type":"float",
+                         "value":12
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":16,
+                 "x":112,
+                 "y":112
+                }, 
+                {
+                 "height":16,
+                 "id":24,
+                 "name":"enemy",
+                 "properties":[
+                        {
+                         "name":"behaviors",
+                         "type":"string",
+                         "value":"RandomWalk,Chase"
+                        }, 
+                        {
+                         "name":"chaseTarget",
+                         "type":"string",
+                         "value":"player"
+                        }, 
                         {
                          "name":"damage",
                          "type":"int",
@@ -376,9 +428,19 @@
                 }, 
                 {
                  "height":16,
-                 "id":22,
+                 "id":25,
                  "name":"enemy",
                  "properties":[
+                        {
+                         "name":"behaviors",
+                         "type":"string",
+                         "value":"RandomWalk,Chase"
+                        }, 
+                        {
+                         "name":"chaseTarget",
+                         "type":"string",
+                         "value":"player"
+                        }, 
                         {
                          "name":"damage",
                          "type":"int",
@@ -403,40 +465,8 @@
                  "type":"sprite",
                  "visible":true,
                  "width":16,
-                 "x":176,
+                 "x":192,
                  "y":96
-                }, 
-                {
-                 "height":16,
-                 "id":23,
-                 "name":"enemy",
-                 "properties":[
-                        {
-                         "name":"damage",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"enemyType",
-                         "type":"string",
-                         "value":"skelet"
-                        }, 
-                        {
-                         "name":"health",
-                         "type":"int",
-                         "value":4
-                        }, 
-                        {
-                         "name":"speed",
-                         "type":"float",
-                         "value":12
-                        }],
-                 "rotation":0,
-                 "type":"sprite",
-                 "visible":true,
-                 "width":16,
-                 "x":112,
-                 "y":112
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -476,7 +506,7 @@
          "y":0
         }],
  "nextlayerid":7,
- "nextobjectid":24,
+ "nextobjectid":26,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.11.2",

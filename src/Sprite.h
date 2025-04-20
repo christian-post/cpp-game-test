@@ -40,7 +40,7 @@ public:
 
     // physics
     bool isColliding = true;
-    float speed = 20.0f; // movement speed
+    float speed = 20.0f; // default movement speed
     Vector2 acc;
     Vector2 vel;
     float friction = 0.8f;

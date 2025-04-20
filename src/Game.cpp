@@ -9,20 +9,22 @@
 
 
 Game::Game() : buttonsDown{}, buttonsPressed{} {
-    loadSettings("./resources/settings.json");
+    loader.loadSettings("./resources/settings.json");
+    settings = &loader.getSettings();
+    Log(settings->dump(2));
     // Enable config flags for resizable window and vsync
     SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT);
     //InitWindow(windowWidth, windowHeight, "my first game");
-    InitWindow(settings["windowWidth"], settings["windowHeight"], "My first game");
+    InitWindow(getSetting("windowWidth"), getSetting("windowHeight"), "My first game");
     SetWindowMinSize(320, 240);
 
     // Render texture initialization, used to hold the rendering result so we can easily resize it
     // see https://github.com/raysan5/raylib/blob/master/examples/core/core_window_letterbox.c
-    gameScreenWidth = settings["gameScreenWidth"];
-    gameScreenHeight = settings["gameScreenHeight"];
+    gameScreenWidth = getSetting("gameScreenWidth");
+    gameScreenHeight = getSetting("gameScreenHeight");
     target = LoadRenderTexture(gameScreenWidth, gameScreenHeight);
 
-    SetTargetFPS(settings["targetFPS"]);
+    SetTargetFPS(getSetting("targetFPS"));
 
     // define all Scenes as factory functions
     registerScene<Preload>("Preload");
@@ -32,13 +34,14 @@ Game::Game() : buttonsDown{}, buttonsPressed{} {
     registerScene<GameOver>("GameOver");
 }
 
-void Game::loadSettings(const std::string& filename) {
-    std::ifstream file(filename);
-    if (!file) {
-        std::cerr << "Failed to open settings file \"" << filename << "\"\n";
-        return;
+const nlohmann::json& Game::getSetting(const std::string& key) const {
+    try {
+        return settings->at(key);
     }
-    file >> settings;
+    catch (const std::out_of_range&) {
+        std::cerr << "[Settings] Missing key: " << key << "\n";
+        std::terminate(); // or throw
+    }
 }
 
 void Game::startScene(const std::string& name) {   

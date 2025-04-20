@@ -15,9 +15,13 @@ public:
 	virtual void update(float deltaTime) = 0;
     virtual void draw() {};
 	bool isDone() const { return done; };
+    std::string name = "base";
+
+    bool isPersistent() const { return persistent; }
 
 protected:
 	bool started = false;
+    bool persistent = false;
 	bool done = false;
 };
 
@@ -27,6 +31,7 @@ class Command_Wait : public Command {
 public:
     Command_Wait(float duration) : duration{ duration } {
         started = true;
+        name = "wait"; // TODO. just for debugging
     };
 
     void update(float deltaTime) override {
@@ -47,7 +52,9 @@ class Command_MoveTo : public Command {
 	// moves a sprite to a specified position in a given time
 public:
 	Command_MoveTo(Sprite& target, float posX, float posY, float duration) :
-		target{ target}, finalPosX{ posX }, finalPosY{ posY }, duration{ duration } {};
+		target{ target}, finalPosX{ posX }, finalPosY{ posY }, duration{ duration } {
+        name = "MoveTo";
+    };
 
     void update(float deltaTime) override {
         if (!started) {
@@ -97,7 +104,9 @@ private:
 class Command_Look : public Command {
     // the target Sprite will turn in this direction once
 public:
-    Command_Look(Sprite& target, direction dir) : target{ target }, dir{ dir } {};
+    Command_Look(Sprite& target, direction dir) : target{ target }, dir{ dir } {
+        name = "Look";
+    };
 
     void update(float deltaTime) {
         if (!started) {
@@ -117,7 +126,9 @@ class Command_LookTowards : public Command {
     // the target Sprite will turn, depending on the position
     // relative to the other sprite
 public:
-    Command_LookTowards(Sprite& target, Sprite& other) : target{ target }, other{ other } {};
+    Command_LookTowards(Sprite& target, Sprite& other) : target{ target }, other{ other } {
+        name = "LookTowards";
+    };
 
     void update(float deltaTime) {
         if (!started) {
@@ -146,9 +157,19 @@ public:
         float w = game.gameScreenWidth * 0.9f;
         float h = game.gameScreenHeight * 0.4f;
         float x = game.gameScreenWidth * 0.05f;
-        float y = game.gameScreenHeight - h - game.gameScreenHeight * 0.05f;
+        //float y = game.gameScreenHeight - h - game.gameScreenHeight * 0.05f;
+        // change Y position depending on where the player is
+        float y;
+        if (game.getPlayer()->position.y > game.gameScreenHeight * 0.5f) {
+            y = x;
+        }
+        else {
+            y = game.gameScreenHeight - h - game.gameScreenHeight * 0.05f;
+        }
 
         textbox = new TextBox(game, x, y, w, h, 12);
+
+        name = "TextBox";
     }
 
     ~Command_Textbox() {
@@ -172,4 +193,57 @@ public:
 private:
     TextBox* textbox = nullptr;
     std::string_view textToDisplay;
+};
+
+
+class Command_Callback : public Command {
+    // queue a generic callback
+public:
+    Command_Callback(std::function<void()> callback) : callback{ callback } {
+        name = "Callback";
+    }
+
+    void update(float deltaTime) override {
+        if (!started) {
+            callback();
+            started = true;
+            done = true;
+        }
+    }
+
+private:
+    std::function<void()> callback;
+};
+
+
+class Command_Letterbox : public Command {
+public:
+    Command_Letterbox(float screenWidth, float screenHeight, float duration)
+        : screenWidth(screenWidth), screenHeight(screenHeight), speed(24.0f / duration) {
+        started = true;
+        name = "Letterbox";
+        persistent = true;
+    }
+
+    void update(float deltaTime) override {
+        if (barHeight < 24.0f) {
+            barHeight = std::min(24.0f, barHeight + deltaTime * speed);
+        }
+        else {
+            done = true;
+        }
+    }
+
+    void draw() override {
+        if (barHeight > 0.0f) {
+            DrawRectangle(0, 0, int(screenWidth), int(barHeight), BLACK);
+            DrawRectangle(0, int(screenHeight - barHeight), int(screenWidth), int(barHeight), BLACK);
+        }
+    }
+
+private:
+    float screenWidth;
+    float screenHeight;
+    float barHeight = 0.0f;
+    float speed;
 };

@@ -8,6 +8,7 @@ void Preload::startup() {
     // TODO: load asynchronous?
 
     // preload most of the assets that are persistent throughout the game
+
     // for an animated sprite, the keys have to contain the suffixes
     // _idle, _run, _hit, [...]
     game.loader.loadTextures({
@@ -83,13 +84,10 @@ void Preload::startup() {
     // load the tile maps from text files
     game.loader.LoadTileMapFromTiled("./resources/tilemaps/test_dungeon.json");
     game.loader.LoadTileMapFromTiled("./resources/tilemaps/test_dungeon2.json");
-
     // load the font
     game.loader.LoadFont("./resources/fonts/slkscr.ttf");
-
     // load shaders
     game.loader.LoadShaderFile("./resources/shaders/crumble.fs");
-
     // advance to title after loading
     game.startScene("TitleScreen");
     game.stopScene("Preload");
