@@ -2,6 +2,7 @@
 #include "raymath.h"
 #include <iostream>
 #include "Game.h"
+#include "Controls.h"
 #include "Utils.h"
 
 
@@ -18,6 +19,11 @@ Sprite::Sprite(Game& game, float x, float y, float w, float h, const std::string
     maxHealth{ 10 }
 {
     frames["default"] = { game.loader.fallbackTexture };
+}
+
+Sprite::~Sprite() {
+    // TODO: just for debugging
+    //Log("Destroying sprite: " + spriteName);
 }
 
 void Sprite::setTextures(std::initializer_list<std::string> keys) {
@@ -80,12 +86,17 @@ void Sprite::getControls() {
 void Sprite::executeBehavior(float deltaTime) {
     // runs update() on the behaviors in the order that they were given
     // TODO: behavior priority system?
-    for (auto& behavior : behaviors) {
-        if (!behavior) {
-            Log("Null behavior in " + spriteName);
-            continue;
+    try {
+        for (auto& behavior : behaviors) {
+            if (!behavior) {
+                Log("Null behavior in " + spriteName);
+                continue;
+            }
+            behavior->update(deltaTime);
         }
-        behavior->update(deltaTime);
+    }
+    catch (const std::exception& e) {
+        Log("Exception in executeBehavior for " + spriteName + ": " + e.what());
     }
 }
 

@@ -55,6 +55,7 @@ public:
     bool dying = false; // flag for the death animation
     
     Sprite(Game& game, float x, float y, float w, float h, const std::string& spriteName);
+    ~Sprite();
     void setTextures(std::initializer_list<std::string> keys);
     void animate(float deltaTime);
     void setHurtbox(float x = -1.0f, float y = -1.0f, float width = -1.0f, float height = -1.0f, bool center = false);

@@ -21,6 +21,7 @@ public:
     std::shared_ptr<Sprite> player;  // keep a player variable for direct frequent access
     Sprite* getSprite(const std::string& name);
     std::shared_ptr<Sprite> spawnEnemy(const std::string& name, int tileX, int tileY); // helper function, TODO: gets replaced later
+    std::optional<std::string> currentWeapon = std::nullopt;
     const TileMap* tileMap;
     void loadTilemap(const std::string& name);
     Camera2D camera = {};

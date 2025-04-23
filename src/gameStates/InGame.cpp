@@ -5,6 +5,7 @@
 #include "raymath.h"
 #include "Utils.h"
 #include "Behavior.h"
+#include "Controls.h"
 
 
 void InGame::startup() {
@@ -26,6 +27,19 @@ void InGame::startup() {
     // set the player's position in the first room
     player->moveTo(float(10 * tileSize), float(15 * tileSize));
 
+    // event listener that stores the current weapon key
+    game.eventManager.addListener("weaponSet", [this](const std::any& data) {
+        if (data.has_value()) {
+            currentWeapon = std::any_cast<std::string>(data);
+        }
+        else {
+            // event allows for removal of the weapon
+            currentWeapon = std::nullopt;
+        }
+    });
+    // give the player the sword for starters
+    game.eventManager.pushEvent("weaponSet", std::string("weapon_sword"));
+
     // setup the camera
     camera.target = Vector2{ player->rect.x, player->rect.y };
     camera.offset = Vector2{ game.gameScreenWidth / 2.0f, game.gameScreenHeight / 2.0f };
@@ -46,7 +60,7 @@ void InGame::startup() {
             Log("enemies defeated");
             this->game.eventManager.pushDelayedEvent("defeatDialog", 0.1f, nullptr, [this]() {
                 game.eventManager.pushEvent("hideHUD");
-                cutsceneManager.queueCommand(new Command_Letterbox(game.gameScreenWidth, game.gameScreenHeight, 1.0f), false);
+                cutsceneManager.queueCommand(new Command_Letterbox(float(game.gameScreenWidth), float(game.gameScreenHeight), 1.0f), false);
                 Sprite& npcRef = *spriteMap["npc"];
                 cutsceneManager.queueCommand(new Command_MoveTo(npcRef, 9.0f * float(tileSize), 6.0f * float(tileSize), 2.0f), false);
                 cutsceneManager.queueCommand(new Command_Look(npcRef, RIGHT));
@@ -59,7 +73,7 @@ void InGame::startup() {
                 }));
                 npcRef.removeAllBehaviors();
                 npcRef.speed = 18;
-                npcRef.addBehavior(std::make_unique<ChaseBehavior>(npcRef, *this->player, 1000.0f, 12.0f, 2000.0f));
+                npcRef.addBehavior(std::make_unique<ChaseBehavior>(spriteMap["npc"], this->player, 1000.0f, 12.0f, 2000.0f));
                 npcRef.persistent = true; // does go into the next room
             });
         }
@@ -129,7 +143,7 @@ void InGame::loadTilemap(const std::string& name) {
                 float targetX = obj.properties.value("targetPosX", 0.0f);
                 float targetY = obj.properties.value("targetPosY", 0.0f);
                 sprite->addBehavior(std::make_unique<TeleportBehavior>(
-                    game, *sprite, *player, targetMap, 
+                    game, sprite, player, targetMap, 
                     Vector2{ targetX, targetY }
                 ));
             }
@@ -150,12 +164,12 @@ void InGame::loadTilemap(const std::string& name) {
             // get behaviors from the data
             for (const auto& token : splitCSV(obj.properties.value("behaviors", ""))) {
                 if (token == "RandomWalk") {
-                    sprite->addBehavior(std::make_unique<RandomWalkBehavior>(*sprite));
+                    sprite->addBehavior(std::make_unique<RandomWalkBehavior>(sprite));
                 }
                 else if (token == "Watch") {
                     std::string targetName = obj.properties.value("watchTarget", "");
                     if (spriteMap.find(targetName) != spriteMap.end()) {
-                        sprite->addBehavior(std::make_unique<WatchBehavior>(*sprite, *spriteMap[targetName]));
+                        sprite->addBehavior(std::make_unique<WatchBehavior>(sprite, spriteMap[targetName]));
                     }
                     else {
                         Log(targetName + " not found in spriteMap. Skipping WatchBehavior.");
@@ -165,7 +179,7 @@ void InGame::loadTilemap(const std::string& name) {
                     // TODO get distance values from file
                     std::string targetName = obj.properties.value("chaseTarget", "");
                     if (spriteMap.find(targetName) != spriteMap.end()) {
-                        sprite->addBehavior(std::make_unique<ChaseBehavior>(*sprite, *spriteMap[targetName], 48.0f, 2.0f, 64.0f));
+                        sprite->addBehavior(std::make_unique<ChaseBehavior>(sprite, spriteMap[targetName], 48.0f, 2.0f, 64.0f));
                     }
                     else {
                         Log(targetName + " not found in spriteMap. Skipping WatchBehavior.");
@@ -199,7 +213,7 @@ void InGame::update(float dt) {
         if (sprite && sprite->health < 1 && !sprite->dying) {
             sprite->dying = true;
             sprite->removeAllBehaviors();
-            sprite->addBehavior(std::make_unique<DeathBehavior>(*sprite, 2.0f));
+            sprite->addBehavior(std::make_unique<DeathBehavior>(sprite, 2.0f));
             game.eventManager.pushDelayedEvent("killSprite", 2.01f, nullptr, [this, sprite]() {
                 this->game.killSprite(sprite);
             });
@@ -226,25 +240,57 @@ void InGame::update(float dt) {
     if (game.buttonsDown & CONTROL_ACTION2) {
         // spawn the weapon next to the player if not already there
         // TODO write a wrapper for this, or get weapon data from JSON file
-        if (!getSprite("weapon_sword")) {
-            auto sword = std::make_shared<Sprite>(
-                game, player->position.x, player->position.y - 4.0f, 16.0f, 16.0f, "weapon_sword"
+        // and bind the Keys to events maybe?
+        if (currentWeapon && !getSprite(*currentWeapon)) {
+            std::string weaponKey = *currentWeapon;
+            const auto& weaponData = game.loader.getEnemyData();
+
+            if (!weaponData.contains(weaponKey)) {
+                Log("Warning: missing weapon data for " + weaponKey + ", falling back to weapon_default");
+                weaponKey = "weapon_default";
+            }
+
+            const auto& data = weaponData.at(weaponKey);
+
+            float offsetX = data.at("offsetX");
+            float offsetY = data.at("offsetY");
+
+            auto wpn = std::make_shared<Sprite>(
+                game, player->position.x + offsetX, player->position.y + offsetY, 16.0f, 16.0f, weaponKey
             );
-            spriteMap["weapon_sword"] = sword;
-            game.sprites.push_back(sword);
-            sword->setTextures({ "weapon_sword" });
-            sword->setHurtbox(-1.0f, -1.0f, 16.0f, 36.0f);
-            sword->doesAnimate = false; // TODO: some weapons might have animations
-            sword->isColliding = false; // weapons don't have collision with walls
-            sword->damage = 2;
-            sword->addBehavior(std::make_unique<WeaponBehavior>(*sword, *player, 0.4f));
+
+            spriteMap[*currentWeapon] = wpn;
+            game.sprites.push_back(wpn);
+
+            wpn->setTextures({ weaponKey });
+            wpn->setHurtbox(data.at("offsetX"), data.at("offsetY"), data.at("HurtboxWidth"), data.at("HurtboxHeight"));
+            wpn->doesAnimate = false;
+            wpn->isColliding = false;
+            wpn->damage = data.at("damage");
+            wpn->addBehavior(std::make_unique<WeaponBehavior>(wpn, player, data.at("lifetime")));
+
             // add an event listener that removes the sword
-            // the "killSword" event is dispatched by WeaponBehavior once it's finished
-            game.eventManager.addListener("killSword", [this, sword](std::any) {
-                this->game.killSprite(sword);
-                spriteMap.erase("weapon_sword");
+            // the "killWeapon" event is dispatched by WeaponBehavior once it's finished
+            // TODO using spriteMap[currentWeapon] inside the lambda instead of a weak pointer crashes the game
+            // TODO TODO game still crashes -.-
+            std::weak_ptr<Sprite> weakWpn = wpn;
+            game.eventManager.addListener("killWeapon", [this, weakWpn](std::any) {
+                if (auto wpnPtr = weakWpn.lock()) {
+                    this->game.killSprite(wpnPtr);
+                    spriteMap.erase(*currentWeapon);
+                }
             });
         }
+    }
+
+    if (game.buttonsPressed & CONTROL_CONFIRM) {
+        // TODO: bind events to all the button functionality
+        game.pauseScene(this->getName());
+        game.startScene("Inventory");
+        game.eventManager.addListener("InventoryDone", [this](std::any) {
+            this->game.stopScene("Inventory");
+            this->game.resumeScene(this->getName());
+        });
     }
 
     // collision of sprites with static objects (walls)
@@ -298,9 +344,9 @@ void InGame::update(float dt) {
         // weapon damage
         // TODO: only works for "skelet"
         if (sprite->spriteName == "skelet") {
-            Sprite* weapon = getSprite("weapon_sword");
+            Sprite* weapon = getSprite(*currentWeapon);
             if (weapon && sprite->iFrameTimer < 0.001f && sprite->health > 0 && CheckCollisionRecs(weapon->hurtbox, sprite->rect)) {
-                sprite->health -= weapon->damage;
+                sprite->health = (weapon->damage > sprite->health) ? 0 : sprite->health - weapon->damage;
                 sprite->iFrameTimer = 0.5; // TODO: put in weapon settings
                 applyKnockback(*weapon, *sprite, 8.0f); // TODO: put in weapon settings
             }

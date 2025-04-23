@@ -60,6 +60,9 @@
     <ClCompile Include="src\gameStates\HUD.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\gameStates\Inventory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Sprite.h">
@@ -116,6 +119,9 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\gameStates\Inventory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="todo.txt" />
@@ -129,5 +135,6 @@
     <None Include="resources\shaders\crumble.fs" />
     <None Include="resources\settings.json" />
     <None Include="resources\enemies.json" />
+    <None Include="resources\weapons.json" />
   </ItemGroup>
 </Project>

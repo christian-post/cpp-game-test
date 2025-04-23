@@ -3,7 +3,6 @@
 #include <memory>
 #include <string>
 #include "Scene.h"
-#include "Controls.h"
 #include "raylib.h"
 #include "AssetLoader.h"
 #include "Sprite.h"

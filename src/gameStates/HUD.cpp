@@ -7,6 +7,7 @@
 void HUD::startup() {
     width = float(game.gameScreenWidth);
     heartImages = game.loader.getTextures("hearts");
+    height = game.getSetting("HudHeight");
 }
 
 void HUD::events(const std::unordered_map<std::string, std::any>& events) {
@@ -22,16 +23,20 @@ void HUD::events(const std::unordered_map<std::string, std::any>& events) {
                 visible = true;
             }
         }
+        else if (name == "weaponSet") {
+            equippedWeapon = std::any_cast<std::string>(data);
+            Log("player got the " + equippedWeapon);
+        }
     }
 }
 
 void HUD::update(float dt) {
-    if (retracting && y > -32.0f) {
-        y = std::max(-32.0f, y - dt * 32.0f);
-        if (y == -32.0f) visible = false;
+    if (retracting && y > -height) {
+        y = std::max(-height, y - dt * height);
+        if (y == -height) visible = false;
     }
     else if (!retracting && y < 0.0f) {
-        y = std::min(0.0f, y + dt * 32.0f);
+        y = std::min(0.0f, y + dt * height);
     }
 }
 
@@ -53,6 +58,12 @@ void HUD::draw() {
             hp -= 2;
         }
     }
+
+    // draw the currently equipped weapon
+    // TODO: correctly calculate how the item texture gets centered on the rectangle
+    int weaponX = int(x) + int(game.gameScreenWidth * 2 / 3);
+    DrawRectangleLines(weaponX - 6, int(y) + 4, 24, 24, LIGHTGRAY); // background
+    DrawTexture(game.loader.getTextures(equippedWeapon)[0], weaponX, int(y) + 4, WHITE);
 }
 
 void HUD::end() {

@@ -1,6 +1,7 @@
 #include "TitleScreen.h"
 #include "Game.h"
 #include "raylib.h"
+#include "Controls.h"
 #include "Utils.h"
 
 

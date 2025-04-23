@@ -1,9 +1,11 @@
 ﻿#include "Game.h"
-#include <raylib.h>
+//#include <raylib.h>
+#include "Controls.h"
 #include "Preload.h"
 #include "TitleScreen.h"
 #include "InGame.h"
 #include "HUD.h"
+#include "Inventory.h"
 #include "GameOver.h"
 #include "Utils.h"
 
@@ -31,6 +33,7 @@ Game::Game() : buttonsDown{}, buttonsPressed{} {
     registerScene<TitleScreen>("TitleScreen");
     registerScene<InGame>("InGame");
     registerScene<HUD>("HUD");
+    registerScene<Inventory>("Inventory");
     registerScene<GameOver>("GameOver");
 }
 

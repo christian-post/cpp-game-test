@@ -72,11 +72,16 @@ void Preload::startup() {
                 "./resources/textures/sprites/ui_heart_full.png",
             }
         },
-        {
-            "weapon_sword", {
-                "./resources/textures/sprites/weapon_regular_sword.png",
-            }
-        }
+        { "weapon_sword", { "./resources/textures/sprites/weapon_regular_sword.png" }},
+        { "weapon_bow", { "./resources/textures/sprites/weapon_bow.png" }},        
+        { "weapon_hammer", { "./resources/textures/sprites/weapon_hammer.png" }},
+        { "weapon_baton_with_spikes", { "./resources/textures/sprites/weapon_baton_with_spikes.png" }},
+        { "weapon_double_axe", { "./resources/textures/sprites/weapon_double_axe.png" }},
+        { "weapon_mace", { "./resources/textures/sprites/weapon_mace.png" }},
+        { "weapon_spear", { "./resources/textures/sprites/weapon_spear.png" }},
+        { "weapon_arrow", { "./resources/textures/sprites/weapon_arrow.png" }},
+        { "flask_big_red", { "./resources/textures/sprites/flask_big_red.png" }},
+
     });
 
     // load the tileset (the textures)
@@ -88,6 +93,9 @@ void Preload::startup() {
     game.loader.LoadFont("./resources/fonts/slkscr.ttf");
     // load shaders
     game.loader.LoadShaderFile("./resources/shaders/crumble.fs");
+    // JSON data
+    game.loader.loadEnemyData("./resources/weapons.json");
+
     // advance to title after loading
     game.startScene("TitleScreen");
     game.stopScene("Preload");

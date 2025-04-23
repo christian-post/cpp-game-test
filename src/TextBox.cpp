@@ -2,6 +2,7 @@
 #include <iostream>
 #include "Game.h"
 #include "Utils.h"
+#include "Controls.h"
 
 TextBox::TextBox(Game& game, float x, float y, float width, float height, int fontSize)
     : game(game), 
@@ -31,7 +32,7 @@ void TextBox::formatText() {
             currentLine++;
 
             // check if the next line would exceed the box
-            Vector2 size = MeasureTextEx(GetFontDefault(), formattedText.c_str(), fontSize, 2.0f);
+            Vector2 size = MeasureTextEx(GetFontDefault(), formattedText.c_str(), float(fontSize), 2.0f);
             // measure one line
             float lineSize = size.y / (currentLine + 1);
             // test if another line would exceed the box

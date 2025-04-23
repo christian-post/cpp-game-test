@@ -20,6 +20,8 @@ private:
     bool visible = true; // fully retracted
     float x = 0.0f;
     float y = 0.0f;
-    float height = 32.0f; // TODO: get from game settings
+    float height = 0.0f; // get from game settings
     float width = 0.0f;
+
+    std::string equippedWeapon;
 };

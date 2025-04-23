@@ -55,7 +55,7 @@ protected:
 //public:
 //    Preload(Game& game, const std::string& name) : Scene(game, name) {}
 //    void startup() override;
-//    void events(int event) override;
+//    void events(const std::unordered_map<std::string, std::any>& events) override;
 //    void update(float dt) override;
 //    void draw() override;
 //    void end() override;
@@ -70,15 +70,15 @@ protected:
 //void Name::startup() {
 //}
 //
-//void Name::events() {
-//    // TODO 
+//void Name::events(const std::unordered_map<std::string, std::any>& events) {
+//    
 //}
 //
 //void Name::update(float dt) {
 //
 //}
 //
-//void Name::draw(game) {
+//void Name::draw() {
 //
 //}
 //

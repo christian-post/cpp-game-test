@@ -154,6 +154,7 @@ kernel32.lib
     <ClCompile Include="src\gameStates\GameOver.cpp" />
     <ClCompile Include="src\gameStates\HUD.cpp" />
     <ClCompile Include="src\gameStates\InGame.cpp" />
+    <ClCompile Include="src\gameStates\Inventory.cpp" />
     <ClCompile Include="src\gameStates\Preload.cpp" />
     <ClCompile Include="src\gameStates\TitleScreen.cpp" />
     <ClCompile Include="src\Main.cpp" />
@@ -171,6 +172,7 @@ kernel32.lib
     <ClInclude Include="src\EventManager.h" />
     <ClInclude Include="src\Game.h" />
     <ClInclude Include="src\gameStates\HUD.h" />
+    <ClInclude Include="src\gameStates\Inventory.h" />
     <ClInclude Include="src\Scene.h" />
     <ClInclude Include="src\gameStates\GameOver.h" />
     <ClInclude Include="src\gameStates\InGame.h" />
@@ -191,6 +193,7 @@ kernel32.lib
     <None Include="resources\enemies.json" />
     <None Include="resources\settings.json" />
     <None Include="resources\shaders\crumble.fs" />
+    <None Include="resources\weapons.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

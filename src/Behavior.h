@@ -1,7 +1,7 @@
 #pragma once
 #include "raylib.h"
 #include <string>
-
+#include <memory>
 
 class Game;
 class Sprite;
@@ -21,72 +21,65 @@ public:
 
 class WatchBehavior : public Behavior {
 public:
-	WatchBehavior(Sprite& self, Sprite& target);
+	WatchBehavior(std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target);
 	void update(float deltaTime) override;
 
 private:
-	Sprite& self;
-	Sprite& target;
+	std::weak_ptr<Sprite> self;
+	std::weak_ptr<Sprite> target;
 };
-
 
 class RandomWalkBehavior : public Behavior {
 public:
-	RandomWalkBehavior(Sprite& self);
+	RandomWalkBehavior(std::shared_ptr<Sprite> self);
 	void update(float deltaTime) override;
 
 private:
-	Sprite& self;
+	std::weak_ptr<Sprite> self;
 	float waitTimer = 0.0f;
 	Vector2 walkTarget;
-	bool hasWalkTarget;
+	bool hasWalkTarget = false;
 };
-
 
 class ChaseBehavior : public Behavior {
 public:
-	ChaseBehavior(Sprite& self, Sprite& other, float aggroDist, float minDist, float deAggroDist);
+	ChaseBehavior(std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> other, float aggroDist, float minDist, float deAggroDist);
 	void update(float deltaTime) override;
 
 private:
-	Sprite& self;
-	Sprite& other;
-	float aggroDist; // triggers the chasing
-	float minDist; // the sprite stops moving when it is this close to the other 
-	float deAggroDist; // the sprite stops chasing 
+	std::weak_ptr<Sprite> self;
+	std::weak_ptr<Sprite> other;
+	float aggroDist;
+	float minDist;
+	float deAggroDist;
 	bool isChasing = false;
 };
 
-
 class WeaponBehavior : public Behavior {
-	// used for weapons that are being held by a sprite
 public:
-	WeaponBehavior(Sprite& self, Sprite& owner, float lifetime);
+	WeaponBehavior(std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> owner, float lifetime);
 	void update(float deltaTime) override;
 
 private:
-	Sprite& self;
-	Sprite& owner;
+	std::weak_ptr<Sprite> self;
+	std::weak_ptr<Sprite> owner;
 	float lifetime;
 	float originalLifetime;
 	bool done = false;
 };
 
-
 class DeathBehavior : public Behavior {
-	// death animation
 public:
-	DeathBehavior(Sprite& self, float lifetime);
+	DeathBehavior(std::shared_ptr<Sprite> self, float lifetime);
 	void update(float deltaTime) override;
 
 private:
-	Sprite& self;
+	std::weak_ptr<Sprite> self;
 	float lifetime;
 	float maxLifetime;
 	bool done = false;
-	const Shader* shader;
+	const Shader* shader = nullptr;
 };
-
 
 struct TeleportEvent {
 	std::string targetMap;
@@ -96,15 +89,15 @@ struct TeleportEvent {
 class TeleportBehavior : public Behavior {
 public:
 	TeleportBehavior(
-		Game& game, Sprite& self, Sprite& other, 
+		Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> other,
 		const std::string& targetMap, Vector2 targetPos
 	);
 	void update(float deltaTime) override;
 
 private:
 	Game& game;
-	Sprite& self;
-	Sprite& other;
+	std::weak_ptr<Sprite> self;
+	std::weak_ptr<Sprite> other;
 	std::string targetMap;
 	Vector2 targetPos;
 	bool done = false;

@@ -15,13 +15,13 @@ features
 TODO misc
 - rename "gameStates" dir to "scenes"
 - "defeat all enemies" event that unlocks a door to the next room
-- npc can follow the player across rooms
+- npc can follow the player across rooms, set position correctly near the door
 
 TODO: refactor
 - how textures are loaded for sprites from the Tiled Map data (more modular)
+- remove all the events() methods from the scenes and replace them with event listeners
 
 BUGS:
 - RandomWalkBehavior: choose new target after some time if the current target can't be reached
 - Behavior priorities/swiching is messy
-- read access violation when multiple sprites are dying at the same time
 - Letterbox Command should always draw while the cutscene is on

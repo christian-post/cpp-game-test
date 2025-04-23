@@ -150,6 +150,19 @@ const nlohmann::json& AssetLoader::getSettings() {
     return settings;
 }
 
+void AssetLoader::loadEnemyData(const std::string& filename) {
+    std::ifstream file(filename);
+    if (!file) {
+        std::cerr << "Failed to open settings file \"" << filename << "\"\n";
+        return;
+    }
+    file >> enemyData;
+}
+
+const nlohmann::json& AssetLoader::getEnemyData() {
+    return enemyData;
+}
+
 const std::vector<Texture2D>& AssetLoader::getTextures(const std::string& key) {
     return textureGroups[key]; // Returns and empty vector if key doesn't exist
 }

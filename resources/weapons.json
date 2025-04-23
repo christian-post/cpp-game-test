@@ -1,0 +1,26 @@
+{
+  "weapon_default": {
+    "offsetX": 0.0,
+    "offsetY": -4.0,
+    "HurtboxWidth": 16.0,
+    "HurtboxHeight": 24.0,
+    "damage": 1,
+    "lifetime": 0.4
+  },
+  "weapon_sword": {
+    "offsetX": 0.0,
+    "offsetY": -4.0,
+    "HurtboxWidth": 16.0,
+    "HurtboxHeight": 36.0,
+    "damage": 2,
+    "lifetime": 0.4
+  },
+  "weapon_double_axe": {
+    "offsetX": 0.0,
+    "offsetY": -4.0,
+    "HurtboxWidth": 24.0,
+    "HurtboxHeight": 36.0,
+    "damage": 5,
+    "lifetime": 0.6
+  }
+}
