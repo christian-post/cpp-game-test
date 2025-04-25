@@ -28,14 +28,17 @@ Sprite::~Sprite() {
 
 void Sprite::setTextures(std::initializer_list<std::string> keys) {
     for (const auto& key : keys) {
-        frames[key] = game.loader.getTextures(key);
+        const auto& textures = game.loader.getTextures(key);
+        if (textures.empty()) {
+            TraceLog(LOG_ERROR, "Missing texture for key: %s", key.c_str());
+        }
+        frames[key] = textures;
     }
-    // Set currentTextureKey to the first key in the list (if any)
-    // this ensures that something replaces the default texture (red rectangle) from the start 
     if (keys.begin() != keys.end()) {
         currentTextureKey = *keys.begin();
     }
 }
+
 
 void Sprite::animate(float deltaTime) {
     if (!doesAnimate) return;

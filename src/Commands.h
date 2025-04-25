@@ -155,19 +155,18 @@ public:
         : textToDisplay(text)
     {
         float w = game.gameScreenWidth * 0.9f;
-        float h = game.gameScreenHeight * 0.4f;
+        float h = game.getSetting("textboxHeight");
         float x = game.gameScreenWidth * 0.05f;
-        //float y = game.gameScreenHeight - h - game.gameScreenHeight * 0.05f;
         // change Y position depending on where the player is
         float y;
         if (game.getPlayer()->position.y > game.gameScreenHeight * 0.5f) {
-            y = x;
+            y = 24.0f;
         }
         else {
             y = game.gameScreenHeight - h - game.gameScreenHeight * 0.05f;
         }
 
-        textbox = new TextBox(game, x, y, w, h, 12);
+        textbox = new TextBox(game, x, y, w, h, 10);
 
         name = "TextBox";
     }

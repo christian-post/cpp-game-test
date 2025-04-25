@@ -16,7 +16,6 @@ void Inventory::startup() {
     state = OPENING;
 
     // TODO some items for testing
-    // TODO split items in equippables and "other" (like arrows)
     weapons.emplace_back("Sword", 1, "weapon_sword");
     weapons.emplace_back("Bow", 1, "weapon_bow");
     weapons.emplace_back("Hammer", 1, "weapon_hammer");
@@ -104,10 +103,17 @@ void Inventory::draw() {
 
     const char* weaponText = weapons[index].name.c_str();
     int fontSize = 16;
-    int titleWidth = MeasureText(weaponText, fontSize);
-    uint32_t titleX = (int(game.gameScreenWidth) - titleWidth) / 2;
-    uint32_t titleY = int(y) + int(game.gameScreenHeight - topY) - fontSize - 8;
-    DrawText(weaponText, titleX, titleY, fontSize, LIGHTGRAY);
+    //int weaponTextWidth = MeasureText(weaponText, fontSize);
+    uint32_t textX = (int(game.gameScreenWidth) - MeasureText(weaponText, fontSize)) / 2; // center text
+    uint32_t textY = int(y) + int(game.gameScreenHeight / 2 - topY) - fontSize + 8;
+    DrawText(weaponText, textX, textY, fontSize, LIGHTGRAY);
+
+    fontSize = 12;
+    const char* helpText = "Equip with O";
+    uint32_t helpTextX = (int(game.gameScreenWidth) - MeasureText(helpText, fontSize)) / 2; // center text
+    uint32_t helpTextY = int(y) + int(game.gameScreenHeight - topY) - fontSize - 8;
+    DrawText(helpText, helpTextX, helpTextY, fontSize, LIGHTGRAY);
+
 }
 
 void Inventory::end() {

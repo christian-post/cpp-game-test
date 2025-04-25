@@ -1,6 +1,6 @@
 features
 - HUD
-
+- Sound!
 - Inventory
 - Collectible Items
 - Sprites
@@ -20,6 +20,8 @@ TODO misc
 TODO: refactor
 - how textures are loaded for sprites from the Tiled Map data (more modular)
 - remove all the events() methods from the scenes and replace them with event listeners
+- replace utils.Log with TraceLog from raylib
+- unify "walls" and "sprites"
 
 BUGS:
 - RandomWalkBehavior: choose new target after some time if the current target can't be reached

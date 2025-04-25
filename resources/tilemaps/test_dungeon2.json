@@ -67,8 +67,8 @@
         }, 
         {
          "data":[0, 0, 0, 0, 0, 0, 0, 0, 204, 205, 206, 207, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 227, 228, 229, 230, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 250, 251, 252, 253, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 227, 0, 0, 230, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 250, 0, 0, 253, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -267,7 +267,7 @@
                  "y":16
                 }, 
                 {
-                 "height":16,
+                 "height":8,
                  "id":16,
                  "name":"",
                  "rotation":0,
@@ -275,7 +275,7 @@
                  "visible":true,
                  "width":32,
                  "x":144,
-                 "y":16
+                 "y":8
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -289,7 +289,7 @@
          "name":"sprites",
          "objects":[
                 {
-                 "height":16,
+                 "height":12,
                  "id":17,
                  "name":"teleport",
                  "properties":[
@@ -381,92 +381,30 @@
                  "type":"sprite",
                  "visible":true,
                  "width":16,
-                 "x":112,
-                 "y":112
-                }, 
-                {
-                 "height":16,
-                 "id":24,
-                 "name":"enemy",
-                 "properties":[
-                        {
-                         "name":"behaviors",
-                         "type":"string",
-                         "value":"RandomWalk,Chase"
-                        }, 
-                        {
-                         "name":"chaseTarget",
-                         "type":"string",
-                         "value":"player"
-                        }, 
-                        {
-                         "name":"damage",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"enemyType",
-                         "type":"string",
-                         "value":"skelet"
-                        }, 
-                        {
-                         "name":"health",
-                         "type":"int",
-                         "value":4
-                        }, 
-                        {
-                         "name":"speed",
-                         "type":"float",
-                         "value":12
-                        }],
-                 "rotation":0,
-                 "type":"sprite",
-                 "visible":true,
-                 "width":16,
-                 "x":144,
-                 "y":80
-                }, 
-                {
-                 "height":16,
-                 "id":25,
-                 "name":"enemy",
-                 "properties":[
-                        {
-                         "name":"behaviors",
-                         "type":"string",
-                         "value":"RandomWalk,Chase"
-                        }, 
-                        {
-                         "name":"chaseTarget",
-                         "type":"string",
-                         "value":"player"
-                        }, 
-                        {
-                         "name":"damage",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"enemyType",
-                         "type":"string",
-                         "value":"skelet"
-                        }, 
-                        {
-                         "name":"health",
-                         "type":"int",
-                         "value":4
-                        }, 
-                        {
-                         "name":"speed",
-                         "type":"float",
-                         "value":12
-                        }],
-                 "rotation":0,
-                 "type":"sprite",
-                 "visible":true,
-                 "width":16,
-                 "x":192,
+                 "x":128,
                  "y":96
+                }, 
+                {
+                 "height":32,
+                 "id":26,
+                 "name":"door",
+                 "properties":[
+                        {
+                         "name":"event",
+                         "type":"string",
+                         "value":"door1open"
+                        }, 
+                        {
+                         "name":"spriteKey",
+                         "type":"string",
+                         "value":"dungeon_door"
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":32,
+                 "x":144,
+                 "y":16
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -506,7 +444,7 @@
          "y":0
         }],
  "nextlayerid":7,
- "nextobjectid":26,
+ "nextobjectid":27,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.11.2",

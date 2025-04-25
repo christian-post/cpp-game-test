@@ -3,7 +3,21 @@
   "windowHeight": 864,
   "gameScreenWidth": 256,
   "gameScreenHeight": 192,
+  "textboxHeight": 64,
   "targetFPS": 120,
   "PlayeriFrames": 1.0,
-  "HudHeight": 32.0
+  "HudHeight": 32.0,
+  "keyBindings": {
+      "W": "CONTROL_UP",
+      "S": "CONTROL_DOWN",
+      "A": "CONTROL_LEFT",
+      "D": "CONTROL_RIGHT",
+      "O": "CONTROL_ACTION1",
+      "P": "CONTROL_ACTION2",
+      "K": "CONTROL_ACTION3",
+      "L": "CONTROL_ACTION4",
+      "ENTER": "CONTROL_CONFIRM",
+      "BACKSPACE": "CONTROL_CANCEL",
+      "F1": "CONTROL_DEBUG"
+  }
 }

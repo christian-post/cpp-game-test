@@ -25,7 +25,7 @@ void InGame::startup() {
     // some sprites need the player reference, so this has to come after the player
     loadTilemap("test_dungeon2");
     // set the player's position in the first room
-    player->moveTo(float(10 * tileSize), float(15 * tileSize));
+    player->moveTo(float(10 * tileSize), float(15 * tileSize) + 4.0f);
 
     // event listener that stores the current weapon key
     game.eventManager.addListener("weaponSet", [this](const std::any& data) {
@@ -57,29 +57,32 @@ void InGame::startup() {
                 });
         },
         [this]() {
-            Log("enemies defeated");
+            TraceLog(LOG_INFO, "enemies defeated");
             this->game.eventManager.pushDelayedEvent("defeatDialog", 0.1f, nullptr, [this]() {
                 game.eventManager.pushEvent("hideHUD");
                 cutsceneManager.queueCommand(new Command_Letterbox(float(game.gameScreenWidth), float(game.gameScreenHeight), 1.0f), false);
                 Sprite& npcRef = *spriteMap["npc"];
                 cutsceneManager.queueCommand(new Command_MoveTo(npcRef, 9.0f * float(tileSize), 6.0f * float(tileSize), 2.0f), false);
-                cutsceneManager.queueCommand(new Command_Look(npcRef, RIGHT));
+                cutsceneManager.queueCommand(new Command_Look(npcRef, RIGHT)); // TODO: doesn't work
                 cutsceneManager.queueCommand(new Command_MoveTo(*this->player, 10.0f * float(tileSize), 6.0f * float(tileSize), 2.0f));
                 cutsceneManager.queueCommand(new Command_Look(*this->player, LEFT));
                 cutsceneManager.queueCommand(new Command_Wait(0.5f));
-                cutsceneManager.queueCommand(new Command_Textbox(this->game, "You defeated all of the skeletons. Now the door opens for some reason. I will follow you."));
+                cutsceneManager.queueCommand(new Command_Textbox(this->game, "You defeated all of the skeletons. Now the door opened for some reason. I will follow you into the next room."));
                 cutsceneManager.queueCommand(new Command_Callback([this]() {
                     game.eventManager.pushEvent("showHUD");
                 }));
                 npcRef.removeAllBehaviors();
-                npcRef.speed = 18;
+                npcRef.speed = 16; // speed up the npc
                 npcRef.addBehavior(std::make_unique<ChaseBehavior>(spriteMap["npc"], this->player, 1000.0f, 12.0f, 2000.0f));
                 npcRef.persistent = true; // does go into the next room
+
+                // open the door
+                game.eventManager.pushEvent("door1open");
             });
         }
     );
 
-    // queue a cutscene
+    // queue a cutscene at the start of the game
     /*game.eventManager.pushDelayedEvent("cutsceneStart", 0.1f, nullptr, [this]() {
         game.eventManager.pushEvent("hideHUD");
         cutsceneManager.queueCommand(new Command_Letterbox(game.gameScreenWidth, game.gameScreenHeight, 1.0f), false);
@@ -161,6 +164,21 @@ void InGame::loadTilemap(const std::string& name) {
                 sprite->canHurtPlayer = true;
                 sprite->setTextures({ enemyType + "_idle", enemyType + "_run" });
             }
+            else if (obj.name == "door") {
+                std::string enemyType = obj.properties.value("spriteKey", "ERROR_DOOR_KEY");
+                sprite->spriteName = enemyType;
+                sprite->setTextures({ enemyType + "_idle" });
+                sprite->doesAnimate = false;
+                sprite->staticCollision = true;
+
+                // door trigger
+                std::string triggerKey = obj.properties.value("event", "");
+                game.eventManager.addListener(triggerKey, [this, sprite](std::any) {
+                    sprite->currentFrame = 1; // second anim frame has to be the opened door
+                    sprite->staticCollision = false;
+                });
+            }
+
             // get behaviors from the data
             for (const auto& token : splitCSV(obj.properties.value("behaviors", ""))) {
                 if (token == "RandomWalk") {
@@ -194,6 +212,37 @@ void InGame::loadTilemap(const std::string& name) {
     worldHeight = tileMap->height * tileSize;
 }
 
+void InGame::resolveAxisX(const std::shared_ptr<Sprite>& sprite, const Rectangle& obstacle) {
+    if (!sprite->isColliding || !CheckCollisionRecs(sprite->rect, obstacle))
+        return;
+
+    float spriteCenterX = sprite->rect.x + sprite->rect.width * 0.5f;
+    float obstacleCenterX = obstacle.x + obstacle.width * 0.5f;
+    if (spriteCenterX < obstacleCenterX) {
+        sprite->position.x = obstacle.x - sprite->rect.width;
+    }
+    else {
+        sprite->position.x = obstacle.x + obstacle.width;
+    }
+    sprite->vel.x = 0.0f;
+    sprite->rect.x = sprite->position.x;
+}
+
+void InGame::resolveAxisY(const std::shared_ptr<Sprite>& sprite, const Rectangle& obstacle) {
+    if (!sprite->isColliding || !CheckCollisionRecs(sprite->rect, obstacle))
+        return;
+
+    float spriteCenterY = sprite->rect.y + sprite->rect.height * 0.5f;
+    float obstacleCenterY = obstacle.y + obstacle.height * 0.5f;
+    if (spriteCenterY < obstacleCenterY) {
+        sprite->position.y = obstacle.y - sprite->rect.height;
+    }
+    else {
+        sprite->position.y = obstacle.y + obstacle.height + 0.1f;
+    }
+    sprite->vel.y = 0.0f;
+    sprite->rect.y = sprite->position.y;
+}
 
 void InGame::events(const std::unordered_map<std::string, std::any>& events) {
     for (const auto& [name, data] : events) {
@@ -223,6 +272,66 @@ void InGame::update(float dt) {
     // otherwise, the player is controled by input
     if (!cutsceneManager.isActive()) {
         player->getControls();
+
+        // testing a weapon (sword)
+    // TODO: needs to be more modular
+        if (game.buttonsDown & CONTROL_ACTION2) {
+            // spawn the weapon next to the player if not already there
+            // TODO write a wrapper for this, or get weapon data from JSON file
+            // and bind the Keys to events maybe?
+            if (currentWeapon && !getSprite(*currentWeapon)) {
+                std::string weaponKey = *currentWeapon;
+                const auto& weaponData = game.loader.getEnemyData();
+
+                const auto& data = weaponData.contains(weaponKey)
+                    ? weaponData.at(weaponKey)
+                    : weaponData.at("weapon_default");
+
+                if (!weaponData.contains(weaponKey)) {
+                    Log("Warning: missing weapon data for " + weaponKey + ", falling back to weapon_default");
+                }
+
+                float offsetX = data.at("offsetX");
+                float offsetY = data.at("offsetY");
+
+                auto wpn = std::make_shared<Sprite>(
+                    game, player->position.x + offsetX, player->position.y + offsetY, 16.0f, 16.0f, weaponKey
+                );
+
+                spriteMap[*currentWeapon] = wpn;
+                game.sprites.push_back(wpn);
+
+                wpn->setTextures({ weaponKey });
+                wpn->setHurtbox(data.at("offsetX"), data.at("offsetY"), data.at("HurtboxWidth"), data.at("HurtboxHeight"));
+                wpn->doesAnimate = false;
+                wpn->isColliding = false;
+                wpn->damage = data.at("damage");
+                wpn->addBehavior(std::make_unique<WeaponBehavior>(wpn, player, data.at("lifetime")));
+
+                // add an event listener that removes the sword
+                // the "killWeapon" event is dispatched by WeaponBehavior once it's finished
+                // TODO using spriteMap[currentWeapon] inside the lambda instead of a weak pointer crashes the game
+                // TODO TODO game still crashes -.-
+                std::weak_ptr<Sprite> weakWpn = wpn;
+                game.eventManager.addListener("killWeapon", [this, weakWpn](std::any) {
+                    if (auto wpnPtr = weakWpn.lock()) {
+                        this->game.killSprite(wpnPtr);
+                        spriteMap.erase(*currentWeapon);
+                    }
+                    });
+            }
+        }
+
+        if (game.buttonsPressed & CONTROL_CONFIRM) {
+            // TODO: bind events to all the button functionality
+            game.pauseScene(this->getName());
+            game.startScene("Inventory");
+            game.eventManager.addListener("InventoryDone", [this](std::any) {
+                this->game.stopScene("Inventory");
+                this->game.resumeScene(this->getName());
+                });
+        }
+
         for (const auto& sprite : game.sprites) {
             sprite->executeBehavior(dt);
             sprite->update(dt);
@@ -235,123 +344,54 @@ void InGame::update(float dt) {
         }
     }
 
-    // testing a weapon (sword)
-    // TODO: needs to be more modular
-    if (game.buttonsDown & CONTROL_ACTION2) {
-        // spawn the weapon next to the player if not already there
-        // TODO write a wrapper for this, or get weapon data from JSON file
-        // and bind the Keys to events maybe?
-        if (currentWeapon && !getSprite(*currentWeapon)) {
-            std::string weaponKey = *currentWeapon;
-            const auto& weaponData = game.loader.getEnemyData();
-
-            if (!weaponData.contains(weaponKey)) {
-                Log("Warning: missing weapon data for " + weaponKey + ", falling back to weapon_default");
-                weaponKey = "weapon_default";
-            }
-
-            const auto& data = weaponData.at(weaponKey);
-
-            float offsetX = data.at("offsetX");
-            float offsetY = data.at("offsetY");
-
-            auto wpn = std::make_shared<Sprite>(
-                game, player->position.x + offsetX, player->position.y + offsetY, 16.0f, 16.0f, weaponKey
-            );
-
-            spriteMap[*currentWeapon] = wpn;
-            game.sprites.push_back(wpn);
-
-            wpn->setTextures({ weaponKey });
-            wpn->setHurtbox(data.at("offsetX"), data.at("offsetY"), data.at("HurtboxWidth"), data.at("HurtboxHeight"));
-            wpn->doesAnimate = false;
-            wpn->isColliding = false;
-            wpn->damage = data.at("damage");
-            wpn->addBehavior(std::make_unique<WeaponBehavior>(wpn, player, data.at("lifetime")));
-
-            // add an event listener that removes the sword
-            // the "killWeapon" event is dispatched by WeaponBehavior once it's finished
-            // TODO using spriteMap[currentWeapon] inside the lambda instead of a weak pointer crashes the game
-            // TODO TODO game still crashes -.-
-            std::weak_ptr<Sprite> weakWpn = wpn;
-            game.eventManager.addListener("killWeapon", [this, weakWpn](std::any) {
-                if (auto wpnPtr = weakWpn.lock()) {
-                    this->game.killSprite(wpnPtr);
-                    spriteMap.erase(*currentWeapon);
-                }
-            });
-        }
-    }
-
-    if (game.buttonsPressed & CONTROL_CONFIRM) {
-        // TODO: bind events to all the button functionality
-        game.pauseScene(this->getName());
-        game.startScene("Inventory");
-        game.eventManager.addListener("InventoryDone", [this](std::any) {
-            this->game.stopScene("Inventory");
-            this->game.resumeScene(this->getName());
-        });
-    }
-
     // collision of sprites with static objects (walls)
     // TODO: make this a method of Sprite?
     // 
     // resolve collision in the X direction
     for (const auto& sprite : game.sprites) {
-        // Resolve X axis
         sprite->rect.x = sprite->position.x;
         for (const auto& wall : game.walls) {
-            if (sprite->isColliding && CheckCollisionRecs(sprite->rect, *wall)) {
-                float spriteCenterX = sprite->rect.x + sprite->rect.width * 0.5f;
-                float wallCenterX = wall->x + wall->width * 0.5f;
-                if (spriteCenterX < wallCenterX) {
-                    sprite->position.x = wall->x - sprite->rect.width;
-                }
-                else {
-                    sprite->position.x = wall->x + wall->width;
-                }
-                sprite->vel.x = 0.0f;
-                sprite->rect.x = sprite->position.x;
+            resolveAxisX(sprite, *wall);
+        }
+        for (const auto& other : game.sprites) {
+            if (other != sprite && other->staticCollision) {
+                resolveAxisX(sprite, other->rect);
             }
         }
 
-        // Resolve Y axis
         sprite->rect.y = sprite->position.y;
         for (const auto& wall : game.walls) {
-            if (sprite->isColliding && CheckCollisionRecs(sprite->rect, *wall)) {
-                float spriteCenterY = sprite->rect.y + sprite->rect.height * 0.5f;
-                float wallCenterY = wall->y + wall->height * 0.5f;
-                if (spriteCenterY < wallCenterY) {
-                    sprite->position.y = wall->y - sprite->rect.height;
-                }
-                else {
-                    sprite->position.y = wall->y + wall->height + 0.1f;
-                }
-                sprite->vel.y = 0.0f;
-                sprite->rect.y = sprite->position.y;
+            resolveAxisY(sprite, *wall);
+        }
+        for (const auto& other : game.sprites) {
+            if (other != sprite && other->staticCollision) {
+                resolveAxisY(sprite, other->rect);
             }
         }
-        // center the hurtbox
+
+        // hurtbox centering
         sprite->hurtbox.x = sprite->rect.x + (sprite->rect.width - sprite->hurtbox.width) / 2 + sprite->hurtboxOffset.x;
         sprite->hurtbox.y = sprite->rect.y + (sprite->rect.height - sprite->hurtbox.height) / 2 + sprite->hurtboxOffset.y;
-        // collisions with dynamic objects
-        // damage and other interactions
+
+        // player damage
         if (sprite->canHurtPlayer && player->iFrameTimer < 0.001f && CheckCollisionRecs(sprite->hurtbox, player->rect)) {
             player->health -= sprite->damage;
             player->iFrameTimer = game.getSetting("PlayeriFrames");
-            applyKnockback(*sprite, *player, 10.0f); // TODO put knockback in settings
+            applyKnockback(*sprite, *player, 10.0f);
         }
+
         // weapon damage
-        // TODO: only works for "skelet"
         if (sprite->spriteName == "skelet") {
             Sprite* weapon = getSprite(*currentWeapon);
-            if (weapon && sprite->iFrameTimer < 0.001f && sprite->health > 0 && CheckCollisionRecs(weapon->hurtbox, sprite->rect)) {
+            if (weapon && sprite->iFrameTimer < 0.001f && sprite->health > 0 &&
+                CheckCollisionRecs(weapon->hurtbox, sprite->rect)) {
                 sprite->health = (weapon->damage > sprite->health) ? 0 : sprite->health - weapon->damage;
-                sprite->iFrameTimer = 0.5; // TODO: put in weapon settings
-                applyKnockback(*weapon, *sprite, 8.0f); // TODO: put in weapon settings
+                sprite->iFrameTimer = 0.5f;
+                applyKnockback(*weapon, *sprite, 8.0f);
             }
         }
     }
+
     // Camera follows player
     camera.target = Vector2{ player->rect.x + player->rect.width / 2, player->rect.y + player->rect.height / 2 };
     // Define camera boundaries (and factor in the HUD dimensions)
@@ -396,9 +436,20 @@ void InGame::draw() {
         for (int layerIndex = 0; layerIndex < totalLayers - 1; ++layerIndex) {
             drawTiles(tileMap, tiles, layerIndex);
         }
+
+        // Draw the sprites after sorting them by their bottom y position
+        std::vector<Sprite*> drawOrder;
+        drawOrder.reserve(game.sprites.size());
         for (const auto& sprite : game.sprites) {
+            drawOrder.push_back(sprite.get());
+        }
+        std::sort(drawOrder.begin(), drawOrder.end(), [](Sprite* a, Sprite* b) {
+            return (a->rect.y + a->rect.height) < (b->rect.y + b->rect.height);
+        });
+        for (Sprite* sprite : drawOrder) {
             sprite->draw();
         }
+
         // Draw layer 3 (on top of the player)
         drawTiles(tileMap, tiles, totalLayers - 1);
         // draw the static collision objects in debug mode

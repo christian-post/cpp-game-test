@@ -45,6 +45,7 @@ public:
     Vector2 vel;
     float friction = 0.8f;
     Vector2 position; // position exists independently of rect to allow for subpixel accurate movement
+    bool staticCollision = false; // behaves like a wall
 
     // gameplay variables
     uint32_t health; // current health

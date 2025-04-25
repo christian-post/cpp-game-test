@@ -104,7 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)src/GameStates;$(ProjectDir)src;D:\code\visualstudio\GameTest\GameTest\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src/scenes;$(ProjectDir)src;D:\code\visualstudio\GameTest\GameTest\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -127,7 +127,7 @@ kernel32.lib
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)src/GameStates;$(ProjectDir)src;D:\code\visualstudio\GameTest\GameTest\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src/scenes;$(ProjectDir)src;D:\code\visualstudio\GameTest\GameTest\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -151,12 +151,12 @@ kernel32.lib
     <ClCompile Include="src\CutsceneManager.cpp" />
     <ClCompile Include="src\EventManager.cpp" />
     <ClCompile Include="src\Game.cpp" />
-    <ClCompile Include="src\gameStates\GameOver.cpp" />
-    <ClCompile Include="src\gameStates\HUD.cpp" />
-    <ClCompile Include="src\gameStates\InGame.cpp" />
-    <ClCompile Include="src\gameStates\Inventory.cpp" />
-    <ClCompile Include="src\gameStates\Preload.cpp" />
-    <ClCompile Include="src\gameStates\TitleScreen.cpp" />
+    <ClCompile Include="src\scenes\GameOver.cpp" />
+    <ClCompile Include="src\scenes\HUD.cpp" />
+    <ClCompile Include="src\scenes\InGame.cpp" />
+    <ClCompile Include="src\scenes\Inventory.cpp" />
+    <ClCompile Include="src\scenes\Preload.cpp" />
+    <ClCompile Include="src\scenes\TitleScreen.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Sprite.cpp" />
     <ClCompile Include="src\TextBox.cpp" />
@@ -171,13 +171,13 @@ kernel32.lib
     <ClInclude Include="src\CutsceneManager.h" />
     <ClInclude Include="src\EventManager.h" />
     <ClInclude Include="src\Game.h" />
-    <ClInclude Include="src\gameStates\HUD.h" />
-    <ClInclude Include="src\gameStates\Inventory.h" />
+    <ClInclude Include="src\scenes\HUD.h" />
+    <ClInclude Include="src\scenes\Inventory.h" />
     <ClInclude Include="src\Scene.h" />
-    <ClInclude Include="src\gameStates\GameOver.h" />
-    <ClInclude Include="src\gameStates\InGame.h" />
-    <ClInclude Include="src\gameStates\Preload.h" />
-    <ClInclude Include="src\gameStates\TitleScreen.h" />
+    <ClInclude Include="src\scenes\GameOver.h" />
+    <ClInclude Include="src\scenes\InGame.h" />
+    <ClInclude Include="src\scenes\Preload.h" />
+    <ClInclude Include="src\scenes\TitleScreen.h" />
     <ClInclude Include="src\Sprite.h" />
     <ClInclude Include="src\TextBox.h" />
     <ClInclude Include="src\TileMap.h" />
@@ -190,6 +190,7 @@ kernel32.lib
     <ResourceCompile Include="GameTest.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="readme.md" />
     <None Include="resources\enemies.json" />
     <None Include="resources\settings.json" />
     <None Include="resources\shaders\crumble.fs" />

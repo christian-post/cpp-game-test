@@ -6,7 +6,7 @@ uint32_t GetControls(KeyCheckFunc keyFunc, GamepadCheckFunc gamepadFunc) {
     uint32_t controls = CONTROL_NONE;
 
     // Keyboard input
-    // TODO get key mapping from config.json
+    // TODO get key mapping from settings.json
     if (keyFunc(KEY_UP) || keyFunc(KEY_W)) controls |= CONTROL_UP;
     if (keyFunc(KEY_DOWN) || keyFunc(KEY_S)) controls |= CONTROL_DOWN;
     if (keyFunc(KEY_LEFT) || keyFunc(KEY_A)) controls |= CONTROL_LEFT;

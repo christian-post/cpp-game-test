@@ -27,6 +27,9 @@ public:
     Camera2D camera = {};
     CutsceneManager cutsceneManager;
 
+    void resolveAxisX(const std::shared_ptr<Sprite>& sprite, const Rectangle& obstacle);
+    void resolveAxisY(const std::shared_ptr<Sprite>& sprite, const Rectangle& obstacle);
+
 private:
     int worldWidth;
     int worldHeight;

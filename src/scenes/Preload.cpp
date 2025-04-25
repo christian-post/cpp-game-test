@@ -81,7 +81,12 @@ void Preload::startup() {
         { "weapon_spear", { "./resources/textures/sprites/weapon_spear.png" }},
         { "weapon_arrow", { "./resources/textures/sprites/weapon_arrow.png" }},
         { "flask_big_red", { "./resources/textures/sprites/flask_big_red.png" }},
-
+        {
+            "dungeon_door_idle", {
+                "./resources/textures/sprites/doors_leaf_closed.png",
+                "./resources/textures/sprites/doors_leaf_open.png",
+            }
+        },
     });
 
     // load the tileset (the textures)
