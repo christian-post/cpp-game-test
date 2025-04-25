@@ -138,4 +138,9 @@
     <None Include="resources\weapons.json" />
     <None Include="readme.md" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="github\hero.gif">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
 </Project>

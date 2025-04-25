@@ -196,6 +196,9 @@ kernel32.lib
     <None Include="resources\shaders\crumble.fs" />
     <None Include="resources\weapons.json" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="github\hero.gif" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
