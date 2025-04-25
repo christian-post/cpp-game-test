@@ -1,6 +1,6 @@
 ﻿# Untitled Dungeon Adventure Game
 
-![Demo](https://i.imgur.com/RVObbzL.gif)
+![Demo](github/hero.gif)
 
 ## Installation (Windows)
 
