@@ -405,6 +405,90 @@
                  "width":32,
                  "x":144,
                  "y":16
+                }, 
+                {
+                 "height":16,
+                 "id":27,
+                 "name":"enemy",
+                 "properties":[
+                        {
+                         "name":"behaviors",
+                         "type":"string",
+                         "value":"RandomWalk,Chase"
+                        }, 
+                        {
+                         "name":"chaseTarget",
+                         "type":"string",
+                         "value":"player"
+                        }, 
+                        {
+                         "name":"damage",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"enemyType",
+                         "type":"string",
+                         "value":"skelet"
+                        }, 
+                        {
+                         "name":"health",
+                         "type":"int",
+                         "value":4
+                        }, 
+                        {
+                         "name":"speed",
+                         "type":"float",
+                         "value":12
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":16,
+                 "x":160,
+                 "y":80
+                }, 
+                {
+                 "height":16,
+                 "id":28,
+                 "name":"enemy",
+                 "properties":[
+                        {
+                         "name":"behaviors",
+                         "type":"string",
+                         "value":"RandomWalk,Chase"
+                        }, 
+                        {
+                         "name":"chaseTarget",
+                         "type":"string",
+                         "value":"player"
+                        }, 
+                        {
+                         "name":"damage",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"enemyType",
+                         "type":"string",
+                         "value":"skelet"
+                        }, 
+                        {
+                         "name":"health",
+                         "type":"int",
+                         "value":4
+                        }, 
+                        {
+                         "name":"speed",
+                         "type":"float",
+                         "value":12
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":16,
+                 "x":192,
+                 "y":112
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -444,7 +528,7 @@
          "y":0
         }],
  "nextlayerid":7,
- "nextobjectid":27,
+ "nextobjectid":29,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.11.2",
