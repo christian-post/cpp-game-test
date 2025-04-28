@@ -13,6 +13,7 @@
 *.VC.db
 Debug/
 Release/
+build/
 x64/
 ipch/
 .vs/

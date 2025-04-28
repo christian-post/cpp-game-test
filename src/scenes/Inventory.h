@@ -1,6 +1,10 @@
 #pragma once
 #include "Scene.h"
 #include <iostream>
+#include <cstdint>
+#include <vector>
+#include <string>   // if you use std::string
+
 
 enum inventoryState {
     NONE,

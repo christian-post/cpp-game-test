@@ -12,6 +12,8 @@ endif()
 file(GLOB_RECURSE SOURCES "src/*.cpp" "src/*.h")
 
 include_directories(include)
+include_directories(src)
+include_directories(src/scenes)
 
 add_executable(MyGame ${SOURCES})
 
