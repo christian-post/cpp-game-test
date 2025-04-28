@@ -6,10 +6,12 @@
 
 
 void TitleScreen::startup() {
-    Log("Title Screen Startup\n");
+    TraceLog(LOG_INFO, "Title Screen Startup\n");
 }
 
 void TitleScreen::update(float dt) {
+    transparency = (unsigned char)((sinf(GetTime() * PI) + 1.0f) * 127.5f);
+
     if (AnyKeyPressed(game.buttonsPressed)) {
         game.startScene("InGame");
         game.startScene("HUD");
@@ -20,25 +22,24 @@ void TitleScreen::update(float dt) {
 void TitleScreen::draw() {
     ClearBackground(BLACK);
 
-    const char* titleText = "This is the title screen";
+    DrawTexture(game.loader.getTextures("title_image")[0], 0, 0, WHITE);
+
     const char* promptText = "Press any key to play";
-    int fontSize = 20;
-
+    int fontSize = 12;
     // Center text
-    int titleWidth = MeasureText(titleText, fontSize);
     int promptWidth = MeasureText(promptText, fontSize);
-    int titleX = (game.gameScreenWidth - titleWidth) / 2;
     int promptX = (game.gameScreenWidth - promptWidth) / 2;
-
     int titleY = game.gameScreenHeight / 3;
-    int promptY = game.gameScreenHeight / 2;
+    int promptY = game.gameScreenHeight - 24;
 
-    DrawText(titleText, titleX, titleY, fontSize, LIGHTGRAY);
-    DrawText(promptText, promptX, promptY, fontSize, LIGHTGRAY);
+    Color color = { 255, 255, 255, transparency };
+    Font defaultFont = GetFontDefault();
+    DrawTextEx(defaultFont, promptText, { float(promptX), float(promptY) }, fontSize, 1, color);
+
 }
 
 void TitleScreen::end() {
     // wait for a split second
-    Log("TitleScreen has ended");
+    TraceLog(LOG_INFO, "TitleScreen has ended");
     WaitTime(0.25f);
 }

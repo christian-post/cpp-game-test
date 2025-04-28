@@ -12,6 +12,7 @@ inline Vector2 GetRectCenter(Rectangle rect) {
 }
 
 
+// TODO: unused, remove at some point
 template <typename T>
 inline void Log(T message) {
     std::cout << "INFO: " << message << std::endl;

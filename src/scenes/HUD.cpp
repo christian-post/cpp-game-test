@@ -4,30 +4,33 @@
 #include "InGame.h"
 #include "Utils.h"
 
+
+HUD::HUD(Game& game, const std::string& name) : Scene(game, name), heartImages{} {
+    // event listeners
+    game.eventManager.addListener("hideHUD", [this](std::any) {
+        // start hiding the HUD
+        if (visible && !retracting) retracting = true;
+        });
+
+    game.eventManager.addListener("showHUD", [this](std::any) {
+        // sliding in the HUD
+        if (!visible && retracting) {
+            retracting = false;
+            visible = true;
+        }
+        });
+
+    game.eventManager.addListener("weaponSet", [this](std::any data) {
+        std::string weapon = std::any_cast<std::string>(data);
+        equippedWeapon = std::any_cast<std::string>(data);
+        TraceLog(LOG_INFO, "player equipped the %s", equippedWeapon.c_str());
+        });
+}
+
 void HUD::startup() {
     width = float(game.gameScreenWidth);
     heartImages = game.loader.getTextures("hearts");
     height = game.getSetting("HudHeight");
-}
-
-void HUD::events(const std::unordered_map<std::string, std::any>& events) {
-    for (const auto& [name, data] : events) {
-        if (name == "hideHUD") {
-            // start hiding the HUD
-            if (visible && !retracting) retracting = true;
-        }
-        else if (name == "showHUD") {
-            // sliding in the HUD
-            if (!visible && retracting) {
-                retracting = false;
-                visible = true;
-            }
-        }
-        else if (name == "weaponSet") {
-            equippedWeapon = std::any_cast<std::string>(data);
-            Log("player got the " + equippedWeapon);
-        }
-    }
 }
 
 void HUD::update(float dt) {
@@ -63,7 +66,15 @@ void HUD::draw() {
     // TODO: correctly calculate how the item texture gets centered on the rectangle
     int weaponX = int(x) + int(game.gameScreenWidth * 2 / 3);
     DrawRectangleLines(weaponX - 6, int(y) + 4, 24, 24, LIGHTGRAY); // background
-    DrawTexture(game.loader.getTextures(equippedWeapon)[0], weaponX, int(y) + 4, WHITE);
+
+    auto& textures = game.loader.getTextures(equippedWeapon);
+    if (textures.empty()) {
+        //TraceLog(LOG_ERROR, "No textures found for weapon: %s", equippedWeapon.c_str());
+        return;
+    }
+    else {
+        DrawTexture(textures[0], weaponX, int(y) + 4, WHITE);
+    }
 }
 
 void HUD::end() {

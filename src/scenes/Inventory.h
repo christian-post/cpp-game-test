@@ -29,7 +29,6 @@ class Inventory : public Scene {
 public:
     Inventory(Game& game, const std::string& name) : Scene(game, name) {}
     void startup() override;
-    void events(const std::unordered_map<std::string, std::any>& events) override;
     void update(float dt) override;
     void draw() override;
     void end() override;

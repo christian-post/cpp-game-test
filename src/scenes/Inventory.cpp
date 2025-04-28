@@ -27,10 +27,6 @@ void Inventory::startup() {
     items.emplace_back("Red Potion", 2, "flask_big_red");
 }
 
-void Inventory::events(const std::unordered_map<std::string, std::any>& events) {
-    
-}
-
 void Inventory::update(float dt) {
     switch (state) {
     case OPENING:

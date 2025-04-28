@@ -1,10 +1,93 @@
-﻿# Untitled Dungeon Adventure Game
+﻿<p align="center">
+    <img width="600" src="github/title_big.png">
+</p>
 
 ![Demo](github/hero.gif)
 
-## Installation (Windows)
+## Installation
 
-...
+### Windows (Visual Studio Only)
+
+1. Install [Visual Studio](https://visualstudio.microsoft.com/) (select the "Desktop development with C++" workload).
+2. Clone this repository:
+
+   ```bash
+   git clone https://github.com/yourusername/yourrepo.git
+   cd yourrepo
+   ```
+
+3. Open the folder in Visual Studio.
+4. Visual Studio will detect the CMake project automatically.
+5. Set the build configuration to `x64-Debug`.
+6. Build and run the project with `Ctrl+Shift+B`.
+
+> **Note:**
+> Ensure that the `libs/raylib-5.5_win64_msvc16` and `include/raylib-5.5_win64_msvc16` directories are correctly set up.
+
+---
+
+### Windows (CMake CLI Only)
+
+1. Install [CMake](https://cmake.org/download/) and [Visual Studio Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/).
+2. Clone this repository:
+
+   ```bash
+   git clone https://github.com/yourusername/yourrepo.git
+   cd yourrepo
+   ```
+
+3. Create a build directory and compile:
+
+   ```bash
+   mkdir build
+   cd build
+   cmake ..
+   cmake --build .
+   ```
+
+4. Run the game:
+
+   ```bash
+   ./Debug/MyGame.exe
+   ```
+
+> **Note:**
+> Make sure the build configuration is `Debug` unless specified otherwise.
+
+---
+
+### Linux (CMake CLI)
+
+1. Install required packages:
+
+   ```bash
+   sudo apt update
+   sudo apt install cmake g++ libraylib-dev
+   ```
+
+2. Clone this repository:
+
+   ```bash
+   git clone https://github.com/yourusername/yourrepo.git
+   cd yourrepo
+   ```
+
+3. Create a build directory and compile:
+
+   ```bash
+   mkdir build
+   cd build
+   cmake ..
+   make
+   ```
+
+4. Run the game:
+
+   ```bash
+   ./MyGame
+   ```
+
+---
 
 
 ## Actually Playing the Game
@@ -38,7 +121,7 @@ You can adjust the Keyboard keys in settings.json (TODO: not implemented)
 
 ### The Game object
 Game is the overarching data structure that is responsible for the game loop as well as high-level operations above the individual game scenes and objects.
-It manages scenes, events, assets, and the main render texture that the scenes can draw to. The game loop consists of events, update, and draw. In the events method, once per frame all the events are popped from the event queue and passed to the scenes. Although I will probably scrap this in favor of an event system that uses event listeners and callbacks. The update method is for the game logic, and most high-level game objects have an update method as well, that gets called here. The deltaTime between frames is passed to all of them to ensure framerate-independency. In draw, the scenes draw to the main render texture.
+It manages scenes, events, assets, and the main render texture that the scenes can draw to. The game loop consists of update, and draw. The update method is for the game logic, and most high-level game objects have an update method as well, that gets called here. The deltaTime between frames is passed to all of them to ensure framerate-independency. In draw, the scenes draw to the main render texture.
 
 ### Scenes
 A scene can encapsulate/abstract any part of the game. Currently, I'm using the following scenes:

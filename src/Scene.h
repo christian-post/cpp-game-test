@@ -11,7 +11,6 @@ public:
     Scene(Game& game, std::string sceneName) : game{ game }, name(std::move(sceneName)) {}
     virtual ~Scene() = default;
     virtual void startup() {}
-    virtual void events(const std::unordered_map<std::string, std::any>& events) {}
     virtual void update(float dt) {}
     virtual void draw() {}
     virtual void end() {}
@@ -55,7 +54,6 @@ protected:
 //public:
 //    Preload(Game& game, const std::string& name) : Scene(game, name) {}
 //    void startup() override;
-//    void events(const std::unordered_map<std::string, std::any>& events) override;
 //    void update(float dt) override;
 //    void draw() override;
 //    void end() override;
@@ -68,10 +66,6 @@ protected:
 //#include "raylib.h"
 //
 //void Name::startup() {
-//}
-//
-//void Name::events(const std::unordered_map<std::string, std::any>& events) {
-//    
 //}
 //
 //void Name::update(float dt) {

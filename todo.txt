@@ -3,27 +3,28 @@ features
 - Sound!
 - Inventory
 - Collectible Items
+
 - Sprites
 -- behavior priority system
+-- drawing priority/layer system
 -- sprite state that can change based on events (e.g. a door changes from being closed to being open)
+-- "hurt" sprite (invisible) that deals damage similar to an enemy hurtbox
+
 - Cutscene command system (modular)
 -- Command_MoveToPath(target, posX, posY, duration) // benutzt pathfinding
 -- Command_ShowTextbox(text, target)  // target für Sprechblase
 -- Command_CameraPan(x, y, duration) // camera pans towards a target position (and then back?)
+
 - Tweens
 
 TODO misc
-- rename "gameStates" dir to "scenes"
-- "defeat all enemies" event that unlocks a door to the next room
 - npc can follow the player across rooms, set position correctly near the door
 
 TODO: refactor
 - how textures are loaded for sprites from the Tiled Map data (more modular)
-- remove all the events() methods from the scenes and replace them with event listeners
-- replace utils.Log with TraceLog from raylib
-- unify "walls" and "sprites"
+- unify "walls" and "sprites"?
+- add a "persistent" property to event listeners (non-persistent listeners are removed after one event)
 
 BUGS:
 - RandomWalkBehavior: choose new target after some time if the current target can't be reached
 - Behavior priorities/swiching is messy
-- Letterbox Command should always draw while the cutscene is on

@@ -27,7 +27,9 @@ void EventManager::pushDelayedEvent(const std::string& key, float delay, std::an
 
 
 void EventManager::addListener(const std::string& key, std::function<void(std::any)> callback) {
+	TraceLog(LOG_INFO, "Adding a event listener for %s", key.c_str());
 	listeners[key].push_back(callback);
+	TraceLog(LOG_INFO, "Listener count for %s: %zu", key.c_str(), listeners[key].size());
 }
 
 void EventManager::pushConditionalEvent(std::function<bool()> condition, std::function<void()> callback) {

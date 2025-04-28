@@ -89,7 +89,7 @@ void TextBox::update(float dt) {
                 formatText();
             }
             else {
-                Log("finished");
+                TraceLog(LOG_INFO, "text finished");
                 finished = true;
             }
         }

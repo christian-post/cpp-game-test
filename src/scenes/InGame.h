@@ -10,7 +10,6 @@ class InGame : public Scene {
 public:
     InGame(Game& game, const std::string& name) : Scene(game, name), tileMap(nullptr), worldHeight(0), worldWidth(0) {}
     void startup() override;
-    void events(const std::unordered_map<std::string, std::any>& events) override;
     void update(float dt) override;
     void draw() override;
     void end() override;

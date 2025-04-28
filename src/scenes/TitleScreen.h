@@ -10,4 +10,6 @@ public:
     void update(float dt) override;
     void draw() override;
     void end() override;
+
+    int transparency = 255;
 };

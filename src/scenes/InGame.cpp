@@ -46,9 +46,17 @@ void InGame::startup() {
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
 
+    // event listeners
+    game.eventManager.addListener("teleport", [this](std::any data) {
+        const auto& teleportData = std::any_cast<const TeleportEvent&>(data);
+        loadTilemap(teleportData.targetMap);
+        player->moveTo(teleportData.targetPos.x * tileSize, teleportData.targetPos.y * tileSize);
+        });
+
     // testing events that progress the game
     // TODO: create a Events.cpp file which stores a hashmap of condition and callback tuples
     // that can be addressed via the Tiled data
+    // TODO: store the states of each room
     game.eventManager.pushConditionalEvent(
         [&]() {
             return std::none_of(game.sprites.begin(), game.sprites.end(),
@@ -140,6 +148,7 @@ void InGame::loadTilemap(const std::string& name) {
             auto sprite = std::make_shared<Sprite>(
                 game, obj.x, obj.y, obj.width, obj.height, obj.name
             );
+            // TODO: for persistent sprites, check if they exist in the spriteMap
             if (obj.name == "teleport") {
                 sprite->isColliding = false;
                 std::string targetMap = obj.properties.value("targetMap", ""); // TODO: can this be safely done without copying the string?
@@ -150,7 +159,7 @@ void InGame::loadTilemap(const std::string& name) {
                     Vector2{ targetX, targetY }
                 ));
             }
-            else if (obj.name == "npc") {
+            else if (obj.name == "npc" && !spriteMap["npc"]) {
                 sprite->speed = obj.properties.value("speed", 20.0f);
                 sprite->setTextures({ "npc_idle", "npc_run" }); // TODO: make this more modular
                 spriteMap["npc"] = sprite; // TODO: pass a unique name
@@ -190,7 +199,7 @@ void InGame::loadTilemap(const std::string& name) {
                         sprite->addBehavior(std::make_unique<WatchBehavior>(sprite, spriteMap[targetName]));
                     }
                     else {
-                        Log(targetName + " not found in spriteMap. Skipping WatchBehavior.");
+                        TraceLog(LOG_WARNING, "%s not found in spriteMap. Skipping WatchBehavior.", targetName.c_str());
                     }
                 }
                 else if (token == "Chase") {
@@ -200,7 +209,7 @@ void InGame::loadTilemap(const std::string& name) {
                         sprite->addBehavior(std::make_unique<ChaseBehavior>(sprite, spriteMap[targetName], 48.0f, 2.0f, 64.0f));
                     }
                     else {
-                        Log(targetName + " not found in spriteMap. Skipping WatchBehavior.");
+                        TraceLog(LOG_WARNING, "%s not found in spriteMap. Skipping WatchBehavior.", targetName.c_str());
                     }
                 }
             }
@@ -244,15 +253,6 @@ void InGame::resolveAxisY(const std::shared_ptr<Sprite>& sprite, const Rectangle
     sprite->rect.y = sprite->position.y;
 }
 
-void InGame::events(const std::unordered_map<std::string, std::any>& events) {
-    for (const auto& [name, data] : events) {
-        if (name == "teleport") {
-            const auto& teleportData = std::any_cast<const TeleportEvent&>(data);
-            loadTilemap(teleportData.targetMap);
-            player->moveTo(teleportData.targetPos.x * tileSize, teleportData.targetPos.y * tileSize);
-        }
-    }
-}
 
 void InGame::update(float dt) {
     // control the sprites and apply physics
@@ -288,7 +288,7 @@ void InGame::update(float dt) {
                     : weaponData.at("weapon_default");
 
                 if (!weaponData.contains(weaponKey)) {
-                    Log("Warning: missing weapon data for " + weaponKey + ", falling back to weapon_default");
+                    TraceLog(LOG_WARNING, "Missing weapon data for %s, falling back to weapon_default", weaponKey.c_str());
                 }
 
                 float offsetX = data.at("offsetX");

@@ -13,7 +13,7 @@
 Game::Game() : buttonsDown{}, buttonsPressed{} {
     loader.loadSettings("./resources/settings.json");
     settings = &loader.getSettings();
-    Log(settings->dump(2));
+    TraceLog(LOG_INFO, settings->dump(2).c_str());
     // Enable config flags for resizable window and vsync
     SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT);
     //InitWindow(windowWidth, windowHeight, "my first game");
@@ -53,7 +53,7 @@ void Game::startScene(const std::string& name) {
         scenes[name]->markForStarting();
     }
     else {
-        Log("Scene not registered: " + name);
+        TraceLog(LOG_ERROR, "Scene not registered: %s", name.c_str());
     }
 }
 
@@ -118,15 +118,6 @@ Sprite* Game::getPlayer() {
     auto it = inGame->spriteMap.find("player");
     if (it != inGame->spriteMap.end()) return it->second.get();
     return nullptr;
-}
-
-void Game::events() {
-    auto ev = eventManager.popEvents();
-    for (auto& [name, scene] : scenes) {
-        if (scene && scene->isActive() && !scene->isPaused()) {
-            scene->events(ev);
-        }
-    }
 }
 
 void Game::update(float dt) {
@@ -218,7 +209,6 @@ void Game::run() {
         float currentTime = float(GetTime());
         float dt = currentTime - lastTime;
         lastTime = currentTime;
-        events();
         update(dt);
         draw();
 

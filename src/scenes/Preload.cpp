@@ -87,6 +87,7 @@ void Preload::startup() {
                 "./resources/textures/sprites/doors_leaf_open.png",
             }
         },
+        { "title_image", { "./resources/textures/images/title.png" }},
     });
 
     // load the tileset (the textures)

@@ -23,7 +23,6 @@ Sprite::Sprite(Game& game, float x, float y, float w, float h, const std::string
 
 Sprite::~Sprite() {
     // TODO: just for debugging
-    //Log("Destroying sprite: " + spriteName);
 }
 
 void Sprite::setTextures(std::initializer_list<std::string> keys) {
@@ -92,14 +91,14 @@ void Sprite::executeBehavior(float deltaTime) {
     try {
         for (auto& behavior : behaviors) {
             if (!behavior) {
-                Log("Null behavior in " + spriteName);
+                TraceLog(LOG_WARNING, "Null behavior in %s", spriteName.c_str());
                 continue;
             }
             behavior->update(deltaTime);
         }
     }
     catch (const std::exception& e) {
-        Log("Exception in executeBehavior for " + spriteName + ": " + e.what());
+        TraceLog(LOG_FATAL, "Exception in executeBehavior for %s: %s", spriteName.c_str(), e.what());
     }
 }
 
@@ -123,7 +122,6 @@ void Sprite::update(float deltaTime) {
     if (Vector2Length(acc) > 0.0f) acc = Vector2Normalize(acc);
 
     vel = Vector2Add(vel, Vector2Scale(acc, speed * deltaTime));
-    //Log(vel);
     vel = Vector2Scale(vel, friction);
 
     // stop if vel is below a threshold to prevent jitter
