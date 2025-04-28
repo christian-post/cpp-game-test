@@ -24,6 +24,7 @@ TODO: refactor
 - how textures are loaded for sprites from the Tiled Map data (more modular)
 - unify "walls" and "sprites"?
 - add a "persistent" property to event listeners (non-persistent listeners are removed after one event)
+- enemies should seperate (collision detection)
 
 BUGS:
 - RandomWalkBehavior: choose new target after some time if the current target can't be reached

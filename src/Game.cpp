@@ -187,6 +187,8 @@ void Game::draw() {
             std::string s_activeScenes = "Scenes active:\n";
             std::string s_pausedScenes = "Scenes paused:\n";
             std::string s_inactiveScenes = "Scenes inactive:\n";
+            std::string s_drawOrder = "Draw Order:\n";
+
             for (auto& [name, scene] : scenes) {
                 if (scene && scene->isActive() && !scene->isPaused()) {
                     s_activeScenes += scene->getName() + "\n";
@@ -198,9 +200,14 @@ void Game::draw() {
                     s_inactiveScenes += scene->getName() + "\n";
                 }
             }
+            for (Scene* scene : activeScenes) {
+                s_drawOrder += scene->getName() + " (Priority: " + std::to_string(scene->getDrawPriority()) + ")\n";
+            }
+
             DrawText(s_activeScenes.c_str(), 4, 4, fontSize, WHITE);
             DrawText(s_pausedScenes.c_str(), int(GetScreenWidth() * 0.3f), 4, fontSize, WHITE);
             DrawText(s_inactiveScenes.c_str(), int(GetScreenWidth() * 0.6f), 4, fontSize, WHITE);
+            DrawText(s_drawOrder.c_str(), 4, int(GetScreenHeight() * 0.6f), fontSize, WHITE); // lower part of screen
         }
     EndDrawing();
 }
