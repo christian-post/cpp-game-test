@@ -12,8 +12,8 @@
 2. Clone this repository:
 
    ```bash
-   git clone https://github.com/yourusername/yourrepo.git
-   cd yourrepo
+   git clone https://github.com/christian-post/cpp-game-test.git
+   cd cpp-game-test
    ```
 
 3. Open the folder in Visual Studio.
@@ -32,8 +32,8 @@
 2. Clone this repository:
 
    ```bash
-   git clone https://github.com/yourusername/yourrepo.git
-   cd yourrepo
+   git clone https://github.com/christian-post/cpp-game-test.git
+   cd cpp-game-test
    ```
 
 3. Create a build directory and compile:
@@ -62,17 +62,29 @@
 
    ```bash
    sudo apt update
-   sudo apt install cmake g++ libraylib-dev
+   sudo apt install git build-essential cmake libasound2-dev mesa-common-dev libx11-dev libxrandr-dev libxi-dev xorg-dev libgl1-mesa-dev libglu1-mesa-dev
    ```
 
-2. Clone this repository:
+2. Clone and build raylib:
 
    ```bash
-   git clone https://github.com/yourusername/yourrepo.git
-   cd yourrepo
+   git clone https://github.com/raysan5/raylib.git
+   cd raylib
+   mkdir build
+   cd build
+   cmake -DPLATFORM=Desktop ..
+   make
+   sudo make install
    ```
 
-3. Create a build directory and compile:
+3. Clone this repository:
+
+   ```bash
+   git clone https://github.com/christian-post/cpp-game-test.git
+   cd cpp-game-test
+   ```
+
+4. Create a build directory and compile:
 
    ```bash
    mkdir build
@@ -81,7 +93,7 @@
    make
    ```
 
-4. Run the game:
+5. Run the game:
 
    ```bash
    ./MyGame
@@ -90,7 +102,7 @@
 ---
 
 
-## Actually Playing the Game
+## Playing the Game
 
 ### Controls
 
@@ -117,7 +129,7 @@ Action 2 uses your currently equipped weapon.
 You can adjust the Keyboard keys in settings.json (TODO: not implemented)
 
 
-## Notes on the Software Design
+## Some Notes on the Software Design
 
 ### The Game object
 Game is the overarching data structure that is responsible for the game loop as well as high-level operations above the individual game scenes and objects.
@@ -131,10 +143,10 @@ This scene runs before all others, and is responsible for loading all assets (ex
 Once the loading is done, this scene stops and calls the TitleSceen.
 TODO: I'm planning to make a loading bar animation that runs parallel to the data streaming, but I'll probably need parallelism (std::thread) for this...
 
-### TitleScreen
+#### TitleScreen
 Nothing to see here, really. Just press any key to advance.
 Known bugs: The button you press here gets also registered in the next scene (InGame), but I'm not sure why.
 
-### InGame
+#### InGame
 This is the most important scene (shocking, I know). It handles updating and displaying of the (visible and invisible) game objects. Most of these are instances of the Sprite class, more on that later.
 

@@ -16,7 +16,6 @@ Game::Game() : buttonsDown{}, buttonsPressed{} {
     TraceLog(LOG_INFO, settings->dump(2).c_str());
     // Enable config flags for resizable window and vsync
     SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT);
-    //InitWindow(windowWidth, windowHeight, "my first game");
     InitWindow(getSetting("windowWidth"), getSetting("windowHeight"), "My first game");
     SetWindowMinSize(320, 240);
 
@@ -200,11 +199,11 @@ void Game::run() {
         // show FPS in title
         snprintf(title, sizeof(title), "My Game - FPS: %d", GetFPS());
         SetWindowTitle(title);
-
+        // get the recently pressed/held down buttons
         buttonsPressed = GetControlsPressed();
         buttonsDown = GetControlsDown();
-        // debug mode toggle
-        if (buttonsPressed & CONTROL_DEBUG) debug = !debug;
+   
+        if (buttonsPressed & CONTROL_DEBUG) debug = !debug; // debug mode toggle
 
         float currentTime = float(GetTime());
         float dt = currentTime - lastTime;
