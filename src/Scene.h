@@ -29,10 +29,14 @@ public:
     bool ismarkedForStarting() const { return markedForStarting; }
     void markForStarting() { markedForStarting = true; }
 
+    void setDrawPriority(int prio) { drawPriority = prio; }
+    int getDrawPriority() const { return drawPriority; }
+
     bool markedForStarting = false;
 
 private:
     std::string name;
+    int drawPriority = 0;
 
 protected:
     Game& game;

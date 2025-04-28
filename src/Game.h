@@ -42,11 +42,13 @@ public:
     void processMarkedScenes();
 
     template <typename T>
-    void registerScene(const std::string& name) {
+    void registerScene(const std::string& name, int priority = 0) {
         sceneRegistry[name] = [this](const std::string& sceneName) {
             return std::make_unique<T>(*this, sceneName);
             };
+        scenePriorities[name] = priority;
     }
+
 
     Scene* getScene(const std::string& name) {
         auto it = scenes.find(name);
@@ -77,6 +79,7 @@ public:
 private:
     bool running = true;
     std::unordered_map<std::string, std::unique_ptr<Scene>> scenes; // contains active game scenes
-    std::unordered_map<std::string, std::function<std::unique_ptr<Scene>(const std::string&)>> sceneRegistry;
+    std::unordered_map<std::string, std::function<std::unique_ptr<Scene>(const std::string&)>> sceneRegistry; // stores scene constructors
+    std::unordered_map<std::string, int> scenePriorities; // stores the drawing order (TODO: also control the update order?)
     void setSceneState(const std::string& name, bool active, bool paused);
 };

@@ -28,12 +28,13 @@ Game::Game() : buttonsDown{}, buttonsPressed{} {
     SetTargetFPS(getSetting("targetFPS"));
 
     // define all Scenes as factory functions
-    registerScene<Preload>("Preload");
-    registerScene<TitleScreen>("TitleScreen");
-    registerScene<InGame>("InGame");
-    registerScene<HUD>("HUD");
-    registerScene<Inventory>("Inventory");
-    registerScene<GameOver>("GameOver");
+    // the second argument is priority for the drawing order
+    registerScene<Preload>("Preload", 0);
+    registerScene<TitleScreen>("TitleScreen", 0);
+    registerScene<InGame>("InGame", 0);
+    registerScene<HUD>("HUD", 1);
+    registerScene<Inventory>("Inventory", 2);
+    registerScene<GameOver>("GameOver", 0);
 }
 
 const nlohmann::json& Game::getSetting(const std::string& key) const {
@@ -46,15 +47,22 @@ const nlohmann::json& Game::getSetting(const std::string& key) const {
     }
 }
 
-void Game::startScene(const std::string& name) {   
+void Game::startScene(const std::string& name) {
     if (sceneRegistry.count(name)) {
         scenes[name] = sceneRegistry[name](name);
+
+        if (scenePriorities.count(name))
+            scenes[name]->setDrawPriority(scenePriorities[name]);
+        else
+            scenes[name]->setDrawPriority(0); // default
+
         scenes[name]->markForStarting();
     }
     else {
         TraceLog(LOG_ERROR, "Scene not registered: %s", name.c_str());
     }
 }
+
 
 void Game::stopScene(const std::string& name) {
     // Marks the scene for removal
@@ -136,10 +144,19 @@ void Game::draw() {
     // Draw everything in the render texture, note this will not be rendered on screen, yet
     // All the actual drawing logic is handled by each scene
     BeginTextureMode(target);
-        for (auto& [name, scene] : scenes) {  // Iterate over map
+        std::vector<Scene*> activeScenes;
+        for (auto& [name, scene] : scenes) {
             if (scene && scene->isActive()) {
-                scene->draw();
+                activeScenes.push_back(scene.get());
             }
+        }
+        // Sort active scenes by draw priority
+        std::sort(activeScenes.begin(), activeScenes.end(),
+            [](Scene* a, Scene* b) {
+                return a->getDrawPriority() < b->getDrawPriority();
+            });
+        for (Scene* scene : activeScenes) {
+            scene->draw();
         }
     EndTextureMode();
 
