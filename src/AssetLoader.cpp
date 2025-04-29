@@ -124,7 +124,7 @@ void AssetLoader::LoadTileMapFromTiled(const std::string& filename) {
 }
 
 void  AssetLoader::LoadFont(const std::string& filename) {
-    Font fontTtf = LoadFontEx(filename.c_str(), 32, 0, NULL);
+    Font fontTtf = LoadFontEx(filename.c_str(), 32, NULL, 0);
     std::string baseName = std::filesystem::path(filename).stem().string();
     fonts[baseName] = fontTtf;
     SetTextureFilter(fonts[baseName].texture, TEXTURE_FILTER_POINT);

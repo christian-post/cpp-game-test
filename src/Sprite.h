@@ -7,6 +7,8 @@
 #include <memory>
 #include <optional>
 #include "Behavior.h"
+#include <cstdint>
+
 
 class Game;
 
