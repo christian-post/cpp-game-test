@@ -27,11 +27,16 @@ TileLayer::TileLayer(const nlohmann::json& layerJson) {
     }
 }
 
-TileMap::TileMap(const nlohmann::json& jsonMap, std::string mapName) : mapName(mapName) {
+TileMap::TileMap(const nlohmann::json& jsonMap, std::string mapName) 
+    : mapName(mapName)
+{
     width = jsonMap["width"];
     height = jsonMap["height"];
     tileWidth = jsonMap["tilewidth"];
     tileHeight = jsonMap["tileheight"];
+
+    std::string srcName = jsonMap["tilesets"][0]["source"];
+    tilesetName = srcName.substr(0, srcName.size() - 4); // strip the ".tsj"
 
     if (jsonMap.contains("layers")) {
         for (const auto& layer : jsonMap["layers"]) {

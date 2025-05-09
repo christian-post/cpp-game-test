@@ -6,6 +6,7 @@
 #include "Utils.h"
 #include "Behavior.h"
 #include "Controls.h"
+#include <stdexcept>
 
 
 void InGame::startup() {
@@ -54,35 +55,37 @@ void InGame::startup() {
         });
 
     // testing events that progress the game
-    // TODO: create a Events.cpp file which stores a hashmap of condition and callback tuples
+    // TODO: create a Events.cpp file which stores a hashmap of condition and callback pairs
     // that can be addressed via the Tiled data
     // TODO: store the states of each room
     game.eventManager.pushConditionalEvent(
         [&]() {
-            return std::none_of(game.sprites.begin(), game.sprites.end(),
-                [](const std::shared_ptr<Sprite>& s) {
-                    return s->spriteName == "skelet";
-                });
+            // check if the player defeated all the skelets in the first room
+            return tileMap->getName() == "test_dungeon2" &&
+                std::none_of(game.sprites.begin(), game.sprites.end(),
+                    [](const std::shared_ptr<Sprite>& s) {
+                        return s->spriteName == "skelet";
+                    });
         },
         [this]() {
             TraceLog(LOG_INFO, "enemies defeated");
             this->game.eventManager.pushDelayedEvent("defeatDialog", 0.1f, nullptr, [this]() {
-                //game.eventManager.pushEvent("hideHUD");
-                //cutsceneManager.queueCommand(new Command_Letterbox(float(game.gameScreenWidth), float(game.gameScreenHeight), 1.0f), false);
-                //Sprite& npcRef = *spriteMap["npc"];
-                //cutsceneManager.queueCommand(new Command_MoveTo(npcRef, 9.0f * float(tileSize), 6.0f * float(tileSize), 2.0f), false);
-                //cutsceneManager.queueCommand(new Command_Look(npcRef, RIGHT)); // TODO: doesn't work
-                //cutsceneManager.queueCommand(new Command_MoveTo(*this->player, 10.0f * float(tileSize), 6.0f * float(tileSize), 2.0f));
-                //cutsceneManager.queueCommand(new Command_Look(*this->player, LEFT));
-                //cutsceneManager.queueCommand(new Command_Wait(0.5f));
-                //cutsceneManager.queueCommand(new Command_Textbox(this->game, "You defeated all of the skeletons. Now the door opened for some reason. I will follow you into the next room."));
-                //cutsceneManager.queueCommand(new Command_Callback([this]() {
-                //    game.eventManager.pushEvent("showHUD");
-                //}));
-                //npcRef.removeAllBehaviors();
-                //npcRef.speed = 16; // speed up the npc
-                //npcRef.addBehavior(std::make_unique<ChaseBehavior>(spriteMap["npc"], this->player, 1000.0f, 12.0f, 2000.0f));
-                //npcRef.persistent = true; // does go into the next room
+                game.eventManager.pushEvent("hideHUD");
+                cutsceneManager.queueCommand(new Command_Letterbox(float(game.gameScreenWidth), float(game.gameScreenHeight), 1.0f), false);
+                Sprite& npcRef = *spriteMap["npc"];
+                cutsceneManager.queueCommand(new Command_MoveTo(npcRef, 9.0f * float(tileSize), 6.0f * float(tileSize), 2.0f), false);
+                cutsceneManager.queueCommand(new Command_Look(npcRef, RIGHT)); // TODO: doesn't work
+                cutsceneManager.queueCommand(new Command_MoveTo(*this->player, 10.0f * float(tileSize), 6.0f * float(tileSize), 2.0f));
+                cutsceneManager.queueCommand(new Command_Look(*this->player, LEFT));
+                cutsceneManager.queueCommand(new Command_Wait(0.5f));
+                cutsceneManager.queueCommand(new Command_Textbox(this->game, "You defeated all of the skeletons. Now the door opened for some reason. I will follow you into the next room."));
+                cutsceneManager.queueCommand(new Command_Callback([this]() {
+                    game.eventManager.pushEvent("showHUD");
+                }));
+                npcRef.removeAllBehaviors();
+                npcRef.speed = 16; // speed up the npc
+                npcRef.addBehavior(std::make_unique<ChaseBehavior>(spriteMap["npc"], this->player, 1000.0f, 12.0f, 2000.0f));
+                npcRef.persistent = true; // does go into the next room
 
                 // open the door
                 game.eventManager.pushEvent("door1open");
@@ -91,8 +94,68 @@ void InGame::startup() {
         }
     );
 
+    game.eventManager.pushConditionalEvent(
+        [&]() {
+            // triggers when the room is first entered
+            return tileMap->getName() == "test_dungeon" && roomStates["test_dungeon"] == 1;
+        },
+        [this]() {
+            this->game.eventManager.pushDelayedEvent("room2Start", 0.01f, nullptr, [this]() {
+                Sprite& npcRef = *spriteMap["npc"];
+                npcRef.removeAllBehaviors();
+                cutsceneManager.queueCommand(new Command_MoveTo(npcRef, 17.0f * float(tileSize), 21.0f * float(tileSize), 0.0f), false);
+                game.eventManager.pushEvent("hideHUD");
+                cutsceneManager.queueCommand(new Command_Letterbox(float(game.gameScreenWidth), float(game.gameScreenHeight), 1.0f), false);
+                cutsceneManager.queueCommand(new Command_MoveTo(*this->player, 18.0f * float(tileSize), 22.0f * float(tileSize) - 4.0f, 0.1f));
+                cutsceneManager.queueCommand(new Command_Textbox(this->game, "This room is plagued with skeletons as well.\nYou have to find and defeat them all to open the door that gets us out of here.\nBut I can't help you since I don't have any abilities yet. Good luck!"));
+                cutsceneManager.queueCommand(new Command_Callback([this]() {
+                    game.eventManager.pushEvent("showHUD");
+                    }));
+
+                npcRef.addBehavior(std::make_unique<ChaseBehavior>(spriteMap["npc"], this->player, 1000.0f, 12.0f, 2000.0f));
+                advanceRoomState("test_dungeon");
+            });
+        }
+    );
+
+    game.eventManager.pushConditionalEvent(
+        [&]() {
+            // check if the player defeated all the skelets in the second room
+            return tileMap->getName() == "test_dungeon" &&
+                std::none_of(game.sprites.begin(), game.sprites.end(),
+                    [](const std::shared_ptr<Sprite>& s) {
+                        return s->spriteName == "skelet";
+                    });
+        },
+        [this]() {
+            TraceLog(LOG_INFO, "enemies defeated");
+            this->game.eventManager.pushDelayedEvent("defeatDialog", 0.1f, nullptr, [this]() {
+                game.eventManager.pushEvent("hideHUD");
+                cutsceneManager.queueCommand(new Command_Letterbox(float(game.gameScreenWidth), float(game.gameScreenHeight), 1.0f), false);
+                Sprite& npcRef = *spriteMap["npc"];
+
+                cutsceneManager.queueCommand(new Command_Look(npcRef, RIGHT)); // TODO: doesn't work
+                cutsceneManager.queueCommand(new Command_Look(*this->player, LEFT));
+                cutsceneManager.queueCommand(new Command_Wait(0.5f));
+                cutsceneManager.queueCommand(new Command_Textbox(this->game, "Cool stuff. Let's go outside!"));
+
+                cutsceneManager.queueCommand(new Command_Callback([this]() {
+                    game.eventManager.pushEvent("showHUD");
+                    }));
+                npcRef.removeAllBehaviors();
+                npcRef.speed = 16; // speed up the npc
+                npcRef.addBehavior(std::make_unique<ChaseBehavior>(spriteMap["npc"], this->player, 1000.0f, 12.0f, 2000.0f));
+                npcRef.persistent = true; // does go into the next room
+
+                // open the door
+                game.eventManager.pushEvent("door2open");
+                advanceRoomState("test_dungeon");
+                });
+        }
+    );
+
     // queue a cutscene at the start of the game
-    /*game.eventManager.pushDelayedEvent("cutsceneStart", 0.1f, nullptr, [this]() {
+    game.eventManager.pushDelayedEvent("cutsceneStart", 0.1f, nullptr, [this]() {
         game.eventManager.pushEvent("hideHUD");
         cutsceneManager.queueCommand(new Command_Letterbox(game.gameScreenWidth, game.gameScreenHeight, 1.0f), false);
         Sprite& npcRef = *spriteMap["npc"];
@@ -102,11 +165,11 @@ void InGame::startup() {
         cutsceneManager.queueCommand(new Command_MoveTo(npcRef, npcX, npcY, 2.0f));
         cutsceneManager.queueCommand(new Command_Look(*this->player, LEFT));
         cutsceneManager.queueCommand(new Command_Wait(0.5f));
-        cutsceneManager.queueCommand(new Command_Textbox(this->game, "Please help me, Sir Knight! These skeletons there are up to no good. Do something about them!!!"));
+        cutsceneManager.queueCommand(new Command_Textbox(this->game, "Please help me, Sir Knight! These skeletons over there are up to no good. Do something about them!!!"));
         cutsceneManager.queueCommand(new Command_Callback([this]() {
             game.eventManager.pushEvent("showHUD");
         }));
-    });*/
+    });
 }
 
 Sprite* InGame::getSprite(const std::string& name) {
@@ -118,7 +181,11 @@ Sprite* InGame::getSprite(const std::string& name) {
 }
 
 void InGame::advanceRoomState(const std::string& name) {
-    roomStates[name] = (roomStates[name] << 1) | 1;
+    // room states are powers of 2
+    roomStates[name] <<= 1;
+    if (roomStates[name] == 0)
+        roomStates[name] = 1;
+    TraceLog(LOG_INFO, "room state of %s is now %d", name.c_str(), static_cast<int>(roomStates[name]));
 }
 
 std::shared_ptr<Sprite> InGame::spawnEnemy(const std::string& name, int tileX, int tileY) {
@@ -158,7 +225,9 @@ void InGame::loadTilemap(const std::string& name) {
 
         // first, check if the object should be in this state
         uint8_t objectState = obj.properties.value("roomState", 0); // objects spawn in every state by default
-        if (objectState != 0 && objectState != currentState)
+        TraceLog(LOG_INFO, "objectState: %d, currentState: %d, result: %d",
+            objectState, currentState, objectState & currentState);
+        if (objectState != 0 && (objectState & currentState) == 0)
             continue;
 
         if (obj.type == "wall") {
@@ -333,15 +402,10 @@ void InGame::update(float dt) {
                 // add an event listener that removes the sword
                 // the "killWeapon" event is dispatched by WeaponBehavior once it's finished
                 game.eventManager.addListener("killWeapon", [this, wpn](std::any) {
-                    spriteMap.erase(*currentWeapon); // TODO: it might be problematic to do this here
+                    spriteMap.erase(*currentWeapon); // TODO: is this safe to do it here?
                     wpn->markForDeletion();
+                    game.eventManager.removeListeners("killWeapon");
                     });
-                //game.eventManager.addListener("killWeapon", [this, wpn](std::any) {
-                //    game.eventManager.pushDelayedEvent("deleteWeapon", 0.01f, nullptr, [this, wpn]() {
-                //        spriteMap.erase(*currentWeapon);
-                //        wpn->markForDeletion();
-                //        });
-                //    });
             }
         }
 
@@ -468,7 +532,13 @@ void InGame::draw() {
 
     BeginMode2D(camera);
         // draw the textures that are affected by the camera
-        const auto& tiles = game.loader.getTextures("dungeon");
+        //const std::string& tilesetName = tileMap->getTilesetName();
+        const auto& tiles = game.loader.getTextures(tileMap->getTilesetName());
+
+        if (tiles.size() == 0) {
+            throw std::runtime_error("Tile list is empty");
+        }
+        //const auto& tiles = game.loader.getTextures("dungeon");
         int totalLayers = static_cast<int>(tileMap->layers.size());
 
         for (int layerIndex = 0; layerIndex < totalLayers - 1; ++layerIndex) {

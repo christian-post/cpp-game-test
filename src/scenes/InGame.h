@@ -28,9 +28,10 @@ public:
 
     // TODO: debug stuff 
     // lets you cycle the rooms faster
-    std::array<std::pair<std::string, Vector2>, 2> roomDebug = {{
+    std::array<std::pair<std::string, Vector2>, 3> roomDebug = { {
+        { "test_dungeon2", { 9.0f, 16.0f } },
         { "test_dungeon", { 17.0f, 20.0f } },
-        { "test_dungeon2", { 9.0f, 16.0f }}
+        { "test_fields", { 18.0f, 35.0f } }
     }};
     uint32_t currentRoomIndex = 0;
 

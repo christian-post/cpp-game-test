@@ -54,7 +54,9 @@ public:
     const std::vector<TileObject>& getObjects() const;
 
     const std::string& getName() const { return mapName; }
+    const std::string& getTilesetName() const { return tilesetName; }
 
 private:
     std::string mapName;
+    std::string tilesetName;
 };

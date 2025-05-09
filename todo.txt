@@ -31,4 +31,4 @@ TODO: refactor
 BUGS:
 - RandomWalkBehavior: choose new target after some time if the current target can't be reached
 - Behavior priorities/swiching is messy
-- Weapons don't get deleted (dangling pointer somewhere)
+- door status should persist across teleports

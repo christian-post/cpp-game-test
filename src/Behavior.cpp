@@ -155,7 +155,9 @@ void TeleportBehavior::update(float deltaTime) {
 		if (CheckCollisionRecs(s->rect, o->rect)) {
 			done = true;
 			TeleportEvent event{ targetMap, targetPos };
-			game.eventManager.pushEvent("teleport", std::any(event));
+			game.eventManager.pushDelayedEvent("asdf", 0.01f, nullptr, [this, event]() {
+				game.eventManager.pushEvent("teleport", std::any(event));
+			});
 		}
 	}
 }

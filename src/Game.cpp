@@ -134,6 +134,18 @@ void Game::processMarkedSprites() {
         }
     }
 
+    // TODO: version for debugging that's easier to inspect
+    //for (auto it = sprites.begin(); it != sprites.end(); ) {
+    //    if ((*it)->isMarkedForDeletion()) {
+    //        auto& sprite = *it;
+    //        int refCount = sprite.use_count();
+    //        it = sprites.erase(it);
+    //    }
+    //    else {
+    //        ++it;
+    //    }
+    //}
+
     sprites.erase(std::remove_if(sprites.begin(), sprites.end(),
         [](auto sprite) {
             return sprite->isMarkedForDeletion();

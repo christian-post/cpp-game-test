@@ -89,6 +89,7 @@ void Sprite::getControls() {
 void Sprite::executeBehavior(float deltaTime) {
     // runs update() on the behaviors in the order that they were given
     // TODO: behavior priority system?
+    if (behaviors.empty()) return;
     try {
         for (auto& behavior : behaviors) {
             if (!behavior) {
@@ -115,6 +116,7 @@ void Sprite::moveTo(float x, float y) {
 }
 
 void Sprite::update(float deltaTime) {
+    if (markedForDeletion) return;
     // applies laws of motion according to the acceleration that was
     // set prior to this step (either by player input, Cutscene commands,
     // or a Behavior
@@ -147,7 +149,7 @@ void Sprite::update(float deltaTime) {
 }
 
 void Sprite::draw() {
-    if (!visible) return;
+    if (!visible || markedForDeletion) return;
 
     const std::string& key = (frames.count(currentTextureKey) > 0) ? currentTextureKey : "default";
     auto& textures = frames[key];

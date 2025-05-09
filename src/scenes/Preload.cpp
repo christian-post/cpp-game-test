@@ -92,9 +92,11 @@ void Preload::startup() {
 
     // load the tileset (the textures)
     game.loader.LoadTilesetFromTiled("./resources/tilemaps/dungeon.tsj");
+    game.loader.LoadTilesetFromTiled("./resources/tilemaps/fields.tsj");
     // load the tile maps from text files
     game.loader.LoadTileMapFromTiled("./resources/tilemaps/test_dungeon.json");
     game.loader.LoadTileMapFromTiled("./resources/tilemaps/test_dungeon2.json");
+    game.loader.LoadTileMapFromTiled("./resources/tilemaps/test_fields.json");
     // load the font
     game.loader.LoadFont("./resources/fonts/slkscr.ttf");
     // load shaders

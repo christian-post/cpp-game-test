@@ -48,7 +48,7 @@ void AssetLoader::loadTextures(const std::unordered_map<std::string, std::vector
                 textureGroups[key].push_back(LoadTexture(filename.c_str()));
             }
             else {
-                std::cerr << "ERROR: File not found: " << filename << std::endl;
+                TraceLog(LOG_ERROR, "ERROR: File not found:  %s", filename.c_str());
             }
         }
     }
@@ -78,20 +78,21 @@ void AssetLoader::LoadTileset(const std::string& filename, int tileSize) {
     UnloadImage(tilesetImg);
     std::string baseName = std::filesystem::path(filename).stem().string();
     textureGroups[baseName] = tiles;
+    TraceLog(LOG_INFO, "Tileset loaded successfully: %s", baseName.c_str());
 }
 
 void AssetLoader::LoadTilesetFromTiled(const std::string& filename) {
     // loads a Tiled tileset file (.json or .tsj)
     std::ifstream file(filename); // Open JSON file
     if (!file) {
-        std::cerr << "Failed to open tileset file \"" << filename << "\"\n";
+        TraceLog(LOG_ERROR, "Failed to open tileset file %s", filename.c_str());
         return;
     }
     nlohmann::json j;
     file >> j; // construct a json-like object from the file data
 
     if (!j.contains("image") || !j.contains("tilewidth")) {
-        std::cerr << "Invalid tileset format: missing 'image' or 'tilewidth'.\n";
+        TraceLog(LOG_ERROR, "Invalid tileset format: missing 'image' or 'tilewidth'.");
         return;
     }
 
@@ -112,7 +113,7 @@ void AssetLoader::LoadTileMapFromTiled(const std::string& filename) {
     // and TileObjects (contains information to construct game entities)
     std::ifstream file(filename);
     if (!file) {
-        std::cerr << "Failed to open tilemap file \"" << filename << "\"\n";
+        TraceLog(LOG_ERROR, "Failed to open tilemap file %s", filename.c_str());
         return;
     }
     nlohmann::json j;
@@ -121,6 +122,7 @@ void AssetLoader::LoadTileMapFromTiled(const std::string& filename) {
     //TileMap tileMap(j);
     std::string baseName = std::filesystem::path(filename).stem().string();
     tileMaps[baseName] = std::make_unique<TileMap>(j, baseName);
+    TraceLog(LOG_INFO, "Tilemap file loaded successfully: %s", baseName.c_str());
 }
 
 void  AssetLoader::LoadFont(const std::string& filename) {
@@ -140,7 +142,7 @@ void AssetLoader::LoadShaderFile(const std::string& filename) {
 void AssetLoader::loadSettings(const std::string& filename) {
     std::ifstream file(filename);
     if (!file) {
-        std::cerr << "Failed to open settings file \"" << filename << "\"\n";
+        TraceLog(LOG_ERROR, "Failed to open settings file %s", filename.c_str());
         return;
     }
     file >> settings;
@@ -153,7 +155,7 @@ const nlohmann::json& AssetLoader::getSettings() {
 void AssetLoader::loadEnemyData(const std::string& filename) {
     std::ifstream file(filename);
     if (!file) {
-        std::cerr << "Failed to open settings file \"" << filename << "\"\n";
+        TraceLog(LOG_ERROR, "Failed to open settings file %s", filename.c_str());
         return;
     }
     file >> enemyData;
