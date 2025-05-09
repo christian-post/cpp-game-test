@@ -34,7 +34,7 @@ Game::Game() : buttonsDown{}, buttonsPressed{} {
     registerScene<InGame>("InGame", 0);
     registerScene<HUD>("HUD", 1);
     registerScene<Inventory>("Inventory", 2);
-    registerScene<GameOver>("GameOver", 0);
+    registerScene<GameOver>("GameOver", 2);
 }
 
 const nlohmann::json& Game::getSetting(const std::string& key) const {
@@ -110,13 +110,34 @@ void Game::killSprite(const std::shared_ptr<Sprite>& sprite) {
 void Game::clearSprites(bool clearPersistent) {
     // removes all current sprites
     // keeps the ones with the "persistent" flag, if not stated otherwise
-    sprites.erase(
+    /*sprites.erase(
         std::remove_if(sprites.begin(), sprites.end(),
             [clearPersistent](const std::shared_ptr<Sprite>& s) {
                 return clearPersistent || !s->persistent;
             }),
         sprites.end()
-    );
+    );*/
+    // TODO: testing delayed removal
+    for (auto sprite: sprites) {
+        if (!sprite->persistent) {
+            sprite->markForDeletion();
+            TraceLog(LOG_INFO, "deleting Sprite %s", sprite->spriteName.c_str());
+        }
+    }
+}
+
+void Game::processMarkedSprites() {
+    // TODO debugging
+    for (const auto& sprite : sprites) {
+        if (sprite->isMarkedForDeletion()) {
+            TraceLog(LOG_INFO, "Marked for deletion: %s at %p", sprite->spriteName.c_str(), sprite.get());
+        }
+    }
+
+    sprites.erase(std::remove_if(sprites.begin(), sprites.end(),
+        [](auto sprite) {
+            return sprite->isMarkedForDeletion();
+        }), sprites.end());
 }
 
 Sprite* Game::getPlayer() {
@@ -235,6 +256,7 @@ void Game::run() {
         update(dt);
         draw();
 
+        processMarkedSprites();
         processMarkedScenes();
     }
 

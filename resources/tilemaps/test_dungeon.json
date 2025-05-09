@@ -316,33 +316,6 @@
                  "width":208,
                  "x":308,
                  "y":368
-                }, 
-                {
-                 "height":12,
-                 "id":24,
-                 "name":"teleport",
-                 "properties":[
-                        {
-                         "name":"targetMap",
-                         "type":"string",
-                         "value":"test_dungeon2"
-                        }, 
-                        {
-                         "name":"targetPosX",
-                         "type":"float",
-                         "value":9
-                        }, 
-                        {
-                         "name":"targetPosY",
-                         "type":"float",
-                         "value":3
-                        }],
-                 "rotation":0,
-                 "type":"sprite",
-                 "visible":true,
-                 "width":40,
-                 "x":268,
-                 "y":372
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -392,7 +365,7 @@
                         }],
                  "rotation":0,
                  "type":"sprite",
-                 "visible":true,
+                 "visible":false,
                  "width":16,
                  "x":176,
                  "y":80
@@ -434,7 +407,7 @@
                         }],
                  "rotation":0,
                  "type":"sprite",
-                 "visible":true,
+                 "visible":false,
                  "width":16,
                  "x":272,
                  "y":96
@@ -476,7 +449,7 @@
                         }],
                  "rotation":0,
                  "type":"sprite",
-                 "visible":true,
+                 "visible":false,
                  "width":16,
                  "x":464,
                  "y":80
@@ -518,10 +491,37 @@
                         }],
                  "rotation":0,
                  "type":"sprite",
-                 "visible":true,
+                 "visible":false,
                  "width":16,
                  "x":464,
                  "y":224
+                }, 
+                {
+                 "height":12,
+                 "id":25,
+                 "name":"teleport",
+                 "properties":[
+                        {
+                         "name":"targetMap",
+                         "type":"string",
+                         "value":"test_dungeon2"
+                        }, 
+                        {
+                         "name":"targetPosX",
+                         "type":"float",
+                         "value":9
+                        }, 
+                        {
+                         "name":"targetPosY",
+                         "type":"float",
+                         "value":3
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":40,
+                 "x":268,
+                 "y":372
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -571,7 +571,7 @@
          "y":0
         }],
  "nextlayerid":8,
- "nextobjectid":25,
+ "nextobjectid":26,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.11.2",

@@ -110,13 +110,13 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>"C:\Users\Christian\Downloads\raylib-5.5_win64_msvc16\raylib-5.5_win64_msvc16\lib"</AdditionalLibraryDirectories>
       <AdditionalDependencies>raylib.lib;
 opengl32.lib;
 gdi32.lib
 ;winmm.lib;
 kernel32.lib
 ;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)libs\raylib-5.5_win64_msvc16\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -135,13 +135,13 @@ kernel32.lib
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>"C:\Users\Christian\Downloads\raylib-5.5_win64_msvc16\raylib-5.5_win64_msvc16\lib"</AdditionalLibraryDirectories>
       <AdditionalDependencies>raylib.lib;
 opengl32.lib;
 gdi32.lib
 ;winmm.lib;
 kernel32.lib
 ;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)libs\raylib-5.5_win64_msvc16\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -190,6 +190,7 @@ kernel32.lib
     <ResourceCompile Include="GameTest.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="LICENSE" />
     <None Include="readme.md" />
     <None Include="resources\enemies.json" />
     <None Include="resources\settings.json" />

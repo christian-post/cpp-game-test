@@ -23,6 +23,17 @@ public:
     std::optional<std::string> currentWeapon = std::nullopt;
     const TileMap* tileMap;
     void loadTilemap(const std::string& name);
+    std::unordered_map<std::string, uint8_t> roomStates; // store map progression as bitmasks
+    void advanceRoomState(const std::string& name);
+
+    // TODO: debug stuff 
+    // lets you cycle the rooms faster
+    std::array<std::pair<std::string, Vector2>, 2> roomDebug = {{
+        { "test_dungeon", { 17.0f, 20.0f } },
+        { "test_dungeon2", { 9.0f, 16.0f }}
+    }};
+    uint32_t currentRoomIndex = 0;
+
     Camera2D camera = {};
     CutsceneManager cutsceneManager;
 

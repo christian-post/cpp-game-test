@@ -66,6 +66,8 @@ public:
     void update(float deltaTime);
     void draw();
     void moveTo(float x, float y);
+    bool isMarkedForDeletion() const { return markedForDeletion; }
+    void markForDeletion() { markedForDeletion = true; }
 
     // behavior methods
     void addBehavior(std::unique_ptr<Behavior> behavior) {
@@ -78,5 +80,6 @@ public:
 
 private:
     std::vector<std::unique_ptr<Behavior>> behaviors;
+    bool markedForDeletion = false;
 };
 

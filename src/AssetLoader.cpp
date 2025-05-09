@@ -118,9 +118,9 @@ void AssetLoader::LoadTileMapFromTiled(const std::string& filename) {
     nlohmann::json j;
     file >> j;
 
-    TileMap tileMap(j);
+    //TileMap tileMap(j);
     std::string baseName = std::filesystem::path(filename).stem().string();
-    tileMaps[baseName] = std::make_unique<TileMap>(j);
+    tileMaps[baseName] = std::make_unique<TileMap>(j, baseName);
 }
 
 void  AssetLoader::LoadFont(const std::string& filename) {

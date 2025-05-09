@@ -23,6 +23,7 @@ Sprite::Sprite(Game& game, float x, float y, float w, float h, const std::string
 
 Sprite::~Sprite() {
     // TODO: just for debugging
+    TraceLog(LOG_INFO, "Sprite destroyed: %s at %p", spriteName.c_str(), this);
 }
 
 void Sprite::setTextures(std::initializer_list<std::string> keys) {

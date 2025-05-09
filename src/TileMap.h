@@ -18,10 +18,12 @@ struct TileLayer {
 struct TileObject {
     std::string type, name;
     float x, y, width, height;
+    bool visible;
     nlohmann::json properties;
 
     TileObject(const nlohmann::json& objJson) :
         type(objJson["type"]),
+        visible(objJson["visible"]),
         name(objJson["name"]),
         x(objJson["x"]),
         y(objJson["y"]),
@@ -47,7 +49,12 @@ public:
     std::vector<TileLayer> layers;
     std::vector<TileObject> objects;
 
-    TileMap(const nlohmann::json& jsonMap);
+    TileMap(const nlohmann::json& jsonMap, std::string mapName);
     const TileLayer& getLayer(size_t index) const;
     const std::vector<TileObject>& getObjects() const;
+
+    const std::string& getName() const { return mapName; }
+
+private:
+    std::string mapName;
 };

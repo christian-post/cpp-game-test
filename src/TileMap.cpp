@@ -27,7 +27,7 @@ TileLayer::TileLayer(const nlohmann::json& layerJson) {
     }
 }
 
-TileMap::TileMap(const nlohmann::json& jsonMap) {
+TileMap::TileMap(const nlohmann::json& jsonMap, std::string mapName) : mapName(mapName) {
     width = jsonMap["width"];
     height = jsonMap["height"];
     tileWidth = jsonMap["tilewidth"];
