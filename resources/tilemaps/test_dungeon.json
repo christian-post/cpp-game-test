@@ -383,8 +383,8 @@
                  "type":"sprite",
                  "visible":true,
                  "width":16,
-                 "x":176,
-                 "y":80
+                 "x":256,
+                 "y":96
                 }, 
                 {
                  "height":16,
@@ -404,17 +404,17 @@
                         {
                          "name":"damage",
                          "type":"int",
-                         "value":1
+                         "value":3
                         }, 
                         {
                          "name":"enemyType",
                          "type":"string",
-                         "value":"skelet"
+                         "value":"big_demon"
                         }, 
                         {
                          "name":"health",
                          "type":"int",
-                         "value":4
+                         "value":8
                         }, 
                         {
                          "name":"roomState",
@@ -424,14 +424,14 @@
                         {
                          "name":"speed",
                          "type":"float",
-                         "value":12
+                         "value":14
                         }],
                  "rotation":0,
                  "type":"sprite",
                  "visible":true,
                  "width":16,
-                 "x":272,
-                 "y":96
+                 "x":144,
+                 "y":80
                 }, 
                 {
                  "height":16,
@@ -649,6 +649,94 @@
                  "width":16,
                  "x":64,
                  "y":96
+                }, 
+                {
+                 "height":16,
+                 "id":30,
+                 "name":"hurt",
+                 "properties":[
+                        {
+                         "name":"damage",
+                         "type":"int",
+                         "value":2
+                        }, 
+                        {
+                         "name":"knockback",
+                         "type":"float",
+                         "value":5
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":16,
+                 "x":368,
+                 "y":208
+                }, 
+                {
+                 "height":16,
+                 "id":32,
+                 "name":"hurt",
+                 "properties":[
+                        {
+                         "name":"damage",
+                         "type":"int",
+                         "value":2
+                        }, 
+                        {
+                         "name":"knockback",
+                         "type":"float",
+                         "value":5
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":16,
+                 "x":400,
+                 "y":208
+                }, 
+                {
+                 "height":16,
+                 "id":33,
+                 "name":"hurt",
+                 "properties":[
+                        {
+                         "name":"damage",
+                         "type":"int",
+                         "value":2
+                        }, 
+                        {
+                         "name":"knockback",
+                         "type":"float",
+                         "value":5
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":16,
+                 "x":368,
+                 "y":240
+                }, 
+                {
+                 "height":16,
+                 "id":34,
+                 "name":"hurt",
+                 "properties":[
+                        {
+                         "name":"damage",
+                         "type":"int",
+                         "value":2
+                        }, 
+                        {
+                         "name":"knockback",
+                         "type":"float",
+                         "value":5
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":16,
+                 "x":400,
+                 "y":240
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -698,7 +786,7 @@
          "y":0
         }],
  "nextlayerid":8,
- "nextobjectid":30,
+ "nextobjectid":35,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.11.2",

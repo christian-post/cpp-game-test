@@ -64,47 +64,50 @@ void Inventory::update(float dt) {
 
 
 void Inventory::draw() {
-    // black background
-    DrawRectangle(int(x), int(y), int(width), int(height), BLACK);
+    // background
+    DrawRectangle(int(x), int(y), int(width), int(height), DARKBURGUNDY);
     // selectable weapons
     uint32_t spacing = 32;
-    uint32_t marginLeft = 32;
-    uint32_t marginTop = 16;
+    uint32_t marginLeft = 48;
+    uint32_t marginTop = 32;
     for (size_t i = 0; i < weapons.size(); ++i) {
         size_t row = i / cols;
         size_t col = i % cols;
-        int drawX = int(x + marginLeft + spacing * col);
-        int drawY = int(y + marginTop + spacing * row);
-        DrawTexture(game.loader.getTextures(weapons[i].textureKey)[0], drawX, drawY, WHITE);
+        const auto& tex = game.loader.getTextures(weapons[i].textureKey)[0];
+        int drawX = int(x + marginLeft + spacing * col - tex.width / 2);
+        int drawY = int(y + marginTop + spacing * row - tex.height / 2);
+        DrawTexture(tex, drawX, drawY, WHITE);
     }
     // all the consumable items
     uint32_t itemsStartY = weaponsRows * spacing;
     for (size_t i = 0; i < items.size(); ++i) {
         size_t row = i / cols;
         size_t col = i % cols;
-        int drawX = int(x + marginLeft + spacing * col);
-        int drawY = int(y + itemsStartY + spacing * row);
-        DrawTexture(game.loader.getTextures(items[i].textureKey)[0], drawX, drawY, WHITE);
+        const auto& tex = game.loader.getTextures(items[i].textureKey)[0];
+        int centerX = int(x + marginLeft + spacing * col);
+        int centerY = int(y + itemsStartY + spacing * row);
+        int drawX = centerX - tex.width / 2;
+        int drawY = centerY - tex.height / 2;
+        DrawTexture(tex, drawX, drawY, WHITE);
         std::string qtyText = "x" + std::to_string(items[i].quantity);
-        DrawText(qtyText.c_str(), drawX + 8, drawY + 16, 10, LIGHTGRAY);
+        DrawText(qtyText.c_str(), centerX + 4, centerY + 8, 10, LIGHTGRAY);
     }
     // draw a cursor to select a weapon
     size_t cursorRow = index / cols;
     size_t cursorCol = index % cols;
-    DrawRectangleLines(
-        int(x + marginLeft + spacing * cursorCol),
-        int(y + marginTop + spacing * cursorRow),
-        28, 28, LIGHTGRAY
-    );
+    const auto& cursorTex = game.loader.getTextures("inventory_cursor")[0];
+    int cursorX = int(x + marginLeft + spacing * cursorCol - cursorTex.width / 2);
+    int cursorY = int(y + marginTop + spacing * cursorRow - cursorTex.height / 2);
+    DrawTexture(cursorTex, cursorX, cursorY, WHITE);
 
     const char* weaponText = weapons[index].name.c_str();
-    int fontSize = 16;
+    int fontSize = 8;
     //int weaponTextWidth = MeasureText(weaponText, fontSize);
     uint32_t textX = (int(game.gameScreenWidth) - MeasureText(weaponText, fontSize)) / 2; // center text
     uint32_t textY = int(y) + int(game.gameScreenHeight / 2 - topY) - fontSize + 8;
     DrawText(weaponText, textX, textY, fontSize, LIGHTGRAY);
 
-    fontSize = 12;
+    fontSize = 6;
     const char* helpText = "Equip with O";
     uint32_t helpTextX = (int(game.gameScreenWidth) - MeasureText(helpText, fontSize)) / 2; // center text
     uint32_t helpTextY = int(y) + int(game.gameScreenHeight - topY) - fontSize - 8;

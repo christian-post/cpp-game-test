@@ -9,6 +9,9 @@
 #include "EventManager.h"
 #include "json.hpp"
 
+
+#define DARKBURGUNDY { 20, 0, 8, 255 }
+
 class Command;
 
 

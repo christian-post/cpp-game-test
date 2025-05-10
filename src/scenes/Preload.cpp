@@ -66,12 +66,48 @@ void Preload::startup() {
             }
         },
         {
+            "big_demon_idle", {
+                "./resources/textures/sprites/big_demon_idle_anim_f0.png",
+                "./resources/textures/sprites/big_demon_idle_anim_f1.png",
+                "./resources/textures/sprites/big_demon_idle_anim_f2.png",
+                "./resources/textures/sprites/big_demon_idle_anim_f3.png",
+            }
+        },
+        {
+            "big_demon_run", {
+                "./resources/textures/sprites/big_demon_run_anim_f0.png",
+                "./resources/textures/sprites/big_demon_run_anim_f1.png",
+                "./resources/textures/sprites/big_demon_run_anim_f2.png",
+                "./resources/textures/sprites/big_demon_run_anim_f3.png",
+            }
+        },
+        {
+            "goblin_idle", {
+                "./resources/textures/sprites/goblin_idle_anim_f0.png",
+                "./resources/textures/sprites/goblin_idle_anim_f1.png",
+                "./resources/textures/sprites/goblin_idle_anim_f2.png",
+                "./resources/textures/sprites/goblin_idle_anim_f3.png",
+            }
+        },
+        {
+            "goblin_run", {
+                "./resources/textures/sprites/goblin_run_anim_f0.png",
+                "./resources/textures/sprites/goblin_run_anim_f1.png",
+                "./resources/textures/sprites/goblin_run_anim_f2.png",
+                "./resources/textures/sprites/goblin_run_anim_f3.png",
+            }
+        },
+        // inventory sprites
+        {
             "hearts", {
                 "./resources/textures/sprites/ui_heart_empty.png",
                 "./resources/textures/sprites/ui_heart_half.png",
                 "./resources/textures/sprites/ui_heart_full.png",
             }
         },
+        { "inventory_item_frame", { "./resources/textures/sprites/inventory_item_frame.png" }},
+        { "inventory_cursor", { "./resources/textures/sprites/inventory_cursor.png" }},
+
         { "weapon_sword", { "./resources/textures/sprites/weapon_regular_sword.png" }},
         { "weapon_bow", { "./resources/textures/sprites/weapon_bow.png" }},        
         { "weapon_hammer", { "./resources/textures/sprites/weapon_hammer.png" }},
@@ -87,6 +123,7 @@ void Preload::startup() {
                 "./resources/textures/sprites/doors_leaf_open.png",
             }
         },
+        // background images
         { "title_image", { "./resources/textures/images/title.png" }},
     });
 

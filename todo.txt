@@ -15,14 +15,11 @@ features
 -- Command_ShowTextbox(text, target)  // target für Sprechblase
 -- Command_CameraPan(x, y, duration) // camera pans towards a target position (and then back?)
 
-- Tweens
-
 TODO misc
 - npc can follow the player across rooms, set position correctly near the door
 
 TODO: refactor
 - how textures are loaded for sprites from the Tiled Map data (more modular)
-- unify "walls" and "sprites"?
 - add a "persistent" property to event listeners (non-persistent listeners are removed after one event)
 - enemies should seperate (collision detection)
 - Remove all coupling between Game and Sprite?

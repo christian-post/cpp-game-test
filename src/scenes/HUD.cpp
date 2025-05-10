@@ -46,7 +46,7 @@ void HUD::update(float dt) {
 void HUD::draw() {
     if (!visible) return;
 
-    DrawRectangle(int(x), int(y), int(width), int(height), BLACK);
+    DrawRectangle(int(x), int(y), int(width), int(height), DARKBURGUNDY);
 
     // draw player health as hearts
     // TODO draw the hearts ON the reactangle as a texture
@@ -61,20 +61,17 @@ void HUD::draw() {
             hp -= 2;
         }
     }
-
-    // draw the currently equipped weapon
-    // TODO: correctly calculate how the item texture gets centered on the rectangle
+    // draw the currently equipped weapon on a background texture frame
     int weaponX = int(x) + int(game.gameScreenWidth * 2 / 3);
-    DrawRectangleLines(weaponX - 6, int(y) + 4, 24, 24, LIGHTGRAY); // background
-
+    int weaponY = int(y) + 16;
+    const auto& frameTex = game.loader.getTextures("inventory_item_frame")[0];
+    DrawTexture(frameTex, weaponX - frameTex.width / 2, weaponY - frameTex.height / 2, WHITE);
     auto& textures = game.loader.getTextures(equippedWeapon);
     if (textures.empty()) {
-        //TraceLog(LOG_ERROR, "No textures found for weapon: %s", equippedWeapon.c_str());
         return;
     }
-    else {
-        DrawTexture(textures[0], weaponX, int(y) + 4, WHITE);
-    }
+    const auto& wpnTex = textures[0];
+    DrawTexture(wpnTex, weaponX - wpnTex.width / 2, weaponY - wpnTex.height / 2, WHITE);
 }
 
 void HUD::end() {

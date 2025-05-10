@@ -24,11 +24,8 @@ struct ShaderState {
 class Sprite {
 public:
     Game& game;
-    Rectangle rect; // hitbox for collision
-    Rectangle hurtbox; // hurtbox for attacks
-    Vector2 hurtboxOffset = { 0.0f, 0.0f };
     std::unordered_map<std::string, std::vector<Texture2D>> frames;
-    std::string spriteName;
+    std::string spriteName; // used for finding the correct textures
     int currentFrame = 0;
     bool doesAnimate = true;
     bool visible = true;
@@ -41,6 +38,9 @@ public:
     float elapsedTime = 0.0f;
 
     // physics
+    Rectangle rect; // hitbox for collision
+    Rectangle hurtbox; // hurtbox for attacks
+    Vector2 hurtboxOffset = { 0.0f, 0.0f };
     bool isColliding = true;
     float speed = 20.0f; // default movement speed
     Vector2 acc;
@@ -54,7 +54,9 @@ public:
     uint32_t maxHealth;
     float iFrameTimer = 0.0f; // duration of invincibility (s)
     bool canHurtPlayer = false;
+    bool isEnemy = false;
     uint32_t damage = 0;
+    float knockback = 10.0f;
     bool dying = false; // flag for the death animation
     
     Sprite(Game& game, float x, float y, float w, float h, const std::string& spriteName);

@@ -64,7 +64,7 @@ void InGame::startup() {
             return tileMap->getName() == "test_dungeon2" &&
                 std::none_of(game.sprites.begin(), game.sprites.end(),
                     [](const std::shared_ptr<Sprite>& s) {
-                        return s->spriteName == "skelet";
+                        return s->isEnemy;
                     });
         },
         [this]() {
@@ -107,7 +107,7 @@ void InGame::startup() {
                 game.eventManager.pushEvent("hideHUD");
                 cutsceneManager.queueCommand(new Command_Letterbox(float(game.gameScreenWidth), float(game.gameScreenHeight), 1.0f), false);
                 cutsceneManager.queueCommand(new Command_MoveTo(*this->player, 18.0f * float(tileSize), 22.0f * float(tileSize) - 4.0f, 0.1f));
-                cutsceneManager.queueCommand(new Command_Textbox(this->game, "This room is plagued with skeletons as well.\nYou have to find and defeat them all to open the door that gets us out of here.\nBut I can't help you since I don't have any abilities yet. Good luck!"));
+                cutsceneManager.queueCommand(new Command_Textbox(this->game, "This room is plagued with skeletons and other baddies as well.\nYou have to find and defeat them all to open the door that gets us out of here.\nBut I can't help you since I don't have any abilities yet. Good luck!"));
                 cutsceneManager.queueCommand(new Command_Callback([this]() {
                     game.eventManager.pushEvent("showHUD");
                     }));
@@ -124,7 +124,7 @@ void InGame::startup() {
             return tileMap->getName() == "test_dungeon" &&
                 std::none_of(game.sprites.begin(), game.sprites.end(),
                     [](const std::shared_ptr<Sprite>& s) {
-                        return s->spriteName == "skelet";
+                        return s->isEnemy;
                     });
         },
         [this]() {
@@ -136,7 +136,7 @@ void InGame::startup() {
 
                 cutsceneManager.queueCommand(new Command_Look(npcRef, RIGHT)); // TODO: doesn't work
                 cutsceneManager.queueCommand(new Command_Look(*this->player, LEFT));
-                cutsceneManager.queueCommand(new Command_Wait(0.5f));
+                cutsceneManager.queueCommand(new Command_Wait(1.5f));
                 cutsceneManager.queueCommand(new Command_Textbox(this->game, "Cool stuff. Let's go outside!"));
 
                 cutsceneManager.queueCommand(new Command_Callback([this]() {
@@ -155,7 +155,7 @@ void InGame::startup() {
     );
 
     // queue a cutscene at the start of the game
-    game.eventManager.pushDelayedEvent("cutsceneStart", 0.1f, nullptr, [this]() {
+    /*game.eventManager.pushDelayedEvent("cutsceneStart", 0.1f, nullptr, [this]() {
         game.eventManager.pushEvent("hideHUD");
         cutsceneManager.queueCommand(new Command_Letterbox(game.gameScreenWidth, game.gameScreenHeight, 1.0f), false);
         Sprite& npcRef = *spriteMap["npc"];
@@ -169,7 +169,7 @@ void InGame::startup() {
         cutsceneManager.queueCommand(new Command_Callback([this]() {
             game.eventManager.pushEvent("showHUD");
         }));
-    });
+    });*/
 }
 
 Sprite* InGame::getSprite(const std::string& name) {
@@ -225,9 +225,11 @@ void InGame::loadTilemap(const std::string& name) {
 
         // first, check if the object should be in this state
         uint8_t objectState = obj.properties.value("roomState", 0); // objects spawn in every state by default
-        TraceLog(LOG_INFO, "objectState: %d, currentState: %d, result: %d",
-            objectState, currentState, objectState & currentState);
+        TraceLog(LOG_INFO, "creating %s - <%s> objectState: %d",
+            obj.type.c_str(), obj.name.empty() ? "unnamed" : obj.name.c_str(), objectState);
+
         if (objectState != 0 && (objectState & currentState) == 0)
+            // object does not spawn in the currentState
             continue;
 
         if (obj.type == "wall") {
@@ -239,6 +241,18 @@ void InGame::loadTilemap(const std::string& name) {
             auto sprite = std::make_shared<Sprite>(
                 game, obj.x, obj.y, obj.width, obj.height, obj.name
             );
+            // generic attributes (sprites have default values anyway)
+            sprite->speed = obj.properties.value("speed", 20.0f);
+            sprite->damage = obj.properties.value("damage", 1);
+            sprite->knockback = obj.properties.value("knockback", 10.0f);
+
+            float hurtboxW = obj.properties.value("hurtboxW", 0.0f);
+            float hurtboxH = obj.properties.value("hurtboxH", 0.0f);
+            if (hurtboxW != 0.0f && hurtboxH != 0.0f) {
+                sprite->setHurtbox(-1.0f, -1.0f, hurtboxW, hurtboxH);
+            }
+
+            // specific attributes
             // TODO: for persistent sprites, check if they exist in the spriteMap
             if (obj.name == "teleport") {
                 sprite->isColliding = false;
@@ -251,32 +265,35 @@ void InGame::loadTilemap(const std::string& name) {
                 ));
             }
             else if (obj.name == "npc" && !spriteMap["npc"]) {
-                sprite->speed = obj.properties.value("speed", 20.0f);
                 sprite->setTextures({ "npc_idle", "npc_run" }); // TODO: make this more modular
                 spriteMap["npc"] = sprite; // TODO: pass a unique name
             }
             else if (obj.name == "enemy") {
                 std::string enemyType = obj.properties.value("enemyType", "ERROR_ENEMY_TYPE");
-                sprite->spriteName = enemyType; //TODO this is not consistent between npcs and enemies
-                sprite->speed = obj.properties.value("speed", 20.0f);
-                sprite->damage = obj.properties.value("damage", 1);
+                sprite->spriteName = enemyType; //TODO this is not consistent between npcs and enemies            
                 sprite->health = obj.properties.value("health", 10);
                 sprite->canHurtPlayer = true;
+                sprite->isEnemy = true;
                 sprite->setTextures({ enemyType + "_idle", enemyType + "_run" });
             }
             else if (obj.name == "door") {
-                std::string enemyType = obj.properties.value("spriteKey", "ERROR_DOOR_KEY");
-                sprite->spriteName = enemyType;
-                sprite->setTextures({ enemyType + "_idle" });
+                std::string spriteKey = obj.properties.value("spriteKey", "ERROR_DOOR_KEY");
+                sprite->spriteName = spriteKey;
+                sprite->setTextures({ spriteKey + "_idle" });
                 sprite->doesAnimate = false;
                 sprite->staticCollision = true;
-
                 // door trigger
                 std::string triggerKey = obj.properties.value("event", "");
                 game.eventManager.addListener(triggerKey, [this, sprite](std::any) {
                     sprite->currentFrame = 1; // second anim frame has to be the opened door
                     sprite->staticCollision = false;
                 });
+            }
+            else if (obj.name == "hurt") {
+                // invisible sprite with hurtbox (e.g. floor spikes)
+                sprite->canHurtPlayer = true;
+                sprite->visible = false;
+                sprite->isColliding = false;       
             }
 
             // get behaviors from the data
@@ -458,19 +475,25 @@ void InGame::update(float dt) {
             }
         }
 
-        // hurtbox centering
+        // hurtbox centering midbottom
         sprite->hurtbox.x = sprite->rect.x + (sprite->rect.width - sprite->hurtbox.width) / 2 + sprite->hurtboxOffset.x;
-        sprite->hurtbox.y = sprite->rect.y + (sprite->rect.height - sprite->hurtbox.height) / 2 + sprite->hurtboxOffset.y;
+        sprite->hurtbox.y = sprite->rect.y + (sprite->rect.height - sprite->hurtbox.height) + sprite->hurtboxOffset.y;
 
         // player damage
         if (sprite->canHurtPlayer && player->iFrameTimer < 0.001f && CheckCollisionRecs(sprite->hurtbox, player->rect)) {
-            player->health -= sprite->damage;
+            if (sprite->damage < player->health) {
+                player->health -= sprite->damage;
+            }
+            else {
+                player->health = 0;
+            }
             player->iFrameTimer = game.getSetting("PlayeriFrames");
-            applyKnockback(*sprite, *player, 10.0f);
+            applyKnockback(*sprite, *player, sprite->knockback);
         }
 
         // weapon damage
-        if (sprite->spriteName == "skelet") {
+        // everything that can hurt the player can also be damaged
+        if (sprite->isEnemy) {
             Sprite* weapon = getSprite(*currentWeapon);
             if (weapon && sprite->iFrameTimer < 0.001f && sprite->health > 0 &&
                 CheckCollisionRecs(weapon->hurtbox, sprite->rect)) {

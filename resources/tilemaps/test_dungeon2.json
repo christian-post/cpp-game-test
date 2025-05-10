@@ -12,7 +12,7 @@
             240, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 240,
             240, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 24, 1, 1, 240,
             240, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 240,
-            240, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 240,
+            240, 1, 1, 1, 73, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 73, 1, 1, 1, 240,
             240, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 240,
             240, 1, 1, 3, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 240,
             240, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 240,
@@ -509,6 +509,50 @@
                  "width":16,
                  "x":192,
                  "y":96
+                }, 
+                {
+                 "height":16,
+                 "id":35,
+                 "name":"hurt",
+                 "properties":[
+                        {
+                         "name":"damage",
+                         "type":"int",
+                         "value":2
+                        }, 
+                        {
+                         "name":"knockback",
+                         "type":"float",
+                         "value":5
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":16,
+                 "x":64,
+                 "y":128
+                }, 
+                {
+                 "height":16,
+                 "id":36,
+                 "name":"hurt",
+                 "properties":[
+                        {
+                         "name":"damage",
+                         "type":"int",
+                         "value":2
+                        }, 
+                        {
+                         "name":"knockback",
+                         "type":"float",
+                         "value":5
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":16,
+                 "x":240,
+                 "y":128
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -548,7 +592,7 @@
          "y":0
         }],
  "nextlayerid":7,
- "nextobjectid":34,
+ "nextobjectid":37,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.11.2",
