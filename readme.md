@@ -4,9 +4,14 @@
 
 ![Demo](github/hero.gif)
 
-## Installation
+## Download
 
-### Windows (Visual Studio Only)
+A preview version can be found under [Releases](https://github.com/christian-post/cpp-game-test/releases). Download and unpack the .zip folder.
+
+
+## Building from source
+
+### Windows x64 (Visual Studio Only)
 
 1. Install [Visual Studio](https://visualstudio.microsoft.com/) (select the "Desktop development with C++" workload).
 2. Clone this repository:
@@ -26,9 +31,9 @@
 
 ---
 
-### Windows (CMake CLI Only)
+### Windows x64 (CMake)
 
-1. Install [CMake](https://cmake.org/download/) and [Visual Studio Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/).
+1. Install [CMake](https://cmake.org/download/) and [Visual Studio Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/). Make sure to select "Visual C++ tools for CMake".
 2. Clone this repository:
 
    ```bash
@@ -52,7 +57,7 @@
    ```
 
 > **Note:**
-> Make sure the build configuration is `Debug` unless specified otherwise.
+> Make sure the build configuration is `Debug`.
 
 ---
 
@@ -109,25 +114,24 @@
 You can use the keyboard or a gamepad (I tested with an XBOX Controller). 
 Here is the default button layout: 
 
-| Action        | Keyboard Keys               | Xbox Controller Button           |
-|---------------|-----------------------------|----------------------------------|
-| Move Up       | ↑ or W                       | Left Stick Up or D-Pad Up        |
-| Move Down     | ↓ or S                       | Left Stick Down or D-Pad Down    |
-| Move Left     | ← or A                       | Left Stick Left or D-Pad Left    |
-| Move Right    | → or D                       | Left Stick Right or D-Pad Right  |
-| Action 1      | O                           | A					             |
-| Action 2      | P                           | Y								 |
-| Action 3      | K                           | X								 |
-| Action 4      | L                           | B								 |
-| Confirm       | Enter                       | Start							 |
-| Cancel        | Backspace                   | Back							 |
-| Debug Mode    | F1                          | —                                |
+| Action        | Keyboard Keys    | Xbox Controller Button          | Function                   |
+|---------------|------------------|---------------------------------|----------------------------|
+| Move Up       | ↑ or W           | Left Stick Up or D-Pad Up       | move player/cursor         |
+| Move Down     | ↓ or S           | Left Stick Down or D-Pad Down   | move player/cursor         |
+| Move Left     | ← or A           | Left Stick Left or D-Pad Left   | move player/cursor         |
+| Move Right    | → or D           | Left Stick Right or D-Pad Right | move player/cursor         |
+| Action 1      | O                | A					             | select item<br>advance text|
+| Action 2      | P                | Y								 | use weapon                 |
+| Action 3      | K                | X								 | ---                        |
+| Action 4      | L                | B								 | ---                        |
+| Confirm       | Enter            | Start							 | open/close inventory       |
+| Cancel        | Backspace        | Back							 | ---                        |
+| Debug Mode    | F1               | —                               | debug overlay              |
 
-Action 1 is used for confirmation (selecting an item or advancing a text box).
-Action 2 uses your currently equipped weapon.
 
-You can adjust the Keyboard keys in settings.json (TODO: not implemented)
 
+
+---
 
 ## Some Notes on the Software Design
 
