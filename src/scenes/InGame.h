@@ -5,6 +5,7 @@
 #include "TileMap.h"
 #include "CutsceneManager.h"
 #include <memory>
+#include "json.hpp"
 
 class InGame : public Scene {
 public:
@@ -23,6 +24,7 @@ public:
     std::optional<std::string> currentWeapon = std::nullopt;
     const TileMap* tileMap;
     void loadTilemap(const std::string& name);
+    void addBehaviorsToSprite(std::shared_ptr<Sprite> sprite, const std::vector<std::string>& behaviors, const nlohmann::json& behaviorData);
     std::unordered_map<std::string, uint8_t> roomStates; // store map progression as bitmasks
     void advanceRoomState(const std::string& name);
 
@@ -37,7 +39,7 @@ public:
 
     Camera2D camera = {};
     CutsceneManager cutsceneManager;
-
+    // collision
     void resolveAxisX(const std::shared_ptr<Sprite>& sprite, const Rectangle& obstacle);
     void resolveAxisY(const std::shared_ptr<Sprite>& sprite, const Rectangle& obstacle);
 

@@ -117,6 +117,7 @@ void Preload::startup() {
         { "weapon_spear", { "./resources/textures/sprites/weapon_spear.png" }},
         { "weapon_arrow", { "./resources/textures/sprites/weapon_arrow.png" }},
         { "flask_big_red", { "./resources/textures/sprites/flask_big_red.png" }},
+        { "itemDropHeart_idle", { "./resources/textures/sprites/item_drop_heart.png" } },
         {
             "dungeon_door_idle", {
                 "./resources/textures/sprites/doors_leaf_closed.png",
@@ -139,7 +140,9 @@ void Preload::startup() {
     // load shaders
     game.loader.LoadShaderFile("./resources/shaders/crumble.fs");
     // JSON data
-    game.loader.loadEnemyData("./resources/weapons.json");
+    game.loader.loadSpriteData("./resources/enemies.json");
+    game.loader.loadSpriteData("./resources/npcs.json");
+    game.loader.loadSpriteData("./resources/weapons.json");
 
     // advance to title after loading
     game.startScene("TitleScreen");

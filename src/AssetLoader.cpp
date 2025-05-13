@@ -17,6 +17,7 @@ AssetLoader::~AssetLoader() {
 void AssetLoader::loadTexturesFromDirectory(const std::string& directory) {
     // Looks for png files in a given directory that match the pattern key_n.png
     // and automatically groups and loads them
+    // TODO: currently unused
     for (const auto& entry : fs::directory_iterator(directory)) {
         if (entry.path().extension() == ".png") {
             std::string filename = entry.path().filename().string();
@@ -56,6 +57,7 @@ void AssetLoader::loadTextures(const std::unordered_map<std::string, std::vector
 
 void AssetLoader::LoadTileset(const std::string& filename, int tileSize) {
     // Loads the tiles directly from an image, give the correct tile size
+    // TODO: depreacted
     std::vector<Texture2D> tiles;
     Image tilesetImg = LoadImage(filename.c_str());
 
@@ -119,7 +121,6 @@ void AssetLoader::LoadTileMapFromTiled(const std::string& filename) {
     nlohmann::json j;
     file >> j;
 
-    //TileMap tileMap(j);
     std::string baseName = std::filesystem::path(filename).stem().string();
     tileMaps[baseName] = std::make_unique<TileMap>(j, baseName);
     TraceLog(LOG_INFO, "Tilemap file loaded successfully: %s", baseName.c_str());
@@ -152,17 +153,23 @@ const nlohmann::json& AssetLoader::getSettings() {
     return settings;
 }
 
-void AssetLoader::loadEnemyData(const std::string& filename) {
+void AssetLoader::loadSpriteData(const std::string& filename) {
     std::ifstream file(filename);
     if (!file) {
-        TraceLog(LOG_ERROR, "Failed to open settings file %s", filename.c_str());
+        TraceLog(LOG_ERROR, "Failed to open sprite data file %s", filename.c_str());
         return;
     }
-    file >> enemyData;
+
+    nlohmann::json newData;
+    file >> newData;
+
+    for (auto& [key, value] : newData.items()) {
+        spriteData[key] = std::move(value); // overwrite if the data already exists
+    }
 }
 
-const nlohmann::json& AssetLoader::getEnemyData() {
-    return enemyData;
+const nlohmann::json& AssetLoader::getSpriteData() {
+    return spriteData;
 }
 
 const std::vector<Texture2D>& AssetLoader::getTextures(const std::string& key) {

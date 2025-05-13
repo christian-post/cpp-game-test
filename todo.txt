@@ -15,17 +15,20 @@ features
 -- Command_ShowTextbox(text, target)  // target für Sprechblase
 -- Command_CameraPan(x, y, duration) // camera pans towards a target position (and then back?)
 
-TODO misc
-- npc can follow the player across rooms, set position correctly near the door
-
 TODO: refactor
 - how textures are loaded for sprites from the Tiled Map data (more modular)
 - add a "persistent" property to event listeners (non-persistent listeners are removed after one event)
 - enemies should seperate (collision detection)
 - Remove all coupling between Game and Sprite?
 - Game.walls a vector of Wall objects? add a "collides" property?
+- use sprites in inventory?
+- change sprites' "set_textures" method to have more control about which images to assign (not needing the _suffixes)
+- tilesets: texture sampling instead of having one texture for each tile
+- sprite_default in npcs.json with all attributes set
+- default textures for enemies and srpites (for debugging)
 
 BUGS:
 - RandomWalkBehavior: choose new target after some time if the current target can't be reached
 - Behavior priorities/swiching is messy
 - door status should persist across teleports
+- npc can follow the player across rooms, set position correctly near the door

@@ -19,7 +19,7 @@ private:
     std::unordered_map<std::string, std::unique_ptr<TileMap>> tileMaps;
     std::unordered_map<std::string, std::shared_ptr<Shader>> shaders;
     nlohmann::json settings;
-    nlohmann::json enemyData;
+    nlohmann::json spriteData;
     
 public:
     ~AssetLoader();
@@ -31,13 +31,13 @@ public:
     void LoadFont(const std::string& filename);
     void LoadShaderFile(const std::string& filename);
     void loadSettings(const std::string& filename);
-    void loadEnemyData(const std::string& filename);
+    void loadSpriteData(const std::string& filename);
 
     const std::vector<Texture2D>& getTextures(const std::string& key);
     const TileMap& getTilemap(const std::string& key);
     const Font& getFont(const std::string& key);
     const Shader& getShader(const std::string& key);
     const nlohmann::json& getSettings();
-    const nlohmann::json& getEnemyData();
+    const nlohmann::json& getSpriteData();
     Texture2D fallbackTexture;
 };

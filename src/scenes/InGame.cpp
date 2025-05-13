@@ -170,6 +170,16 @@ void InGame::startup() {
             game.eventManager.pushEvent("showHUD");
         }));
     });*/
+
+
+    // TODO testing
+    auto itemDropHeart = std::make_shared<Sprite>(
+        game, player->position.x + 32.0f, player->position.y, 12.0f, 12.0f, "itemDropHeart"
+    );
+    itemDropHeart->setTextures({ "itemDropHeart_idle" });
+    itemDropHeart->doesAnimate = false;
+    itemDropHeart->addBehavior(std::make_unique<HealBehavior>(game, itemDropHeart, player, 2));
+    game.sprites.push_back(itemDropHeart);
 }
 
 Sprite* InGame::getSprite(const std::string& name) {
@@ -203,6 +213,33 @@ std::shared_ptr<Sprite> InGame::spawnEnemy(const std::string& name, int tileX, i
     return enemy;
 }
 
+void InGame::addBehaviorsToSprite(std::shared_ptr<Sprite> sprite, const std::vector<std::string>& behaviors, const nlohmann::json& behaviorData) {
+    for (const auto& key : behaviors) {
+        if (key == "RandomWalk") {
+            sprite->addBehavior(std::make_unique<RandomWalkBehavior>(sprite));
+        }
+        else if (key == "Watch") {
+            std::string targetName = behaviorData.value("watchTarget", "");
+            if (spriteMap.find(targetName) != spriteMap.end()) {
+                sprite->addBehavior(std::make_unique<WatchBehavior>(sprite, spriteMap[targetName]));
+            }
+            else {
+                TraceLog(LOG_WARNING, "%s not found in spriteMap. Skipping WatchBehavior.", targetName.c_str());
+            }
+        }
+        else if (key == "Chase") {
+            // TODO get distance values from file
+            std::string targetName = behaviorData.value("chaseTarget", "");
+            if (spriteMap.find(targetName) != spriteMap.end()) {
+                sprite->addBehavior(std::make_unique<ChaseBehavior>(sprite, spriteMap[targetName], 48.0f, 2.0f, 64.0f));
+            }
+            else {
+                TraceLog(LOG_WARNING, "%s not found in spriteMap. Skipping WatchBehavior.", targetName.c_str());
+            }
+        }
+    }
+}
+
 void InGame::loadTilemap(const std::string& name) {
     tileMap = &game.loader.getTilemap(name);
     tileSize = tileMap->tileWidth;
@@ -219,6 +256,7 @@ void InGame::loadTilemap(const std::string& name) {
 
     TraceLog(LOG_INFO, "Loading room %s in state %d", name.c_str(), (int)currentState);
 
+    const auto& spriteData = game.loader.getSpriteData();
     // build static collision objects from map data
     for (auto& obj : tileMap->getObjects()) {
         if (!obj.visible) continue;
@@ -241,7 +279,20 @@ void InGame::loadTilemap(const std::string& name) {
             auto sprite = std::make_shared<Sprite>(
                 game, obj.x, obj.y, obj.width, obj.height, obj.name
             );
-            // generic attributes (sprites have default values anyway)
+            std::string spriteName = obj.properties.value("spriteName", "ERROR_SPRITE_TYPE");
+            const auto& data = spriteData.contains(spriteName)
+                ? spriteData.at(spriteName)
+                : spriteData.at("sprite_default");
+            if (!spriteData.contains(spriteName)) {
+                TraceLog(LOG_WARNING, "Missing enemy data for %s, falling back to npc_default", spriteName.c_str());
+            }
+            // generic attributes
+            // from JSON data
+            sprite->health = data.at("health");
+            sprite->damage = data.at("damage");
+            sprite->speed = data.at("speed");
+            // attributes from Tiled data (instance-specific, overwrite JSON data)
+            sprite->spriteName = spriteName;
             sprite->speed = obj.properties.value("speed", 20.0f);
             sprite->damage = obj.properties.value("damage", 1);
             sprite->knockback = obj.properties.value("knockback", 10.0f);
@@ -256,27 +307,28 @@ void InGame::loadTilemap(const std::string& name) {
             // TODO: for persistent sprites, check if they exist in the spriteMap
             if (obj.name == "teleport") {
                 sprite->isColliding = false;
-                std::string targetMap = obj.properties.value("targetMap", ""); // TODO: can this be safely done without copying the string?
+                std::string targetMap = obj.properties.value("targetMap", "");
                 float targetX = obj.properties.value("targetPosX", 0.0f);
                 float targetY = obj.properties.value("targetPosY", 0.0f);
                 sprite->addBehavior(std::make_unique<TeleportBehavior>(
                     game, sprite, player, targetMap, 
                     Vector2{ targetX, targetY }
-                ));
+                )); // TODO: put in Tiled data as well
             }
             else if (obj.name == "npc" && !spriteMap["npc"]) {
                 sprite->setTextures({ "npc_idle", "npc_run" }); // TODO: make this more modular
                 spriteMap["npc"] = sprite; // TODO: pass a unique name
+                auto key = data.at("textureKey").get<std::string>();
+                sprite->setTextures({ key + "_idle", key + "_run" });
             }
             else if (obj.name == "enemy") {
-                std::string enemyType = obj.properties.value("enemyType", "ERROR_ENEMY_TYPE");
-                sprite->spriteName = enemyType; //TODO this is not consistent between npcs and enemies            
-                sprite->health = obj.properties.value("health", 10);
                 sprite->canHurtPlayer = true;
                 sprite->isEnemy = true;
-                sprite->setTextures({ enemyType + "_idle", enemyType + "_run" });
+                auto key = data.at("textureKey").get<std::string>();
+                sprite->setTextures({ key + "_idle", key + "_run" });
             }
             else if (obj.name == "door") {
+                // TODO: change Tiled data for this to match the other sprites
                 std::string spriteKey = obj.properties.value("spriteKey", "ERROR_DOOR_KEY");
                 sprite->spriteName = spriteKey;
                 sprite->setTextures({ spriteKey + "_idle" });
@@ -295,32 +347,7 @@ void InGame::loadTilemap(const std::string& name) {
                 sprite->visible = false;
                 sprite->isColliding = false;       
             }
-
-            // get behaviors from the data
-            for (const auto& token : splitCSV(obj.properties.value("behaviors", ""))) {
-                if (token == "RandomWalk") {
-                    sprite->addBehavior(std::make_unique<RandomWalkBehavior>(sprite));
-                }
-                else if (token == "Watch") {
-                    std::string targetName = obj.properties.value("watchTarget", "");
-                    if (spriteMap.find(targetName) != spriteMap.end()) {
-                        sprite->addBehavior(std::make_unique<WatchBehavior>(sprite, spriteMap[targetName]));
-                    }
-                    else {
-                        TraceLog(LOG_WARNING, "%s not found in spriteMap. Skipping WatchBehavior.", targetName.c_str());
-                    }
-                }
-                else if (token == "Chase") {
-                    // TODO get distance values from file
-                    std::string targetName = obj.properties.value("chaseTarget", "");
-                    if (spriteMap.find(targetName) != spriteMap.end()) {
-                        sprite->addBehavior(std::make_unique<ChaseBehavior>(sprite, spriteMap[targetName], 48.0f, 2.0f, 64.0f));
-                    }
-                    else {
-                        TraceLog(LOG_WARNING, "%s not found in spriteMap. Skipping WatchBehavior.", targetName.c_str());
-                    }
-                }
-            }
+            addBehaviorsToSprite(sprite, data.at("behaviors"), data.at("behaviorData"));
             game.sprites.push_back(sprite);
         }
     }
@@ -389,7 +416,7 @@ void InGame::update(float dt) {
             // and bind the Keys to events maybe?
             if (currentWeapon && !getSprite(*currentWeapon)) {
                 std::string weaponKey = *currentWeapon;
-                const auto& weaponData = game.loader.getEnemyData();
+                const auto& weaponData = game.loader.getSpriteData();
 
                 const auto& data = weaponData.contains(weaponKey)
                     ? weaponData.at(weaponKey)

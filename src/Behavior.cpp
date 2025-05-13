@@ -146,8 +146,8 @@ void DeathBehavior::update(float deltaTime) {
 	}
 }
 
-TeleportBehavior::TeleportBehavior(Game& game, std::shared_ptr<Sprite> sprite, std::shared_ptr<Sprite> targetSprite, const std::string& targetMap, Vector2 targetPos)
-	: game{ game }, self{ sprite }, other{ targetSprite }, targetMap{ targetMap }, targetPos{ targetPos } {
+TeleportBehavior::TeleportBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> other, const std::string& targetMap, Vector2 targetPos)
+	: game{ game }, self{ self }, other{ other }, targetMap{ targetMap }, targetPos{ targetPos } {
 }
 
 void TeleportBehavior::update(float deltaTime) {
@@ -158,6 +158,22 @@ void TeleportBehavior::update(float deltaTime) {
 			game.eventManager.pushDelayedEvent("asdf", 0.01f, nullptr, [this, event]() {
 				game.eventManager.pushEvent("teleport", std::any(event));
 			});
+		}
+	}
+}
+
+HealBehavior::HealBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> other, uint32_t amount) 
+	: game{ game }, self{ self }, other{ other }, amount{ amount }{ 
+}
+
+void HealBehavior::update(float deltaTime) {
+	if (auto s = self.lock(), o = other.lock(); s && o && !done) {
+		if (CheckCollisionRecs(s->rect, o->rect)) {
+			done = true;
+			// add the amount to health, cap at maxHealth
+			o->health = std::min(o->health + amount, o->maxHealth);
+			// delete this item
+			s->markForDeletion();
 		}
 	}
 }

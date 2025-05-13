@@ -17,6 +17,7 @@ class Behavior {
 public:
 	virtual ~Behavior() = default;
 	virtual void update(float deltaTime) = 0;
+	bool done = false;
 };
 
 class WatchBehavior : public Behavior {
@@ -65,7 +66,6 @@ private:
 	std::weak_ptr<Sprite> owner;
 	float lifetime;
 	float originalLifetime;
-	bool done = false;
 };
 
 class DeathBehavior : public Behavior {
@@ -77,7 +77,6 @@ private:
 	std::weak_ptr<Sprite> self;
 	float lifetime;
 	float maxLifetime;
-	bool done = false;
 	const Shader* shader = nullptr;
 };
 
@@ -100,5 +99,20 @@ private:
 	std::weak_ptr<Sprite> other;
 	std::string targetMap;
 	Vector2 targetPos;
-	bool done = false;
+};
+
+class HealBehavior : public Behavior {
+	// used for consumable sprites that heal the player
+public:
+	HealBehavior(
+		Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> other,
+		uint32_t amount
+	);
+	void update(float deltaTime) override;
+
+private:
+	Game& game;
+	std::weak_ptr<Sprite> self;
+	std::weak_ptr<Sprite> other;
+	uint32_t amount;
 };

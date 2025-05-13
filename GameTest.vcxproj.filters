@@ -138,6 +138,7 @@
     <None Include="resources\weapons.json" />
     <None Include="readme.md" />
     <None Include="LICENSE" />
+    <None Include="resources\npcs.json" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="github\hero.gif">
