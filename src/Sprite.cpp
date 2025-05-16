@@ -6,7 +6,7 @@
 #include "Utils.h"
 
 
-Sprite::Sprite(Game& game, float x, float y, float w, float h, const std::string& spriteName)
+Sprite::Sprite(Game& game, float x, float y, float w, float h, const std::string& spriteName, const std::string& textureKey)
     : game(game),
     rect{ x, y, w, h },
     hurtbox{ x, y, w, h},
@@ -14,6 +14,7 @@ Sprite::Sprite(Game& game, float x, float y, float w, float h, const std::string
     vel{ 0.0f, 0.0f },
     position{ (float)x, (float)y },
     spriteName{ spriteName },
+    textureKey{ textureKey },
     behaviors{},
     health{ 10 }, // default values
     maxHealth{ 10 }
@@ -50,10 +51,10 @@ void Sprite::animate(float deltaTime) {
     }
     // latch the last direction (used for animation)
     if (vel.x == 0.0f && vel.y == 0.0f) {
-        currentTextureKey = spriteName + "_idle";
+        currentTextureKey = textureKey + "_idle";
     }
     else {
-        currentTextureKey = spriteName + "_run";
+        currentTextureKey = textureKey + "_run";
         if (vel.x > 0.0f) {
             lastDirection = RIGHT; // right
         }

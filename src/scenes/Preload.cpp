@@ -13,6 +13,18 @@ void Preload::startup() {
     // _idle, _run, _hit, [...]
     game.loader.loadTextures({
         {
+            "sprite_default_idle", {
+                "./resources/textures/sprites/sprite_default_idle_anim_f0.png",
+                "./resources/textures/sprites/sprite_default_idle_anim_f1.png"
+            }
+        },
+        {
+            "sprite_default_run", {
+                "./resources/textures/sprites/sprite_default_idle_anim_f0.png",
+                "./resources/textures/sprites/sprite_default_idle_anim_f1.png"
+            }
+        },
+        {
             "player_idle", {
                 "./resources/textures/sprites/knight_f_idle_anim_f0.png",
                 "./resources/textures/sprites/knight_f_idle_anim_f1.png",
@@ -34,7 +46,7 @@ void Preload::startup() {
             }
         },
         {
-            "npc_idle", {
+            "elf_f_idle", {
                 "./resources/textures/sprites/elf_f_idle_anim_f0.png",
                 "./resources/textures/sprites/elf_f_idle_anim_f1.png",
                 "./resources/textures/sprites/elf_f_idle_anim_f2.png",
@@ -42,7 +54,7 @@ void Preload::startup() {
             }
         },
         {
-            "npc_run", {
+            "elf_f_run", {
                 "./resources/textures/sprites/elf_f_run_anim_f0.png",
                 "./resources/textures/sprites/elf_f_run_anim_f1.png",
                 "./resources/textures/sprites/elf_f_run_anim_f2.png",

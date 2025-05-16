@@ -25,7 +25,8 @@ class Sprite {
 public:
     Game& game;
     std::unordered_map<std::string, std::vector<Texture2D>> frames;
-    std::string spriteName; // used for finding the correct textures
+    std::string spriteName; // used for general idengtification
+    std::string textureKey; // used for finding the correct texture
     int currentFrame = 0;
     bool doesAnimate = true;
     bool visible = true;
@@ -59,7 +60,7 @@ public:
     float knockback = 10.0f;
     bool dying = false; // flag for the death animation
     
-    Sprite(Game& game, float x, float y, float w, float h, const std::string& spriteName);
+    Sprite(Game& game, float x, float y, float w, float h, const std::string& spriteName, const std::string& textureKey);
     ~Sprite();
     void setTextures(std::initializer_list<std::string> keys);
     void animate(float deltaTime);

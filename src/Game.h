@@ -43,6 +43,7 @@ public:
     void pauseScene(const std::string& name);
     void resumeScene(const std::string& name);
     void processMarkedScenes();
+    void resetScenes();
 
     template <typename T>
     void registerScene(const std::string& name, int priority = 0) {

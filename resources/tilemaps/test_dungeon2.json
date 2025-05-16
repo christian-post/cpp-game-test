@@ -324,6 +324,11 @@
                          "name":"roomState",
                          "type":"int",
                          "value":1
+                        }, 
+                        {
+                         "name":"spriteName",
+                         "type":"string",
+                         "value":"elfCompanion"
                         }],
                  "rotation":0,
                  "type":"sprite",
@@ -375,50 +380,6 @@
                  "width":32,
                  "x":144,
                  "y":16
-                }, 
-                {
-                 "height":16,
-                 "id":35,
-                 "name":"hurt",
-                 "properties":[
-                        {
-                         "name":"damage",
-                         "type":"int",
-                         "value":2
-                        }, 
-                        {
-                         "name":"knockback",
-                         "type":"float",
-                         "value":5
-                        }],
-                 "rotation":0,
-                 "type":"sprite",
-                 "visible":true,
-                 "width":16,
-                 "x":64,
-                 "y":128
-                }, 
-                {
-                 "height":16,
-                 "id":36,
-                 "name":"hurt",
-                 "properties":[
-                        {
-                         "name":"damage",
-                         "type":"int",
-                         "value":2
-                        }, 
-                        {
-                         "name":"knockback",
-                         "type":"float",
-                         "value":5
-                        }],
-                 "rotation":0,
-                 "type":"sprite",
-                 "visible":true,
-                 "width":16,
-                 "x":240,
-                 "y":128
                 }],
          "opacity":1,
          "type":"objectgroup",

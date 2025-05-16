@@ -41,6 +41,8 @@ public:
 
 	void pushConditionalEvent(std::function<bool()> condition, std::function<void()> callback);
 
+	void clearAll();
+
 	// Get all events (for direct iteration in the scene)
 	const std::unordered_map<std::string, std::any>& peekEvents() const {
 		return events;

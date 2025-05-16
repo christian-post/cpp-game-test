@@ -40,6 +40,12 @@ void EventManager::removeListeners(const std::string& key) {
 	listeners.erase(key);
 }
 
+void EventManager::clearAll() {
+	listeners.clear();
+	delayedEvents.clear();
+	conditionalEvents.clear();
+}
+
 void EventManager::update(float deltaTime) {
 	for (auto it = delayedEvents.begin(); it != delayedEvents.end(); ) {
 		it->timeRemaining -= deltaTime;

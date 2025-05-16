@@ -641,224 +641,13 @@
          "objects":[
                 {
                  "height":16,
-                 "id":42,
-                 "name":"enemy",
-                 "properties":[
-                        {
-                         "name":"behaviors",
-                         "type":"string",
-                         "value":"RandomWalk"
-                        }, 
-                        {
-                         "name":"chaseTarget",
-                         "type":"string",
-                         "value":"player"
-                        }, 
-                        {
-                         "name":"damage",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"enemyType",
-                         "type":"string",
-                         "value":"goblin"
-                        }, 
-                        {
-                         "name":"health",
-                         "type":"int",
-                         "value":4
-                        }, 
-                        {
-                         "name":"hurtboxH",
-                         "type":"int",
-                         "value":8
-                        }, 
-                        {
-                         "name":"hurtboxW",
-                         "type":"int",
-                         "value":8
-                        }, 
-                        {
-                         "name":"roomState",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"speed",
-                         "type":"float",
-                         "value":10
-                        }],
-                 "rotation":0,
-                 "type":"sprite",
-                 "visible":true,
-                 "width":16,
-                 "x":240,
-                 "y":432
-                }, 
-                {
-                 "height":16,
-                 "id":51,
-                 "name":"enemy",
-                 "properties":[
-                        {
-                         "name":"behaviors",
-                         "type":"string",
-                         "value":"RandomWalk"
-                        }, 
-                        {
-                         "name":"chaseTarget",
-                         "type":"string",
-                         "value":"player"
-                        }, 
-                        {
-                         "name":"damage",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"enemyType",
-                         "type":"string",
-                         "value":"goblin"
-                        }, 
-                        {
-                         "name":"health",
-                         "type":"int",
-                         "value":4
-                        }, 
-                        {
-                         "name":"hurtboxH",
-                         "type":"int",
-                         "value":8
-                        }, 
-                        {
-                         "name":"hurtboxW",
-                         "type":"int",
-                         "value":8
-                        }, 
-                        {
-                         "name":"roomState",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"speed",
-                         "type":"float",
-                         "value":10
-                        }],
-                 "rotation":0,
-                 "type":"sprite",
-                 "visible":true,
-                 "width":16,
-                 "x":280,
-                 "y":412
-                }, 
-                {
-                 "height":16,
-                 "id":52,
-                 "name":"enemy",
-                 "properties":[
-                        {
-                         "name":"behaviors",
-                         "type":"string",
-                         "value":"RandomWalk"
-                        }, 
-                        {
-                         "name":"chaseTarget",
-                         "type":"string",
-                         "value":"player"
-                        }, 
-                        {
-                         "name":"damage",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"enemyType",
-                         "type":"string",
-                         "value":"goblin"
-                        }, 
-                        {
-                         "name":"health",
-                         "type":"int",
-                         "value":4
-                        }, 
-                        {
-                         "name":"hurtboxH",
-                         "type":"int",
-                         "value":8
-                        }, 
-                        {
-                         "name":"hurtboxW",
-                         "type":"int",
-                         "value":8
-                        }, 
-                        {
-                         "name":"roomState",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"speed",
-                         "type":"float",
-                         "value":10
-                        }],
-                 "rotation":0,
-                 "type":"sprite",
-                 "visible":true,
-                 "width":16,
-                 "x":312,
-                 "y":428
-                }, 
-                {
-                 "height":16,
                  "id":53,
                  "name":"enemy",
                  "properties":[
                         {
-                         "name":"behaviors",
-                         "type":"string",
-                         "value":"RandomWalk"
-                        }, 
-                        {
-                         "name":"chaseTarget",
-                         "type":"string",
-                         "value":"player"
-                        }, 
-                        {
-                         "name":"damage",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"enemyType",
+                         "name":"spriteName",
                          "type":"string",
                          "value":"goblin"
-                        }, 
-                        {
-                         "name":"health",
-                         "type":"int",
-                         "value":4
-                        }, 
-                        {
-                         "name":"hurtboxH",
-                         "type":"int",
-                         "value":8
-                        }, 
-                        {
-                         "name":"hurtboxW",
-                         "type":"int",
-                         "value":8
-                        }, 
-                        {
-                         "name":"roomState",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"speed",
-                         "type":"float",
-                         "value":10
                         }],
                  "rotation":0,
                  "type":"sprite",
@@ -869,174 +658,105 @@
                 }, 
                 {
                  "height":16,
-                 "id":54,
+                 "id":57,
                  "name":"enemy",
                  "properties":[
                         {
-                         "name":"behaviors",
-                         "type":"string",
-                         "value":"RandomWalk"
-                        }, 
-                        {
-                         "name":"chaseTarget",
-                         "type":"string",
-                         "value":"player"
-                        }, 
-                        {
-                         "name":"damage",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"enemyType",
+                         "name":"spriteName",
                          "type":"string",
                          "value":"goblin"
-                        }, 
-                        {
-                         "name":"health",
-                         "type":"int",
-                         "value":4
-                        }, 
-                        {
-                         "name":"hurtboxH",
-                         "type":"int",
-                         "value":8
-                        }, 
-                        {
-                         "name":"hurtboxW",
-                         "type":"int",
-                         "value":8
-                        }, 
-                        {
-                         "name":"roomState",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"speed",
-                         "type":"float",
-                         "value":10
                         }],
                  "rotation":0,
                  "type":"sprite",
                  "visible":true,
                  "width":16,
-                 "x":56,
-                 "y":276
+                 "x":28,
+                 "y":288
                 }, 
                 {
                  "height":16,
-                 "id":55,
+                 "id":58,
                  "name":"enemy",
                  "properties":[
                         {
-                         "name":"behaviors",
-                         "type":"string",
-                         "value":"RandomWalk"
-                        }, 
-                        {
-                         "name":"chaseTarget",
-                         "type":"string",
-                         "value":"player"
-                        }, 
-                        {
-                         "name":"damage",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"enemyType",
+                         "name":"spriteName",
                          "type":"string",
                          "value":"goblin"
-                        }, 
-                        {
-                         "name":"health",
-                         "type":"int",
-                         "value":4
-                        }, 
-                        {
-                         "name":"hurtboxH",
-                         "type":"int",
-                         "value":8
-                        }, 
-                        {
-                         "name":"hurtboxW",
-                         "type":"int",
-                         "value":8
-                        }, 
-                        {
-                         "name":"roomState",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"speed",
-                         "type":"float",
-                         "value":10
                         }],
                  "rotation":0,
                  "type":"sprite",
                  "visible":true,
                  "width":16,
-                 "x":112,
+                 "x":208,
+                 "y":404
+                }, 
+                {
+                 "height":16,
+                 "id":59,
+                 "name":"enemy",
+                 "properties":[
+                        {
+                         "name":"spriteName",
+                         "type":"string",
+                         "value":"goblin"
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":16,
+                 "x":236,
+                 "y":416
+                }, 
+                {
+                 "height":16,
+                 "id":60,
+                 "name":"enemy",
+                 "properties":[
+                        {
+                         "name":"spriteName",
+                         "type":"string",
+                         "value":"goblin"
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":16,
+                 "x":292,
+                 "y":416
+                }, 
+                {
+                 "height":16,
+                 "id":61,
+                 "name":"enemy",
+                 "properties":[
+                        {
+                         "name":"spriteName",
+                         "type":"string",
+                         "value":"goblin"
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":16,
+                 "x":104,
                  "y":40
                 }, 
                 {
                  "height":16,
-                 "id":56,
+                 "id":62,
                  "name":"enemy",
                  "properties":[
                         {
-                         "name":"behaviors",
-                         "type":"string",
-                         "value":"RandomWalk"
-                        }, 
-                        {
-                         "name":"chaseTarget",
-                         "type":"string",
-                         "value":"player"
-                        }, 
-                        {
-                         "name":"damage",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"enemyType",
+                         "name":"spriteName",
                          "type":"string",
                          "value":"goblin"
-                        }, 
-                        {
-                         "name":"health",
-                         "type":"int",
-                         "value":4
-                        }, 
-                        {
-                         "name":"hurtboxH",
-                         "type":"int",
-                         "value":8
-                        }, 
-                        {
-                         "name":"hurtboxW",
-                         "type":"int",
-                         "value":8
-                        }, 
-                        {
-                         "name":"roomState",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"speed",
-                         "type":"float",
-                         "value":10
                         }],
                  "rotation":0,
                  "type":"sprite",
                  "visible":true,
                  "width":16,
-                 "x":168,
-                 "y":52
+                 "x":160,
+                 "y":48
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -1096,7 +816,7 @@
          "y":0
         }],
  "nextlayerid":7,
- "nextobjectid":57,
+ "nextobjectid":63,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.11.2",

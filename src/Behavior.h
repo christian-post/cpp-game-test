@@ -38,7 +38,7 @@ public:
 private:
 	std::weak_ptr<Sprite> self;
 	float waitTimer = 0.0f;
-	Vector2 walkTarget;
+	Vector2 walkTarget = { 0.0f, 0.0f };
 	bool hasWalkTarget = false;
 };
 

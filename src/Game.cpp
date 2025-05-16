@@ -83,6 +83,12 @@ void Game::wakeScene(const std::string& name) { setSceneState(name, true, false)
 void Game::pauseScene(const std::string& name) { setSceneState(name, true, true); }
 void Game::resumeScene(const std::string& name) { setSceneState(name, true, false); }
 
+void Game::resetScenes() {
+    for (const auto& [name, scene] : scenes) {
+        stopScene(name);
+    }
+}
+
 void Game::processMarkedScenes() {
     for (auto it = scenes.begin(); it != scenes.end(); ) {
         if (it->second->ismarkedForStarting()) {
@@ -110,13 +116,6 @@ void Game::killSprite(const std::shared_ptr<Sprite>& sprite) {
 void Game::clearSprites(bool clearPersistent) {
     // removes all current sprites
     // keeps the ones with the "persistent" flag, if not stated otherwise
-    /*sprites.erase(
-        std::remove_if(sprites.begin(), sprites.end(),
-            [clearPersistent](const std::shared_ptr<Sprite>& s) {
-                return clearPersistent || !s->persistent;
-            }),
-        sprites.end()
-    );*/
     // TODO: testing delayed removal
     for (auto sprite: sprites) {
         if (!sprite->persistent) {
@@ -133,19 +132,6 @@ void Game::processMarkedSprites() {
             TraceLog(LOG_INFO, "Marked for deletion: %s at %p", sprite->spriteName.c_str(), sprite.get());
         }
     }
-
-    // TODO: version for debugging that's easier to inspect
-    //for (auto it = sprites.begin(); it != sprites.end(); ) {
-    //    if ((*it)->isMarkedForDeletion()) {
-    //        auto& sprite = *it;
-    //        int refCount = sprite.use_count();
-    //        it = sprites.erase(it);
-    //    }
-    //    else {
-    //        ++it;
-    //    }
-    //}
-
     sprites.erase(std::remove_if(sprites.begin(), sprites.end(),
         [](auto sprite) {
             return sprite->isMarkedForDeletion();
@@ -268,11 +254,19 @@ void Game::run() {
         update(dt);
         draw();
 
+        // restarting the game
+        if (IsKeyPressed(KEY_F5)) {
+            eventManager.clearAll();
+            for (auto sprite : sprites) {
+                sprite->markForDeletion();
+            }
+            resetScenes();
+            startScene("TitleScreen");
+        }
         processMarkedSprites();
         processMarkedScenes();
     }
-
-    // cleanup
+    // cleanup after the game loop
     UnloadRenderTexture(target);
     CloseWindow();
 }

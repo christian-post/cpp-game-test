@@ -341,53 +341,6 @@
          "objects":[
                 {
                  "height":16,
-                 "id":20,
-                 "name":"enemy",
-                 "properties":[
-                        {
-                         "name":"behaviors",
-                         "type":"string",
-                         "value":"RandomWalk,Chase"
-                        }, 
-                        {
-                         "name":"chaseTarget",
-                         "type":"string",
-                         "value":"player"
-                        }, 
-                        {
-                         "name":"damage",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"enemyType",
-                         "type":"string",
-                         "value":"skelet"
-                        }, 
-                        {
-                         "name":"health",
-                         "type":"int",
-                         "value":4
-                        }, 
-                        {
-                         "name":"roomState",
-                         "type":"int",
-                         "value":3
-                        }, 
-                        {
-                         "name":"speed",
-                         "type":"float",
-                         "value":12
-                        }],
-                 "rotation":0,
-                 "type":"sprite",
-                 "visible":true,
-                 "width":16,
-                 "x":256,
-                 "y":96
-                }, 
-                {
-                 "height":16,
                  "id":21,
                  "name":"enemy",
                  "properties":[
@@ -432,100 +385,6 @@
                  "width":16,
                  "x":144,
                  "y":80
-                }, 
-                {
-                 "height":16,
-                 "id":22,
-                 "name":"enemy",
-                 "properties":[
-                        {
-                         "name":"behaviors",
-                         "type":"string",
-                         "value":"RandomWalk,Chase"
-                        }, 
-                        {
-                         "name":"chaseTarget",
-                         "type":"string",
-                         "value":"player"
-                        }, 
-                        {
-                         "name":"damage",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"enemyType",
-                         "type":"string",
-                         "value":"skelet"
-                        }, 
-                        {
-                         "name":"health",
-                         "type":"int",
-                         "value":4
-                        }, 
-                        {
-                         "name":"roomState",
-                         "type":"int",
-                         "value":3
-                        }, 
-                        {
-                         "name":"speed",
-                         "type":"float",
-                         "value":12
-                        }],
-                 "rotation":0,
-                 "type":"sprite",
-                 "visible":true,
-                 "width":16,
-                 "x":464,
-                 "y":80
-                }, 
-                {
-                 "height":16,
-                 "id":23,
-                 "name":"enemy",
-                 "properties":[
-                        {
-                         "name":"behaviors",
-                         "type":"string",
-                         "value":"RandomWalk,Chase"
-                        }, 
-                        {
-                         "name":"chaseTarget",
-                         "type":"string",
-                         "value":"player"
-                        }, 
-                        {
-                         "name":"damage",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"enemyType",
-                         "type":"string",
-                         "value":"skelet"
-                        }, 
-                        {
-                         "name":"health",
-                         "type":"int",
-                         "value":4
-                        }, 
-                        {
-                         "name":"roomState",
-                         "type":"int",
-                         "value":3
-                        }, 
-                        {
-                         "name":"speed",
-                         "type":"float",
-                         "value":12
-                        }],
-                 "rotation":0,
-                 "type":"sprite",
-                 "visible":true,
-                 "width":16,
-                 "x":464,
-                 "y":224
                 }, 
                 {
                  "height":12,
@@ -602,53 +461,6 @@
                  "width":32,
                  "x":320,
                  "y":28
-                }, 
-                {
-                 "height":16,
-                 "id":29,
-                 "name":"enemy",
-                 "properties":[
-                        {
-                         "name":"behaviors",
-                         "type":"string",
-                         "value":"RandomWalk,Chase"
-                        }, 
-                        {
-                         "name":"chaseTarget",
-                         "type":"string",
-                         "value":"player"
-                        }, 
-                        {
-                         "name":"damage",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"enemyType",
-                         "type":"string",
-                         "value":"skelet"
-                        }, 
-                        {
-                         "name":"health",
-                         "type":"int",
-                         "value":4
-                        }, 
-                        {
-                         "name":"roomState",
-                         "type":"int",
-                         "value":3
-                        }, 
-                        {
-                         "name":"speed",
-                         "type":"float",
-                         "value":12
-                        }],
-                 "rotation":0,
-                 "type":"sprite",
-                 "visible":true,
-                 "width":16,
-                 "x":64,
-                 "y":96
                 }, 
                 {
                  "height":16,
@@ -737,6 +549,28 @@
                  "width":16,
                  "x":400,
                  "y":240
+                }, 
+                {
+                 "height":16,
+                 "id":35,
+                 "name":"enemy",
+                 "properties":[
+                        {
+                         "name":"roomState",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"spriteName",
+                         "type":"string",
+                         "value":"skelet"
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":16,
+                 "x":240,
+                 "y":96
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -786,7 +620,7 @@
          "y":0
         }],
  "nextlayerid":8,
- "nextobjectid":35,
+ "nextobjectid":36,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.11.2",

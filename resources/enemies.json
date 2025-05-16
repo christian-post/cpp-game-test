@@ -1,8 +1,9 @@
 {
   "enemy_default": {
-    "textureKey": null,
+    "textureKey": "sprite_default",
     "health": 100,
     "damage": 1,
+    "knockback": 1.0,
     "speed": 5.0,
     "behaviors": [],
     "behaviorData": {},
@@ -12,13 +13,34 @@
     "textureKey": "skelet",
     "health": 4,
     "damage": 1,
+    "knockback": 10.0,
     "speed": 12.0,
     "behaviors": [ "RandomWalk", "Chase" ],
     "behaviorData": {
-      "ChaseTarget": "player"
+      "chaseTarget": "player"
     },
     "itemDrops": [
-      [ "itemDropHeart", 0.2 ]
+      [ "itemDropHeart", 1.0 ]
     ]
+  },
+  "big_demon": {
+    "textureKey": "big_demon",
+    "health": 8,
+    "damage": 3,
+    "knockback": 15.0,
+    "speed": 14.0,
+    "behaviors": [ "RandomWalk", "Chase" ],
+    "behaviorData": { "chaseTarget": "player" },
+    "itemDrops": []
+  },
+  "goblin": {
+    "textureKey": "goblin",
+    "health": 2,
+    "damage": 1,
+    "knockback": 8.0,
+    "speed": 10.0,
+    "behaviors": [ "RandomWalk", "Chase" ],
+    "behaviorData": { "chaseTarget": "player" },
+    "itemDrops": []
   }
 }
