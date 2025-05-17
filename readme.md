@@ -6,7 +6,7 @@
 
 ## Download
 
-A preview version can be found under [Releases](https://github.com/christian-post/cpp-game-test/releases). Download and unpack the .zip folder.
+A preview version for Windows x64 can be found under [Releases](https://github.com/christian-post/cpp-game-test/releases). JUst download and unpack the .zip folder, and start "GameText.exe" found in "Releases".
 
 
 ## Building from source
@@ -114,19 +114,20 @@ A preview version can be found under [Releases](https://github.com/christian-pos
 You can use the keyboard or a gamepad (I tested with an XBOX Controller). 
 Here is the default button layout: 
 
-| Action        | Keyboard Keys    | Xbox Controller Button          | Function                   |
-|---------------|------------------|---------------------------------|----------------------------|
-| Move Up       | ↑ or W           | Left Stick Up or D-Pad Up       | move player/cursor         |
-| Move Down     | ↓ or S           | Left Stick Down or D-Pad Down   | move player/cursor         |
-| Move Left     | ← or A           | Left Stick Left or D-Pad Left   | move player/cursor         |
-| Move Right    | → or D           | Left Stick Right or D-Pad Right | move player/cursor         |
-| Action 1      | O                | A					             | select item<br>advance text|
-| Action 2      | P                | Y								 | use weapon                 |
-| Action 3      | K                | X								 | ---                        |
-| Action 4      | L                | B								 | ---                        |
-| Confirm       | Enter            | Start							 | open/close inventory       |
-| Cancel        | Backspace        | Back							 | ---                        |
-| Debug Mode    | F1               | —                               | debug overlay              |
+| Action        | Keyboard Keys    | Xbox Controller Button          | Function                    |
+|---------------|------------------|---------------------------------|---------------------------- |
+| Move Up       | ↑ or W           | Left Stick Up or D-Pad Up       | move player/cursor          |
+| Move Down     | ↓ or S           | Left Stick Down or D-Pad Down   | move player/cursor          |
+| Move Left     | ← or A           | Left Stick Left or D-Pad Left   | move player/cursor          |
+| Move Right    | → or D           | Left Stick Right or D-Pad Right | move player/cursor          |
+| Action 1      | O                | A					             | select item<br>advance text |
+| Action 2      | P                | Y								 | use weapon                  |
+| Action 3      | K                | X								 | ---                         |
+| Action 4      | L                | B								 | ---                         |
+| Confirm       | Enter            | Start							 | open/close inventory        |
+| Cancel        | Backspace        | Back							 | ---                         |
+| Debug Mode    | F1               | —                               | debug overlay               |
+| Restart Game  | F5               | —                               | restart and go back to title|
 
 
 

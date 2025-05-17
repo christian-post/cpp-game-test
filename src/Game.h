@@ -7,6 +7,7 @@
 #include "AssetLoader.h"
 #include "Sprite.h"
 #include "EventManager.h"
+#include "InventoryManager.h"
 #include "json.hpp"
 
 
@@ -53,7 +54,6 @@ public:
         scenePriorities[name] = priority;
     }
 
-
     Scene* getScene(const std::string& name) {
         auto it = scenes.find(name);
         return (it != scenes.end()) ? it->second.get() : nullptr;
@@ -78,6 +78,14 @@ public:
 
     // store a reference to the player sprite in case a scene other than InGame needs it
     Sprite* getPlayer();
+    // grant access to a reference to the inventory (idk if this is bad design)
+    std::array<std::vector<Item>, NUM_ITEM_TYPES>& getItems() {
+        //return static_cast<InventoryManager*>(getScene("InventoryManager"))->getItems();
+        InventoryManager* inv = static_cast<InventoryManager*>(getScene("InventoryManager"));
+        assert(inv); // TODO debugging
+        auto& items = inv->getItems();
+        return items;
+    }
 
     bool debug = false;
 

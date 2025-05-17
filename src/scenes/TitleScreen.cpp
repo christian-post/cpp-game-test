@@ -13,6 +13,7 @@ void TitleScreen::update(float dt) {
     transparency = (unsigned char)((sinf(GetTime() * PI) + 1.0f) * 127.5f);
 
     if (AnyKeyPressed(game.buttonsPressed)) {
+        game.startScene("InventoryManager");
         game.startScene("InGame");
         game.startScene("HUD");
         game.stopScene(getName());

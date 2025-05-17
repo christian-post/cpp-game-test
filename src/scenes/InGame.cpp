@@ -38,8 +38,6 @@ void InGame::startup() {
             currentWeapon = std::nullopt;
         }
     });
-    // give the player the sword for starters
-    game.eventManager.pushEvent("weaponSet", std::string("weapon_sword"));
 
     // setup the camera
     camera.target = Vector2{ player->rect.x, player->rect.y };
@@ -155,7 +153,7 @@ void InGame::startup() {
     );
 
     // queue a cutscene at the start of the game
-    game.eventManager.pushDelayedEvent("cutsceneStart", 0.1f, nullptr, [this]() {
+    /*game.eventManager.pushDelayedEvent("cutsceneStart", 0.1f, nullptr, [this]() {
         game.eventManager.pushEvent("hideHUD");
         cutsceneManager.queueCommand(new Command_Letterbox(game.gameScreenWidth, game.gameScreenHeight, 1.0f), false);
         Sprite& npcRef = *spriteMap["elfCompanion"];
@@ -169,7 +167,17 @@ void InGame::startup() {
         cutsceneManager.queueCommand(new Command_Callback([this]() {
             game.eventManager.pushEvent("showHUD");
         }));
-    });
+    });*/
+
+    // test add an item
+    game.eventManager.pushDelayedEvent("testItemsForStart", 0.1f, nullptr, [this]() {
+        // give the player the sword for starters
+        game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("Sword", 1));
+        game.eventManager.pushEvent("weaponSet", std::string("weapon_sword"));
+        // another item
+        game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("Double Axe", 1));
+        game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("Red Potion", 999));
+        });
 }
 
 Sprite* InGame::getSprite(const std::string& name) {
@@ -477,9 +485,9 @@ void InGame::update(float dt) {
         if (game.buttonsPressed & CONTROL_CONFIRM) {
             // TODO: bind events to all the button functionality
             game.pauseScene(this->getName());
-            game.startScene("Inventory");
+            game.startScene("InventoryUI");
             game.eventManager.addListener("InventoryDone", [this](std::any) {
-                this->game.stopScene("Inventory");
+                this->game.stopScene("InventoryUI");
                 this->game.resumeScene(this->getName());
                 });
         }

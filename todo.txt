@@ -22,6 +22,7 @@ TODO: refactor
 - use sprites in inventory?
 - tilesets: texture sampling instead of having one texture for each tile
 - a way to control the page break of a text box
+- items.json if they get more complex
 
 BUGS:
 - RandomWalkBehavior: choose new target after some time if the current target can't be reached

@@ -60,7 +60,10 @@
     <ClCompile Include="src\scenes\HUD.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\scenes\Inventory.cpp">
+    <ClCompile Include="src\scenes\InventoryUI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scenes\InventoryManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -119,7 +122,10 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\scenes\Inventory.h">
+    <ClInclude Include="src\scenes\InventoryUI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scenes\InventoryManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

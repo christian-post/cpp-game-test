@@ -3,7 +3,9 @@
 #include <iostream>
 #include <cstdint>
 #include <vector>
-#include <string>   // if you use std::string
+#include <string> 
+#include <unordered_map>
+#include <array>
 
 
 enum inventoryState {
@@ -13,25 +15,13 @@ enum inventoryState {
     CLOSING
 };
 
-
-struct TestItem {
-    // TODO just for testing the inventory
-    std::string name;
-    uint32_t quantity;
-    std::string textureKey;
-    TestItem(const std::string& n, uint32_t q, const std::string& t)
-        : name(n), quantity(q), textureKey(t) {
-    }
-};
-
-
-class Inventory : public Scene {
+class InventoryUI : public Scene {
     // scene responsible for drawing the inventory and all the items
     // as well as item selection etc
     //
-    // inventory management is done in Game (I think)
+    // TODO: not sure if this scene should manage the items as well
 public:
-    Inventory(Game& game, const std::string& name) : Scene(game, name) {}
+    InventoryUI(Game& game, const std::string& name);
     void startup() override;
     void update(float dt) override;
     void draw() override;
@@ -49,7 +39,4 @@ private:
     size_t index = 0; // selected item index
     uint32_t weaponsRows = 3;
     uint32_t cols = 6;
-
-    std::vector<TestItem> weapons;
-    std::vector<TestItem> items;
 };

@@ -5,7 +5,8 @@
 #include "TitleScreen.h"
 #include "InGame.h"
 #include "HUD.h"
-#include "Inventory.h"
+#include "InventoryUI.h"
+#include "InventoryManager.h"
 #include "GameOver.h"
 #include "Utils.h"
 
@@ -33,7 +34,8 @@ Game::Game() : buttonsDown{}, buttonsPressed{} {
     registerScene<TitleScreen>("TitleScreen", 0);
     registerScene<InGame>("InGame", 0);
     registerScene<HUD>("HUD", 1);
-    registerScene<Inventory>("Inventory", 2);
+    registerScene<InventoryUI>("InventoryUI", 2);
+    registerScene<InventoryManager>("InventoryManager", 0);
     registerScene<GameOver>("GameOver", 2);
 }
 
