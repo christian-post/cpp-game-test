@@ -8,6 +8,7 @@ void InventoryManager::startup() {
     itemData["Double Axe"] = { WEAPON, "weapon_double_axe" };
     itemData["Arrows"] = { CONSUMABLE, "weapon_arrow" };
     itemData["Red Potion"] = { CONSUMABLE, "flask_big_red" };
+    itemData["Coin"] = { CONSUMABLE, "itemDropCoin_idle" };
 
     game.eventManager.addListener("addItem", [this](const std::any& data) {
         if (const auto* item = std::any_cast<std::pair<std::string, uint32_t>>(&data)) {

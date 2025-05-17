@@ -177,3 +177,20 @@ void HealBehavior::update(float deltaTime) {
 		}
 	}
 }
+
+AddItemBehavior::AddItemBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> other, const std::string& name, uint32_t amount)
+	: game{ game }, self{ self }, other{ other }, name{ name }, amount {
+	amount
+} {}
+
+void AddItemBehavior::update(float deltaTime) {
+	if (auto s = self.lock(), o = other.lock(); s && o && !done) {
+		if (CheckCollisionRecs(s->rect, o->rect)) {
+			done = true;
+			// add the item
+			game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>(name, amount));
+			// delete this item
+			s->markForDeletion();
+		}
+	}
+}

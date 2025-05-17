@@ -338,28 +338,6 @@
                  "y":192
                 }, 
                 {
-                 "height":16,
-                 "id":23,
-                 "name":"enemy",
-                 "properties":[
-                        {
-                         "name":"roomState",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"spriteName",
-                         "type":"string",
-                         "value":"skelet"
-                        }],
-                 "rotation":0,
-                 "type":"sprite",
-                 "visible":true,
-                 "width":16,
-                 "x":128,
-                 "y":96
-                }, 
-                {
                  "height":32,
                  "id":26,
                  "name":"door",
@@ -380,6 +358,160 @@
                  "width":32,
                  "x":144,
                  "y":16
+                }, 
+                {
+                 "height":16,
+                 "id":40,
+                 "name":"enemy",
+                 "properties":[
+                        {
+                         "name":"roomState",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"spriteName",
+                         "type":"string",
+                         "value":"skelet"
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":16,
+                 "x":96,
+                 "y":116
+                }, 
+                {
+                 "height":16,
+                 "id":43,
+                 "name":"enemy",
+                 "properties":[
+                        {
+                         "name":"roomState",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"spriteName",
+                         "type":"string",
+                         "value":"skelet"
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":16,
+                 "x":136,
+                 "y":100
+                }, 
+                {
+                 "height":16,
+                 "id":44,
+                 "name":"enemy",
+                 "properties":[
+                        {
+                         "name":"roomState",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"spriteName",
+                         "type":"string",
+                         "value":"skelet"
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":16,
+                 "x":204,
+                 "y":104
+                }, 
+                {
+                 "height":16,
+                 "id":45,
+                 "name":"enemy",
+                 "properties":[
+                        {
+                         "name":"roomState",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"spriteName",
+                         "type":"string",
+                         "value":"skelet"
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":16,
+                 "x":168,
+                 "y":120
+                }, 
+                {
+                 "height":16,
+                 "id":46,
+                 "name":"enemy",
+                 "properties":[
+                        {
+                         "name":"roomState",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"spriteName",
+                         "type":"string",
+                         "value":"skelet"
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":16,
+                 "x":264,
+                 "y":128
+                }, 
+                {
+                 "height":16,
+                 "id":47,
+                 "name":"enemy",
+                 "properties":[
+                        {
+                         "name":"roomState",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"spriteName",
+                         "type":"string",
+                         "value":"skelet"
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":16,
+                 "x":28,
+                 "y":136
+                }, 
+                {
+                 "height":16,
+                 "id":48,
+                 "name":"enemy",
+                 "properties":[
+                        {
+                         "name":"roomState",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"spriteName",
+                         "type":"string",
+                         "value":"skelet"
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":16,
+                 "x":36,
+                 "y":88
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -419,7 +551,7 @@
          "y":0
         }],
  "nextlayerid":7,
- "nextobjectid":38,
+ "nextobjectid":49,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.11.2",

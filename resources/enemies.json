@@ -20,7 +20,8 @@
       "chaseTarget": "player"
     },
     "itemDrops": [
-      [ "itemDropHeart", 1.0 ]
+      [ "itemDropHeart", 0.1 ], 
+      [ "itemDropCoin", 0.6 ] 
     ]
   },
   "big_demon": {

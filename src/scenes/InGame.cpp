@@ -173,9 +173,9 @@ void InGame::startup() {
     game.eventManager.pushDelayedEvent("testItemsForStart", 0.1f, nullptr, [this]() {
         // give the player the sword for starters
         game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("Sword", 1));
-        game.eventManager.pushEvent("weaponSet", std::string("weapon_sword"));
-        // another item
         game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("Double Axe", 1));
+        game.eventManager.pushEvent("weaponSet", std::string("weapon_double_axe"));
+        // another item
         game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("Red Potion", 999));
         });
 }
@@ -328,7 +328,8 @@ void InGame::loadTilemap(const std::string& name) {
                 // spawn the item drops
                 if (data.contains("itemDrops")) {
                     std::weak_ptr<Sprite> weakSprite = sprite;
-                    game.eventManager.addListener("killSprite", [this, weakSprite, data](std::any) {
+                    std::string eventName = "killSprite_" + std::to_string(reinterpret_cast<uintptr_t>(sprite.get()));
+                    game.eventManager.addListener(eventName, [this, weakSprite, data](std::any) {
                         auto s = weakSprite.lock();
                         if (!s) return;
 
@@ -348,6 +349,9 @@ void InGame::loadTilemap(const std::string& name) {
                                 item->doesAnimate = false;
                                 if (itemId == "itemDropHeart" && player) {
                                     item->addBehavior(std::make_unique<HealBehavior>(game, item, player, 2));
+                                }
+                                else if (itemId == "itemDropCoin") {
+                                    item->addBehavior(std::make_unique<AddItemBehavior>(game, item, player, "Coin", 2));
                                 }
                                 game.sprites.push_back(item);
                                 break;
@@ -427,9 +431,10 @@ void InGame::update(float dt) {
             sprite->dying = true;
             sprite->removeAllBehaviors();
             sprite->addBehavior(std::make_unique<DeathBehavior>(sprite, 2.0f));
-            game.eventManager.pushDelayedEvent("killSprite", 2.01f, nullptr, [this, sprite]() {
+            std::string eventName = "killSprite_" + std::to_string(reinterpret_cast<uintptr_t>(sprite.get()));
+            game.eventManager.pushDelayedEvent(eventName, 2.01f, nullptr, [this, sprite]() {
                 sprite->markForDeletion();
-            });
+                });
         }
     }
     // if a cutscene is active, it takes control over the player

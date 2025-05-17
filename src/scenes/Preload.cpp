@@ -130,6 +130,7 @@ void Preload::startup() {
         { "weapon_arrow", { "./resources/textures/sprites/weapon_arrow.png" }},
         { "flask_big_red", { "./resources/textures/sprites/flask_big_red.png" }},
         { "itemDropHeart_idle", { "./resources/textures/sprites/item_drop_heart.png" } },
+        { "itemDropCoin_idle", { "./resources/textures/sprites/item_drop_coin.png" } },
         {
             "dungeon_door_idle", {
                 "./resources/textures/sprites/doors_leaf_closed.png",

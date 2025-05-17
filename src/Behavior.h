@@ -116,3 +116,20 @@ private:
 	std::weak_ptr<Sprite> other;
 	uint32_t amount;
 };
+
+class AddItemBehavior : public Behavior {
+	// used for consumable sprites that heal the player
+public:
+	AddItemBehavior(
+		Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> other,
+		const std::string& name, uint32_t amount
+	);
+	void update(float deltaTime) override;
+
+private:
+	Game& game;
+	std::weak_ptr<Sprite> self;
+	std::weak_ptr<Sprite> other;
+	std::string name;
+	uint32_t amount;
+};
