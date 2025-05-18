@@ -153,7 +153,7 @@ void InGame::startup() {
     );
 
     // queue a cutscene at the start of the game
-    /*game.eventManager.pushDelayedEvent("cutsceneStart", 0.1f, nullptr, [this]() {
+    game.eventManager.pushDelayedEvent("cutsceneStart", 0.1f, nullptr, [this]() {
         game.eventManager.pushEvent("hideHUD");
         cutsceneManager.queueCommand(new Command_Letterbox(game.gameScreenWidth, game.gameScreenHeight, 1.0f), false);
         Sprite& npcRef = *spriteMap["elfCompanion"];
@@ -167,9 +167,9 @@ void InGame::startup() {
         cutsceneManager.queueCommand(new Command_Callback([this]() {
             game.eventManager.pushEvent("showHUD");
         }));
-    });*/
+    });
 
-    // test add an item
+    // TODO: adding some items for testing
     game.eventManager.pushDelayedEvent("testItemsForStart", 0.1f, nullptr, [this]() {
         // give the player the sword for starters
         game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("Sword", 1));
@@ -346,12 +346,14 @@ void InGame::loadTilemap(const std::string& name) {
                                     game, s->position.x, s->position.y, 12.0f, 12.0f, itemId, itemId
                                 );
                                 item->setTextures({ itemId + "_idle" });
+                                item->drawLayer = 1;
                                 item->doesAnimate = false;
+                                item->isColliding = false;
                                 if (itemId == "itemDropHeart" && player) {
                                     item->addBehavior(std::make_unique<HealBehavior>(game, item, player, 2));
                                 }
                                 else if (itemId == "itemDropCoin") {
-                                    item->addBehavior(std::make_unique<AddItemBehavior>(game, item, player, "Coin", 2));
+                                    item->addBehavior(std::make_unique<CollectItemBehavior>(game, item, player, "Coin", 2));
                                 }
                                 game.sprites.push_back(item);
                                 break;
@@ -629,15 +631,17 @@ void InGame::draw() {
             drawTiles(tileMap, tiles, layerIndex);
         }
 
-        // Draw the sprites after sorting them by their bottom y position
+        // Draw the sprites after sorting them by their bottom y position, also respect the drawing layer of each sprite (fixed)
         std::vector<Sprite*> drawOrder;
         drawOrder.reserve(game.sprites.size());
         for (const auto& sprite : game.sprites) {
             drawOrder.push_back(sprite.get());
         }
         std::sort(drawOrder.begin(), drawOrder.end(), [](Sprite* a, Sprite* b) {
+            if (a->drawLayer != b->drawLayer)
+                return a->drawLayer < b->drawLayer;
             return (a->rect.y + a->rect.height) < (b->rect.y + b->rect.height);
-        });
+            });
         for (Sprite* sprite : drawOrder) {
             sprite->draw();
         }

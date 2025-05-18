@@ -3,6 +3,7 @@
 #include "Game.h"
 #include "Utils.h"
 #include <any>
+#include <cmath>
 
 WatchBehavior::WatchBehavior(std::shared_ptr<Sprite> sprite, std::shared_ptr<Sprite> targetSprite)
 	: self{ sprite }, target{ targetSprite } {
@@ -109,6 +110,8 @@ WeaponBehavior::WeaponBehavior(std::shared_ptr<Sprite> sprite, std::shared_ptr<S
 	if (auto s = self.lock(), o = owner.lock(); s && o) {
 		s->lastDirection = o->lastDirection;
 		s->hurtboxOffset.x = (s->lastDirection == LEFT) ? -12.0f : 12.0f;
+		// the player character is left handed, change the drawing order of the weapon accordingly
+		s->drawLayer = (s->lastDirection == LEFT) ? 1 : -1;
 		s->hurtboxOffset.y = 8.0f;
 	}
 }
@@ -116,7 +119,7 @@ WeaponBehavior::WeaponBehavior(std::shared_ptr<Sprite> sprite, std::shared_ptr<S
 void WeaponBehavior::update(float deltaTime) {
 	if (auto s = self.lock(), o = owner.lock(); s && o) {
 		lifetime -= deltaTime;
-		if (lifetime < 0 && !done) {
+		if (lifetime < 0.0f && !done) {
 			s->game.eventManager.pushEvent("killWeapon", nullptr);
 			done = true;
 		}
@@ -139,7 +142,7 @@ void DeathBehavior::update(float deltaTime) {
 		float elapsed = maxLifetime - lifetime;
 		s->activeShader = ShaderState{ shader, elapsed, maxLifetime, 1 };
 		lifetime -= deltaTime;
-		if (lifetime < 0) {
+		if (lifetime < 0.0f) {
 			done = true;
 			s->visible = false;
 		}
@@ -178,19 +181,42 @@ void HealBehavior::update(float deltaTime) {
 	}
 }
 
-AddItemBehavior::AddItemBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> other, const std::string& name, uint32_t amount)
+CollectItemBehavior::CollectItemBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> other, const std::string& name, uint32_t amount)
 	: game{ game }, self{ self }, other{ other }, name{ name }, amount {
 	amount
 } {}
 
-void AddItemBehavior::update(float deltaTime) {
+void CollectItemBehavior::update(float deltaTime) {
 	if (auto s = self.lock(), o = other.lock(); s && o && !done) {
-		if (CheckCollisionRecs(s->rect, o->rect)) {
-			done = true;
-			// add the item
-			game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>(name, amount));
-			// delete this item
-			s->markForDeletion();
+		switch (state) {
+			case 0:
+			{
+				// check collision and collect the item
+				if (CheckCollisionRecs(s->rect, o->rect)) {
+					// add the item
+					game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>(name, amount));
+					state++;
+				}
+				break;
+			}
+			case 1: {
+				// display the item above the player
+				s->position.x = o->position.x + (o->rect.width - s->rect.width) / 2.0f;
+				// oscillate the y position slightly
+				float offset = std::sin((maxLifetime - lifetime) * 10.0f) * 4.0f;
+				s->position.y = o->position.y - 20.0f + offset;
+				lifetime -= deltaTime;
+				if (lifetime < 0.0f) {
+					state++;
+				}
+				break;
+			}
+			default:
+			{
+				// delete the item sprite
+				done = true;
+				s->markForDeletion();
+			}
 		}
 	}
 }

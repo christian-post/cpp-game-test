@@ -29,6 +29,7 @@ public:
     std::string textureKey; // used for finding the correct texture
     int currentFrame = 0;
     bool doesAnimate = true;
+    int drawLayer = 0;
     bool visible = true;
     bool persistent = false; // controls whether the sprite survives between map changes
     std::string currentTextureKey = "default";
@@ -69,6 +70,7 @@ public:
     void update(float deltaTime);
     void draw();
     void moveTo(float x, float y);
+
     bool isMarkedForDeletion() const { return markedForDeletion; }
     void markForDeletion() { markedForDeletion = true; }
 

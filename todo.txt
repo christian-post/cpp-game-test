@@ -6,8 +6,6 @@ features
 - Sprites
 -- behavior priority system
 -- drawing priority/layer system
--- sprite state that can change based on events (e.g. a door changes from being closed to being open)
--- "hurt" sprite (invisible) that deals damage similar to an enemy hurtbox
 
 - Cutscene command system (modular)
 -- Command_MoveToPath(target, posX, posY, duration) // benutzt pathfinding
@@ -22,7 +20,7 @@ TODO: refactor
 - use sprites in inventory?
 - tilesets: texture sampling instead of having one texture for each tile
 - a way to control the page break of a text box
-- items.json if they get more complex
+- items.json if the items get more complex
 
 BUGS:
 - RandomWalkBehavior: choose new target after some time if the current target can't be reached

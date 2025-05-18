@@ -117,10 +117,10 @@ private:
 	uint32_t amount;
 };
 
-class AddItemBehavior : public Behavior {
+class CollectItemBehavior : public Behavior {
 	// used for consumable sprites that heal the player
 public:
-	AddItemBehavior(
+	CollectItemBehavior(
 		Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> other,
 		const std::string& name, uint32_t amount
 	);
@@ -132,4 +132,7 @@ private:
 	std::weak_ptr<Sprite> other;
 	std::string name;
 	uint32_t amount;
+	uint32_t state = 0;
+	float maxLifetime = 2.0f; 
+	float lifetime = maxLifetime;
 };
