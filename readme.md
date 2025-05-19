@@ -14,20 +14,16 @@ A preview version for Windows x64 can be found under [Releases](https://github.c
 ### Windows x64 (Visual Studio Only)
 
 1. Install [Visual Studio](https://visualstudio.microsoft.com/) (select the "Desktop development with C++" workload).
-2. Clone this repository:
-
+2. Open Cmd/Powershell and clone this repository:
    ```bash
    git clone https://github.com/christian-post/cpp-game-test.git
-   cd cpp-game-test
    ```
-
-3. Open the folder in Visual Studio.
+   Alternatively, if you don't have Git installed, [download the repo as ZIP](https://github.com/christian-post/cpp-game-test/archive/refs/heads/master.zip) and unpack it.
+3. Open the folder in Visual Studio or double-click on the .sln file.
 4. Visual Studio will detect the CMake project automatically.
 5. Set the build configuration to `x64-Debug`.
-6. Build and run the project with `Ctrl+Shift+B`.
-
-> **Note:**
-> Ensure that the `libs/raylib-5.5_win64_msvc16` and `include/raylib-5.5_win64_msvc16` directories are correctly set up.
+6. Build the project with `Ctrl+Shift+B`.
+7. Run the program with F5.
 
 ---
 
