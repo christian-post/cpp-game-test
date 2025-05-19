@@ -345,39 +345,14 @@
                  "name":"enemy",
                  "properties":[
                         {
-                         "name":"behaviors",
-                         "type":"string",
-                         "value":"RandomWalk,Chase"
-                        }, 
-                        {
-                         "name":"chaseTarget",
-                         "type":"string",
-                         "value":"player"
-                        }, 
-                        {
-                         "name":"damage",
-                         "type":"int",
-                         "value":3
-                        }, 
-                        {
-                         "name":"enemyType",
-                         "type":"string",
-                         "value":"big_demon"
-                        }, 
-                        {
-                         "name":"health",
-                         "type":"int",
-                         "value":8
-                        }, 
-                        {
                          "name":"roomState",
                          "type":"int",
                          "value":3
                         }, 
                         {
-                         "name":"speed",
-                         "type":"float",
-                         "value":14
+                         "name":"spriteName",
+                         "type":"string",
+                         "value":"big_demon"
                         }],
                  "rotation":0,
                  "type":"sprite",
@@ -399,7 +374,7 @@
                         {
                          "name":"targetPosX",
                          "type":"float",
-                         "value":9
+                         "value":10
                         }, 
                         {
                          "name":"targetPosY",
@@ -424,7 +399,7 @@
                          "value":"door2open"
                         }, 
                         {
-                         "name":"spriteKey",
+                         "name":"spriteName",
                          "type":"string",
                          "value":"dungeon_door"
                         }],
@@ -571,6 +546,72 @@
                  "width":16,
                  "x":240,
                  "y":96
+                }, 
+                {
+                 "height":16,
+                 "id":36,
+                 "name":"enemy",
+                 "properties":[
+                        {
+                         "name":"roomState",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"spriteName",
+                         "type":"string",
+                         "value":"skelet"
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":16,
+                 "x":440,
+                 "y":84
+                }, 
+                {
+                 "height":16,
+                 "id":37,
+                 "name":"enemy",
+                 "properties":[
+                        {
+                         "name":"roomState",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"spriteName",
+                         "type":"string",
+                         "value":"skelet"
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":16,
+                 "x":476,
+                 "y":104
+                }, 
+                {
+                 "height":16,
+                 "id":38,
+                 "name":"enemy",
+                 "properties":[
+                        {
+                         "name":"roomState",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"spriteName",
+                         "type":"string",
+                         "value":"skelet"
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":16,
+                 "x":460,
+                 "y":272
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -620,7 +661,7 @@
          "y":0
         }],
  "nextlayerid":8,
- "nextobjectid":36,
+ "nextobjectid":39,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.11.2",

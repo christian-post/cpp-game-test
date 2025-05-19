@@ -32,7 +32,7 @@
     "speed": 14.0,
     "behaviors": [ "RandomWalk", "Chase" ],
     "behaviorData": { "chaseTarget": "player" },
-    "itemDrops": []
+    "itemDrops": [ [ "itemDropHeart", 0.5 ] ]
   },
   "goblin": {
     "textureKey": "goblin",
@@ -42,6 +42,6 @@
     "speed": 10.0,
     "behaviors": [ "RandomWalk", "Chase" ],
     "behaviorData": { "chaseTarget": "player" },
-    "itemDrops": []
+    "itemDrops": [ [ "itemDropCoin", 0.5 ] ]
   }
 }

@@ -1,7 +1,8 @@
 features
 - HUD
 - Sound!
-- Inventory
+- Shop
+- Pathfinding
 
 - Sprites
 -- behavior priority system
@@ -25,5 +26,4 @@ TODO: refactor
 BUGS:
 - RandomWalkBehavior: choose new target after some time if the current target can't be reached
 - Behavior priorities/swiching is messy
-- door status should persist across teleports
 - npc can follow the player across rooms, set position correctly near the door

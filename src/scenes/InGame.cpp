@@ -283,9 +283,9 @@ void InGame::loadTilemap(const std::string& name) {
             }
             const auto& defaultData = spriteData.at("sprite_default");
             // instanciate the sprite
-            auto key = data.contains("textureKey") ? data.at("textureKey").get<std::string>() : defaultData.at("textureKey").get<std::string>();
+            auto textureKey = data.contains("textureKey") ? data.at("textureKey").get<std::string>() : defaultData.at("textureKey").get<std::string>();
             auto sprite = std::make_shared<Sprite>(
-                game, obj.x, obj.y, obj.width, obj.height, obj.name, key
+                game, obj.x, obj.y, obj.width, obj.height, obj.name, textureKey
             );
             // generic attributes
             // from JSON data
@@ -315,16 +315,16 @@ void InGame::loadTilemap(const std::string& name) {
                 sprite->addBehavior(std::make_unique<TeleportBehavior>(
                     game, sprite, player, targetMap, 
                     Vector2{ targetX, targetY }
-                )); // TODO: put in Tiled data as well
+                ));
             }
             else if (obj.name == "npc" && !spriteMap[spriteName]) {
                 spriteMap[spriteName] = sprite;
-                sprite->setTextures({ key + "_idle", key + "_run" });
+                sprite->setTextures({ textureKey + "_idle", textureKey + "_run" });
             }
             else if (obj.name == "enemy") {
                 sprite->canHurtPlayer = true;
                 sprite->isEnemy = true;
-                sprite->setTextures({ key + "_idle", key + "_run" });
+                sprite->setTextures({ textureKey + "_idle", textureKey + "_run" });
                 // spawn the item drops
                 if (data.contains("itemDrops")) {
                     std::weak_ptr<Sprite> weakSprite = sprite;
@@ -363,12 +363,17 @@ void InGame::loadTilemap(const std::string& name) {
                 }
             }
             else if (obj.name == "door") {
-                // TODO: change Tiled data for this to match the other sprites
-                std::string spriteKey = obj.properties.value("spriteKey", "ERROR_DOOR_KEY");
-                sprite->spriteName = spriteKey;
-                sprite->setTextures({ spriteKey + "_idle" });
+                sprite->spriteName = spriteName;
+                sprite->setTextures({ textureKey + "_idle" });
                 sprite->doesAnimate = false;
-                sprite->staticCollision = true;
+                // TODO: set the open state in Tiled Data
+                if (currentState == 0) {
+                    sprite->staticCollision = true;
+                }
+                else {
+                    sprite->currentFrame = 1;
+                    sprite->staticCollision = false;
+                }
                 // door trigger
                 std::string triggerKey = obj.properties.value("event", "");
                 game.eventManager.addListener(triggerKey, [this, sprite](std::any) {
@@ -382,7 +387,9 @@ void InGame::loadTilemap(const std::string& name) {
                 sprite->visible = false;
                 sprite->isColliding = false;       
             }
-            addBehaviorsToSprite(sprite, data.at("behaviors"), data.at("behaviorData"));
+            if (data.contains("behavior")) {
+                addBehaviorsToSprite(sprite, data.at("behaviors"), data.at("behaviorData"));
+            }
             game.sprites.push_back(sprite);
         }
     }

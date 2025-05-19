@@ -104,7 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)src/scenes;$(ProjectDir)include;$(ProjectDir)include/raylib-5.5_win64_msvc16;$(ProjectDir)libs/raylib-5.5_win64_msvc16</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)src/scenes;$(ProjectDir)include;$(ProjectDir)include/raylib-5.5_win64_msvc16\include;$(ProjectDir)libs\raylib-5.5_win64_msvc16\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>

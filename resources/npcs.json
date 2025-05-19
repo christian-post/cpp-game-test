@@ -16,5 +16,8 @@
     "behaviorData": {
       "watchTarget": "player"
     }
+  },
+  "dungeon_door": {
+    "textureKey": "dungeon_door"
   }
 }
