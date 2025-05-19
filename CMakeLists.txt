@@ -33,7 +33,7 @@ if (MSVC)
     target_link_directories(MyGame PRIVATE
         ${CMAKE_SOURCE_DIR}/libs/raylib-5.5_win64_msvc16/lib
     )
-    target_link_libraries(MyGame PRIVATE raylib)
+    target_link_libraries(MyGame PRIVATE raylib winmm)
 else()
     target_compile_options(MyGame PRIVATE 
         -Wall -Wextra -Wpedantic
