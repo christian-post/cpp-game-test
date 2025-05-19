@@ -6,7 +6,7 @@
 
 ## Download
 
-A preview version for Windows x64 can be found under [Releases](https://github.com/christian-post/cpp-game-test/releases). JUst download and unpack the .zip folder, and start "GameText.exe" found in "Releases".
+A preview version for Windows x64 can be found under [Releases](https://github.com/christian-post/cpp-game-test/releases). Just download and unpack the .zip folder, and start "GameText.exe" found in "Releases".
 
 
 ## Building from source
@@ -19,11 +19,10 @@ A preview version for Windows x64 can be found under [Releases](https://github.c
    git clone https://github.com/christian-post/cpp-game-test.git
    ```
    Alternatively, if you don't have Git installed, [download the repo as ZIP](https://github.com/christian-post/cpp-game-test/archive/refs/heads/master.zip) and unpack it.
-3. Open the folder in Visual Studio or double-click on the .sln file.
-4. Visual Studio will detect the CMake project automatically.
-5. Set the build configuration to `x64-Debug`.
-6. Build the project with `Ctrl+Shift+B`.
-7. Run the program with F5.
+3. Open the folder in Visual Studio or double-click the .sln file.
+4. Set the build configuration to `x64-Debug`.
+5. Build the project with `Ctrl+Shift+B`.
+6. Run the program with F5.
 
 ---
 
