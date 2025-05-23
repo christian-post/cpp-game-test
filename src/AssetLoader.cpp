@@ -3,15 +3,24 @@
 
 
 AssetLoader::~AssetLoader() {
-    for (auto& pair : textureGroups) {
-        for (Texture2D& texture : pair.second) {
+    // textures
+    for (auto& it : textureGroups) {
+        for (Texture2D& texture : it.second) {
             UnloadTexture(texture);
         }
     }
-    for (auto& pair : fonts) {
-        UnloadFont(pair.second);
+    // fonts
+    for (auto& it : fonts) {
+        UnloadFont(it.second);
     }
     fonts.clear();
+    // unload the music and sounds
+    for (auto& it : musicTracks) {
+        UnloadMusicStream(it.second);
+    }
+    for (auto& it : sounds) {
+        UnloadSound(it.second);
+    }
 }
 
 void AssetLoader::loadTexturesFromDirectory(const std::string& directory) {
@@ -194,4 +203,26 @@ const Shader& AssetLoader::getShader(const std::string& key) {
         throw std::runtime_error("Shader not found: " + key);
     }
     return *(it->second);
+}
+
+void AssetLoader::LoadMusicFile(const std::string& filename, const float volume, const std::string& key) {
+    Music music = LoadMusicStream(filename.c_str());
+    SetMusicVolume(music, volume);
+    std::string id = key.empty() ? std::filesystem::path(filename).stem().string() : key;
+    musicTracks[id] = music;
+}
+
+const Music& AssetLoader::getMusic(const std::string& key) {
+    return musicTracks.at(key);
+}
+
+void AssetLoader::LoadSoundFile(const std::string& filename, const float volume, const std::string& key) {
+    Sound sound = LoadSound(filename.c_str());
+    SetSoundVolume(sound, volume);
+    std::string id = key.empty() ? std::filesystem::path(filename).stem().string() : key;
+    sounds[id] = sound;
+}
+
+const Sound& AssetLoader::getSound(const std::string& key) {
+    return sounds.at(key);
 }

@@ -134,6 +134,8 @@ DeathBehavior::DeathBehavior(std::shared_ptr<Sprite> sprite, float lifetime)
 	: self{ sprite }, lifetime{ lifetime }, maxLifetime{ lifetime } {
 	if (auto s = self.lock()) {
 		shader = &s->game.loader.getShader("crumble");
+		// TODO: play this here? use an event?
+		PlaySound(s->game.loader.getSound("creature_die_01"));
 	}
 }
 
@@ -175,6 +177,8 @@ void HealBehavior::update(float deltaTime) {
 			done = true;
 			// add the amount to health, cap at maxHealth
 			o->health = std::min(o->health + amount, o->maxHealth);
+			// play sound
+			 PlaySound(game.loader.getSound("heart"));
 			// delete this item
 			s->markForDeletion();
 		}
@@ -195,6 +199,7 @@ void CollectItemBehavior::update(float deltaTime) {
 				if (CheckCollisionRecs(s->rect, o->rect)) {
 					// add the item
 					game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>(name, amount));
+					PlaySound(game.loader.getSound("rupee"));
 					state++;
 				}
 				break;

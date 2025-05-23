@@ -19,6 +19,7 @@ Game::Game() : buttonsDown{}, buttonsPressed{} {
     SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT);
     InitWindow(getSetting("windowWidth"), getSetting("windowHeight"), "My first game");
     SetWindowMinSize(320, 240);
+    InitAudioDevice();
 
     // Render texture initialization, used to hold the rendering result so we can easily resize it
     // see https://github.com/raysan5/raylib/blob/master/examples/core/core_window_letterbox.c

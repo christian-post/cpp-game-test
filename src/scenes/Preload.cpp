@@ -156,6 +156,18 @@ void Preload::startup() {
     game.loader.loadSpriteData("./resources/enemies.json");
     game.loader.loadSpriteData("./resources/npcs.json");
     game.loader.loadSpriteData("./resources/weapons.json");
+    // music and sfx
+    // second argument is for adjusting the volume
+    game.loader.LoadMusicFile("./resources/sound/music/Escape the Dungeon- Dubious Dungeon.mp3", 1.0f, "dungeon01");
+    game.loader.LoadMusicFile("./resources/sound/music/Dungeon 02.ogg", 0.7f, "dungeon02");
+    game.loader.LoadMusicFile("./resources/sound/music/title.wav", 1.0f);
+
+    game.loader.LoadSoundFile("./resources/sound/sfx/slash.wav", 0.1f);
+    game.loader.LoadSoundFile("./resources/sound/sfx/heart.wav", 0.6f);
+    game.loader.LoadSoundFile("./resources/sound/sfx/rupee.wav", 0.8f);
+    game.loader.LoadSoundFile("./resources/sound/sfx/doorOpen_2.ogg");
+    game.loader.LoadSoundFile("./resources/sound/sfx/creature_hurt_02.ogg");
+    game.loader.LoadSoundFile("./resources/sound/sfx/creature_die_01.ogg");
 
     // advance to title after loading
     game.startScene("TitleScreen");
@@ -173,5 +185,5 @@ void Preload::draw() {
 
 void Preload::end() {
     // wait for a split second
-    WaitTime(0.2f);
+    WaitTime(0.25f);
 }

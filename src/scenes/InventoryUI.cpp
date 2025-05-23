@@ -112,5 +112,5 @@ void InventoryUI::draw() {
 }
 
 void InventoryUI::end() {
-
+    game.eventManager.pushEvent("setMusicVolume", 1.0f);
 }

@@ -7,10 +7,13 @@
 
 void TitleScreen::startup() {
     TraceLog(LOG_INFO, "Title Screen Startup\n");
+
+    music = &const_cast<Music&>(game.loader.getMusic("title"));
+    PlayMusicStream(*music);
 }
 
 void TitleScreen::update(float dt) {
-    transparency = (unsigned char)((sinf(GetTime() * PI) + 1.0f) * 127.5f);
+    transparency = (unsigned char)((sinf(float(GetTime()) * PI) + 1.0f) * 127.5f);
 
     if (AnyKeyPressed(game.buttonsPressed)) {
         game.startScene("InventoryManager");
@@ -21,6 +24,8 @@ void TitleScreen::update(float dt) {
 }
 
 void TitleScreen::draw() {
+    if (music) UpdateMusicStream(*music);
+
     ClearBackground(BLACK);
 
     DrawTexture(game.loader.getTextures("title_image")[0], 0, 0, WHITE);
@@ -35,7 +40,7 @@ void TitleScreen::draw() {
 
     Color color = { 255, 255, 255, transparency };
     Font defaultFont = GetFontDefault();
-    DrawTextEx(defaultFont, promptText, { float(promptX), float(promptY) }, fontSize, 1, color);
+    DrawTextEx(defaultFont, promptText, { float(promptX), float(promptY) }, float(fontSize), 1.0f, color);
 
 }
 
@@ -43,4 +48,5 @@ void TitleScreen::end() {
     // wait for a split second
     TraceLog(LOG_INFO, "TitleScreen has ended");
     WaitTime(0.25f);
+    StopMusicStream(*music);
 }

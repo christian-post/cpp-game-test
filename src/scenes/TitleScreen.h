@@ -11,5 +11,8 @@ public:
     void draw() override;
     void end() override;
 
-    int transparency = 255;
+    unsigned char transparency = 255;
+
+private:
+    Music* music = nullptr;
 };

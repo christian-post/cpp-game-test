@@ -45,6 +45,10 @@ void InGame::startup() {
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
 
+    // TODO: music test
+    music = &const_cast<Music&>(game.loader.getMusic("dungeon01"));
+    PlayMusicStream(*music);
+
     // event listeners
     game.eventManager.addListener("teleport", [this](std::any data) {
         const auto& teleportData = std::any_cast<const TeleportEvent&>(data);
@@ -52,7 +56,12 @@ void InGame::startup() {
         player->moveTo(teleportData.targetPos.x * tileSize, teleportData.targetPos.y * tileSize);
         });
 
-    // testing events that progress the game
+    game.eventManager.addListener("setMusicVolume", [this](std::any data) {
+            SetMusicVolume(*music, std::any_cast<float>(data));
+        });
+
+
+    // ##### testing events that progress the game ####
     // TODO: create a Events.cpp file which stores a hashmap of condition and callback pairs
     // that can be addressed via the Tiled data
     // TODO: store the states of each room
@@ -87,6 +96,7 @@ void InGame::startup() {
 
                 // open the door
                 game.eventManager.pushEvent("door1open");
+                PlaySound(game.loader.getSound("doorOpen_2"));
                 advanceRoomState("test_dungeon2");
             });
         }
@@ -155,7 +165,7 @@ void InGame::startup() {
     // queue a cutscene at the start of the game
     game.eventManager.pushDelayedEvent("cutsceneStart", 0.1f, nullptr, [this]() {
         game.eventManager.pushEvent("hideHUD");
-        cutsceneManager.queueCommand(new Command_Letterbox(game.gameScreenWidth, game.gameScreenHeight, 1.0f), false);
+        cutsceneManager.queueCommand(new Command_Letterbox(float(game.gameScreenWidth), float(game.gameScreenHeight), 1.0f), false);
         Sprite& npcRef = *spriteMap["elfCompanion"];
         float npcX = npcRef.position.x;
         float npcY = npcRef.position.y + 3.0f * (float)tileMap->tileHeight;
@@ -493,6 +503,9 @@ void InGame::update(float dt) {
                     wpn->markForDeletion();
                     game.eventManager.removeListeners("killWeapon");
                     });
+
+                // play the sound
+                PlaySound(game.loader.getSound("slash"));
             }
         }
 
@@ -504,6 +517,7 @@ void InGame::update(float dt) {
                 this->game.stopScene("InventoryUI");
                 this->game.resumeScene(this->getName());
                 });
+            game.eventManager.pushEvent("setMusicVolume", 0.3f);
         }
 
         for (const auto& sprite : game.sprites) {
@@ -570,6 +584,7 @@ void InGame::update(float dt) {
                 sprite->health = (weapon->damage > sprite->health) ? 0 : sprite->health - weapon->damage;
                 sprite->iFrameTimer = 0.5f;
                 applyKnockback(*weapon, *sprite, 8.0f);
+                PlaySound(game.loader.getSound("creature_hurt_02"));
             }
         }
     }
@@ -621,6 +636,10 @@ void InGame::drawTiles(const TileMap* tileMap, const std::vector<Texture2D>& til
 }
 
 void InGame::draw() {
+    // play music (TODO: still testing)
+    // this is done in draw() to not pause the music when a scene is paused (draws but doesn't update)
+    if (music) UpdateMusicStream(*music);
+
     ClearBackground(BLACK);
 
     BeginMode2D(camera);
@@ -686,4 +705,7 @@ void InGame::draw() {
 void InGame::end() {
     // wait for a split second
     WaitTime(0.25);
+
+    if (music) StopMusicStream(*music);
+    music = nullptr;
 }

@@ -13,6 +13,11 @@ features
 -- Command_ShowTextbox(text, target)  // target für Sprechblase
 -- Command_CameraPan(x, y, duration) // camera pans towards a target position (and then back?)
 
+- Sounds:
+-- hurt
+-- changing rooms
+-- text box
+
 TODO: refactor
 - add a "persistent" property to event listeners (non-persistent listeners are removed after one event)
 - enemies should seperate (collision detection)
@@ -27,3 +32,4 @@ BUGS:
 - RandomWalkBehavior: choose new target after some time if the current target can't be reached
 - Behavior priorities/swiching is messy
 - npc can follow the player across rooms, set position correctly near the door
+- door state is wrong

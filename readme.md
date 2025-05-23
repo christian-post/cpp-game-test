@@ -129,6 +129,20 @@ Here is the default button layout:
 
 ---
 
+
+## Credits (see LICENSE for detailed licensing info)
+
+[raylib](https://www.raylib.com/) Copyright (c) 2013-2025 Ramon Santamaria (@raysan5)</br>
+[JSON for Modern C++](https://github.com/nlohmann/json/) Copyright (c) 2013-2025 Niels Lohmann
+
+16x16 DungeonTileset II by [0x72](https://0x72.itch.io/dungeontileset-ii)</br>
+Classic RPG Tileset by [Jestan](https://jestan.itch.io/classic-rpg)</br>
+"Dubious Dungeon" by [Bogart VGM](https://opengameart.org/content/dubious-dungeon)</br>
+"Dungeon 02" by [Fantasy Music](https://opengameart.org/content/dungeon-02)</br>
+"title screen" by [frenchyboy](https://opengameart.org/content/title-screen)
+"50 RPG sound effects" by [Kenney](https://opengameart.org/content/50-rpg-sound-effects)</br>
+"80 CC0 RPG SFX" by [rubberduck](https://opengameart.org/content/80-cc0-rpg-sfx)</br>
+
 ## Some Notes on the Software Design
 
 ### The Game object

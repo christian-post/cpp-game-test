@@ -47,4 +47,5 @@ private:
     int worldWidth;
     int worldHeight;
     int tileSize = 0;
+    Music* music = nullptr;
 };
