@@ -55,8 +55,10 @@ public:
 
     const std::string& getName() const { return mapName; }
     const std::string& getTilesetName() const { return tilesetName; }
+    const std::string& getMusicKey() const { return music; }
 
 private:
     std::string mapName;
     std::string tilesetName;
+    std::string music;
 };

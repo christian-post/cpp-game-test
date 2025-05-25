@@ -35,6 +35,16 @@ TileMap::TileMap(const nlohmann::json& jsonMap, std::string mapName)
     tileWidth = jsonMap["tilewidth"];
     tileHeight = jsonMap["tileheight"];
 
+    music = "";
+    if (jsonMap.contains("properties") && jsonMap["properties"].is_array()) {
+        for (const auto& prop : jsonMap["properties"]) {
+            if (prop.contains("name") && prop["name"] == "music" && prop.contains("value")) {
+                music = prop["value"];
+                break;
+            }
+        }
+    }
+
     std::string srcName = jsonMap["tilesets"][0]["source"];
     tilesetName = srcName.substr(0, srcName.size() - 4); // strip the ".tsj"
 

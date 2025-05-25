@@ -140,6 +140,7 @@ Classic RPG Tileset by [Jestan](https://jestan.itch.io/classic-rpg)</br>
 "Dubious Dungeon" by [Bogart VGM](https://opengameart.org/content/dubious-dungeon)</br>
 "Dungeon 02" by [Fantasy Music](https://opengameart.org/content/dungeon-02)</br>
 "title screen" by [frenchyboy](https://opengameart.org/content/title-screen)
+"8bit adventure" by [CodeManu](https://opengameart.org/content/8bit-adventure)
 "50 RPG sound effects" by [Kenney](https://opengameart.org/content/50-rpg-sound-effects)</br>
 "80 CC0 RPG SFX" by [rubberduck](https://opengameart.org/content/80-cc0-rpg-sfx)</br>
 

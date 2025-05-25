@@ -36,6 +36,7 @@ public:
     bool markedForStarting = false;
 
     Music* music = nullptr;
+    std::string currentMusicKey;
 
 private:
     std::string name;

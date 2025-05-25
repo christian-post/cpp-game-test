@@ -161,6 +161,7 @@ void Preload::startup() {
     game.loader.LoadMusicFile("./resources/sound/music/Escape the Dungeon- Dubious Dungeon.mp3", 1.0f, "dungeon01");
     game.loader.LoadMusicFile("./resources/sound/music/Dungeon 02.ogg", 0.7f, "dungeon02");
     game.loader.LoadMusicFile("./resources/sound/music/title.wav", 1.0f);
+    game.loader.LoadMusicFile("./resources/sound/music/Adventure.mp3", 1.0f, "field01");
 
     game.loader.LoadSoundFile("./resources/sound/sfx/slash.wav", 0.1f);
     game.loader.LoadSoundFile("./resources/sound/sfx/heart.wav", 0.6f);

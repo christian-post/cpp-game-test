@@ -663,6 +663,12 @@
  "nextlayerid":8,
  "nextobjectid":39,
  "orientation":"orthogonal",
+ "properties":[
+        {
+         "name":"music",
+         "type":"string",
+         "value":"dungeon01"
+        }],
  "renderorder":"right-down",
  "tiledversion":"1.11.2",
  "tileheight":16,

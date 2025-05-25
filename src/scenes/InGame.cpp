@@ -46,8 +46,10 @@ void InGame::startup() {
     camera.zoom = 1.0f;
 
     // TODO: music test
-    music = &const_cast<Music&>(game.loader.getMusic("dungeon01"));
-    PlayMusicStream(*music);
+    //if (!currentMusicKey.empty()) {
+    //    music = &const_cast<Music&>(game.loader.getMusic(currentMusicKey));
+    //    PlayMusicStream(*music);
+    //}
 
     // event listeners
     game.eventManager.addListener("teleport", [this](std::any data) {
@@ -382,7 +384,7 @@ void InGame::loadTilemap(const std::string& name) {
                 sprite->visible = false;
                 sprite->isColliding = false;       
             }
-            if (data.contains("behavior")) {
+            if (data.contains("behaviors")) {
                 addBehaviorsToSprite(sprite, data.at("behaviors"), data.at("behaviorData"));
             }
             game.sprites.push_back(sprite);
@@ -391,6 +393,14 @@ void InGame::loadTilemap(const std::string& name) {
     // calculate the map dimensions (to be used by the camera)
     worldWidth = tileMap->width * tileSize;
     worldHeight = tileMap->height * tileSize;
+
+    // check if a different music track should be played
+    const std::string musicKey = tileMap->getMusicKey();
+    if (!musicKey.empty() && musicKey != currentMusicKey) {
+        currentMusicKey = tileMap->getMusicKey();
+        music = &const_cast<Music&>(game.loader.getMusic(currentMusicKey));
+        PlayMusicStream(*music);
+    }
 }
 
 void InGame::resolveAxisX(const std::shared_ptr<Sprite>& sprite, const Rectangle& obstacle) {
@@ -429,7 +439,7 @@ void InGame::resolveAxisY(const std::shared_ptr<Sprite>& sprite, const Rectangle
 void InGame::update(float dt) {
     // control the sprites and apply physics
 
-    // remove sprites that are dead (from last frame)
+    // handle sprites that are dead (from last frame)
     for (const auto& sprite : game.sprites) {
         if (sprite && sprite->health < 1 && !sprite->dying) {
             sprite->dying = true;
@@ -447,7 +457,7 @@ void InGame::update(float dt) {
         player->getControls();
 
         // testing a weapon (sword)
-    // TODO: needs to be more modular
+        // TODO: needs to be more modular
         if (game.buttonsDown & CONTROL_ACTION2) {
             // spawn the weapon next to the player if not already there
             // TODO write a wrapper for this, or get weapon data from JSON file
