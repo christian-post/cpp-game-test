@@ -17,7 +17,8 @@ enum Controls : uint32_t {
     CONTROL_CANCEL = 1 << 9,
     CONTROL_DEBUG = 1 << 10,
     CONTROL_DEBUG_K1 = 1 << 11,
-    CONTROL_DEBUG_K2 = 2 << 12
+    CONTROL_DEBUG_K2 = 2 << 12,
+    CONTROL_DEBUG_K3 = 2 << 13
 };
 
 // function that takes one of the other functions below and checks for each of the Controls

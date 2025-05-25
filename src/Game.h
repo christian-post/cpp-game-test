@@ -33,6 +33,7 @@ public:
 
     // basic game loop
     void update(float dt);
+    void playMusic();
     void draw();
     void run();
 
@@ -87,6 +88,9 @@ public:
         return items;
     }
 
+    void playSound(const std::string& key);
+
+    bool soundOn = true;
     bool debug = false;
 
 private:

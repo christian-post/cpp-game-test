@@ -58,10 +58,11 @@ private:
 
 class WeaponBehavior : public Behavior {
 public:
-	WeaponBehavior(std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> owner, float lifetime);
+	WeaponBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> owner, float lifetime);
 	void update(float deltaTime) override;
 
 private:
+	Game& game;
 	std::weak_ptr<Sprite> self;
 	std::weak_ptr<Sprite> owner;
 	float lifetime;
@@ -70,10 +71,11 @@ private:
 
 class DeathBehavior : public Behavior {
 public:
-	DeathBehavior(std::shared_ptr<Sprite> self, float lifetime);
+	DeathBehavior(Game& game, std::shared_ptr<Sprite> self, float lifetime);
 	void update(float deltaTime) override;
 
 private:
+	Game& game;
 	std::weak_ptr<Sprite> self;
 	float lifetime;
 	float maxLifetime;

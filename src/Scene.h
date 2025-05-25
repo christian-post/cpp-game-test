@@ -35,6 +35,8 @@ public:
 
     bool markedForStarting = false;
 
+    Music* music = nullptr;
+
 private:
     std::string name;
     int drawPriority = 0;

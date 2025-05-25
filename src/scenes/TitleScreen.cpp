@@ -24,8 +24,6 @@ void TitleScreen::update(float dt) {
 }
 
 void TitleScreen::draw() {
-    if (music) UpdateMusicStream(*music);
-
     ClearBackground(BLACK);
 
     DrawTexture(game.loader.getTextures("title_image")[0], 0, 0, WHITE);

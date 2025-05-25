@@ -19,7 +19,8 @@ uint32_t GetControls(KeyCheckFunc keyFunc, GamepadCheckFunc gamepadFunc) {
     if (keyFunc(KEY_BACKSPACE)) controls |= CONTROL_CANCEL;
     if (keyFunc(KEY_F1)) controls |= CONTROL_DEBUG;
     if (keyFunc(KEY_KP_1)) controls |= CONTROL_DEBUG_K1;
-    if (keyFunc(KEY_KP_1)) controls |= CONTROL_DEBUG_K2;
+    if (keyFunc(KEY_KP_2)) controls |= CONTROL_DEBUG_K2;
+    if (keyFunc(KEY_KP_3)) controls |= CONTROL_DEBUG_K3;
 
     // Gamepad input
     if (IsGamepadAvailable(0)) {

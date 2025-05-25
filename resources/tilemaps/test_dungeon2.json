@@ -348,6 +348,11 @@
                          "value":"door1open"
                         }, 
                         {
+                         "name":"openState",
+                         "type":"int",
+                         "value":3
+                        }, 
+                        {
                          "name":"spriteName",
                          "type":"string",
                          "value":"dungeon_door"
@@ -424,6 +429,50 @@
                  "width":16,
                  "x":200,
                  "y":116
+                }, 
+                {
+                 "height":16,
+                 "id":51,
+                 "name":"hurt",
+                 "properties":[
+                        {
+                         "name":"damage",
+                         "type":"int",
+                         "value":2
+                        }, 
+                        {
+                         "name":"knockback",
+                         "type":"float",
+                         "value":5
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":16,
+                 "x":64,
+                 "y":128
+                }, 
+                {
+                 "height":16,
+                 "id":52,
+                 "name":"hurt",
+                 "properties":[
+                        {
+                         "name":"damage",
+                         "type":"int",
+                         "value":2
+                        }, 
+                        {
+                         "name":"knockback",
+                         "type":"float",
+                         "value":5
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":16,
+                 "x":240,
+                 "y":128
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -463,7 +512,7 @@
          "y":0
         }],
  "nextlayerid":7,
- "nextobjectid":51,
+ "nextobjectid":53,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.11.2",

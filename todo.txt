@@ -32,4 +32,3 @@ BUGS:
 - RandomWalkBehavior: choose new target after some time if the current target can't be reached
 - Behavior priorities/swiching is messy
 - npc can follow the player across rooms, set position correctly near the door
-- door state is wrong

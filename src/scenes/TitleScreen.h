@@ -12,7 +12,4 @@ public:
     void end() override;
 
     unsigned char transparency = 255;
-
-private:
-    Music* music = nullptr;
 };

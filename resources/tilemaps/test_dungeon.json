@@ -533,7 +533,7 @@
                         {
                          "name":"roomState",
                          "type":"int",
-                         "value":1
+                         "value":3
                         }, 
                         {
                          "name":"spriteName",
@@ -555,7 +555,7 @@
                         {
                          "name":"roomState",
                          "type":"int",
-                         "value":1
+                         "value":3
                         }, 
                         {
                          "name":"spriteName",
@@ -577,7 +577,7 @@
                         {
                          "name":"roomState",
                          "type":"int",
-                         "value":1
+                         "value":3
                         }, 
                         {
                          "name":"spriteName",
@@ -599,7 +599,7 @@
                         {
                          "name":"roomState",
                          "type":"int",
-                         "value":1
+                         "value":3
                         }, 
                         {
                          "name":"spriteName",

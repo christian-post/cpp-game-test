@@ -149,12 +149,28 @@ Sprite* Game::getPlayer() {
     return nullptr;
 }
 
+void Game::playSound(const std::string& key){
+    PlaySound(loader.getSound(key));
+}
+
 void Game::update(float dt) {
     eventManager.update(dt);
 
-    for (auto& [name, scene] : scenes) {  // Iterate over map
+    for (auto& [name, scene] : scenes) {
         if (scene && scene->isActive() && !scene->isPaused()) {
             scene->update(dt);
+        }
+    }
+}
+
+void Game::playMusic() {
+    if (!soundOn) return;
+    for (auto& [name, scene] : scenes) {
+        if (scene && scene->isActive()) {
+            if (scene->music) {
+                UpdateMusicStream(*scene->music);
+                return; // prevent multiple scenes from playing music
+            }
         }
     }
 }
@@ -250,14 +266,22 @@ void Game::run() {
         buttonsDown = GetControlsDown();
    
         if (buttonsPressed & CONTROL_DEBUG) debug = !debug; // debug mode toggle
+        // specific debug functions
+        if (debug) {
+            if (buttonsPressed & CONTROL_DEBUG_K2) {
+                soundOn = !soundOn;
+            }
+        }
 
         float currentTime = float(GetTime());
         float dt = currentTime - lastTime;
         lastTime = currentTime;
         update(dt);
+        playMusic();
         draw();
 
         // restarting the game
+        // TODO: should be an event
         if (IsKeyPressed(KEY_F5)) {
             eventManager.clearAll();
             for (auto sprite : sprites) {

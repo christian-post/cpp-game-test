@@ -105,8 +105,8 @@ void ChaseBehavior::update(float deltaTime) {
 	}
 }
 
-WeaponBehavior::WeaponBehavior(std::shared_ptr<Sprite> sprite, std::shared_ptr<Sprite> ownerSprite, float lifetime)
-	: self{ sprite }, owner{ ownerSprite }, lifetime{ lifetime }, originalLifetime{ lifetime } {
+WeaponBehavior::WeaponBehavior(Game& game, std::shared_ptr<Sprite> sprite, std::shared_ptr<Sprite> ownerSprite, float lifetime)
+	: game{ game }, self {sprite}, owner{ ownerSprite }, lifetime{ lifetime }, originalLifetime{ lifetime } {
 	if (auto s = self.lock(), o = owner.lock(); s && o) {
 		s->lastDirection = o->lastDirection;
 		s->hurtboxOffset.x = (s->lastDirection == LEFT) ? -12.0f : 12.0f;
@@ -130,12 +130,11 @@ void WeaponBehavior::update(float deltaTime) {
 	}
 }
 
-DeathBehavior::DeathBehavior(std::shared_ptr<Sprite> sprite, float lifetime)
-	: self{ sprite }, lifetime{ lifetime }, maxLifetime{ lifetime } {
+DeathBehavior::DeathBehavior(Game& game, std::shared_ptr<Sprite> sprite, float lifetime)
+	: game{ game }, self {sprite}, lifetime{ lifetime }, maxLifetime{ lifetime } {
 	if (auto s = self.lock()) {
 		shader = &s->game.loader.getShader("crumble");
-		// TODO: play this here? use an event?
-		PlaySound(s->game.loader.getSound("creature_die_01"));
+		game.playSound("creature_die_01");
 	}
 }
 
@@ -178,7 +177,7 @@ void HealBehavior::update(float deltaTime) {
 			// add the amount to health, cap at maxHealth
 			o->health = std::min(o->health + amount, o->maxHealth);
 			// play sound
-			 PlaySound(game.loader.getSound("heart"));
+			game.playSound("heart");
 			// delete this item
 			s->markForDeletion();
 		}
@@ -199,7 +198,7 @@ void CollectItemBehavior::update(float deltaTime) {
 				if (CheckCollisionRecs(s->rect, o->rect)) {
 					// add the item
 					game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>(name, amount));
-					PlaySound(game.loader.getSound("rupee"));
+					game.playSound("rupee");
 					state++;
 				}
 				break;

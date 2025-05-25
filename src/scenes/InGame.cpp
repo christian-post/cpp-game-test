@@ -96,7 +96,7 @@ void InGame::startup() {
 
                 // open the door
                 game.eventManager.pushEvent("door1open");
-                PlaySound(game.loader.getSound("doorOpen_2"));
+                game.playSound("doorOpen_2");
                 advanceRoomState("test_dungeon2");
             });
         }
@@ -205,21 +205,6 @@ void InGame::advanceRoomState(const std::string& name) {
         roomStates[name] = 1;
     TraceLog(LOG_INFO, "room state of %s is now %d", name.c_str(), static_cast<int>(roomStates[name]));
 }
-
-//std::shared_ptr<Sprite> InGame::spawnEnemy(const std::string& name, int tileX, int tileY) {
-//    // helper function that creates an enemy on the map
-//    // TODO: gets replaced with function that takes the data from TileMap
-//    auto enemy = std::make_shared<Sprite>(
-//        game, float(tileX * tileSize), float(tileY * tileSize), 12.0f, 12.0f, name
-//    );
-//    enemy->speed = 12.0f;
-//    enemy->damage = 1;
-//    enemy->health = 4;
-//    enemy->canHurtPlayer = true;
-//    enemy->setTextures({ name + "_idle", name + "_run" });
-//    game.sprites.push_back(enemy);
-//    return enemy;
-//}
 
 void InGame::addBehaviorsToSprite(std::shared_ptr<Sprite> sprite, const std::vector<std::string>& behaviors, const nlohmann::json& behaviorData) {
     for (const auto& key : behaviors) {
@@ -377,7 +362,7 @@ void InGame::loadTilemap(const std::string& name) {
                 sprite->setTextures({ textureKey + "_idle" });
                 sprite->doesAnimate = false;
                 // TODO: set the open state in Tiled Data
-                if (currentState == 0) {
+                if (currentState == 1) {
                     sprite->staticCollision = true;
                 }
                 else {
@@ -449,7 +434,7 @@ void InGame::update(float dt) {
         if (sprite && sprite->health < 1 && !sprite->dying) {
             sprite->dying = true;
             sprite->removeAllBehaviors();
-            sprite->addBehavior(std::make_unique<DeathBehavior>(sprite, 2.0f));
+            sprite->addBehavior(std::make_unique<DeathBehavior>(game, sprite, 2.0f));
             std::string eventName = "killSprite_" + std::to_string(reinterpret_cast<uintptr_t>(sprite.get()));
             game.eventManager.pushDelayedEvent(eventName, 2.01f, nullptr, [this, sprite]() {
                 sprite->markForDeletion();
@@ -494,7 +479,7 @@ void InGame::update(float dt) {
                 wpn->doesAnimate = false;
                 wpn->isColliding = false;
                 wpn->damage = data.at("damage");
-                wpn->addBehavior(std::make_unique<WeaponBehavior>(wpn, player, data.at("lifetime")));
+                wpn->addBehavior(std::make_unique<WeaponBehavior>(game, wpn, player, data.at("lifetime")));
 
                 // add an event listener that removes the sword
                 // the "killWeapon" event is dispatched by WeaponBehavior once it's finished
@@ -505,7 +490,7 @@ void InGame::update(float dt) {
                     });
 
                 // play the sound
-                PlaySound(game.loader.getSound("slash"));
+                game.playSound("slash");
             }
         }
 
@@ -584,7 +569,7 @@ void InGame::update(float dt) {
                 sprite->health = (weapon->damage > sprite->health) ? 0 : sprite->health - weapon->damage;
                 sprite->iFrameTimer = 0.5f;
                 applyKnockback(*weapon, *sprite, 8.0f);
-                PlaySound(game.loader.getSound("creature_hurt_02"));
+                game.playSound("creature_hurt_02");
             }
         }
     }
@@ -636,10 +621,6 @@ void InGame::drawTiles(const TileMap* tileMap, const std::vector<Texture2D>& til
 }
 
 void InGame::draw() {
-    // play music (TODO: still testing)
-    // this is done in draw() to not pause the music when a scene is paused (draws but doesn't update)
-    if (music) UpdateMusicStream(*music);
-
     ClearBackground(BLACK);
 
     BeginMode2D(camera);
