@@ -24,8 +24,10 @@ void InGame::startup() {
 
     // retrieve the tilemap
     // some sprites need the player reference, so this has to come after the player
+    //loadTilemap("test_map_large");
     loadTilemap("test_dungeon2");
     // set the player's position in the first room
+    //player->moveTo(float(44 * tileSize), float(73 * tileSize) + 4.0f); // for the large test map only
     player->moveTo(float(10 * tileSize), float(15 * tileSize) + 4.0f);
 
     // event listener that stores the current weapon key
@@ -44,12 +46,6 @@ void InGame::startup() {
     camera.offset = Vector2{ game.gameScreenWidth / 2.0f, game.gameScreenHeight / 2.0f };
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
-
-    // TODO: music test
-    //if (!currentMusicKey.empty()) {
-    //    music = &const_cast<Music&>(game.loader.getMusic(currentMusicKey));
-    //    PlayMusicStream(*music);
-    //}
 
     // event listeners
     game.eventManager.addListener("teleport", [this](std::any data) {
@@ -165,7 +161,7 @@ void InGame::startup() {
     );
 
     // queue a cutscene at the start of the game
-    game.eventManager.pushDelayedEvent("cutsceneStart", 0.1f, nullptr, [this]() {
+    /*game.eventManager.pushDelayedEvent("cutsceneStart", 0.1f, nullptr, [this]() {
         game.eventManager.pushEvent("hideHUD");
         cutsceneManager.queueCommand(new Command_Letterbox(float(game.gameScreenWidth), float(game.gameScreenHeight), 1.0f), false);
         Sprite& npcRef = *spriteMap["elfCompanion"];
@@ -179,7 +175,7 @@ void InGame::startup() {
         cutsceneManager.queueCommand(new Command_Callback([this]() {
             game.eventManager.pushEvent("showHUD");
         }));
-    });
+    });*/
 
     // TODO: adding some items for testing
     game.eventManager.pushDelayedEvent("testItemsForStart", 0.1f, nullptr, [this]() {
@@ -310,7 +306,7 @@ void InGame::loadTilemap(const std::string& name) {
                 float targetX = obj.properties.value("targetPosX", 0.0f);
                 float targetY = obj.properties.value("targetPosY", 0.0f);
                 sprite->addBehavior(std::make_unique<TeleportBehavior>(
-                    game, sprite, player, targetMap, 
+                    game, sprite, player, targetMap,
                     Vector2{ targetX, targetY }
                 ));
             }
@@ -376,13 +372,13 @@ void InGame::loadTilemap(const std::string& name) {
                 game.eventManager.addListener(triggerKey, [this, sprite](std::any) {
                     sprite->currentFrame = 1; // second anim frame has to be the opened door
                     sprite->staticCollision = false;
-                });
+                    });
             }
             else if (obj.name == "hurt") {
                 // invisible sprite with hurtbox (e.g. floor spikes)
                 sprite->canHurtPlayer = true;
                 sprite->visible = false;
-                sprite->isColliding = false;       
+                sprite->isColliding = false;
             }
             if (data.contains("behaviors")) {
                 addBehaviorsToSprite(sprite, data.at("behaviors"), data.at("behaviorData"));
@@ -393,6 +389,62 @@ void InGame::loadTilemap(const std::string& name) {
     // calculate the map dimensions (to be used by the camera)
     worldWidth = tileMap->width * tileSize;
     worldHeight = tileMap->height * tileSize;
+
+    // Tile map calculations, used for rendering
+    const Tileset& tileset = game.loader.getTileset(tileMap->getTilesetName());
+    const Texture2D& texture = game.loader.getTextures(tileset.name)[0];
+    const size_t tilesPerRow = tileset.columns;
+    const size_t tilesPerChunkX = tileChunkSize / tileSize;
+    const size_t tilesPerChunkY = tileChunkSize / tileSize;
+    numChunksX = (worldWidth + tileChunkSize - 1) / tileChunkSize;
+    numChunksY = (worldHeight + tileChunkSize - 1) / tileChunkSize;
+
+    // prepare the Tilemap texture chunks
+    size_t totalLayers = tileMap->layers.size();
+    tilemapChunks.resize(totalLayers);
+
+    for (size_t layerIndex = 0; layerIndex < totalLayers; ++layerIndex) {
+        const auto& layer = tileMap->getLayer(layerIndex);
+        if (!layer.visible) continue;
+
+        tilemapChunks[layerIndex].resize(numChunksX * numChunksY);
+
+        for (size_t cy = 0; cy < numChunksY; ++cy) {
+            for (size_t cx = 0; cx < numChunksX; ++cx) {
+                size_t idx = cy * numChunksX + cx;
+                RenderTexture2D chunk = LoadRenderTexture(tileChunkSize, tileChunkSize);
+                BeginTextureMode(chunk);
+                ClearBackground(BLANK);
+
+                size_t startTileX = cx * tilesPerChunkX;
+                size_t startTileY = cy * tilesPerChunkY;
+
+                for (size_t y = 0; y < tilesPerChunkY; ++y) {
+                    for (size_t x = 0; x < tilesPerChunkX; ++x) {
+                        size_t mapX = startTileX + x;
+                        size_t mapY = startTileY + y;
+                        if (mapX >= tileMap->width || mapY >= tileMap->height) continue;
+
+                        int tileIndex = layer.data[mapY][mapX] - 1;
+                        if (tileIndex >= 0) {
+                            size_t tileX = ((size_t)tileIndex % tilesPerRow) * tileSize;
+                            size_t tileY = ((size_t)tileIndex / tilesPerRow) * tileSize;
+                            /*Rectangle src = { static_cast<float>(tileX), static_cast<float>(tileY),
+                                              static_cast<float>(tileSize), static_cast<float>(tileSize) };*/
+                            float srcX = std::clamp(static_cast<float>(tileX), 0.0f, static_cast<float>(texture.width - tileSize));
+                            float srcY = std::clamp(static_cast<float>(tileY), 0.0f, static_cast<float>(texture.height - tileSize));
+                            Rectangle src = { srcX, srcY, static_cast<float>(tileSize), static_cast<float>(tileSize) };
+
+                            Vector2 pos = { static_cast<float>(x * tileSize), static_cast<float>(y * tileSize) };
+                            DrawTextureRec(texture, src, pos, WHITE);
+                        }
+                    }
+                }
+                EndTextureMode();
+                tilemapChunks[layerIndex][idx] = chunk;
+            }
+        }
+    }
 
     // check if a different music track should be played
     const std::string musicKey = tileMap->getMusicKey();
@@ -568,6 +620,7 @@ void InGame::update(float dt) {
             }
             player->iFrameTimer = game.getSetting("PlayeriFrames");
             applyKnockback(*sprite, *player, sprite->knockback);
+            game.playSound("hit01");
         }
 
         // weapon damage
@@ -617,15 +670,28 @@ void InGame::update(float dt) {
     }
 }
 
-void InGame::drawTiles(const TileMap* tileMap, const std::vector<Texture2D>& tiles, int layerIndex) {
-    const auto& layer = tileMap->getLayer(layerIndex);
+void InGame::drawTilemapChunks(int layerIndex) {
+    float viewX = camera.target.x - (camera.offset.x / camera.zoom);
+    float viewY = camera.target.y - (camera.offset.y / camera.zoom);
 
-    for (int y = 0; y < tileMap->height; y++) {
-        for (int x = 0; x < tileMap->width; x++) {
-            int tileIndex = layer.data[y][x] - 1; // Tiled index starts at 1
-            if (tileIndex >= 0) { // Ensure it's a valid tile
-                DrawTexture(tiles[tileIndex], x * tileMap->tileWidth, y * tileMap->tileHeight, WHITE);
-            }
+    for (size_t cy = 0; cy < numChunksY; ++cy) {
+        for (size_t cx = 0; cx < numChunksX; ++cx) {
+            size_t chunkWorldX = cx * tileChunkSize;
+            size_t chunkWorldY = cy * tileChunkSize;
+
+            // chunk is outside the camera fov
+            if (chunkWorldX + tileChunkSize < viewX || chunkWorldX > viewX + game.gameScreenWidth / camera.zoom ||
+                chunkWorldY + tileChunkSize < viewY || chunkWorldY > viewY + game.gameScreenHeight / camera.zoom)
+                continue;
+
+            size_t idx = cy * numChunksX + cx;
+            Vector2 drawPos = { (float)chunkWorldX, (float)chunkWorldY };
+
+            // chunks are flipped, so the src rect has to be flipped to draw the chunk correctly
+            Rectangle src = { 0, 0, (float)tileChunkSize, -(float)tileChunkSize };
+            Rectangle dst = { drawPos.x, drawPos.y, (float)tileChunkSize, (float)tileChunkSize };
+            Vector2 origin = { 0, 0 };
+            DrawTexturePro(tilemapChunks[layerIndex][idx].texture, src, dst, origin, 0.0f, WHITE);
         }
     }
 }
@@ -635,19 +701,16 @@ void InGame::draw() {
 
     BeginMode2D(camera);
         // draw the textures that are affected by the camera
-        //const std::string& tilesetName = tileMap->getTilesetName();
-        const auto& tiles = game.loader.getTextures(tileMap->getTilesetName());
-
-        if (tiles.size() == 0) {
-            throw std::runtime_error("Tile list is empty");
-        }
-        //const auto& tiles = game.loader.getTextures("dungeon");
+        
+        // draw each tilemap layer except the top one
         int totalLayers = static_cast<int>(tileMap->layers.size());
+        int lastLayer = (totalLayers > 1) ? totalLayers - 1 : -1;
 
-        for (int layerIndex = 0; layerIndex < totalLayers - 1; ++layerIndex) {
-            drawTiles(tileMap, tiles, layerIndex);
+        for (int layerIndex = 0; layerIndex < totalLayers; ++layerIndex) {
+            if (layerIndex == lastLayer || !tileMap->layers[layerIndex].visible) continue;
+            drawTilemapChunks(layerIndex);
         }
-
+ 
         // Draw the sprites after sorting them by their bottom y position, also respect the drawing layer of each sprite (fixed)
         std::vector<Sprite*> drawOrder;
         drawOrder.reserve(game.sprites.size());
@@ -662,10 +725,11 @@ void InGame::draw() {
         for (Sprite* sprite : drawOrder) {
             sprite->draw();
         }
+        // now draw the top layer above the sprites
+        if (lastLayer >= 0 && tileMap->layers[lastLayer].visible) {
+            drawTilemapChunks(lastLayer);
+        }
 
-        // Draw layer 3 (on top of the player)
-        drawTiles(tileMap, tiles, totalLayers - 1);
-        // draw the static collision objects in debug mode
         if (game.debug) {
             for (const auto& wall : game.walls) {
                 DrawRectangleLines((int)wall->x, (int)wall->y, (int)wall->width, (int)wall->height, BLUE);

@@ -200,7 +200,7 @@ void Game::draw() {
 
     // now draw "target" onto the actual window
     BeginDrawing();
-        ClearBackground(BLACK);     // Clear screen background
+        //ClearBackground(RED);     // Clear screen background
 
         // Draw render texture to screen, properly scaled
         DrawTexturePro(

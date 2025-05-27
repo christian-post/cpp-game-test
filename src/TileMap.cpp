@@ -5,6 +5,7 @@ TileLayer::TileLayer(const nlohmann::json& layerJson) {
     name = layerJson["name"];
     width = layerJson["width"];
     height = layerJson["height"];
+    visible = layerJson["visible"];
 
     // Get the flat 1D array from JSON
     std::vector<int> flatData = layerJson["data"].get<std::vector<int>>();

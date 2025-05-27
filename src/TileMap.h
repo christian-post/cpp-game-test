@@ -4,10 +4,33 @@
 #include <vector>
 #include <unordered_map>
 #include <stdexcept>
+#include <filesystem>
 #include "json.hpp"
+
+
+struct Tileset {
+    // used to store .tsj files data
+    std::string name, image;
+    uint32_t imagewidth, imageheight, tilecount, tileheight, tilewidth, columns;
+
+    Tileset() = default;
+
+    Tileset(const nlohmann::json& objJson) :
+        name(objJson["name"]),
+        image(std::filesystem::path(objJson["image"].get<std::string>()).filename().string()), // basename, used as key for the texture
+        imagewidth(objJson["imagewidth"]),
+        imageheight(objJson["imageheight"]),
+        tilecount(objJson["tilecount"]),
+        tileheight(objJson["tileheight"]),
+        tilewidth(objJson["tilewidth"]),
+        columns(objJson["columns"]) {
+    }
+};
+
 
 struct TileLayer {
     std::string name;
+    bool visible;
     int width, height;
     std::vector<std::vector<int>> data;
     std::unordered_map<std::string, std::string> properties;  // TODO parse properties as JSON
@@ -16,6 +39,7 @@ struct TileLayer {
 };
 
 struct TileObject {
+    // Tiled map objects (sprites etc.)
     std::string type, name;
     float x, y, width, height;
     bool visible;
@@ -45,7 +69,7 @@ struct TileObject {
 
 class TileMap {
 public:
-    int width, height, tileWidth, tileHeight;
+    size_t width, height, tileWidth, tileHeight;
     std::vector<TileLayer> layers;
     std::vector<TileObject> objects;
 

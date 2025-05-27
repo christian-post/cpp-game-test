@@ -66,7 +66,6 @@ void AssetLoader::loadTextures(const std::unordered_map<std::string, std::vector
 
 void AssetLoader::LoadTileset(const std::string& filename, int tileSize) {
     // Loads the tiles directly from an image, give the correct tile size
-    // TODO: depreacted
     std::vector<Texture2D> tiles;
     Image tilesetImg = LoadImage(filename.c_str());
 
@@ -108,14 +107,16 @@ void AssetLoader::LoadTilesetFromTiled(const std::string& filename) {
     }
 
     std::string imageFile = j["image"];
-    int tileSize = j["tilewidth"];  // assume tiles are square
 
     // Resolve relative to the .tsj file directory
     std::filesystem::path tilesetDir = std::filesystem::path(filename).parent_path();
     std::filesystem::path fullImagePath = tilesetDir / imageFile;
     fullImagePath = fullImagePath.lexically_normal(); // Clean up '..' parts
 
-    LoadTileset(fullImagePath.string(), tileSize);
+    std::string baseName = std::filesystem::path(filename).stem().string();
+    textureGroups.emplace(baseName, std::vector<Texture2D>{ LoadTexture(fullImagePath.string().c_str()) });
+    // construct the Tileset object
+    tilesets.emplace(baseName, Tileset(j));
 }
 
 void AssetLoader::LoadTileMapFromTiled(const std::string& filename) {
@@ -191,6 +192,11 @@ const TileMap& AssetLoader::getTilemap(const std::string& key) {
         return *it->second;
     }
     throw std::out_of_range("TileMap key not found: " + key);
+}
+
+const Tileset& AssetLoader::getTileset(const std::string& key)
+{
+    return tilesets.at(key);
 }
 
 const Font& AssetLoader::getFont(const std::string& key) {

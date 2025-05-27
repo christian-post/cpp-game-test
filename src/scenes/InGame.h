@@ -15,7 +15,7 @@ public:
     void draw() override;
     void end() override;
 
-    void drawTiles(const TileMap* tileMap, const std::vector<Texture2D>& tiles, int layerIndex);
+    void drawTilemapChunks(int layerIndex);
 
     std::unordered_map<std::string, std::shared_ptr<Sprite>> spriteMap; // keep named references to certain sprites
     std::shared_ptr<Sprite> player;  // keep a player variable for direct frequent access
@@ -43,7 +43,11 @@ public:
     void resolveAxisY(const std::shared_ptr<Sprite>& sprite, const Rectangle& obstacle);
 
 private:
-    int worldWidth;
-    int worldHeight;
-    int tileSize = 0;
+    size_t worldWidth;
+    size_t worldHeight;
+    size_t tileSize = 0;
+    static const size_t tileChunkSize = 256; // limit the size of the textures that hold the tilemap layers
+    size_t numChunksX = 0;
+    size_t numChunksY = 0;
+    std::vector<std::vector<RenderTexture2D>> tilemapChunks; // stores chunks of eachs of the layers of a map
 };

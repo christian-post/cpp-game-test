@@ -142,9 +142,12 @@ void Preload::startup() {
     });
 
     // load the tileset (the textures)
+    game.loader.LoadTilesetFromTiled("./resources/tilemaps/test.tsj");
     game.loader.LoadTilesetFromTiled("./resources/tilemaps/dungeon.tsj");
     game.loader.LoadTilesetFromTiled("./resources/tilemaps/fields.tsj");
     // load the tile maps from text files
+    game.loader.LoadTileMapFromTiled("./resources/tilemaps/test_map_small.json");
+    game.loader.LoadTileMapFromTiled("./resources/tilemaps/test_map_big.json");
     game.loader.LoadTileMapFromTiled("./resources/tilemaps/test_dungeon.json");
     game.loader.LoadTileMapFromTiled("./resources/tilemaps/test_dungeon2.json");
     game.loader.LoadTileMapFromTiled("./resources/tilemaps/test_fields.json");
@@ -169,6 +172,7 @@ void Preload::startup() {
     game.loader.LoadSoundFile("./resources/sound/sfx/doorOpen_2.ogg");
     game.loader.LoadSoundFile("./resources/sound/sfx/creature_hurt_02.ogg");
     game.loader.LoadSoundFile("./resources/sound/sfx/creature_die_01.ogg");
+    game.loader.LoadSoundFile("./resources/sound/sfx/hit14.mp3", 0.5f, "hit01");
 
     // advance to title after loading
     game.startScene("TitleScreen");
