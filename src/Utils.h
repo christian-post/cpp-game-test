@@ -11,18 +11,6 @@ inline Vector2 GetRectCenter(Rectangle rect) {
     return { rect.x + rect.width / 2.0f, rect.y + rect.height / 2.0f };
 }
 
-
-// TODO: unused, remove at some point
-template <typename T>
-inline void Log(T message) {
-    std::cout << "INFO: " << message << std::endl;
-}
-
-inline void Log(const Vector2& v) {
-    std::cout << "INFO: (" << v.x << ", " << v.y << ")" << std::endl;
-}
-
-
 inline bool isPathClear(const Rectangle& currentRect, Vector2 targetPos, const std::vector<std::unique_ptr<Rectangle>>& walls) {
     Rectangle sweptRect = {
         std::min(currentRect.x, targetPos.x),
@@ -54,4 +42,8 @@ inline std::vector<std::string> splitCSV(const std::string& input) {
         result.push_back(token);
     }
     return result;
+}
+
+inline float getRandomFloat(float min, float max) {
+    return min + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (max - min)));
 }

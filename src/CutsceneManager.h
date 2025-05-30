@@ -1,7 +1,12 @@
 #pragma once
 #include <queue>
 #include <vector>
+#include <memory>
+#include <string>
 #include "Commands.h"
+
+
+//class Command;
 
 struct QueuedCommand {
     Command* cmd;

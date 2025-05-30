@@ -1,6 +1,9 @@
 #include "Behavior.h"
 #include "Sprite.h"
 #include "Game.h"
+#include "InGame.h"
+#include "Commands.h"
+#include "Controls.h"
 #include "Utils.h"
 #include <any>
 #include <cmath>
@@ -158,10 +161,10 @@ void TeleportBehavior::update(float deltaTime) {
 	if (auto s = self.lock(), o = other.lock(); s && o && !done) {
 		if (CheckCollisionRecs(s->rect, o->rect)) {
 			done = true;
-			TeleportEvent event{ targetMap, targetPos };
-			game.eventManager.pushDelayedEvent("asdf", 0.01f, nullptr, [this, event]() {
-				game.eventManager.pushEvent("teleport", std::any(event));
-			});
+			game.eventManager.pushDelayedEvent("teleportStart", 0.0f, nullptr, [this]() {
+				game.eventManager.pushEvent("teleport", std::any(TeleportEvent{ targetMap, targetPos }));
+				game.playSound("bookPlace1");
+				});
 		}
 	}
 }
@@ -220,6 +223,29 @@ void CollectItemBehavior::update(float deltaTime) {
 				// delete the item sprite
 				done = true;
 				s->markForDeletion();
+			}
+		}
+	}
+}
+
+DialogueBehavior::DialogueBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> player, std::vector<std::string> dialogTexts)
+	: game{ game }, self{ self }, player{ player }, dialogTexts{ std::move(dialogTexts) } {
+}
+
+void DialogueBehavior::update(float dt) {
+	if (triggered) return;
+	if (auto s = self.lock(), p = player.lock(); s && p) {
+		if (CheckCollisionRecs(s->rect, p->rect) && (game.buttonsDown & CONTROL_ACTION1)) {
+			triggered = true;
+			if (auto scene = dynamic_cast<InGame*>(game.getScene("InGame"))) {
+				game.cutsceneManager.queueCommand(new Command_Textbox(game, dialogTexts[currentTextIndex]));
+				game.cutsceneManager.queueCommand(new Command_Callback([this]() {
+					game.eventManager.pushDelayedEvent("resetDialogTrigger", 0.1f, nullptr, [this]() {
+						if (currentTextIndex < dialogTexts.size() - 1)
+							++currentTextIndex;
+						triggered = false;
+						});
+					}));
 			}
 		}
 	}

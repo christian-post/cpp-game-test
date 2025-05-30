@@ -1,12 +1,10 @@
 #pragma once
-
 #include <string>
 #include <vector>
 #include <unordered_map>
 #include <stdexcept>
 #include <filesystem>
 #include "json.hpp"
-
 
 struct Tileset {
     // used to store .tsj files data
@@ -26,7 +24,6 @@ struct Tileset {
         columns(objJson["columns"]) {
     }
 };
-
 
 struct TileLayer {
     std::string name;

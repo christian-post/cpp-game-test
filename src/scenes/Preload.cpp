@@ -149,7 +149,9 @@ void Preload::startup() {
     game.loader.LoadTileMapFromTiled("./resources/tilemaps/test_map_small.json");
     game.loader.LoadTileMapFromTiled("./resources/tilemaps/test_map_big.json");
     game.loader.LoadTileMapFromTiled("./resources/tilemaps/test_dungeon.json");
+    game.loader.LoadTileMapFromTiled("./resources/tilemaps/test_dungeon1.json");
     game.loader.LoadTileMapFromTiled("./resources/tilemaps/test_dungeon2.json");
+    game.loader.LoadTileMapFromTiled("./resources/tilemaps/test_dungeon3.json");
     game.loader.LoadTileMapFromTiled("./resources/tilemaps/test_fields.json");
     // load the font
     game.loader.LoadFont("./resources/fonts/slkscr.ttf");
@@ -159,12 +161,14 @@ void Preload::startup() {
     game.loader.loadSpriteData("./resources/enemies.json");
     game.loader.loadSpriteData("./resources/npcs.json");
     game.loader.loadSpriteData("./resources/weapons.json");
+    game.loader.loadTextData("./resources/texts.json");
     // music and sfx
     // second argument is for adjusting the volume
     game.loader.LoadMusicFile("./resources/sound/music/Escape the Dungeon- Dubious Dungeon.mp3", 1.0f, "dungeon01");
     game.loader.LoadMusicFile("./resources/sound/music/Dungeon 02.ogg", 0.7f, "dungeon02");
     game.loader.LoadMusicFile("./resources/sound/music/title.wav", 1.0f);
     game.loader.LoadMusicFile("./resources/sound/music/Adventure.mp3", 1.0f, "field01");
+    game.loader.LoadMusicFile("./resources/sound/music/Retro_No hope.mp3", 1.0f, "gameover");
 
     game.loader.LoadSoundFile("./resources/sound/sfx/slash.wav", 0.1f);
     game.loader.LoadSoundFile("./resources/sound/sfx/heart.wav", 0.6f);
@@ -173,6 +177,18 @@ void Preload::startup() {
     game.loader.LoadSoundFile("./resources/sound/sfx/creature_hurt_02.ogg");
     game.loader.LoadSoundFile("./resources/sound/sfx/creature_die_01.ogg");
     game.loader.LoadSoundFile("./resources/sound/sfx/hit14.mp3", 0.5f, "hit01");
+    game.loader.LoadSoundFile("./resources/sound/sfx/bookClose.ogg");
+    game.loader.LoadSoundFile("./resources/sound/sfx/bookPlace1.ogg");
+    game.loader.LoadSoundFile("./resources/sound/sfx/powerUp1.wav");
+    game.loader.LoadSoundFile("./resources/sound/sfx/powerUp2.wav");
+    game.loader.LoadSoundFile("./resources/sound/sfx/powerUp3.wav");
+    game.loader.LoadSoundFile("./resources/sound/sfx/powerUp4.wav", 0.5f); // used for Textboxes
+    game.loader.LoadSoundFile("./resources/sound/sfx/hurt1.wav"); 
+    game.loader.LoadSoundFile("./resources/sound/sfx/gameover.wav"); 
+    game.loader.LoadSoundFile("./resources/sound/sfx/menuOpen.wav"); 
+    game.loader.LoadSoundFile("./resources/sound/sfx/menuClose.wav"); 
+    game.loader.LoadSoundFile("./resources/sound/sfx/menuCursor.wav"); 
+    game.loader.LoadSoundFile("./resources/sound/sfx/menuSelect.wav"); 
 
     // advance to title after loading
     game.startScene("TitleScreen");

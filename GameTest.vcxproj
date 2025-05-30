@@ -147,9 +147,11 @@ kernel32.lib
   <ItemGroup>
     <ClCompile Include="src\AssetLoader.cpp" />
     <ClCompile Include="src\Behavior.cpp" />
+    <ClCompile Include="src\Commands.cpp" />
     <ClCompile Include="src\Controls.cpp" />
     <ClCompile Include="src\CutsceneManager.cpp" />
     <ClCompile Include="src\EventManager.cpp" />
+    <ClCompile Include="src\Events.cpp" />
     <ClCompile Include="src\Game.cpp" />
     <ClCompile Include="src\scenes\GameOver.cpp" />
     <ClCompile Include="src\scenes\HUD.cpp" />
@@ -171,6 +173,7 @@ kernel32.lib
     <ClInclude Include="src\Controls.h" />
     <ClInclude Include="src\CutsceneManager.h" />
     <ClInclude Include="src\EventManager.h" />
+    <ClInclude Include="src\Events.h" />
     <ClInclude Include="src\Game.h" />
     <ClInclude Include="src\scenes\HUD.h" />
     <ClInclude Include="src\scenes\InventoryManager.h" />
@@ -198,6 +201,7 @@ kernel32.lib
     <None Include="resources\npcs.json" />
     <None Include="resources\settings.json" />
     <None Include="resources\shaders\crumble.fs" />
+    <None Include="resources\texts.json" />
     <None Include="resources\weapons.json" />
   </ItemGroup>
   <ItemGroup>

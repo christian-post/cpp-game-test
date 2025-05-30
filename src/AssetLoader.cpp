@@ -178,8 +178,27 @@ void AssetLoader::loadSpriteData(const std::string& filename) {
     }
 }
 
+void AssetLoader::loadTextData(const std::string& filename)
+{
+    std::ifstream file(filename);
+    if (!file) {
+        TraceLog(LOG_ERROR, "Failed to open text data file %s", filename.c_str());
+        return;
+    }
+    nlohmann::json j;
+    file >> j;
+    for (auto& el : j.items()) {
+        textData[el.key()] = el.value().get<std::vector<std::string>>();
+    }
+}
+
 const nlohmann::json& AssetLoader::getSpriteData() {
     return spriteData;
+}
+
+const std::vector<std::string>& AssetLoader::getText(std::string& key)
+{
+    return textData.at(key);
 }
 
 const std::vector<Texture2D>& AssetLoader::getTextures(const std::string& key) {
@@ -229,6 +248,6 @@ void AssetLoader::LoadSoundFile(const std::string& filename, const float volume,
     sounds[id] = sound;
 }
 
-const Sound& AssetLoader::getSound(const std::string& key) {
+Sound& AssetLoader::getSound(const std::string& key) {
     return sounds.at(key);
 }

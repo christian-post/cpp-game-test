@@ -12,6 +12,8 @@ TextBox::TextBox(Game& game, float x, float y, float width, float height, int fo
     height{ height }, 
     fontSize{ fontSize }, 
     textContent{ "" } {
+
+    textSpeed = game.getSetting("textDelay");
 }
 
 void TextBox::formatText() {
@@ -75,7 +77,39 @@ void TextBox::update(float dt) {
     timer += dt;
     if (timer >= textSpeed) {
         timer = 0.0f;
+        int oldIndex = currentStrIndex;
         currentStrIndex += charAtATime;
+
+        // Play a randomly pitched sound at the beginning of a word
+        /*for (int i = oldIndex; i < currentStrIndex && i < formattedText.size(); ++i) {
+            if (i == 0 || formattedText[i - 1] == ' ' || formattedText[i - 1] == '\n') {
+                Sound& s = game.loader.getSound("powerUp4");
+                float pitch = getRandomFloat(0.8f, 1.2f);
+                SetSoundPitch(s, pitch);
+                PlaySound(s);
+                break;
+            }
+        }*/
+        // play a pitched sound; the pitch is determined by the word length
+        for (int i = oldIndex; i < currentStrIndex && i < formattedText.size(); ++i) {
+            if (i == 0 || formattedText[i - 1] == ' ' || formattedText[i - 1] == '\n') {
+                // Find word length
+                int wordLen = 0;
+                while (i + wordLen < formattedText.size() &&
+                    formattedText[i + wordLen] != ' ' &&
+                    formattedText[i + wordLen] != '\n') {
+                    ++wordLen;
+                }
+
+                // Map word length to pitch (example: longer words = lower pitch)
+                float pitch = 1.2f - 0.05f * std::min(wordLen, 10);
+
+                Sound& s = game.loader.getSound("powerUp4");
+                SetSoundPitch(s, pitch);
+                PlaySound(s);
+                break;
+            }
+        }
     }
     // show all text if user presses a button
     if (game.buttonsPressed & CONTROL_ACTION1) {

@@ -2,6 +2,7 @@
 #include "raylib.h"
 #include <string>
 #include <memory>
+#include <vector>
 
 class Game;
 class Sprite;
@@ -137,4 +138,18 @@ private:
 	uint32_t state = 0;
 	float maxLifetime = 2.0f; 
 	float lifetime = maxLifetime;
+};
+
+class DialogueBehavior : public Behavior {
+public:
+	DialogueBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> player, std::vector<std::string> dialogTexts);
+	void update(float dt) override;
+
+private:
+	Game& game;
+	std::weak_ptr<Sprite> self;
+	std::weak_ptr<Sprite> player;
+	std::vector<std::string> dialogTexts;
+	size_t currentTextIndex = 0;
+	bool triggered = false;
 };

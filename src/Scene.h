@@ -32,6 +32,7 @@ public:
 
     void setDrawPriority(int prio) { drawPriority = prio; }
     int getDrawPriority() const { return drawPriority; }
+    Game& getGame() { return game; };
 
     bool markedForStarting = false;
 

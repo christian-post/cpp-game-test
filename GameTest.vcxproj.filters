@@ -66,6 +66,12 @@
     <ClCompile Include="src\scenes\InventoryManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Events.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Commands.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Sprite.h">
@@ -128,6 +134,9 @@
     <ClInclude Include="src\scenes\InventoryManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Events.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="todo.txt" />
@@ -145,6 +154,7 @@
     <None Include="readme.md" />
     <None Include="LICENSE" />
     <None Include="resources\npcs.json" />
+    <None Include="resources\texts.json" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="github\hero.gif">

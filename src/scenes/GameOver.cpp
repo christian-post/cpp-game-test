@@ -7,8 +7,20 @@
 
 void GameOver::startup() {
     std::cout << "Game Over\n";
+    game.playSound("gameover");
+
+    Sprite* player = game.getPlayer();
+    if (player)
+        player->moveTo(game.gameScreenWidth / 2.0f - ((player->lastDirection == LEFT) ? 16 : 0), game.gameScreenHeight / 2.0f);
+
     game.eventManager.pushDelayedEvent("gameOver", 2.0f, nullptr, [this]() {
         showText1 = true;
+        music = &const_cast<Music&>(game.loader.getMusic("gameover"));
+        PlayMusicStream(*music);
+        
+        Sprite* player = game.getPlayer();
+        if (player)
+            player->rotationAngle = 90.0f * ((player->lastDirection == LEFT) ? 1 : -1);
     });
     game.eventManager.pushDelayedEvent("gameOver2", 4.0f, nullptr, [this]() {
         showText2 = true;
@@ -30,7 +42,6 @@ void GameOver::draw() {
     Sprite* player = game.getPlayer();
     if (player) {
         player->iFrameTimer = 0.0f;
-        player->moveTo(game.gameScreenWidth / 2.0f, game.gameScreenHeight / 2.0f);
         player->draw();
     }
     

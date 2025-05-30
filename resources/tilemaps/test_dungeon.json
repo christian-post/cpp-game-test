@@ -411,33 +411,6 @@
                  "y":16
                 }, 
                 {
-                 "height":12,
-                 "id":28,
-                 "name":"teleport",
-                 "properties":[
-                        {
-                         "name":"targetMap",
-                         "type":"string",
-                         "value":"test_fields"
-                        }, 
-                        {
-                         "name":"targetPosX",
-                         "type":"float",
-                         "value":19
-                        }, 
-                        {
-                         "name":"targetPosY",
-                         "type":"float",
-                         "value":37
-                        }],
-                 "rotation":0,
-                 "type":"sprite",
-                 "visible":true,
-                 "width":32,
-                 "x":320,
-                 "y":28
-                }, 
-                {
                  "height":16,
                  "id":30,
                  "name":"hurt",
@@ -612,6 +585,33 @@
                  "width":16,
                  "x":460,
                  "y":272
+                }, 
+                {
+                 "height":12,
+                 "id":39,
+                 "name":"teleport",
+                 "properties":[
+                        {
+                         "name":"targetMap",
+                         "type":"string",
+                         "value":"test_dungeon1"
+                        }, 
+                        {
+                         "name":"targetPosX",
+                         "type":"float",
+                         "value":11.5
+                        }, 
+                        {
+                         "name":"targetPosY",
+                         "type":"float",
+                         "value":22
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":32,
+                 "x":320,
+                 "y":24
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -661,7 +661,7 @@
          "y":0
         }],
  "nextlayerid":8,
- "nextobjectid":39,
+ "nextobjectid":40,
  "orientation":"orthogonal",
  "properties":[
         {

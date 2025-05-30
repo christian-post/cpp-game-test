@@ -3,7 +3,6 @@
 #include "Scene.h"
 #include "Sprite.h"
 #include "TileMap.h"
-#include "CutsceneManager.h"
 #include <memory>
 #include "json.hpp"
 
@@ -22,6 +21,7 @@ public:
     Sprite* getSprite(const std::string& name);
     std::optional<std::string> currentWeapon = std::nullopt;
     const TileMap* tileMap;
+    size_t tileSize = 0;
     void loadTilemap(const std::string& name);
     void addBehaviorsToSprite(std::shared_ptr<Sprite> sprite, const std::vector<std::string>& behaviors, const nlohmann::json& behaviorData);
     std::unordered_map<std::string, uint8_t> roomStates; // store map progression as bitmasks
@@ -37,7 +37,7 @@ public:
     uint32_t currentRoomIndex = 0;
 
     Camera2D camera = {};
-    CutsceneManager cutsceneManager;
+
     // collision
     void resolveAxisX(const std::shared_ptr<Sprite>& sprite, const Rectangle& obstacle);
     void resolveAxisY(const std::shared_ptr<Sprite>& sprite, const Rectangle& obstacle);
@@ -45,7 +45,6 @@ public:
 private:
     size_t worldWidth;
     size_t worldHeight;
-    size_t tileSize = 0;
     static const size_t tileChunkSize = 256; // limit the size of the textures that hold the tilemap layers
     size_t numChunksX = 0;
     size_t numChunksY = 0;

@@ -16,6 +16,7 @@ void InventoryUI::startup() {
     // set the sliding speed so that it takes "slideDuration" seconds to expand the inventory
     speed = height / slideDuration;
     state = OPENING;
+    game.playSound("menuOpen");
 }
 
 void InventoryUI::update(float dt) {
@@ -39,18 +40,22 @@ void InventoryUI::update(float dt) {
     case OPENED:
         if (game.buttonsPressed & CONTROL_CONFIRM) {
             state = CLOSING;
+            game.playSound("menuClose");
         }
         // cursor movement (only when there are weapons)
         auto& items = game.getItems();
         if (!items[WEAPON].size()) break;
         if (game.buttonsPressed & CONTROL_RIGHT) {
             index = (index + 1) % items[WEAPON].size();
+            game.playSound("menuCursor");
         }
         if (game.buttonsPressed & CONTROL_LEFT) {
             index = (index + items[WEAPON].size() - 1) % items[WEAPON].size();
+            game.playSound("menuCursor");
         }
         if (game.buttonsPressed & CONTROL_ACTION1) {
             game.eventManager.pushEvent("weaponSet", items[WEAPON][index].textureKey);
+            game.playSound("menuSelect");
         }
         break;
     }

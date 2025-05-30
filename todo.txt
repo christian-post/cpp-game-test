@@ -1,8 +1,8 @@
 features
-- HUD
-- Sound!
 - Shop
 - Pathfinding
+- talking to NPCs
+-- store only a dialogue key in Tiled data and create a dialogues.json
 
 - Sprites
 -- behavior priority system
@@ -13,10 +13,13 @@ features
 -- Command_ShowTextbox(text, target)  // target für Sprechblase
 -- Command_CameraPan(x, y, duration) // camera pans towards a target position (and then back?)
 
-- Sounds:
--- hurt
--- changing rooms
--- text box
+- Misc
+-- briefly show item amount in HUD when collecting an item
+
+- Music/Sounds:
+-- Inventory open/close
+-- Inventory cursor movement
+-- Inventory select item
 
 TODO: refactor
 - add a "persistent" property to event listeners (non-persistent listeners are removed after one event)
@@ -24,11 +27,11 @@ TODO: refactor
 - Remove all coupling between Game and Sprite?
 - Game.walls a vector of Wall objects? add a "collides" property?
 - use sprites in inventory?
-- tilesets: texture sampling instead of having one texture for each tile
 - a way to control the page break of a text box
 - items.json if the items get more complex
+- when predrawing the Tilemap chunks, don't store textures that are completely transparent
 
 BUGS:
 - RandomWalkBehavior: choose new target after some time if the current target can't be reached
-- Behavior priorities/swiching is messy
 - npc can follow the player across rooms, set position correctly near the door
+- npc dialogue broken after cutscene

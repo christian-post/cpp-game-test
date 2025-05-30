@@ -7,6 +7,7 @@
 #include "AssetLoader.h"
 #include "Sprite.h"
 #include "EventManager.h"
+#include "CutsceneManager.h"
 #include "InventoryManager.h"
 #include "json.hpp"
 
@@ -61,6 +62,7 @@ public:
     }
 
     EventManager eventManager; // event handling
+    CutsceneManager cutsceneManager;
 
     bool isRunning() const { return running; }
     void end() { running = false; }
@@ -81,15 +83,12 @@ public:
     Sprite* getPlayer();
     // grant access to a reference to the inventory (idk if this is bad design)
     std::array<std::vector<Item>, NUM_ITEM_TYPES>& getItems() {
-        //return static_cast<InventoryManager*>(getScene("InventoryManager"))->getItems();
         InventoryManager* inv = static_cast<InventoryManager*>(getScene("InventoryManager"));
-        assert(inv); // TODO debugging
         auto& items = inv->getItems();
         return items;
     }
 
     void playSound(const std::string& key);
-
     bool soundOn = true;
     bool debug = false;
 

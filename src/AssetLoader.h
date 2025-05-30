@@ -21,6 +21,7 @@ private:
     std::unordered_map<std::string, std::shared_ptr<Shader>> shaders;
     std::unordered_map<std::string, Music> musicTracks;
     std::unordered_map<std::string, Sound> sounds;
+    std::unordered_map<std::string, std::vector<std::string>> textData;
     nlohmann::json settings;
     nlohmann::json spriteData;
     
@@ -35,6 +36,7 @@ public:
     void LoadShaderFile(const std::string& filename);
     void loadSettings(const std::string& filename);
     void loadSpriteData(const std::string& filename);
+    void loadTextData(const std::string& filename);
     void LoadMusicFile(const std::string& filename, const float volume = 1.0f, const std::string& key = "");
     void LoadSoundFile(const std::string& filename, const float volume = 1.0f, const std::string& key = "");
 
@@ -44,8 +46,9 @@ public:
     const Font& getFont(const std::string& key);
     const Shader& getShader(const std::string& key);
     const Music& getMusic(const std::string& key);
-    const Sound& getSound(const std::string& key);
+    Sound& getSound(const std::string& key); // not const since I need to change the pitch
     const nlohmann::json& getSettings();
     const nlohmann::json& getSpriteData();
+    const std::vector<std::string>& getText(std::string& key);
     Texture2D fallbackTexture;
 };

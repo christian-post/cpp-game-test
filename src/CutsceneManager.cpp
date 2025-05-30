@@ -1,4 +1,6 @@
 #include "CutsceneManager.h"
+#include "Commands.h"
+
 
 void CutsceneManager::queueCommand(Command* cmd, bool blocking) {
 	commands.push({ cmd, blocking });

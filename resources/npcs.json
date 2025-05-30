@@ -12,9 +12,10 @@
     "textureKey": "elf_f",
     "health": 100,
     "speed": 10.0,
-    "behaviors": [ "RandomWalk", "Watch" ],
+    "behaviors": [ "RandomWalk", "Watch", "Dialogue" ],
     "behaviorData": {
-      "watchTarget": "player"
+      "watchTarget": "player",
+      "dialogue": "elfDialogue1"
     }
   },
   "dungeon_door": {
