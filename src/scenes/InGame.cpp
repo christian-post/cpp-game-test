@@ -25,24 +25,14 @@ void InGame::startup() {
 
     // retrieve the tilemap
     // some sprites need the player reference, so this has to come after the player
-    //loadTilemap("test_map_large");
-    loadTilemap("test_dungeon2");
-    //loadTilemap("test_dungeon3");
+    //loadtilemap("test_map_large");
+    //loadtilemap("test_dungeon1");
+    //loadtilemap("test_dungeon2");
+    loadtilemap("test_dungeon3");
     // set the player's position in the first room
-    player->moveTo(float(10 * tileSize), float(15 * tileSize) + 4.0f);
+    //player->moveTo(float(10 * tileSize), float(15 * tileSize) + 4.0f);
     //player->moveTo(float(44 * tileSize), float(73 * tileSize) + 4.0f); // for the large test map only
-    //player->moveTo(float(6 * tileSize), float(11 * tileSize) + 4.0f); 
-
-    // event listener that stores the current weapon key
-    game.eventManager.addListener("weaponSet", [this](const std::any& data) {
-        if (data.has_value()) {
-            currentWeapon = std::any_cast<std::string>(data);
-        }
-        else {
-            // event allows for removal of the weapon
-            currentWeapon = std::nullopt;
-        }
-    });
+    player->moveTo(float(6 * tileSize), float(5 * tileSize) + 4.0f); 
 
     // setup the camera
     camera.target = Vector2{ player->rect.x, player->rect.y };
@@ -53,13 +43,28 @@ void InGame::startup() {
     // event listeners for the InGame scene
     game.eventManager.addListener("teleport", [this](std::any data) {
         const auto& teleportData = std::any_cast<const TeleportEvent&>(data);
-        loadTilemap(teleportData.targetMap);
+        loadtilemap(teleportData.targetMap);
         player->moveTo(teleportData.targetPos.x * tileSize, teleportData.targetPos.y * tileSize);
         });
 
     game.eventManager.addListener("setMusicVolume", [this](std::any data) {
-            SetMusicVolume(*music, std::any_cast<float>(data));
+            if (music) SetMusicVolume(*music, std::any_cast<float>(data));
         });
+
+    // event listener that changes the current weapon key
+    game.eventManager.addListener("weaponSet", [this](const std::any& data) {
+        if (data.has_value()) {
+            currentWeapon = std::any_cast<std::string>(data);
+        }
+        else {
+            // event allows for removal of the weapon
+            currentWeapon = std::nullopt;
+        }
+        });
+
+    // using items
+    // TODO: not sure where to put this
+
 
     // ##### Events that progress the game ####
     setupConditionalEvents(*this);
@@ -69,9 +74,11 @@ void InGame::startup() {
         // give the player the sword for starters
         game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("Sword", 1));
         game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("Double Axe", 1));
+        //game.eventManager.pushEvent("weaponSet", std::string("weapon_sword"));
         game.eventManager.pushEvent("weaponSet", std::string("weapon_double_axe"));
         // another item
-        game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("Red Potion", 999));
+        game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("Red Potion", 2));
+        game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("Coin", 10));
         });
 }
 
@@ -109,7 +116,7 @@ void InGame::addBehaviorsToSprite(std::shared_ptr<Sprite> sprite, const std::vec
             // TODO get distance values from file
             std::string targetName = behaviorData.value("chaseTarget", "");
             if (spriteMap.find(targetName) != spriteMap.end()) {
-                sprite->addBehavior(std::make_unique<ChaseBehavior>(sprite, spriteMap[targetName], 48.0f, 2.0f, 64.0f));
+                sprite->addBehavior(std::make_unique<ChaseBehavior>(game, sprite, spriteMap[targetName], 48.0f, 2.0f, 64.0f));
             }
             else {
                 TraceLog(LOG_WARNING, "Target \"%s\" not found in spriteMap. Skipping ChaseBehavior for %s.", targetName.c_str(), sprite->spriteName.c_str());
@@ -125,7 +132,7 @@ void InGame::addBehaviorsToSprite(std::shared_ptr<Sprite> sprite, const std::vec
     }
 }
 
-void InGame::loadTilemap(const std::string& name) {
+void InGame::loadtilemap(const std::string& name) {
     tileMap = &game.loader.getTilemap(name);
     tileSize = tileMap->tileWidth;
     // remove static and dynamic (non-persistent) sprites
@@ -241,6 +248,9 @@ void InGame::loadTilemap(const std::string& name) {
                                 }
                                 else if (itemId == "itemDropCoin") {
                                     item->addBehavior(std::make_unique<CollectItemBehavior>(game, item, player, "Coin", 1));
+                                }
+                                else if (itemId == "flask_big_red") {
+                                    item->addBehavior(std::make_unique<CollectItemBehavior>(game, item, player, "Red Potion", 1));
                                 }
                                 game.sprites.push_back(item);
                                 break;
@@ -380,7 +390,7 @@ void InGame::resolveAxisY(const std::shared_ptr<Sprite>& sprite, const Rectangle
 }
 
 
-void InGame::update(float dt) {
+void InGame::update(float deltaTime) {
     // control the sprites and apply physics
 
     // handle sprites that are dead (from last frame)
@@ -461,15 +471,15 @@ void InGame::update(float dt) {
 
         for (const auto& sprite : game.sprites) {
             if (sprite) {
-                sprite->executeBehavior(dt);
-                sprite->update(dt);
-                sprite->animate(dt);
+                sprite->executeBehavior(deltaTime);
+                sprite->update(deltaTime);
+                sprite->animate(deltaTime);
             }
         }
     } else {
-        game.cutsceneManager.update(dt);
+        game.cutsceneManager.update(deltaTime);
         for (const auto& sprite : game.sprites) {
-            sprite->animate(dt);
+            sprite->animate(deltaTime);
         }
     }
 

@@ -40,7 +40,7 @@ Command_Look::Command_Look(Sprite& target, direction dir) : target(target), dir(
     name = "Look";
 }
 
-void Command_Look::update(float) {
+void Command_Look::update(float deltaTime) {
     if (!started) { target.lastDirection = dir; started = true; done = true; }
 }
 
@@ -49,7 +49,7 @@ Command_LookTowards::Command_LookTowards(Sprite& target, Sprite& other)
     name = "LookTowards";
 }
 
-void Command_LookTowards::update(float) {
+void Command_LookTowards::update(float deltaTime) {
     if (!started) {
         target.lastDirection = (other.position.x > target.position.x) ? RIGHT : LEFT;
         started = true; done = true;
@@ -81,7 +81,7 @@ Command_Callback::Command_Callback(std::function<void()> callback) : callback(ca
     name = "Callback";
 }
 
-void Command_Callback::update(float) {
+void Command_Callback::update(float deltaTime) {
     if (!started) { callback(); started = true; done = true; }
 }
 

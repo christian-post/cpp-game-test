@@ -9,7 +9,7 @@ class TextBox {
 public:
     Game& game;
     TextBox(Game& game, float x, float y, float width, float height, int fontSize);
-    void update(float dt);
+    void update(float deltaTime);
     void draw();
 
     void setTextContent(std::string_view text);
@@ -19,7 +19,7 @@ public:
 private:
     float x, y, width, height;
     std::string_view textContent;
-    std::string formattedText;  // Stores text with line breaks
+    std::string formattedtext;  // Stores text with line breaks
     int fontSize;
 
     size_t currentStrIndex = 0;

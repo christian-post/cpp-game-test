@@ -17,7 +17,7 @@ TextBox::TextBox(Game& game, float x, float y, float width, float height, int fo
 }
 
 void TextBox::formatText() {
-    formattedText.clear();
+    formattedtext.clear();
     std::string_view text = textContent.substr(currentPageStartIndex);  // Avoid copying
 
     size_t start = 0;
@@ -29,12 +29,12 @@ void TextBox::formatText() {
         std::string testLine = line.empty() ? std::string(word) : line + " " + std::string(word);
 
         if (MeasureText(testLine.c_str(), fontSize) > int(width) - 10) {
-            formattedText += line + "\n";
+            formattedtext += line + "\n";
 
             currentLine++;
 
             // check if the next line would exceed the box
-            Vector2 size = MeasureTextEx(GetFontDefault(), formattedText.c_str(), float(fontSize), 2.0f);
+            Vector2 size = MeasureTextEx(GetFontDefault(), formattedtext.c_str(), float(fontSize), 2.0f);
             // measure one line
             float lineSize = size.y / (currentLine + 1);
             // test if another line would exceed the box
@@ -58,7 +58,7 @@ void TextBox::formatText() {
         if (!line.empty()) line += " ";
         line += std::string(text.substr(start));
     }
-    formattedText += line;
+    formattedtext += line;
 }
 
 
@@ -67,22 +67,22 @@ void TextBox::setTextContent(std::string_view text) {
     formatText();
 }
 
-void TextBox::update(float dt) {
+void TextBox::update(float deltaTime) {
     // show more than one character if text speed is faster than the frame rate
     int charAtATime = 1;
-    if (textSpeed < dt) {
-        charAtATime = int(dt / textSpeed);
+    if (textSpeed < deltaTime) {
+        charAtATime = int(deltaTime / textSpeed);
     }
 
-    timer += dt;
+    timer += deltaTime;
     if (timer >= textSpeed) {
         timer = 0.0f;
         int oldIndex = currentStrIndex;
         currentStrIndex += charAtATime;
 
         // Play a randomly pitched sound at the beginning of a word
-        /*for (int i = oldIndex; i < currentStrIndex && i < formattedText.size(); ++i) {
-            if (i == 0 || formattedText[i - 1] == ' ' || formattedText[i - 1] == '\n') {
+        /*for (int i = oldIndex; i < currentStrIndex && i < formattedtext.size(); ++i) {
+            if (i == 0 || formattedtext[i - 1] == ' ' || formattedtext[i - 1] == '\n') {
                 Sound& s = game.loader.getSound("powerUp4");
                 float pitch = getRandomFloat(0.8f, 1.2f);
                 SetSoundPitch(s, pitch);
@@ -91,13 +91,13 @@ void TextBox::update(float dt) {
             }
         }*/
         // play a pitched sound; the pitch is determined by the word length
-        for (int i = oldIndex; i < currentStrIndex && i < formattedText.size(); ++i) {
-            if (i == 0 || formattedText[i - 1] == ' ' || formattedText[i - 1] == '\n') {
+        for (int i = oldIndex; i < currentStrIndex && i < formattedtext.size(); ++i) {
+            if (i == 0 || formattedtext[i - 1] == ' ' || formattedtext[i - 1] == '\n') {
                 // Find word length
                 int wordLen = 0;
-                while (i + wordLen < formattedText.size() &&
-                    formattedText[i + wordLen] != ' ' &&
-                    formattedText[i + wordLen] != '\n') {
+                while (i + wordLen < formattedtext.size() &&
+                    formattedtext[i + wordLen] != ' ' &&
+                    formattedtext[i + wordLen] != '\n') {
                     ++wordLen;
                 }
 
@@ -113,8 +113,8 @@ void TextBox::update(float dt) {
     }
     // show all text if user presses a button
     if (game.buttonsPressed & CONTROL_ACTION1) {
-        if (currentStrIndex < formattedText.length() - 1) {
-            currentStrIndex = formattedText.length() - 1;
+        if (currentStrIndex < formattedtext.length() - 1) {
+            currentStrIndex = formattedtext.length() - 1;
         }
         else {
             if (pageDone) {
@@ -132,6 +132,6 @@ void TextBox::update(float dt) {
 
 void TextBox::draw() {
     DrawRectangle(int(x), int(y), int(width), int(height), BLACK);
-    DrawText(formattedText.substr(0, currentStrIndex).data(), int(x) + 5, int(y) + 5, fontSize, WHITE);
+    DrawText(formattedtext.substr(0, currentStrIndex).data(), int(x) + 5, int(y) + 5, fontSize, WHITE);
 }
 

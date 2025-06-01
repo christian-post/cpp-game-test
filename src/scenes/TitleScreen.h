@@ -7,7 +7,7 @@ class TitleScreen : public Scene {
 public:
     TitleScreen(Game& game, const std::string& name) : Scene(game, name) {}
     void startup() override;
-    void update(float dt) override;
+    void update(float deltaTime) override;
     void draw() override;
     void end() override;
 

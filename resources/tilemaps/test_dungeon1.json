@@ -274,7 +274,7 @@
                 }, 
                 {
                  "height":16,
-                 "id":14,
+                 "id":18,
                  "name":"enemy",
                  "properties":[
                         {
@@ -291,8 +291,8 @@
                  "type":"sprite",
                  "visible":true,
                  "width":16,
-                 "x":192,
-                 "y":112
+                 "x":196,
+                 "y":136
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -378,7 +378,7 @@
          "y":0
         }],
  "nextlayerid":8,
- "nextobjectid":15,
+ "nextobjectid":23,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.11.2",

@@ -10,7 +10,7 @@ public:
     HUD(Game& game, const std::string& name);
     void startup() override;
     //void events(const std::unordered_map<std::string, std::any>& events) override;
-    void update(float dt) override;
+    void update(float deltaTime) override;
     void draw() override;
     void end() override;
 
@@ -24,4 +24,9 @@ private:
     float width = 0.0f;
 
     std::string equippedWeapon;
+    // feature that display a collected item briefly
+    bool showCollectedItem = false;
+    int collectedItemY = 0;
+    float collectedItemTimer = 0.0f;
+    std::string collectedItem = "";
 };

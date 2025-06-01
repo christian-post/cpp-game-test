@@ -8,7 +8,7 @@ class GameOver : public Scene {
 public:
     GameOver(Game& game, const std::string& name) : Scene(game, name) {}
     void startup() override;
-    void update(float dt) override;
+    void update(float deltaTime) override;
     void draw() override;
 private:
     bool showText1 = false;

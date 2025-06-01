@@ -12,7 +12,7 @@ void TitleScreen::startup() {
     PlayMusicStream(*music);
 }
 
-void TitleScreen::update(float dt) {
+void TitleScreen::update(float deltaTime) {
     transparency = (unsigned char)((sinf(float(GetTime()) * PI) + 1.0f) * 127.5f);
 
     if (AnyKeyPressed(game.buttonsPressed)) {

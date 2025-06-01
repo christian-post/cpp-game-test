@@ -2,7 +2,7 @@ features
 - Shop
 - Pathfinding
 - talking to NPCs
--- store only a dialogue key in Tiled data and create a dialogues.json
+-- dialogue options
 
 - Sprites
 -- behavior priority system
@@ -13,13 +13,14 @@ features
 -- Command_ShowTextbox(text, target)  // target für Sprechblase
 -- Command_CameraPan(x, y, duration) // camera pans towards a target position (and then back?)
 
+- Items
+-- 
+
 - Misc
--- briefly show item amount in HUD when collecting an item
+-- 
 
 - Music/Sounds:
--- Inventory open/close
--- Inventory cursor movement
--- Inventory select item
+-- Inventory select item --> different sound
 
 TODO: refactor
 - add a "persistent" property to event listeners (non-persistent listeners are removed after one event)
@@ -35,3 +36,5 @@ BUGS:
 - RandomWalkBehavior: choose new target after some time if the current target can't be reached
 - npc can follow the player across rooms, set position correctly near the door
 - npc dialogue broken after cutscene
+- GameOver Music does not start if a previous music has been playing
+- show item pickup for all collectibles

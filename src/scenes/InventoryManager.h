@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <array>
 #include <iostream>
+#include <functional>
 
 enum itemType {
     CONSUMABLE,
@@ -16,9 +17,17 @@ struct Item {
     std::string name;
     uint32_t quantity;
     std::string textureKey;
-    Item(const std::string& n, uint32_t q, const std::string& t)
-        : name(n), quantity(q), textureKey(t) {
+    std::function<bool()> onConsume = nullptr; 
+
+    Item(const std::string& n, uint32_t q, const std::string& t, std::function<bool()> callback = nullptr)
+        : name(n), quantity(q), textureKey(t), onConsume(std::move(callback)) {
     }
+};
+
+struct ItemData {
+    itemType type;
+    std::string textureKey;
+    std::function<bool()> onConsume = nullptr; // Callback for item effect, has to return whether 1 qty of that item should be removed from inventory
 };
 
 class InventoryManager : public Scene {
@@ -31,11 +40,10 @@ public:
     std::array<std::vector<Item>, NUM_ITEM_TYPES>& getItems() { return items; }
 
 private:
-    // TODO refactor itemData at some point (json?)
-    // pairs are itemType, textureKey
-    std::unordered_map<std::string, std::pair<itemType, std::string>> itemData;
+    std::unordered_map<std::string, ItemData> itemData;
     std::array<std::vector<Item>, NUM_ITEM_TYPES> items;
     // private methods for adding and removing items
     // public access is done via event listeners
     void addItem(const std::string& name, uint32_t amount);
+    // TODO removeItem
 };

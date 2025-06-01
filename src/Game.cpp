@@ -153,12 +153,12 @@ void Game::playSound(const std::string& key){
     PlaySound(loader.getSound(key));
 }
 
-void Game::update(float dt) {
-    eventManager.update(dt);
+void Game::update(float deltaTime) {
+    eventManager.update(deltaTime);
 
     for (auto& [name, scene] : scenes) {
         if (scene && scene->isActive() && !scene->isPaused()) {
-            scene->update(dt);
+            scene->update(deltaTime);
         }
     }
 }
@@ -274,9 +274,9 @@ void Game::run() {
         }
 
         float currentTime = float(GetTime());
-        float dt = currentTime - lastTime;
+        float deltaTime = currentTime - lastTime;
         lastTime = currentTime;
-        update(dt);
+        update(deltaTime);
         playMusic();
         draw();
 

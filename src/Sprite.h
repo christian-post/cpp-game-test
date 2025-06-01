@@ -37,7 +37,7 @@ public:
     direction lastDirection = RIGHT;
     float rotationAngle = 0.0f;
     float frameTime = 0.12f; // animation speed
-    float elapsedTime = 0.0f;
+    float elapsedtime = 0.0f;
 
     // physics
     Rectangle rect; // hitbox for collision
@@ -54,6 +54,7 @@ public:
     // gameplay variables
     uint32_t health; // current health
     uint32_t maxHealth;
+    void refillHealth() { health = maxHealth; }
     float iFrameTimer = 0.0f; // duration of invincibility (s)
     bool canHurtPlayer = false;
     bool isEnemy = false;

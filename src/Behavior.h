@@ -45,10 +45,11 @@ private:
 
 class ChaseBehavior : public Behavior {
 public:
-	ChaseBehavior(std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> other, float aggroDist, float minDist, float deAggroDist);
+	ChaseBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> other, float aggroDist, float minDist, float deAggroDist);
 	void update(float deltaTime) override;
-
+	
 private:
+	Game& game;
 	std::weak_ptr<Sprite> self;
 	std::weak_ptr<Sprite> other;
 	float aggroDist;
@@ -143,7 +144,7 @@ private:
 class DialogueBehavior : public Behavior {
 public:
 	DialogueBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> player, std::vector<std::string> dialogTexts);
-	void update(float dt) override;
+	void update(float deltaTime) override;
 
 private:
 	Game& game;

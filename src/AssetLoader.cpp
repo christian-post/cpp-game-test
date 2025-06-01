@@ -23,7 +23,7 @@ AssetLoader::~AssetLoader() {
     }
 }
 
-void AssetLoader::loadTexturesFromDirectory(const std::string& directory) {
+void AssetLoader::loadtexturesFromDirectory(const std::string& directory) {
     // Looks for png files in a given directory that match the pattern key_n.png
     // and automatically groups and loads them
     // TODO: currently unused
@@ -40,10 +40,10 @@ void AssetLoader::loadTexturesFromDirectory(const std::string& directory) {
     }
 }
 
-void AssetLoader::loadTextures(const std::unordered_map<std::string, std::vector<std::string>>& textureMap) {
+void AssetLoader::loadtextures(const std::unordered_map<std::string, std::vector<std::string>>& textureMap) {
     // loads textures by filenames
     /*  Example:
-    assetLoader.loadTextures({
+    assetLoader.loadtextures({
         {"player_idle", {"assets/player_idle_1.png", "assets/player_idle_2.png"}},
         {"player_run", {"assets/player_run_1.png", "assets/player_run_2.png", "assets/player_run_3.png"}}
     });
@@ -64,7 +64,7 @@ void AssetLoader::loadTextures(const std::unordered_map<std::string, std::vector
     }
 }
 
-void AssetLoader::LoadTileset(const std::string& filename, int tileSize) {
+void AssetLoader::Loadtileset(const std::string& filename, int tileSize) {
     // Loads the tiles directly from an image, give the correct tile size
     std::vector<Texture2D> tiles;
     Image tilesetImg = LoadImage(filename.c_str());
@@ -91,7 +91,7 @@ void AssetLoader::LoadTileset(const std::string& filename, int tileSize) {
     TraceLog(LOG_INFO, "Tileset loaded successfully: %s", baseName.c_str());
 }
 
-void AssetLoader::LoadTilesetFromTiled(const std::string& filename) {
+void AssetLoader::LoadtilesetFromTiled(const std::string& filename) {
     // loads a Tiled tileset file (.json or .tsj)
     std::ifstream file(filename); // Open JSON file
     if (!file) {
@@ -119,7 +119,7 @@ void AssetLoader::LoadTilesetFromTiled(const std::string& filename) {
     tilesets.emplace(baseName, Tileset(j));
 }
 
-void AssetLoader::LoadTileMapFromTiled(const std::string& filename) {
+void AssetLoader::LoadtileMapFromTiled(const std::string& filename) {
     // Loads a Tiled map file (json or tsj)
     // a TileMap is a class that stores collections of TileLayer (2D arrays of tile indices)
     // and TileObjects (contains information to construct game entities)
@@ -178,7 +178,7 @@ void AssetLoader::loadSpriteData(const std::string& filename) {
     }
 }
 
-void AssetLoader::loadTextData(const std::string& filename)
+void AssetLoader::loadtextData(const std::string& filename)
 {
     std::ifstream file(filename);
     if (!file) {

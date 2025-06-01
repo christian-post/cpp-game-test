@@ -33,7 +33,7 @@ public:
     const nlohmann::json& getSetting(const std::string& key) const;
 
     // basic game loop
-    void update(float dt);
+    void update(float deltaTime);
     void playMusic();
     void draw();
     void run();

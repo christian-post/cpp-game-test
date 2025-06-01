@@ -76,8 +76,8 @@ void RandomWalkBehavior::update(float deltaTime) {
 	}
 }
 
-ChaseBehavior::ChaseBehavior(std::shared_ptr<Sprite> sprite, std::shared_ptr<Sprite> targetSprite, float aggroDist, float minDist, float deAggroDist)
-	: self{ sprite }, other{ targetSprite }, aggroDist{ aggroDist }, minDist{ minDist }, deAggroDist{ deAggroDist } {
+ChaseBehavior::ChaseBehavior(Game& game, std::shared_ptr<Sprite> sprite, std::shared_ptr<Sprite> targetSprite, float aggroDist, float minDist, float deAggroDist)
+	: game{ game }, self{ sprite }, other{ targetSprite }, aggroDist{ aggroDist }, minDist{ minDist }, deAggroDist{ deAggroDist } {
 }
 
 void ChaseBehavior::update(float deltaTime) {
@@ -104,6 +104,44 @@ void ChaseBehavior::update(float deltaTime) {
 				s->acc = { 0.0f, 0.0f };
 				s->vel = { 0.0f, 0.0f };
 			}
+		}
+	}
+	// seperation behavior between enemies
+	// TODO: does this scale well with deltaTime?
+	for (auto& sprite : game.sprites) {
+		if (!sprite->isEnemy) continue;
+
+		Vector2 sum = { 0, 0 };
+		int count = 0;
+		float desiredSeparation = sprite->rect.width / 2.0f;
+
+		for (auto& other : game.sprites) {
+			if (other != sprite && other->isEnemy) {
+				float dx = sprite->position.x - other->position.x;
+				float dy = sprite->position.y - other->position.y;
+				float distSq = dx * dx + dy * dy;
+				if (distSq < desiredSeparation * desiredSeparation) {
+					float dist = std::sqrt(distSq);
+					Vector2 diff = { dx / dist, dy / dist };
+					float mag = 1.0f / dist;
+					diff.x *= mag;
+					diff.y *= mag;
+					sum.x += diff.x;
+					sum.y += diff.y;
+					count++;
+				}
+			}
+		}
+		if (count > 0) {
+			sum.x /= count;
+			sum.y /= count;
+
+			float mag = std::sqrt(sum.x * sum.x + sum.y * sum.y);
+			sum.x = sum.x / mag;
+			sum.y = sum.y / mag;
+
+			sprite->acc.x += (sum.x - sprite->acc.x);
+			sprite->acc.y += (sum.y - sprite->acc.y);
 		}
 	}
 }
@@ -202,6 +240,7 @@ void CollectItemBehavior::update(float deltaTime) {
 					// add the item
 					game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>(name, amount));
 					game.playSound("rupee");
+					game.eventManager.pushEvent("itemAdded", std::string("Coin")); // TODO: testing this here
 					state++;
 				}
 				break;
@@ -232,7 +271,7 @@ DialogueBehavior::DialogueBehavior(Game& game, std::shared_ptr<Sprite> self, std
 	: game{ game }, self{ self }, player{ player }, dialogTexts{ std::move(dialogTexts) } {
 }
 
-void DialogueBehavior::update(float dt) {
+void DialogueBehavior::update(float deltaTime) {
 	if (triggered) return;
 	if (auto s = self.lock(), p = player.lock(); s && p) {
 		if (CheckCollisionRecs(s->rect, p->rect) && (game.buttonsDown & CONTROL_ACTION1)) {

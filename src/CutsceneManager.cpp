@@ -7,9 +7,9 @@ void CutsceneManager::queueCommand(Command* cmd, bool blocking) {
 	active = true;
 }
 
-void CutsceneManager::update(float dt) {
+void CutsceneManager::update(float deltaTime) {
 	for (auto it = nonBlocking.begin(); it != nonBlocking.end(); ) {
-		(*it)->update(dt);
+		(*it)->update(deltaTime);
 		if ((*it)->isDone() && !(*it)->isPersistent()) {
 			delete* it;
 			it = nonBlocking.erase(it);
@@ -29,7 +29,7 @@ void CutsceneManager::update(float dt) {
 		commands.pop();
 	}
 	else {
-		current.cmd->update(dt);
+		current.cmd->update(deltaTime);
 		if (current.cmd->isDone()) {
 			delete current.cmd;
 			commands.pop();

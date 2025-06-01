@@ -25,6 +25,12 @@ HUD::HUD(Game& game, const std::string& name) : Scene(game, name), heartImages{}
         equippedWeapon = std::any_cast<std::string>(data);
         TraceLog(LOG_INFO, "player equipped the %s", equippedWeapon.c_str());
         });
+
+    game.eventManager.addListener("itemAdded", [this](std::any data) {
+        collectedItem = std::any_cast<std::string>(data);
+        showCollectedItem = true;
+        collectedItemTimer = 0.0f;
+        });
 }
 
 void HUD::startup() {
@@ -33,13 +39,19 @@ void HUD::startup() {
     height = game.getSetting("HudHeight");
 }
 
-void HUD::update(float dt) {
+void HUD::update(float deltaTime) {
     if (retracting && y > -height) {
-        y = std::max(-height, y - dt * height);
+        y = std::max(-height, y - deltaTime * height);
         if (y == -height) visible = false;
     }
     else if (!retracting && y < 0.0f) {
-        y = std::min(0.0f, y + dt * height);
+        y = std::min(0.0f, y + deltaTime * height);
+    }
+    // oscillate the item display
+    collectedItemY = 8 + static_cast<int>(4.0f * std::sin(collectedItemTimer * 8.0f));
+    collectedItemTimer += deltaTime;
+    if (collectedItemTimer >= 2.0f) {
+        showCollectedItem = false;
     }
 }
 
@@ -49,7 +61,7 @@ void HUD::draw() {
     DrawRectangle(int(x), int(y), int(width), int(height), DARKBURGUNDY);
 
     // draw player health as hearts
-    // TODO draw the hearts ON the reactangle as a texture
+    // TODO draw the hearts ON the reactangle as a texture?
     Sprite* player = game.getPlayer();
     if (player) {
         int spacing = heartImages[0].width + 2;
@@ -72,8 +84,21 @@ void HUD::draw() {
     }
     const auto& wpnTex = textures[0];
     DrawTexture(wpnTex, weaponX - wpnTex.width / 2, weaponY - wpnTex.height / 2, WHITE);
+
+    // whenever a collectable item is picked up
+    if (showCollectedItem) {
+        auto& items = game.getItems();
+        for (size_t i = 0; i < items[CONSUMABLE].size(); ++i) {
+            if (items[CONSUMABLE][i].name != collectedItem) continue;
+            const auto& coinTex = game.loader.getTextures(items[CONSUMABLE][i].textureKey)[0];
+            int coinX = weaponX + 36;
+            DrawTexture(coinTex, coinX, collectedItemY, WHITE);
+            std::string qtyText = "x" + std::to_string(items[CONSUMABLE][i].quantity);
+            DrawText(qtyText.c_str(), coinX + 8, collectedItemY, 10, LIGHTGRAY);
+        }
+    }
 }
 
 void HUD::end() {
-
+    // TODO
 }

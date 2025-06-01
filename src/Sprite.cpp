@@ -44,9 +44,9 @@ void Sprite::setTextures(std::initializer_list<std::string> keys) {
 void Sprite::animate(float deltaTime) {
     if (!doesAnimate) return;
 
-    elapsedTime += deltaTime;
-    if (elapsedTime >= frameTime && !frames.empty()) {
-        elapsedTime = 0.0f;
+    elapsedtime += deltaTime;
+    if (elapsedtime >= frameTime && !frames.empty()) {
+        elapsedtime = 0.0f;
         currentFrame = (currentFrame + 1) % frames.size();
     }
     // latch the last direction (used for animation)

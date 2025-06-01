@@ -27,16 +27,16 @@ private:
     
 public:
     ~AssetLoader();
-    void loadTexturesFromDirectory(const std::string& directory);
-    void loadTextures(const std::unordered_map<std::string, std::vector<std::string>>& textureMap);
-    void LoadTileset(const std::string& filename, int tileSize);
-    void LoadTilesetFromTiled(const std::string& filename);
-    void LoadTileMapFromTiled(const std::string& filename);
+    void loadtexturesFromDirectory(const std::string& directory);
+    void loadtextures(const std::unordered_map<std::string, std::vector<std::string>>& textureMap);
+    void Loadtileset(const std::string& filename, int tileSize);
+    void LoadtilesetFromTiled(const std::string& filename);
+    void LoadtileMapFromTiled(const std::string& filename);
     void LoadFont(const std::string& filename);
     void LoadShaderFile(const std::string& filename);
     void loadSettings(const std::string& filename);
     void loadSpriteData(const std::string& filename);
-    void loadTextData(const std::string& filename);
+    void loadtextData(const std::string& filename);
     void LoadMusicFile(const std::string& filename, const float volume = 1.0f, const std::string& key = "");
     void LoadSoundFile(const std::string& filename, const float volume = 1.0f, const std::string& key = "");
 

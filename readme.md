@@ -149,7 +149,7 @@ Classic RPG Tileset by [Jestan](https://jestan.itch.io/classic-rpg)</br>
 
 ### The Game object
 Game is the overarching data structure that is responsible for the game loop as well as high-level operations above the individual game scenes and objects.
-It manages scenes, events, assets, and the main render texture that the scenes can draw to. The game loop consists of update, and draw. The update method is for the game logic, and most high-level game objects have an update method as well, that gets called here. The deltaTime between frames is passed to all of them to ensure framerate-independency. In draw, the scenes draw to the main render texture.
+It manages scenes, events, assets, and the main render texture that the scenes can draw to. The game loop consists of update, and draw. The update method is for the game logic, and most high-level game objects have an update method as well, that gets called here. The dt between frames is passed to all of them to ensure framerate-independency. In draw, the scenes draw to the main render texture.
 
 ### Scenes
 A scene can encapsulate/abstract any part of the game. Currently, I'm using the following scenes:

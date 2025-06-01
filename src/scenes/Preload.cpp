@@ -11,7 +11,7 @@ void Preload::startup() {
 
     // for an animated sprite, the keys have to contain the suffixes
     // _idle, _run, _hit, [...]
-    game.loader.loadTextures({
+    game.loader.loadtextures({
         {
             "sprite_default_idle", {
                 "./resources/textures/sprites/sprite_default_idle_anim_f0.png",
@@ -128,7 +128,7 @@ void Preload::startup() {
         { "weapon_mace", { "./resources/textures/sprites/weapon_mace.png" }},
         { "weapon_spear", { "./resources/textures/sprites/weapon_spear.png" }},
         { "weapon_arrow", { "./resources/textures/sprites/weapon_arrow.png" }},
-        { "flask_big_red", { "./resources/textures/sprites/flask_big_red.png" }},
+        { "flask_big_red_idle", { "./resources/textures/sprites/flask_big_red.png" }},
         { "itemDropHeart_idle", { "./resources/textures/sprites/item_drop_heart.png" } },
         { "itemDropCoin_idle", { "./resources/textures/sprites/item_drop_coin.png" } },
         {
@@ -142,17 +142,17 @@ void Preload::startup() {
     });
 
     // load the tileset (the textures)
-    game.loader.LoadTilesetFromTiled("./resources/tilemaps/test.tsj");
-    game.loader.LoadTilesetFromTiled("./resources/tilemaps/dungeon.tsj");
-    game.loader.LoadTilesetFromTiled("./resources/tilemaps/fields.tsj");
+    game.loader.LoadtilesetFromTiled("./resources/tilemaps/test.tsj");
+    game.loader.LoadtilesetFromTiled("./resources/tilemaps/dungeon.tsj");
+    game.loader.LoadtilesetFromTiled("./resources/tilemaps/fields.tsj");
     // load the tile maps from text files
-    game.loader.LoadTileMapFromTiled("./resources/tilemaps/test_map_small.json");
-    game.loader.LoadTileMapFromTiled("./resources/tilemaps/test_map_big.json");
-    game.loader.LoadTileMapFromTiled("./resources/tilemaps/test_dungeon.json");
-    game.loader.LoadTileMapFromTiled("./resources/tilemaps/test_dungeon1.json");
-    game.loader.LoadTileMapFromTiled("./resources/tilemaps/test_dungeon2.json");
-    game.loader.LoadTileMapFromTiled("./resources/tilemaps/test_dungeon3.json");
-    game.loader.LoadTileMapFromTiled("./resources/tilemaps/test_fields.json");
+    game.loader.LoadtileMapFromTiled("./resources/tilemaps/test_map_small.json");
+    game.loader.LoadtileMapFromTiled("./resources/tilemaps/test_map_big.json");
+    game.loader.LoadtileMapFromTiled("./resources/tilemaps/test_dungeon.json");
+    game.loader.LoadtileMapFromTiled("./resources/tilemaps/test_dungeon1.json");
+    game.loader.LoadtileMapFromTiled("./resources/tilemaps/test_dungeon2.json");
+    game.loader.LoadtileMapFromTiled("./resources/tilemaps/test_dungeon3.json");
+    game.loader.LoadtileMapFromTiled("./resources/tilemaps/test_fields.json");
     // load the font
     game.loader.LoadFont("./resources/fonts/slkscr.ttf");
     // load shaders
@@ -161,7 +161,7 @@ void Preload::startup() {
     game.loader.loadSpriteData("./resources/enemies.json");
     game.loader.loadSpriteData("./resources/npcs.json");
     game.loader.loadSpriteData("./resources/weapons.json");
-    game.loader.loadTextData("./resources/texts.json");
+    game.loader.loadtextData("./resources/texts.json");
     // music and sfx
     // second argument is for adjusting the volume
     game.loader.LoadMusicFile("./resources/sound/music/Escape the Dungeon- Dubious Dungeon.mp3", 1.0f, "dungeon01");
@@ -189,13 +189,14 @@ void Preload::startup() {
     game.loader.LoadSoundFile("./resources/sound/sfx/menuClose.wav"); 
     game.loader.LoadSoundFile("./resources/sound/sfx/menuCursor.wav"); 
     game.loader.LoadSoundFile("./resources/sound/sfx/menuSelect.wav"); 
+    game.loader.LoadSoundFile("./resources/sound/sfx/heal.wav"); 
 
     // advance to title after loading
     game.startScene("TitleScreen");
     game.stopScene("Preload");
 }
 
-void Preload::update(float dt) {
+void Preload::update(float deltaTime) {
     // TODO: calculate loading progress
 }
 

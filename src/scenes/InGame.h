@@ -10,7 +10,7 @@ class InGame : public Scene {
 public:
     InGame(Game& game, const std::string& name) : Scene(game, name), tileMap(nullptr), worldHeight(0), worldWidth(0) {}
     void startup() override;
-    void update(float dt) override;
+    void update(float deltaTime) override;
     void draw() override;
     void end() override;
 
@@ -22,7 +22,7 @@ public:
     std::optional<std::string> currentWeapon = std::nullopt;
     const TileMap* tileMap;
     size_t tileSize = 0;
-    void loadTilemap(const std::string& name);
+    void loadtilemap(const std::string& name);
     void addBehaviorsToSprite(std::shared_ptr<Sprite> sprite, const std::vector<std::string>& behaviors, const nlohmann::json& behaviorData);
     std::unordered_map<std::string, uint8_t> roomStates; // store map progression as bitmasks
     void advanceRoomState(const std::string& name);

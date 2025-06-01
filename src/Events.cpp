@@ -59,7 +59,7 @@ void setupConditionalEvents(InGame& inGame) {
                     game.eventManager.pushEvent("showHUD");
                     npcRef.removeAllBehaviors();
                     npcRef.speed = 16;
-                    npcRef.addBehavior(std::make_unique<ChaseBehavior>(inGame.spriteMap["elfCompanion"], inGame.player, 1000.0f, 12.0f, 2000.0f));
+                    npcRef.addBehavior(std::make_unique<ChaseBehavior>(game, inGame.spriteMap["elfCompanion"], inGame.player, 1000.0f, 12.0f, 2000.0f));
                     npcRef.persistent = true;
                     inGame.advanceRoomState("test_dungeon2");
                     }));
@@ -84,7 +84,7 @@ void setupConditionalEvents(InGame& inGame) {
                 game.cutsceneManager.queueCommand(new Command_Callback([&]() {
                     game.eventManager.pushEvent("showHUD");
                     inGame.advanceRoomState("test_dungeon");
-                    npcRef.addBehavior(std::make_unique<ChaseBehavior>(inGame.spriteMap["elfCompanion"], inGame.player, 1000.0f, 12.0f, 2000.0f));
+                    npcRef.addBehavior(std::make_unique<ChaseBehavior>(game, inGame.spriteMap["elfCompanion"], inGame.player, 1000.0f, 12.0f, 2000.0f));
                     }));
                 });
         }
@@ -117,7 +117,7 @@ void setupConditionalEvents(InGame& inGame) {
                     game.eventManager.pushEvent("showHUD");
                     npcRef.removeAllBehaviors();
                     npcRef.speed = 16;
-                    npcRef.addBehavior(std::make_unique<ChaseBehavior>(inGame.spriteMap["elfCompanion"], inGame.player, 1000.0f, 12.0f, 2000.0f));
+                    npcRef.addBehavior(std::make_unique<ChaseBehavior>(game, inGame.spriteMap["elfCompanion"], inGame.player, 1000.0f, 12.0f, 2000.0f));
                     npcRef.persistent = true;
                     }));
                 });
@@ -141,7 +141,7 @@ void setupConditionalEvents(InGame& inGame) {
                 game.cutsceneManager.queueCommand(new Command_Callback([&]() {
                     game.eventManager.pushEvent("showHUD");
                     inGame.advanceRoomState("test_dungeon1");
-                    npcRef.addBehavior(std::make_unique<ChaseBehavior>(inGame.spriteMap["elfCompanion"], inGame.player, 1000.0f, 12.0f, 2000.0f));
+                    npcRef.addBehavior(std::make_unique<ChaseBehavior>(game, inGame.spriteMap["elfCompanion"], inGame.player, 1000.0f, 12.0f, 2000.0f));
                     }));
                 });
         }

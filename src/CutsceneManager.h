@@ -20,7 +20,7 @@ class CutsceneManager {
 
 public:
     void queueCommand(Command* cmd, bool blocking = true);
-    void update(float dt);
+    void update(float deltaTime);
     void draw();
     bool isActive() const { return active; }
 

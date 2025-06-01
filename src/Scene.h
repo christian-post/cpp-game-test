@@ -12,7 +12,7 @@ public:
     Scene(Game& game, std::string sceneName) : game{ game }, name(std::move(sceneName)) {}
     virtual ~Scene() = default;
     virtual void startup() {}
-    virtual void update(float dt) {}
+    virtual void update(float deltaTime) {}
     virtual void draw() {}
     virtual void end() {}
 
@@ -63,7 +63,7 @@ protected:
 //public:
 //    Preload(Game& game, const std::string& name) : Scene(game, name) {}
 //    void startup() override;
-//    void update(float dt) override;
+//    void update(float deltaTime) override;
 //    void draw() override;
 //    void end() override;
 //};
@@ -77,7 +77,7 @@ protected:
 //void Name::startup() {
 //}
 //
-//void Name::update(float dt) {
+//void Name::update(float deltaTime) {
 //
 //}
 //
