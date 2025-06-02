@@ -31,12 +31,26 @@ private:
 	};
 	std::vector<ConditionalEvent> conditionalEvents;
 
+	// events that repeat
+	struct RepeatedEvent {
+		std::string key;
+		float interval;
+		float timeRemaining;
+		std::any value;
+		std::function<void()> callback;
+		int repeatsLeft;
+		std::function<void()> onComplete;
+	};
+	std::vector<RepeatedEvent> repeatedEvents;
+
 public:
 	EventManager();
 	void pushEvent(const std::string& key, std::any value = std::any{});
 	void pushDelayedEvent(const std::string& key, float delay, std::any value, std::function<void()> callback = nullptr);
+	void pushRepeatedEvent(const std::string& key, float interval, std::any value, std::function<void()> callback, int numRepeats, std::function<void()> onComplete = nullptr);
 	void addListener(const std::string& key, std::function<void(std::any)> callback);
 	void removeListeners(const std::string& key);
+	void cancelRepeatedEvent(const std::string& key);
 	void update(float deltaTime); // used to advance timers
 
 	void pushConditionalEvent(std::function<bool()> condition, std::function<void()> callback);

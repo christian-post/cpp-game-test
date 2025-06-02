@@ -11,12 +11,21 @@ void InventoryManager::startup() {
         CONSUMABLE,
         "flask_big_red_idle",
         [this]() { 
-            // TODO: trigger an event that animates the refilling
+            static bool isRefilling = false;
+            if (isRefilling) return false;
+
             auto* player = game.getPlayer();
             if (player->health == player->maxHealth) 
                 return false; // don't consume if player is at max health
-            player->refillHealth();
-            game.playSound("heal");
+            // start a refill animation
+            int repeats = player->maxHealth - player->health;
+            isRefilling = true;
+            game.eventManager.pushRepeatedEvent("refill_health", 0.25f, {}, [=]() {
+                player->health += 1;
+                game.playSound("heart");
+                }, repeats, [=]() {
+                    isRefilling = false;
+                    });
             return true;
         }
     };
@@ -35,10 +44,12 @@ void InventoryManager::startup() {
         if (const auto* key = std::any_cast<std::string>(&data)) {
             for (Item& item : items[CONSUMABLE]) {
                 if (item.textureKey == *key && item.quantity > 0) {
-                    bool consume = true;
-                    if (item.onConsume) consume = item.onConsume(); // handle callback
-
-                    if (!consume) break; // item was not successfully consumed
+                    //bool consume = true;
+                    //if (item.onConsume) consume = item.onConsume(); // handle callback
+                    //if (!consume) break; // item was not successfully consumed
+                    // handle the callback
+                    // if callback is NULL or returns false, don't consume the item
+                    if (!item.onConsume || !item.onConsume()) break;
 
                     item.quantity--;
                     if (item.quantity == 0) {
@@ -48,7 +59,6 @@ void InventoryManager::startup() {
                                 [&](const Item& i) { return i.textureKey == *key; }),
                             items[CONSUMABLE].end());
                     }
-                    // TODO: push an event specific to the item, or add a callback to a consumable
                     break;
                 }
             }

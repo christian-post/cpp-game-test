@@ -36,6 +36,21 @@ void EventManager::pushConditionalEvent(std::function<bool()> condition, std::fu
 	conditionalEvents.push_back({ condition, callback });
 }
 
+void EventManager::pushRepeatedEvent(const std::string& key, float interval, std::any value, std::function<void()> callback, int numRepeats, std::function<void()> onComplete) {
+	repeatedEvents.push_back({ key, interval, interval, value, callback, numRepeats, onComplete });
+}
+
+void EventManager::cancelRepeatedEvent(const std::string& key) {
+	for (auto it = repeatedEvents.begin(); it != repeatedEvents.end(); ) {
+		if (it->key == key) {
+			it = repeatedEvents.erase(it);
+		}
+		else {
+			++it;
+		}
+	}
+}
+
 void EventManager::removeListeners(const std::string& key) {
 	listeners.erase(key);
 }
@@ -69,5 +84,26 @@ void EventManager::update(float deltaTime) {
 		else {
 			++it;
 		}
+	}
+
+	for (auto it = repeatedEvents.begin(); it != repeatedEvents.end(); ) {
+		it->timeRemaining -= deltaTime;
+		if (it->timeRemaining <= 0.0f) {
+			// repeated callback
+			if (it->callback) {
+				it->callback();
+			}
+			pushEvent(it->key, it->value);
+			it->timeRemaining += it->interval;
+			if (--it->repeatsLeft <= 0) {
+				// callback on completion
+				if (it->onComplete) {
+					it->onComplete();
+				}
+				it = repeatedEvents.erase(it);
+				continue;
+			}
+		}
+		++it;
 	}
 }

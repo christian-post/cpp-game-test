@@ -89,7 +89,7 @@ public:
     }
 
     void playSound(const std::string& key);
-    bool soundOn = true;
+    bool soundOn = false;
     bool debug = false;
 
 private:

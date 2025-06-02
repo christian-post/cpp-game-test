@@ -21,7 +21,7 @@ void InGame::startup() {
     player->persistent = true;
     game.sprites.push_back(player);  // add to the sprites vector
     player->setTextures({ "player_idle", "player_run", "player_hit" });
-    player->health = 10;
+    player->health = 3;
 
     // retrieve the tilemap
     // some sprites need the player reference, so this has to come after the player
