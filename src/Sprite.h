@@ -83,6 +83,7 @@ public:
         behaviors.clear();
     }
     void executeBehavior(float deltaTime);
+    void drawBehavior(); // TODO: good or bad design?
 
 private:
     std::vector<std::unique_ptr<Behavior>> behaviors;

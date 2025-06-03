@@ -31,6 +31,14 @@ HUD::HUD(Game& game, const std::string& name) : Scene(game, name), heartImages{}
         showCollectedItem = true;
         collectedItemTimer = 0.0f;
         });
+
+    game.eventManager.addListener("showCoinAmount", [this](std::any data) {
+        showCoinAmount = true;
+        });
+
+    game.eventManager.addListener("hideCoinAmount", [this](std::any data) {
+        showCoinAmount = false;
+        });
 }
 
 void HUD::startup() {
@@ -90,12 +98,31 @@ void HUD::draw() {
         auto& items = game.getItems();
         for (size_t i = 0; i < items[CONSUMABLE].size(); ++i) {
             if (items[CONSUMABLE][i].name != collectedItem) continue;
+            // TODO: rename variables
             const auto& coinTex = game.loader.getTextures(items[CONSUMABLE][i].textureKey)[0];
             int coinX = weaponX + 36;
             DrawTexture(coinTex, coinX, collectedItemY, WHITE);
             std::string qtyText = "x" + std::to_string(items[CONSUMABLE][i].quantity);
             DrawText(qtyText.c_str(), coinX + 8, collectedItemY, 10, LIGHTGRAY);
         }
+    }
+
+    if (showCoinAmount) {
+        // TODO get rid of repeated code
+        const auto& coinTex = game.loader.getTextures("itemDropCoin_idle")[0];
+        int coinX = weaponX + 36;
+        DrawTexture(coinTex, coinX, 8, WHITE);
+        auto& items = game.getItems();
+        uint32_t qty = 0;
+        for (Item item : items[CONSUMABLE]) {
+            if (item.name == "Coin")
+            {
+                qty = item.quantity;
+                break;
+            }
+        }
+        std::string qtyText = "x" + std::to_string(qty);
+        DrawText(qtyText.c_str(), coinX + 8, 8, 10, LIGHTGRAY);
     }
 }
 

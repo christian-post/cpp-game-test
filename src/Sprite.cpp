@@ -91,17 +91,15 @@ void Sprite::executeBehavior(float deltaTime) {
     // runs update() on the behaviors in the order that they were given
     // TODO: behavior priority system?
     if (behaviors.empty()) return;
-    try {
-        for (auto& behavior : behaviors) {
-            if (!behavior) {
-                TraceLog(LOG_WARNING, "Null behavior in %s", spriteName.c_str());
-                continue;
-            }
-            behavior->update(deltaTime);
-        }
+    for (auto& behavior : behaviors) {
+        behavior->update(deltaTime);
     }
-    catch (const std::exception& e) {
-        TraceLog(LOG_FATAL, "Exception in executeBehavior for %s: %s", spriteName.c_str(), e.what());
+}
+
+void Sprite::drawBehavior() {
+    if (behaviors.empty()) return;
+    for (auto& behavior : behaviors) {
+        behavior->draw();
     }
 }
 

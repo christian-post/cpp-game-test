@@ -20,9 +20,9 @@
       "chaseTarget": "player"
     },
     "itemDrops": [
-      [ "itemDropHeart", 0.1 ],
-      [ "itemDropCoin", 0.5 ],
-      [ "flask_big_red", 0.4 ]
+      [ "itemDropHeart", 0.05 ],
+      [ "itemDropCoin", 0.3 ],
+      [ "flask_big_red", 0.01 ]
     ]
   },
   "big_demon": {
@@ -43,6 +43,6 @@
     "speed": 10.0,
     "behaviors": [ "RandomWalk", "Chase" ],
     "behaviorData": { "chaseTarget": "player" },
-    "itemDrops": [ [ "itemDropCoin", 0.5 ] ]
+    "itemDrops": [ [ "itemDropCoin", 0.75 ] ]
   }
 }

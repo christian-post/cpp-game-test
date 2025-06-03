@@ -18,6 +18,14 @@
       "dialogue": "elfDialogue1"
     }
   },
+  "merchant": {
+    "textureKey": "dwarf_m",
+    "behaviors": [ "Watch", "Dialogue" ],
+    "behaviorData": {
+      "watchTarget": "player",
+      "dialogue": "merchantDialogue1"
+    }
+  },
   "dungeon_door": {
     "textureKey": "dungeon_door"
   }

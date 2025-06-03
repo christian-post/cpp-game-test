@@ -28,11 +28,11 @@ void InGame::startup() {
     //loadtilemap("test_map_large");
     //loadtilemap("test_dungeon1");
     //loadtilemap("test_dungeon2");
-    loadtilemap("test_dungeon3");
+    loadtilemap("test_dungeon2");
     // set the player's position in the first room
-    //player->moveTo(float(10 * tileSize), float(15 * tileSize) + 4.0f);
+    player->moveTo(float(10 * tileSize), float(15 * tileSize) + 4.0f); // test_dungeon2
     //player->moveTo(float(44 * tileSize), float(73 * tileSize) + 4.0f); // for the large test map only
-    player->moveTo(float(6 * tileSize), float(5 * tileSize) + 4.0f); 
+    //player->moveTo(float(6 * tileSize), float(5 * tileSize) + 4.0f); 
 
     // setup the camera
     camera.target = Vector2{ player->rect.x, player->rect.y };
@@ -61,10 +61,6 @@ void InGame::startup() {
             currentWeapon = std::nullopt;
         }
         });
-
-    // using items
-    // TODO: not sure where to put this
-
 
     // ##### Events that progress the game ####
     setupConditionalEvents(*this);
@@ -133,6 +129,7 @@ void InGame::addBehaviorsToSprite(std::shared_ptr<Sprite> sprite, const std::vec
 }
 
 void InGame::loadtilemap(const std::string& name) {
+    // TODO: this gets big, put this somewhere else
     tileMap = &game.loader.getTilemap(name);
     tileSize = tileMap->tileWidth;
     // remove static and dynamic (non-persistent) sprites
@@ -173,7 +170,7 @@ void InGame::loadtilemap(const std::string& name) {
                 ? spriteData.at(spriteName)
                 : spriteData.at("sprite_default");
             if (!spriteData.contains(spriteName)) {
-                TraceLog(LOG_WARNING, "Missing enemy data for %s, falling back to sprite_default", spriteName.c_str());
+                TraceLog(LOG_WARNING, "Missing sprite data for %s, falling back to sprite_default", spriteName.c_str());
             }
             const auto& defaultData = spriteData.at("sprite_default");
             // instanciate the sprite
@@ -215,6 +212,13 @@ void InGame::loadtilemap(const std::string& name) {
                 spriteMap[spriteName] = sprite;
                 sprite->setTextures({ textureKey + "_idle", textureKey + "_run" });
             }
+            else if (obj.name == "tradeItem") {
+                sprite->setTextures({ spriteName + "_idle" });
+                sprite->doesAnimate = false;
+                uint32_t cost = obj.properties.value("cost", 999);
+                std::string name = obj.properties.value("name", "error"); // TODO switch spriteName and Name
+                sprite->addBehavior(std::make_unique<TradeItemBehavior>(game, sprite, player, name, cost));
+            }
             else if (obj.name == "enemy") {
                 sprite->canHurtPlayer = true;
                 sprite->isEnemy = true;
@@ -243,6 +247,7 @@ void InGame::loadtilemap(const std::string& name) {
                                 item->drawLayer = 1;
                                 item->doesAnimate = false;
                                 item->isColliding = false;
+                                // TODO: this does not scale well. write a function that handles any itemID
                                 if (itemId == "itemDropHeart" && player) {
                                     item->addBehavior(std::make_unique<HealBehavior>(game, item, player, 2));
                                 }
@@ -252,6 +257,7 @@ void InGame::loadtilemap(const std::string& name) {
                                 else if (itemId == "flask_big_red") {
                                     item->addBehavior(std::make_unique<CollectItemBehavior>(game, item, player, "Red Potion", 1));
                                 }
+                               
                                 game.sprites.push_back(item);
                                 break;
                             }
@@ -629,6 +635,7 @@ void InGame::draw() {
             });
         for (Sprite* sprite : drawOrder) {
             sprite->draw();
+            sprite->drawBehavior();
         }
         // now draw the top layer above the sprites
         if (lastLayer >= 0 && tileMap->layers[lastLayer].visible) {

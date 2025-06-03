@@ -20,7 +20,7 @@ void InventoryManager::startup() {
             // start a refill animation
             int repeats = player->maxHealth - player->health;
             isRefilling = true;
-            game.eventManager.pushRepeatedEvent("refill_health", 0.25f, {}, [=]() {
+            game.eventManager.pushRepeatedEvent("refill_health", 0.2f, {}, [=]() {
                 player->health += 1;
                 game.playSound("heart");
                 }, repeats, [=]() {
@@ -44,9 +44,6 @@ void InventoryManager::startup() {
         if (const auto* key = std::any_cast<std::string>(&data)) {
             for (Item& item : items[CONSUMABLE]) {
                 if (item.textureKey == *key && item.quantity > 0) {
-                    //bool consume = true;
-                    //if (item.onConsume) consume = item.onConsume(); // handle callback
-                    //if (!consume) break; // item was not successfully consumed
                     // handle the callback
                     // if callback is NULL or returns false, don't consume the item
                     if (!item.onConsume || !item.onConsume()) break;

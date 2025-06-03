@@ -109,6 +109,14 @@ void Preload::startup() {
                 "./resources/textures/sprites/goblin_run_anim_f3.png",
             }
         },
+        {
+            "dwarf_m_idle", {
+                "./resources/textures/sprites/dwarf_m_idle_anim_f0.png",
+                "./resources/textures/sprites/dwarf_m_idle_anim_f1.png",
+                "./resources/textures/sprites/dwarf_m_idle_anim_f2.png",
+                "./resources/textures/sprites/dwarf_m_idle_anim_f3.png",
+            }
+        },
         // inventory sprites
         {
             "hearts", {
@@ -129,6 +137,8 @@ void Preload::startup() {
         { "weapon_spear", { "./resources/textures/sprites/weapon_spear.png" }},
         { "weapon_arrow", { "./resources/textures/sprites/weapon_arrow.png" }},
         { "flask_big_red_idle", { "./resources/textures/sprites/flask_big_red.png" }},
+        { "flask_big_green_idle", { "./resources/textures/sprites/flask_big_green.png" }},
+        { "flask_big_blue_idle", { "./resources/textures/sprites/flask_big_blue.png" }},
         { "itemDropHeart_idle", { "./resources/textures/sprites/item_drop_heart.png" } },
         { "itemDropCoin_idle", { "./resources/textures/sprites/item_drop_coin.png" } },
         {
@@ -146,6 +156,7 @@ void Preload::startup() {
     game.loader.LoadtilesetFromTiled("./resources/tilemaps/dungeon.tsj");
     game.loader.LoadtilesetFromTiled("./resources/tilemaps/fields.tsj");
     // load the tile maps from text files
+    game.loader.LoadtileMapFromTiled("./resources/tilemaps/dungeon_shop.json");
     game.loader.LoadtileMapFromTiled("./resources/tilemaps/test_map_small.json");
     game.loader.LoadtileMapFromTiled("./resources/tilemaps/test_map_big.json");
     game.loader.LoadtileMapFromTiled("./resources/tilemaps/test_dungeon.json");
@@ -173,6 +184,7 @@ void Preload::startup() {
     game.loader.LoadSoundFile("./resources/sound/sfx/slash.wav", 0.1f);
     game.loader.LoadSoundFile("./resources/sound/sfx/heart.wav", 0.6f);
     game.loader.LoadSoundFile("./resources/sound/sfx/rupee.wav", 0.8f);
+    game.loader.LoadSoundFile("./resources/sound/sfx/cash.wav");
     game.loader.LoadSoundFile("./resources/sound/sfx/doorOpen_2.ogg");
     game.loader.LoadSoundFile("./resources/sound/sfx/creature_hurt_02.ogg");
     game.loader.LoadSoundFile("./resources/sound/sfx/creature_die_01.ogg");

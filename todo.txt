@@ -3,10 +3,12 @@ features
 - Pathfinding
 - talking to NPCs
 -- dialogue options
+- Loading Screen
 
 - Sprites
 -- behavior priority system
 -- drawing priority/layer system
+-- add a z dimension to the position (used for flying, jumping etc)
 
 - Cutscene command system (modular)
 -- Command_MoveToPath(target, posX, posY, duration) // benutzt pathfinding
@@ -14,7 +16,7 @@ features
 -- Command_CameraPan(x, y, duration) // camera pans towards a target position (and then back?)
 
 - Items
--- 
+-- REFACTOR: item data, key and name handling is getting messy
 
 - Misc
 -- 
@@ -31,6 +33,8 @@ TODO: refactor
 - a way to control the page break of a text box
 - items.json if the items get more complex
 - when predrawing the Tilemap chunks, don't store textures that are completely transparent
+- does it make sense for Behaviors to have a draw method, or can this be solved differently?
+- no event listeners check for delayed events with callbacks
 
 BUGS:
 - RandomWalkBehavior: choose new target after some time if the current target can't be reached

@@ -16,9 +16,9 @@ void EventManager::pushEvent(const std::string& key, std::any value) {
 			callback(value);
 		}
 	}
-	else {
-		TraceLog(LOG_WARNING, "No event listeners for %s", key.c_str());
-	}
+	//else {
+	//	TraceLog(LOG_WARNING, "No event listeners for %s", key.c_str());
+	//}
 }
 
 void EventManager::pushDelayedEvent(const std::string& key, float delay, std::any value, std::function<void()> callback) {

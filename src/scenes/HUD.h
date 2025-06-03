@@ -29,4 +29,6 @@ private:
     int collectedItemY = 0;
     float collectedItemTimer = 0.0f;
     std::string collectedItem = "";
+    // show the amount of coins for shopping
+    bool showCoinAmount = false;
 };

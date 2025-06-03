@@ -5,8 +5,11 @@
 #include "Commands.h"
 #include "Controls.h"
 #include "Utils.h"
+#include "InventoryManager.h"
 #include <any>
 #include <cmath>
+#include <array>
+#include <vector>
 
 WatchBehavior::WatchBehavior(std::shared_ptr<Sprite> sprite, std::shared_ptr<Sprite> targetSprite)
 	: self{ sprite }, target{ targetSprite } {
@@ -287,5 +290,81 @@ void DialogueBehavior::update(float deltaTime) {
 					}));
 			}
 		}
+	}
+}
+
+TradeItemBehavior::TradeItemBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> player, std::string name, uint32_t price) 
+	: game{ game }, self{ self }, player{ player }, name{ name }, price{ price } {
+}
+
+void TradeItemBehavior::update(float deltaTime) {
+	if (triggered) return;
+	// TODO: show the price next to the item
+
+	if (auto s = self.lock(), p = player.lock(); s && p) {
+		if (CheckCollisionRecs(s->rect, p->rect)) {
+			// show the coin amount
+			// TODO: not working as intended
+			if (!collided) {
+				game.eventManager.pushEvent("showCoinAmount");
+				collided = true;
+			}
+			if (game.buttonsDown & CONTROL_ACTION1) {
+				triggered = true;
+				// player stands next to the item and tries to buy it
+
+				// check if the item can be afforded
+				// TODO: it is very inefficient to loop over items every time just for the amount of coins
+				auto& items = game.getItems();
+				bool canAfford = false;
+				Item* coinPtr = nullptr;
+				for (Item& item : items[CONSUMABLE]) {
+					if (item.name == "Coin" && item.quantity >= price) {
+						canAfford = true;
+						coinPtr = &item;
+						break;
+					}
+				}
+				if (canAfford) {
+					game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>(name, 1));
+					coinPtr->quantity -= price; // TODO: handle coins completely differently
+					done = true;
+					game.playSound("cash");
+					game.cutsceneManager.queueCommand(new Command_Textbox(game, "Thanks for your purchase."));
+					game.cutsceneManager.queueCommand(new Command_Callback([this]() {
+						game.eventManager.pushDelayedEvent("resetDialogTrigger", 0.1f, nullptr, [this]() {
+							triggered = false;
+							});
+						}));
+				}
+				else {
+					game.cutsceneManager.queueCommand(new Command_Textbox(game, "You can't afford this item."));
+					game.cutsceneManager.queueCommand(new Command_Callback([this]() {
+						game.eventManager.pushDelayedEvent("resetDialogTrigger", 0.1f, nullptr, [this]() {
+							triggered = false;
+							});
+						}));
+				}
+			}
+		}
+		else {
+			if (collided) {
+				collided = false;
+				done = false;
+				game.eventManager.pushEvent("hideCoinAmount");
+			}
+		}
+	}
+}
+
+void TradeItemBehavior::draw() {
+	// draw the coin amount needed to buy this item
+	if (auto s = self.lock()) {
+		int x = (int)s->position.x - 4;
+		int y = (int)s->position.y + 16;
+		const auto& coinTex = game.loader.getTextures("itemDropCoin_idle")[0];
+		DrawTexture(coinTex, x, y, WHITE);
+		std::string priceText = "x" + std::to_string(price);
+		DrawText(priceText.c_str(), x + 8, y, 10, WHITE);
 	}
 }

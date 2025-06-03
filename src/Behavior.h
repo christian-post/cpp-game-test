@@ -18,6 +18,7 @@ class Behavior {
 public:
 	virtual ~Behavior() = default;
 	virtual void update(float deltaTime) = 0;
+	virtual void draw() {};
 	bool done = false;
 };
 
@@ -153,4 +154,20 @@ private:
 	std::vector<std::string> dialogTexts;
 	size_t currentTextIndex = 0;
 	bool triggered = false;
+};
+
+class TradeItemBehavior : public Behavior {
+public:
+	TradeItemBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> player, std::string name, uint32_t price);
+	void update(float deltaTime) override;
+	void draw() override;
+
+private:
+	Game& game;
+	std::weak_ptr<Sprite> self;
+	std::weak_ptr<Sprite> player;
+	std::string name;
+	uint32_t price;
+	bool triggered = false;
+	bool collided = false;
 };
