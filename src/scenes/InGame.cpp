@@ -28,12 +28,12 @@ void InGame::startup() {
     // some sprites need the player reference, so this has to come after the player
     // 
     //loadTilemap("test_map_large");
-    //loadTilemap("test_dungeon1");
-    //loadTilemap("test_dungeon2");
-    //player->moveTo(float(10 * tileSize), float(15 * tileSize) + 4.0f); // test_dungeon2
     //player->moveTo(float(44 * tileSize), float(73 * tileSize) + 4.0f); // for the large test map only
-    loadTilemap("dungeon_shop");
-    player->moveTo(float(6 * tileSize), float(5 * tileSize) + 4.0f); 
+    //loadTilemap("test_dungeon1");
+    loadTilemap("test_dungeon2");
+    player->moveTo(float(10 * tileSize), float(15 * tileSize) + 4.0f); // test_dungeon2
+    //loadTilemap("dungeon_shop");
+    //player->moveTo(float(6 * tileSize), float(5 * tileSize) + 4.0f); 
 
     // setup the camera
     camera.target = Vector2{ player->rect.x, player->rect.y };
@@ -65,7 +65,7 @@ void InGame::startup() {
 
     // ##### Events that progress the game ####
     // // TODO: comment out during debugging
-    setupConditionalEvents(*this);
+    //setupConditionalEvents(*this);
 
     // TODO: adding some items for testing
     game.eventManager.pushDelayedEvent("testItemsForStart", 0.1f, nullptr, [this]() {
@@ -254,10 +254,10 @@ void InGame::loadTilemap(const std::string& name) {
                                     item->addBehavior(std::make_unique<HealBehavior>(game, item, player, 2));
                                 }
                                 else if (itemId == "itemDropCoin") {
-                                    item->addBehavior(std::make_unique<CollectItemBehavior>(game, item, player, "Coin", 1));
+                                    item->addBehavior(std::make_unique<CollectItemBehavior>(game, item, player, "coin", 1));
                                 }
                                 else if (itemId == "flask_big_red") {
-                                    item->addBehavior(std::make_unique<CollectItemBehavior>(game, item, player, "Red Potion", 1));
+                                    item->addBehavior(std::make_unique<CollectItemBehavior>(game, item, player, "red_potion", 1));
                                 }
                                
                                 game.sprites.push_back(item);

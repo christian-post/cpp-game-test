@@ -3,7 +3,6 @@ features
 - Pathfinding
 - talking to NPCs
 -- dialogue options
-- Loading Screen
 - locked doors and keys
 
 - Dungeon Generation
@@ -46,6 +45,7 @@ TODO: refactor
 - when predrawing the Tilemap chunks, don't store textures that are completely transparent
 - does it make sense for Behaviors to have a draw method, or can this be solved differently?
 - no event listeners check for delayed events with callbacks
+- add PASSIVE and KEY items to inventory
 
 BUGS:
 - RandomWalkBehavior: choose new target after some time if the current target can't be reached
@@ -53,4 +53,4 @@ BUGS:
 - npc dialogue broken after cutscene
 - GameOver Music does not start if a previous music has been playing
 - show item pickup for all collectibles
-- coins not showing in inventory
+- F5 does not reset inventory

@@ -103,9 +103,10 @@ void HUD::draw() {
         const Texture2D& itemTex = game.loader.getTextures(data.textureKey)[0];
         int itemX = weaponX + 36;
         DrawTexture(itemTex, itemX, collectedItemY, WHITE);
-        // TODO: bugged
-        //std::string qtyText = "x" + std::to_string(invItems[CONSUMABLE].at(collectedItem).second);
-        //DrawText(qtyText.c_str(), itemX + 8, collectedItemY, 10, LIGHTGRAY);
+        ItemType type = data.type;
+        uint32_t qty = invItems[type].at(collectedItem).second;
+        std::string qtyText = "x" + std::to_string(qty);
+        DrawText(qtyText.c_str(), itemX + 8, collectedItemY, 10, LIGHTGRAY);
     }
     if (showCoinAmount) {
         // TODO get rid of repeated code
