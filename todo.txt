@@ -20,6 +20,7 @@ features
 -- Unify Item and ItemData structs: 
 -- Item needs a key and a screenName property
 -- ItemData.h ?
+-- InventoryManager should not be a scene (update and draw are unused) but instead a property of Game
 
 - Misc
 -- 
