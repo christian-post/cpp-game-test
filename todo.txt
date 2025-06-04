@@ -1,9 +1,24 @@
 features
-- Shop
+- chests witn items (ChestOpenBehavior shows the item and starts a dialog)
 - Pathfinding
 - talking to NPCs
 -- dialogue options
 - Loading Screen
+- locked doors and keys
+
+- Dungeon Generation
+-- steps:
+-- 1 define general shape and layout (differently sized and connected rooms)
+-- 2 gameplay flow 
+--- 2.1 define number keys and locked doors --> pathfinding
+--- 2.2 define location of mini bosses and end boss
+--- 2.3 secret areas (maybe a shop or a secret item)
+-- 3 remove unnecessary rooms after assignment
+-- 4 Tiling: 
+--- 4.1 create a floor and a wall layer
+--- 4.2 choose the correct tiles based on their position and their neighbors (place predefined tile chunks?)
+--- 4.3 maybe use wavefunction collapse?
+--- 4.4 safe individual rooms as serialized data (JSON during development, and binary in release) to ensure they are persistant
 
 - Sprites
 -- behavior priority system
