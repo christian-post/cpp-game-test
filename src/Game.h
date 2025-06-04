@@ -63,6 +63,7 @@ public:
 
     EventManager eventManager; // event handling
     CutsceneManager cutsceneManager;
+    InventoryManager inventory;
 
     bool isRunning() const { return running; }
     void end() { running = false; }
@@ -81,12 +82,6 @@ public:
 
     // store a reference to the player sprite in case a scene other than InGame needs it
     Sprite* getPlayer();
-    // grant access to a reference to the inventory (idk if this is bad design)
-    std::array<std::vector<Item>, NUM_ITEM_TYPES>& getItems() {
-        InventoryManager* inv = static_cast<InventoryManager*>(getScene("InventoryManager"));
-        auto& items = inv->getItems();
-        return items;
-    }
 
     void playSound(const std::string& key);
     bool soundOn = true;

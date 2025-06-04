@@ -24,15 +24,16 @@ void InGame::startup() {
     player->health = 3;
 
     // retrieve the tilemap
+    // and set the player's position in the first room
     // some sprites need the player reference, so this has to come after the player
-    //loadtilemap("test_map_large");
-    //loadtilemap("test_dungeon1");
-    //loadtilemap("test_dungeon2");
-    loadtilemap("test_dungeon2");
-    // set the player's position in the first room
-    player->moveTo(float(10 * tileSize), float(15 * tileSize) + 4.0f); // test_dungeon2
+    // 
+    //loadTilemap("test_map_large");
+    //loadTilemap("test_dungeon1");
+    //loadTilemap("test_dungeon2");
+    //player->moveTo(float(10 * tileSize), float(15 * tileSize) + 4.0f); // test_dungeon2
     //player->moveTo(float(44 * tileSize), float(73 * tileSize) + 4.0f); // for the large test map only
-    //player->moveTo(float(6 * tileSize), float(5 * tileSize) + 4.0f); 
+    loadTilemap("dungeon_shop");
+    player->moveTo(float(6 * tileSize), float(5 * tileSize) + 4.0f); 
 
     // setup the camera
     camera.target = Vector2{ player->rect.x, player->rect.y };
@@ -43,7 +44,7 @@ void InGame::startup() {
     // event listeners for the InGame scene
     game.eventManager.addListener("teleport", [this](std::any data) {
         const auto& teleportData = std::any_cast<const TeleportEvent&>(data);
-        loadtilemap(teleportData.targetMap);
+        loadTilemap(teleportData.targetMap);
         player->moveTo(teleportData.targetPos.x * tileSize, teleportData.targetPos.y * tileSize);
         });
 
@@ -63,18 +64,19 @@ void InGame::startup() {
         });
 
     // ##### Events that progress the game ####
+    // // TODO: comment out during debugging
     setupConditionalEvents(*this);
 
     // TODO: adding some items for testing
     game.eventManager.pushDelayedEvent("testItemsForStart", 0.1f, nullptr, [this]() {
         // give the player the sword for starters
-        game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("Sword", 1));
-        game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("Double Axe", 1));
+        game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_sword", 1));
+        game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_double_axe", 1));
         //game.eventManager.pushEvent("weaponSet", std::string("weapon_sword"));
         game.eventManager.pushEvent("weaponSet", std::string("weapon_double_axe"));
         // another item
-        game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("Red Potion", 2));
-        game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("Coin", 10));
+        game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("red_potion", 2));
+        game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("coin", 99));
         });
 }
 
@@ -128,7 +130,7 @@ void InGame::addBehaviorsToSprite(std::shared_ptr<Sprite> sprite, const std::vec
     }
 }
 
-void InGame::loadtilemap(const std::string& name) {
+void InGame::loadTilemap(const std::string& name) {
     // TODO: this gets big, put this somewhere else
     tileMap = &game.loader.getTilemap(name);
     tileSize = tileMap->tileWidth;

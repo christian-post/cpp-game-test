@@ -5,7 +5,7 @@
 #include "Commands.h"
 #include "Controls.h"
 #include "Utils.h"
-#include "InventoryManager.h"
+#include "ItemData.h"
 #include <any>
 #include <cmath>
 #include <array>
@@ -243,7 +243,7 @@ void CollectItemBehavior::update(float deltaTime) {
 					// add the item
 					game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>(name, amount));
 					game.playSound("rupee");
-					game.eventManager.pushEvent("itemAdded", std::string("Coin")); // TODO: testing this here
+					game.eventManager.pushEvent("itemAdded", std::string("coin")); // TODO: testing this here
 					state++;
 				}
 				break;
@@ -304,7 +304,6 @@ void TradeItemBehavior::update(float deltaTime) {
 	if (auto s = self.lock(), p = player.lock(); s && p) {
 		if (CheckCollisionRecs(s->rect, p->rect)) {
 			// show the coin amount
-			// TODO: not working as intended
 			if (!collided) {
 				game.eventManager.pushEvent("showCoinAmount");
 				collided = true;
@@ -314,20 +313,11 @@ void TradeItemBehavior::update(float deltaTime) {
 				// player stands next to the item and tries to buy it
 
 				// check if the item can be afforded
-				// TODO: it is very inefficient to loop over items every time just for the amount of coins
-				auto& items = game.getItems();
-				bool canAfford = false;
-				Item* coinPtr = nullptr;
-				for (Item& item : items[CONSUMABLE]) {
-					if (item.name == "Coin" && item.quantity >= price) {
-						canAfford = true;
-						coinPtr = &item;
-						break;
-					}
-				}
-				if (canAfford) {
+				uint32_t qty = game.inventory.getItemQuantity("coin");
+
+				if (qty >= price) {
 					game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>(name, 1));
-					coinPtr->quantity -= price; // TODO: handle coins completely differently
+					game.eventManager.pushEvent("removeItem", std::make_any<std::pair<std::string, uint32_t>>("coin", price));
 					done = true;
 					game.playSound("cash");
 					game.cutsceneManager.queueCommand(new Command_Textbox(game, "Thanks for your purchase."));

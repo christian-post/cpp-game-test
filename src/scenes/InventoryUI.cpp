@@ -1,5 +1,5 @@
 #include "InventoryUI.h"
-#include "InventoryManager.h"
+//#include "InventoryManager.h"
 #include "Game.h"
 #include "Controls.h"
 #include "raylib.h"
@@ -43,17 +43,18 @@ void InventoryUI::update(float deltaTime) {
             game.playSound("menuClose");
         }
         // cursor movement (only when there are weapons)
-        auto& items = game.getItems();
-        size_t weaponsSize = items[WEAPON].size();
-        size_t consumablesSize = items[CONSUMABLE].size();
-        size_t totalItems = weaponsSize + consumablesSize;
+        // TODO: is this really the way to do it?
+        auto& items = game.inventory.getItems();
+        std::vector<const InventoryItem*> flatItems;
+        for (const auto& [key, item] : items[WEAPON]) flatItems.push_back(&item);
+        for (const auto& [key, item] : items[CONSUMABLE]) flatItems.push_back(&item);
 
+        size_t totalItems = flatItems.size();
         if (totalItems == 0) {
-            index = 0; // Reset if no items
+            index = 0;
             break;
         }
-
-        if (index >= totalItems) index = 0; // Clamp
+        if (index >= totalItems) index = 0;
 
         if (game.buttonsPressed & CONTROL_RIGHT) {
             index = (index + 1) % totalItems;
@@ -65,13 +66,13 @@ void InventoryUI::update(float deltaTime) {
         }
 
         if (game.buttonsPressed & CONTROL_ACTION1) {
-            if (index < weaponsSize) {
-                game.eventManager.pushEvent("weaponSet", items[WEAPON][index].textureKey);
+            const auto* selected = flatItems[index];
+            if (selected->first->type == WEAPON) {
+                game.eventManager.pushEvent("weaponSet", selected->first->textureKey);
                 game.playSound("menuSelect");
             }
             else {
-                size_t consumableIndex = index - weaponsSize;
-                game.eventManager.pushEvent("consumeItem", items[CONSUMABLE][consumableIndex].textureKey);
+                game.eventManager.pushEvent("consumeItem", selected->first->textureKey);
             }
         }
         break;
@@ -80,13 +81,17 @@ void InventoryUI::update(float deltaTime) {
 
 
 void InventoryUI::draw() {
-    auto& items = game.getItems();
+    auto& items = game.inventory.getItems();
     size_t weaponsSize = items[WEAPON].size();
     size_t consumablesSize = items[CONSUMABLE].size();
     size_t totalItems = weaponsSize + consumablesSize;
 
     // background
     DrawRectangle(int(x), int(y), int(width), int(height), DARKBURGUNDY);
+
+    std::vector<const InventoryItem*> flatItems;
+    for (const auto& [key, item] : items[WEAPON]) flatItems.push_back(&item);
+    for (const auto& [key, item] : items[CONSUMABLE]) flatItems.push_back(&item);
 
     // selectable weapons
     static const uint32_t spacing = 32;
@@ -95,7 +100,8 @@ void InventoryUI::draw() {
     for (size_t i = 0; i < weaponsSize; ++i) {
         size_t row = i / cols;
         size_t col = i % cols;
-        const auto& tex = game.loader.getTextures(items[WEAPON][i].textureKey)[0];
+
+        const auto& tex = game.loader.getTextures(flatItems[i]->first->textureKey)[0];
         int drawX = int(x + marginLeft + spacing * col - tex.width / 2);
         int drawY = int(y + marginTop + spacing * row - tex.height / 2);
         DrawTexture(tex, drawX, drawY, WHITE);
@@ -103,16 +109,16 @@ void InventoryUI::draw() {
 
     // consumables
     uint32_t itemsStartY = weaponsRows * spacing;
-    for (size_t i = 0; i < consumablesSize; ++i) {
-        size_t row = i / cols;
-        size_t col = i % cols;
-        const auto& tex = game.loader.getTextures(items[CONSUMABLE][i].textureKey)[0];
+    for (size_t i = weaponsSize; i < weaponsSize + consumablesSize; ++i) {
+        size_t row = (i - weaponsSize) / cols;
+        size_t col = (i - weaponsSize) % cols;
+        const auto& tex = game.loader.getTextures(flatItems[i]->first->textureKey)[0];
         int centerX = int(x + marginLeft + spacing * col);
         int centerY = int(y + itemsStartY + spacing * row);
         int drawX = centerX - tex.width / 2;
         int drawY = centerY - tex.height / 2;
         DrawTexture(tex, drawX, drawY, WHITE);
-        std::string qtyText = "x" + std::to_string(items[CONSUMABLE][i].quantity);
+        std::string qtyText = "x" + std::to_string(flatItems[i]->second);
         DrawText(qtyText.c_str(), centerX + 4, centerY + 8, 10, LIGHTGRAY);
     }
 
@@ -140,16 +146,15 @@ void InventoryUI::draw() {
     // display selected item name
     int fontSize = 8;
     uint32_t textY = int(y) + int(game.gameScreenHeight - topY) - fontSize - 24;
-    //uint32_t textY = int(y) + int(game.gameScreenHeight / 2 - topY) - fontSize + 8;
     if (index < weaponsSize) {
-        const char* weaponText = items[WEAPON][index].name.c_str();
+        const char* weaponText = flatItems[index]->first->displayName.c_str();
         uint32_t textX = (int(game.gameScreenWidth) - MeasureText(weaponText, fontSize)) / 2;
         
         DrawText(weaponText, textX, textY, fontSize, LIGHTGRAY);
     }
     else if (index < totalItems) {
         size_t consumableIndex = index - weaponsSize;
-        const char* consumableText = items[CONSUMABLE][consumableIndex].name.c_str();
+        const char* consumableText = flatItems[index]->first->displayName.c_str();
         uint32_t textX = (int(game.gameScreenWidth) - MeasureText(consumableText, fontSize)) / 2;
         DrawText(consumableText, textX, textY, fontSize, LIGHTGRAY);
     }

@@ -3,6 +3,7 @@
 #include "raylib.h"
 #include "InGame.h"
 #include "Utils.h"
+#include "ItemData.h"
 
 
 HUD::HUD(Game& game, const std::string& name) : Scene(game, name), heartImages{} {
@@ -94,33 +95,24 @@ void HUD::draw() {
     DrawTexture(wpnTex, weaponX - wpnTex.width / 2, weaponY - wpnTex.height / 2, WHITE);
 
     // whenever a collectable item is picked up
+    // TODO this break when it's a coin
     if (showCollectedItem) {
-        auto& items = game.getItems();
-        for (size_t i = 0; i < items[CONSUMABLE].size(); ++i) {
-            if (items[CONSUMABLE][i].name != collectedItem) continue;
-            // TODO: rename variables
-            const auto& coinTex = game.loader.getTextures(items[CONSUMABLE][i].textureKey)[0];
-            int coinX = weaponX + 36;
-            DrawTexture(coinTex, coinX, collectedItemY, WHITE);
-            std::string qtyText = "x" + std::to_string(items[CONSUMABLE][i].quantity);
-            DrawText(qtyText.c_str(), coinX + 8, collectedItemY, 10, LIGHTGRAY);
-        }
+        auto& itemData = game.inventory.getItemData();
+        auto& invItems = game.inventory.getItems();
+        const ItemData& data = itemData.at(collectedItem);
+        const Texture2D& itemTex = game.loader.getTextures(data.textureKey)[0];
+        int itemX = weaponX + 36;
+        DrawTexture(itemTex, itemX, collectedItemY, WHITE);
+        // TODO: bugged
+        //std::string qtyText = "x" + std::to_string(invItems[CONSUMABLE].at(collectedItem).second);
+        //DrawText(qtyText.c_str(), itemX + 8, collectedItemY, 10, LIGHTGRAY);
     }
-
     if (showCoinAmount) {
         // TODO get rid of repeated code
         const auto& coinTex = game.loader.getTextures("itemDropCoin_idle")[0];
         int coinX = weaponX + 36;
         DrawTexture(coinTex, coinX, 8, WHITE);
-        auto& items = game.getItems();
-        uint32_t qty = 0;
-        for (Item item : items[CONSUMABLE]) {
-            if (item.name == "Coin")
-            {
-                qty = item.quantity;
-                break;
-            }
-        }
+        uint32_t qty = game.inventory.getItemQuantity("coin");
         std::string qtyText = "x" + std::to_string(qty);
         DrawText(qtyText.c_str(), coinX + 8, 8, 10, LIGHTGRAY);
     }

@@ -167,7 +167,7 @@
                         {
                          "name":"name",
                          "type":"string",
-                         "value":"Red Potion"
+                         "value":"red_potion"
                         }, 
                         {
                          "name":"roomState",
@@ -199,7 +199,7 @@
                         {
                          "name":"name",
                          "type":"string",
-                         "value":"Green Potion"
+                         "value":"green_potion"
                         }, 
                         {
                          "name":"roomState",
@@ -231,7 +231,7 @@
                         {
                          "name":"name",
                          "type":"string",
-                         "value":"Blue Potion"
+                         "value":"blue_potion"
                         }, 
                         {
                          "name":"roomState",
@@ -280,7 +280,7 @@
                         {
                          "name":"targetMap",
                          "type":"string",
-                         "value":"test_dungeon_1"
+                         "value":"test_dungeon1"
                         }, 
                         {
                          "name":"targetPosX",

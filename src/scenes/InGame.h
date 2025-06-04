@@ -22,7 +22,7 @@ public:
     std::optional<std::string> currentWeapon = std::nullopt;
     const TileMap* tileMap;
     size_t tileSize = 0;
-    void loadtilemap(const std::string& name);
+    void loadTilemap(const std::string& name);
     void addBehaviorsToSprite(std::shared_ptr<Sprite> sprite, const std::vector<std::string>& behaviors, const nlohmann::json& behaviorData);
     std::unordered_map<std::string, uint8_t> roomStates; // store map progression as bitmasks
     void advanceRoomState(const std::string& name);

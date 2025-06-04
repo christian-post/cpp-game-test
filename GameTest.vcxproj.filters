@@ -63,13 +63,16 @@
     <ClCompile Include="src\scenes\InventoryUI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\scenes\InventoryManager.cpp">
+    <ClCompile Include="src\InventoryManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Events.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Commands.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ItemData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -131,10 +134,13 @@
     <ClInclude Include="src\scenes\InventoryUI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\scenes\InventoryManager.h">
+    <ClInclude Include="src\InventoryManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Events.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ItemData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

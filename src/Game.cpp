@@ -1,17 +1,15 @@
 ﻿#include "Game.h"
-//#include <raylib.h>
 #include "Controls.h"
 #include "Preload.h"
 #include "TitleScreen.h"
 #include "InGame.h"
 #include "HUD.h"
 #include "InventoryUI.h"
-#include "InventoryManager.h"
 #include "GameOver.h"
 #include "Utils.h"
 
 
-Game::Game() : buttonsDown{}, buttonsPressed{} {
+Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this) {
     loader.loadSettings("./resources/settings.json");
     settings = &loader.getSettings();
     TraceLog(LOG_INFO, settings->dump(2).c_str());
@@ -36,7 +34,6 @@ Game::Game() : buttonsDown{}, buttonsPressed{} {
     registerScene<InGame>("InGame", 0);
     registerScene<HUD>("HUD", 1);
     registerScene<InventoryUI>("InventoryUI", 2);
-    registerScene<InventoryManager>("InventoryManager", 0);
     registerScene<GameOver>("GameOver", 2);
 }
 
@@ -130,11 +127,11 @@ void Game::clearSprites(bool clearPersistent) {
 
 void Game::processMarkedSprites() {
     // TODO debugging
-    for (const auto& sprite : sprites) {
-        if (sprite->isMarkedForDeletion()) {
-            TraceLog(LOG_INFO, "Marked for deletion: %s at %p", sprite->spriteName.c_str(), sprite.get());
-        }
-    }
+    //for (const auto& sprite : sprites) {
+    //    if (sprite->isMarkedForDeletion()) {
+    //        TraceLog(LOG_INFO, "Marked for deletion: %s at %p", sprite->spriteName.c_str(), sprite.get());
+    //    }
+    //}
     sprites.erase(std::remove_if(sprites.begin(), sprites.end(),
         [](auto sprite) {
             return sprite->isMarkedForDeletion();
@@ -200,8 +197,6 @@ void Game::draw() {
 
     // now draw "target" onto the actual window
     BeginDrawing();
-        //ClearBackground(RED);     // Clear screen background
-
         // Draw render texture to screen, properly scaled
         DrawTexturePro(
             target.texture, 

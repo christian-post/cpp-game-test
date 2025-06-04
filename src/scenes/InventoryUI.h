@@ -6,6 +6,7 @@
 #include <string> 
 #include <unordered_map>
 #include <array>
+#include "ItemData.h"
 
 
 enum inventoryState {
@@ -18,8 +19,6 @@ enum inventoryState {
 class InventoryUI : public Scene {
     // scene responsible for drawing the inventory and all the items
     // as well as item selection etc
-    //
-    // TODO: not sure if this scene should manage the items as well
 public:
     InventoryUI(Game& game, const std::string& name);
     void startup() override;
@@ -39,4 +38,5 @@ private:
     size_t index = 0; // selected item index
     uint32_t weaponsRows = 3;
     uint32_t cols = 6;
+    std::map<std::string, ItemData> itemData;
 };
