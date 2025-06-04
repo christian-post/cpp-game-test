@@ -18,8 +18,10 @@ features
 - Items
 -- REFACTOR: item data, key and name handling is getting messy
 -- Unify Item and ItemData structs: 
--- Item needs a key and a screenName property
--- ItemData.h ?
+-- "Item" is only the key and a pointer to ItemData
+-- "items" is a hash map instead of a vector
+-- ItemData.h and ItemData.cpp
+-- add PASSIVE and KEY item types
 -- InventoryManager should not be a scene (update and draw are unused) but instead a property of Game
 
 - Misc
