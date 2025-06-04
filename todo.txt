@@ -12,11 +12,14 @@ features
 
 - Cutscene command system (modular)
 -- Command_MoveToPath(target, posX, posY, duration) // benutzt pathfinding
--- Command_ShowTextbox(text, target)  // target für Sprechblase
+-- Command_ShowTextbox(text, target)  // target fÃ¼r Sprechblase
 -- Command_CameraPan(x, y, duration) // camera pans towards a target position (and then back?)
 
 - Items
 -- REFACTOR: item data, key and name handling is getting messy
+-- Unify Item and ItemData structs: 
+-- Item needs a key and a screenName property
+-- ItemData.h ?
 
 - Misc
 -- 
