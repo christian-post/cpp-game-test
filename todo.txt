@@ -4,10 +4,12 @@ features
 - talking to NPCs
 -- dialogue options
 - locked doors and keys
+- Save and load feature
 
 Scenes
 - more menu scenes:
 -- Dungeon map
+-- game menu (save, load, end game)
 
 - Dungeon Generation
 -- steps:
