@@ -5,6 +5,10 @@ features
 -- dialogue options
 - locked doors and keys
 
+Scenes
+- more menu scenes:
+-- Dungeon map
+
 - Dungeon Generation
 -- steps:
 -- 1 define general shape and layout (differently sized and connected rooms)
