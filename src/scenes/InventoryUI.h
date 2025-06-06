@@ -37,6 +37,6 @@ private:
     inventoryState state = NONE;
     size_t index = 0; // selected item index
     uint32_t weaponsRows = 3;
-    uint32_t cols = 6;
+    uint32_t cols = 5;
     std::map<std::string, ItemData> itemData;
 };

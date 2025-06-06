@@ -143,6 +143,7 @@ void Preload::startup() {
             { "flask_big_blue_idle", { "./resources/textures/sprites/flask_big_blue.png" }},
             { "itemDropHeart_idle", { "./resources/textures/sprites/item_drop_heart.png" } },
             { "itemDropCoin_idle", { "./resources/textures/sprites/item_drop_coin.png" } },
+            { "bomb_idle", { "./resources/textures/sprites/bomb_f0.png" } },
             {
                 "dungeon_door_idle", {
                     "./resources/textures/sprites/doors_leaf_closed.png",

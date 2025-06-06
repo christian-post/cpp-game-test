@@ -77,6 +77,15 @@ void InGame::startup() {
         // another item
         game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("red_potion", 2));
         game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("coin", 99));
+        // just add more to fill the inventory
+        game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_bow", 1));
+        game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_hammer", 1));
+        game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_mace", 1));
+        game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_spear", 1));
+        game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_baton_with_spikes", 1));
+        game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_arrow", 1));
+        game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("green_potion", 1));
+        game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("blue_potion", 1));
         });
 }
 

@@ -84,7 +84,9 @@ void InventoryUI::draw() {
     auto& items = game.inventory.getItems();
     size_t weaponsSize = items[WEAPON].size();
     size_t consumablesSize = items[CONSUMABLE].size();
-    size_t totalItems = weaponsSize + consumablesSize;
+    size_t passiveSize = items[PASSIVE].size();
+    size_t keySize = items[KEY].size();
+    size_t totalItems = weaponsSize + consumablesSize + passiveSize + keySize;
 
     // background
     DrawRectangle(int(x), int(y), int(width), int(height), DARKBURGUNDY);
@@ -92,15 +94,16 @@ void InventoryUI::draw() {
     std::vector<const InventoryItem*> flatItems;
     for (const auto& [key, item] : items[WEAPON]) flatItems.push_back(&item);
     for (const auto& [key, item] : items[CONSUMABLE]) flatItems.push_back(&item);
+    for (const auto& [key, item] : items[PASSIVE]) flatItems.push_back(&item);
+    for (const auto& [key, item] : items[KEY]) flatItems.push_back(&item);
 
     // selectable weapons
     static const uint32_t spacing = 32;
-    static const uint32_t marginLeft = 32;
-    static const uint32_t marginTop = 32;
+    static const uint32_t marginLeft = 24;
+    static const uint32_t marginTop = 24;
     for (size_t i = 0; i < weaponsSize; ++i) {
         size_t row = i / cols;
         size_t col = i % cols;
-
         const auto& tex = game.loader.getTextures(flatItems[i]->first->textureKey)[0];
         int drawX = int(x + marginLeft + spacing * col - tex.width / 2);
         int drawY = int(y + marginTop + spacing * row - tex.height / 2);
@@ -120,6 +123,19 @@ void InventoryUI::draw() {
         DrawTexture(tex, drawX, drawY, WHITE);
         std::string qtyText = "x" + std::to_string(flatItems[i]->second);
         DrawText(qtyText.c_str(), centerX + 4, centerY + 8, 10, LIGHTGRAY);
+    }
+
+    // passive items, draw as column
+    uint32_t passivesStartX = cols * spacing + 2 * marginLeft; 
+    for (size_t i = weaponsSize + consumablesSize; i < weaponsSize + consumablesSize + passiveSize; ++i) {
+        const auto& tex = game.loader.getTextures(flatItems[i]->first->textureKey)[0];
+        int centerX = int(passivesStartX);
+        int centerY = int(marginTop + y + (i - weaponsSize - consumablesSize) * spacing);
+        int drawX = centerX + tex.width / 2;
+        int drawY = centerY - tex.height / 2;
+        DrawTexture(tex, drawX, drawY, WHITE);
+        std::string qtyText = "x" + std::to_string(flatItems[i]->second);
+        DrawText(qtyText.c_str(), centerX + 8, centerY + 8, 10, LIGHTGRAY);
     }
 
     // draw the cursor
