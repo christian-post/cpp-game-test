@@ -153,10 +153,9 @@ WeaponBehavior::WeaponBehavior(Game& game, std::shared_ptr<Sprite> sprite, std::
 	: game{ game }, self{ sprite }, owner{ ownerSprite }, lifetime{ lifetime }, originalLifetime{ lifetime }, type{ type } {
 	if (auto s = self.lock(), o = owner.lock(); s && o) {
 		s->lastDirection = o->lastDirection;
-		s->hurtboxOffset.x = (s->lastDirection == LEFT) ? -12.0f : 12.0f;
-		// the player character is left handed, change the drawing order of the weapon accordingly
+		s->hurtboxOffset.x *= (s->lastDirection == LEFT) ? -1.0f : 1.0f;
+		// the player character is left handed; change the drawing order of the weapon accordingly
 		s->drawLayer = (s->lastDirection == LEFT) ? 1 : -1;
-		s->hurtboxOffset.y = 8.0f;
 	}
 }
 
@@ -183,6 +182,7 @@ void WeaponBehavior::update(float deltaTime) {
 
 					if (!shaken && progress > 0.5f) {
 						s->game.eventManager.pushEvent("screenShake", std::make_tuple(0.1f, 0.0f, 10.0f));
+						s->game.playSound("hammer");
 						o->az = -1.0f; // player jumps
 						shaken = true;
 					}

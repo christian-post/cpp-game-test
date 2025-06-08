@@ -134,7 +134,7 @@ void Sprite::update(float deltaTime) {
     // Vertical motion (Z axis)
     // Apply vertical impulse
     // TODO: set jumpForce as a member
-    vz += az * 12.0f * speed * deltaTime;
+    vz += az * jumpForce * deltaTime;
 
     // Apply gravity
     vz += 1.0f * speed * deltaTime;

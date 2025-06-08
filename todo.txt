@@ -25,8 +25,7 @@ Scenes
 -- Command_CameraPan(x, y, duration) // camera pans towards a target position (and then back?)
 
 - Misc
--- Individual Weapons behavior
--- spear should poke, bow should shoot etc
+-- 
 
 - Music/Sounds:
 -- Inventory select item --> different sound
@@ -41,13 +40,13 @@ TODO: refactor
 - when predrawing the Tilemap chunks, don't store textures that are completely transparent
 - does it make sense for Behaviors to have a draw method, or can this be solved differently?
 - no event listeners check for delayed events with callbacks
-- add PASSIVE and KEY items to inventory
+- dedicated Sprite.jump() method
+- posOffsetX and posOffsetY in weapons data currently unused
+- Weapon hurtbox should appear only a fraction of the weapon's lifetime
 
 BUGS:
 - RandomWalkBehavior: choose new target after some time if the current target can't be reached
 - npc can follow the player across rooms, set position correctly near the door
 - npc dialogue broken after cutscene
-- GameOver Music does not start if a previous music has been playing
 - show item pickup for all collectibles
 - F5 does not reset inventory
-- hurtbox offset from weapons.json does nothing

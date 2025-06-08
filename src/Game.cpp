@@ -166,7 +166,7 @@ void Game::playMusic() {
         if (scene && scene->isActive()) {
             if (scene->music) {
                 UpdateMusicStream(*scene->music);
-                return; // prevent multiple scenes from playing music
+                //return; // TODO prevent multiple scenes from playing music?
             }
         }
     }

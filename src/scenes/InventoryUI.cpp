@@ -1,4 +1,4 @@
-#include "InventoryUI.h"
+﻿#include "InventoryUI.h"
 //#include "InventoryManager.h"
 #include "Game.h"
 #include "Controls.h"
@@ -43,7 +43,6 @@ void InventoryUI::update(float deltaTime) {
             game.playSound("menuClose");
         }
         // cursor movement (only when there are weapons)
-        // TODO: is this really the way to do it?
         auto& items = game.inventory.getItems();
         std::vector<const InventoryItem*> flatItems;
         for (const auto& [key, item] : items[WEAPON]) flatItems.push_back(&item);
@@ -62,6 +61,49 @@ void InventoryUI::update(float deltaTime) {
         }
         if (game.buttonsPressed & CONTROL_LEFT) {
             index = (index + totalItems - 1) % totalItems;
+            game.playSound("menuCursor");
+        }
+
+        size_t weaponCount = items[WEAPON].size();
+        size_t nextIndex = index + cols;
+        size_t col = index % cols; // TODO: not correct for consumables
+        if (game.buttonsPressed & CONTROL_DOWN) {
+            if (nextIndex < totalItems) {
+                index = nextIndex;
+            }
+            else if (index < weaponCount) {
+                size_t candidateIndex = weaponCount + col;
+                if (candidateIndex < totalItems) index = candidateIndex;
+                else index = totalItems - 1;
+            }
+            game.playSound("menuCursor");
+        }
+
+        if (game.buttonsPressed & CONTROL_UP) {
+            size_t weaponCount = items[WEAPON].size();
+
+            if (index >= weaponCount) {
+                size_t consumableIndex = index - weaponCount;
+                size_t col = consumableIndex % cols;
+                size_t secondRowLen = weaponCount > cols ? weaponCount - cols : 0;
+                if (secondRowLen == 0) {
+                    // All weapons in first row
+                    index = (col < weaponCount) ? col : weaponCount - 1;
+                }
+                else {
+                    // Weapons span two rows
+                    if (col < secondRowLen) {
+                        index = cols + col;
+                    }
+                    else {
+                        index = weaponCount - 1;
+                    }
+                }
+            }
+            else if (index >= cols) {
+                // In second weapon row → move to first
+                index -= cols;
+            }
             game.playSound("menuCursor");
         }
 

@@ -45,6 +45,7 @@ public:
     Vector2 hurtboxOffset = { 0.0f, 0.0f };
     bool isColliding = true;
     float speed = 20.0f; // default movement speed
+    float jumpForce = 300.0f; 
     Vector2 acc;
     Vector2 vel;
     float friction = 0.8f;

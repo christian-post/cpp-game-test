@@ -218,6 +218,7 @@ void Preload::startup() {
         l.LoadSoundFile("./resources/sound/sfx/menuCursor.wav");
         l.LoadSoundFile("./resources/sound/sfx/menuSelect.wav");
         l.LoadSoundFile("./resources/sound/sfx/heal.wav");
+        l.LoadSoundFile("./resources/sound/sfx/hammer.wav");
         });
 
     totalLoadSteps = loadQueue.size();

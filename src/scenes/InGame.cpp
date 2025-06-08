@@ -456,18 +456,19 @@ void InGame::update(float deltaTime) {
                     TraceLog(LOG_WARNING, "Missing weapon data for %s, falling back to weapon_default", weaponKey.c_str());
                 }
 
-                float offsetX = data.at("offsetX");
-                float offsetY = data.at("offsetY");
+                float offsetX = data.at("HurtboxOffsetX");
+                float offsetY = data.at("HurtboxOffsetY");
 
                 auto wpn = std::make_shared<Sprite>(
-                    game, player->position.x + offsetX, player->position.y + offsetY, 16.0f, 16.0f, weaponKey, weaponKey
-                );
+                    game, 0.0f, 0.0f, 16.0f, 16.0f, weaponKey, weaponKey
+                ); // hitbox doesn't really matter
 
                 spriteMap[*currentWeapon] = wpn;
                 game.sprites.push_back(wpn);
 
                 wpn->setTextures({ weaponKey });
-                wpn->setHurtbox(data.at("offsetX"), data.at("offsetY"), data.at("HurtboxWidth"), data.at("HurtboxHeight"));
+                wpn->setHurtbox(-1.0f, -1.0f, data.at("HurtboxWidth"), data.at("HurtboxHeight"));
+                wpn->hurtboxOffset = { offsetX, offsetY };
                 wpn->doesAnimate = false;
                 wpn->isColliding = false;
                 wpn->damage = data.at("damage");
