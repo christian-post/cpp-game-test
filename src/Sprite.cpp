@@ -131,10 +131,31 @@ void Sprite::update(float deltaTime) {
         vel = { 0.0f, 0.0f };
     }
 
+    // Vertical motion (Z axis)
+    // Apply vertical impulse
+    // TODO: set jumpForce as a member
+    vz += az * 12.0f * speed * deltaTime;
+
+    // Apply gravity
+    vz += 1.0f * speed * deltaTime;
+
+    vz *= friction;
+    z += vz;
+
+    if (z > 0.0f) {
+        z = 0.0f;
+        vz = 0.0f;
+    }
+    // prevent jitter
+    if (vz * vz < 2.5e-3f) {
+        vz = 0.0f;
+    }
+
     position = Vector2Add(position, vel);
 
     // reset acceleration
     acc = { 0.0f, 0.0f };
+    az = 0.0f;
 
     // damage handling
     if (iFrameTimer > 0.0f) {
@@ -164,8 +185,8 @@ void Sprite::draw() {
     Rectangle source = { 0.0f, 0.0f, (float)texture.width, (float)texture.height };
 
     Rectangle dest = {
-        rect.x + rect.width / 2.0f,  // X: center of the sprite
-        rect.y + rect.height,        // Y: bottom of the sprite
+        rect.x + rect.width / 2.0f, 
+        rect.y + rect.height + z,  // apply the z axis, but only visually
         source.width, source.height
     };
 

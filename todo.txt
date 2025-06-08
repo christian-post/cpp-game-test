@@ -12,23 +12,12 @@ Scenes
 -- game menu (save, load, end game)
 
 - Dungeon Generation
--- steps:
--- 1 define general shape and layout (differently sized and connected rooms)
--- 2 gameplay flow 
---- 2.1 define number keys and locked doors --> pathfinding
---- 2.2 define location of mini bosses and end boss
---- 2.3 secret areas (maybe a shop or a secret item)
--- 3 remove unnecessary rooms after assignment
--- 4 Tiling: 
---- 4.1 create a floor and a wall layer
---- 4.2 choose the correct tiles based on their position and their neighbors (place predefined tile chunks?)
---- 4.3 maybe use wavefunction collapse?
---- 4.4 safe individual rooms as serialized data (JSON during development, and binary in release) to ensure they are persistant
+-- premade rooms (different sizes with multiples of 16x16)
+
 
 - Sprites
 -- behavior priority system
 -- drawing priority/layer system
--- add a z dimension to the position (used for flying, jumping etc)
 
 - Cutscene command system (modular)
 -- Command_MoveToPath(target, posX, posY, duration) // benutzt pathfinding
@@ -36,7 +25,8 @@ Scenes
 -- Command_CameraPan(x, y, duration) // camera pans towards a target position (and then back?)
 
 - Misc
--- 
+-- Individual Weapons behavior
+-- spear should poke, bow should shoot etc
 
 - Music/Sounds:
 -- Inventory select item --> different sound
@@ -60,3 +50,4 @@ BUGS:
 - GameOver Music does not start if a previous music has been playing
 - show item pickup for all collectibles
 - F5 does not reset inventory
+- hurtbox offset from weapons.json does nothing

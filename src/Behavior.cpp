@@ -149,8 +149,8 @@ void ChaseBehavior::update(float deltaTime) {
 	}
 }
 
-WeaponBehavior::WeaponBehavior(Game& game, std::shared_ptr<Sprite> sprite, std::shared_ptr<Sprite> ownerSprite, float lifetime)
-	: game{ game }, self {sprite}, owner{ ownerSprite }, lifetime{ lifetime }, originalLifetime{ lifetime } {
+WeaponBehavior::WeaponBehavior(Game& game, std::shared_ptr<Sprite> sprite, std::shared_ptr<Sprite> ownerSprite, float lifetime, weaponType type)
+	: game{ game }, self{ sprite }, owner{ ownerSprite }, lifetime{ lifetime }, originalLifetime{ lifetime }, type{ type } {
 	if (auto s = self.lock(), o = owner.lock(); s && o) {
 		s->lastDirection = o->lastDirection;
 		s->hurtboxOffset.x = (s->lastDirection == LEFT) ? -12.0f : 12.0f;
@@ -163,14 +163,47 @@ WeaponBehavior::WeaponBehavior(Game& game, std::shared_ptr<Sprite> sprite, std::
 void WeaponBehavior::update(float deltaTime) {
 	if (auto s = self.lock(), o = owner.lock(); s && o) {
 		lifetime -= deltaTime;
-		if (lifetime < 0.0f && !done) {
+		// show the weapon sprite for a split second longer than the lifetime
+		if (lifetime < originalLifetime * -0.2f && !done) {
 			s->game.eventManager.pushEvent("killWeapon", nullptr);
 			done = true;
 		}
 		s->position.x = o->position.x;
-		s->position.y = o->position.y - 8.0f;
+		s->position.y = o->position.y - 8.0f + o->z; // factor in the z position
 		float progress = 1.0f - (lifetime / originalLifetime);
-		s->rotationAngle = (s->lastDirection == RIGHT) ? 180.0f * progress : -180.0f * progress;
+		if (lifetime < 0.0f) return;
+		switch (type) {
+			case SWING:
+				s->rotationAngle = (s->lastDirection == RIGHT) ? 180.0f * progress : -180.0f * progress;
+				break;
+			case WHACK:
+				{
+					float angle = std::sin(progress * 3.14159f);
+					s->rotationAngle = (s->lastDirection == RIGHT) ? 90.0f * angle : -90.0f * angle;
+
+					if (!shaken && progress > 0.5f) {
+						s->game.eventManager.pushEvent("screenShake", std::make_tuple(0.1f, 0.0f, 10.0f));
+						o->az = -1.0f; // player jumps
+						shaken = true;
+					}
+				}
+				break;
+			case POKE:
+			{
+				float offset = std::sin(progress * 3.14159f) * 10.0f;
+				if (s->lastDirection == RIGHT) {
+					s->position.x += offset;
+					s->rotationAngle = 90;
+				}
+				else {
+					s->position.x -= offset;
+					s->rotationAngle = -90;
+				}
+				break;
+			}
+			default:
+				break;
+		}
 	}
 }
 

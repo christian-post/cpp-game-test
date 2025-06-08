@@ -50,6 +50,11 @@ public:
     float friction = 0.8f;
     Vector2 position; // position exists independently of rect to allow for subpixel accurate movement
     bool staticCollision = false; // behaves like a wall
+    // Z axis to simulate jumping
+    // TODO: use a Vector3 at some point (needs heavy refactoring though)
+    float z = 0.0f;
+    float vz = 0.0f;
+    float az = 0.0f;
 
     // gameplay variables
     uint32_t health; // current health

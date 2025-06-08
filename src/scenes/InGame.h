@@ -5,6 +5,7 @@
 #include "TileMap.h"
 #include <memory>
 #include "json.hpp"
+#include "Utils.h"
 
 class InGame : public Scene {
 public:
@@ -37,6 +38,7 @@ public:
     uint32_t currentRoomIndex = 0;
 
     Camera2D camera = {};
+    CameraShake cameraShake;
 
     // collision
     void resolveAxisX(const std::shared_ptr<Sprite>& sprite, const Rectangle& obstacle);

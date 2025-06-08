@@ -5,7 +5,8 @@
     "HurtboxWidth": 16.0,
     "HurtboxHeight": 24.0,
     "damage": 1,
-    "lifetime": 0.4
+    "lifetime": 0.4,
+    "type": 0
   },
   "weapon_sword": {
     "offsetX": 0.0,
@@ -13,7 +14,8 @@
     "HurtboxWidth": 16.0,
     "HurtboxHeight": 36.0,
     "damage": 2,
-    "lifetime": 0.4
+    "lifetime": 0.4,
+    "type": 0
   },
   "weapon_double_axe": {
     "offsetX": 0.0,
@@ -21,6 +23,25 @@
     "HurtboxWidth": 24.0,
     "HurtboxHeight": 36.0,
     "damage": 5,
-    "lifetime": 0.6
+    "lifetime": 0.6,
+    "type": 0
+  },
+  "weapon_spear": {
+    "offsetX": 12.0,
+    "offsetY": -4.0,
+    "HurtboxWidth": 12.0,
+    "HurtboxHeight": 12.0,
+    "damage": 2,
+    "lifetime": 0.4,
+    "type": 1
+  },
+  "weapon_hammer": {
+    "offsetX": 12.0,
+    "offsetY": -4.0,
+    "HurtboxWidth": 12.0,
+    "HurtboxHeight": 12.0,
+    "damage": 4,
+    "lifetime": 0.6,
+    "type": 3
   }
 }

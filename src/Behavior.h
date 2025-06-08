@@ -14,6 +14,13 @@ enum direction {
 	DOWN
 };
 
+enum weaponType {
+	SWING,
+	POKE,
+	SHOOT,
+	WHACK
+};
+
 class Behavior {
 public:
 	virtual ~Behavior() = default;
@@ -61,7 +68,7 @@ private:
 
 class WeaponBehavior : public Behavior {
 public:
-	WeaponBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> owner, float lifetime);
+	WeaponBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> owner, float lifetime, weaponType type);
 	void update(float deltaTime) override;
 
 private:
@@ -70,6 +77,8 @@ private:
 	std::weak_ptr<Sprite> owner;
 	float lifetime;
 	float originalLifetime;
+	weaponType type;
+	bool shaken = false;
 };
 
 class DeathBehavior : public Behavior {

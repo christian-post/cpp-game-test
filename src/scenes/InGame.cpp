@@ -30,10 +30,10 @@ void InGame::startup() {
     //loadTilemap("test_map_large");
     //player->moveTo(float(44 * tileSize), float(73 * tileSize) + 4.0f); // for the large test map only
     //loadTilemap("test_dungeon1");
-    loadTilemap("test_dungeon2");
-    player->moveTo(float(10 * tileSize), float(15 * tileSize) + 4.0f); // test_dungeon2
-    //loadTilemap("dungeon_shop");
-    //player->moveTo(float(6 * tileSize), float(5 * tileSize) + 4.0f); 
+    //loadTilemap("test_dungeon2");
+    //player->moveTo(float(10 * tileSize), float(15 * tileSize) + 4.0f); // test_dungeon2
+    loadTilemap("dungeon_shop");
+    player->moveTo(float(6 * tileSize), float(5 * tileSize) + 4.0f); 
 
     // setup the camera
     camera.target = Vector2{ player->rect.x, player->rect.y };
@@ -63,6 +63,14 @@ void InGame::startup() {
         }
         });
 
+    game.eventManager.addListener("screenShake", [this](std::any value) {
+        if (value.has_value() && value.type() == typeid(std::tuple<float, float, float>)) {
+            auto [duration, xMag, yMag] = std::any_cast<std::tuple<float, float, float>>(value);
+            cameraShake.start(duration, xMag, yMag);
+        }
+        });
+
+
     // ##### Events that progress the game ####
     // // TODO: comment out during debugging
     //setupConditionalEvents(*this);
@@ -71,14 +79,12 @@ void InGame::startup() {
     game.eventManager.pushDelayedEvent("testItemsForStart", 0.1f, nullptr, [this]() {
         // give the player the sword for starters
         game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_sword", 1));
-        game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_double_axe", 1));
-        //game.eventManager.pushEvent("weaponSet", std::string("weapon_sword"));
-        game.eventManager.pushEvent("weaponSet", std::string("weapon_double_axe"));
         // another item
         game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("red_potion", 2));
         game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("coin", 99));
         // just add more to fill the inventory
         game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_bow", 1));
+        game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_double_axe", 1));
         game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_hammer", 1));
         game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_mace", 1));
         game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_spear", 1));
@@ -86,6 +92,11 @@ void InGame::startup() {
         game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_arrow", 1));
         game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("green_potion", 1));
         game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("blue_potion", 1));
+
+        //game.eventManager.pushEvent("weaponSet", std::string("weapon_sword"));
+        //game.eventManager.pushEvent("weaponSet", std::string("weapon_double_axe"));
+        game.eventManager.pushEvent("weaponSet", std::string("weapon_hammer"));
+        //game.eventManager.pushEvent("weaponSet", std::string("weapon_spear"));
         });
 }
 
@@ -460,7 +471,8 @@ void InGame::update(float deltaTime) {
                 wpn->doesAnimate = false;
                 wpn->isColliding = false;
                 wpn->damage = data.at("damage");
-                wpn->addBehavior(std::make_unique<WeaponBehavior>(game, wpn, player, data.at("lifetime")));
+                weaponType type = static_cast<weaponType>(data.at("type"));
+                wpn->addBehavior(std::make_unique<WeaponBehavior>(game, wpn, player, data.at("lifetime"), type));
 
                 // add an event listener that removes the sword
                 // the "killWeapon" event is dispatched by WeaponBehavior once it's finished
@@ -556,17 +568,28 @@ void InGame::update(float deltaTime) {
         }
     }
 
-    // Camera follows player
-    camera.target = Vector2{ player->rect.x + player->rect.width / 2, player->rect.y + player->rect.height / 2 };
-    // Define camera boundaries (and factor in the HUD dimensions)
+    // Camera follows the player
+    Vector2 target = {
+        player->rect.x + player->rect.width / 2,
+        player->rect.y + player->rect.height / 2
+    };
+
     float HudHeight = game.getSetting("HudHeight");
     float minX = game.gameScreenWidth / 2.0f;
     float minY = game.gameScreenHeight / 2.0f - HudHeight;
     float maxX = worldWidth - game.gameScreenWidth / 2.0f;
     float maxY = worldHeight - game.gameScreenHeight / 2.0f;
-    // Clamp camera target within world bounds
-    camera.target.x = Clamp(camera.target.x, minX, maxX);
-    camera.target.y = Clamp(camera.target.y - HudHeight * 0.5f, minY, maxY);
+
+    target.y -= HudHeight * 0.5f;
+
+    target.x = Clamp(target.x, minX, maxX);
+    target.y = Clamp(target.y, minY, maxY);
+    // apply a screen shake effect if the event was called
+    if (cameraShake.isActive()) {
+        cameraShake.update(deltaTime);
+        target = cameraShake.apply(target);
+    }
+    camera.target = target;
 
     // player dies, GameOver scene starts
     if (player->health < 1) {
@@ -670,13 +693,9 @@ void InGame::draw() {
     // overlay debug info texts
     if (game.debug) {
         std::string debugText = "Debug: ";
-        //debugText += "player vel.: " + std::to_string(Vector2Length(player->vel));
-
-        //DrawTexture(game.loader.getTextures("sprite_default_idle")[0], 100.0f, 100.0f, WHITE);
-
-        debugText += game.cutsceneManager.currentCommandName();
+        // show the player's z velocity
+        debugText += "player z vel: " + std::to_string(player->vz);
         DrawText(debugText.c_str(), 4, game.gameScreenHeight - 22, 10, LIGHTGRAY);
-        //DrawTextEx(game.loader.getFont("slkscr"), "Hello, World", Vector2{ 50, 50 }, 32, 0, WHITE);
     }
 }
 
