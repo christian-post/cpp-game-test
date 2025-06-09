@@ -19,7 +19,7 @@ void InGame::startup() {
 
     spriteMap["player"] = player;
     player->persistent = true;
-    game.sprites.push_back(player);  // add to the sprites vector
+    game.sprites.emplace_back(player);  // add to the sprites vector
     player->setTextures({ "player_idle", "player_run", "player_hit" });
     player->health = 3;
 
@@ -74,6 +74,29 @@ void InGame::startup() {
     // ##### Events that progress the game ####
     // // TODO: comment out during debugging
     //setupConditionalEvents(*this);
+
+    // Testing a particle emitter
+    Emitter emitter(40);
+    emitter.location = { 60.0f, 100.0f };
+    emitter.spawnInterval = 0.02f;
+    emitter.emitterLifetime = -1.0f;
+    emitter.spawnRadius = 0.0f;
+    emitter.spawnRadiusVariance = 4.0f;
+    emitter.prototype.velocity = { 0.0f, 0.0f };
+    emitter.velocityVariance = { 20.0f, 20.0f };
+    emitter.lifetimeVariance = 0.5f;
+    emitter.alphaVariance = 0.2f;
+
+    Particle proto;
+    proto.velocity = { 0.0f, 0.0f };
+    proto.lifetime = 1.0f;
+    proto.alpha = 1.0f;
+    proto.tint = RED;
+    proto.animationSpeed = 0.1f;
+    proto.setAnimationFrames(game.loader.getTextures("magic_ball_idle"));
+
+    emitter.prototype = proto;
+    emitters.push_back(emitter);
 
     // TODO: adding some items for testing
     game.eventManager.pushDelayedEvent("testItemsForStart", 0.1f, nullptr, [this]() {
@@ -168,6 +191,8 @@ void InGame::loadTilemap(const std::string& name) {
     TraceLog(LOG_INFO, "Loading room %s in state %d", name.c_str(), (int)currentState);
 
     const auto& spriteData = game.loader.getSpriteData();
+    size_t spritesLen = tileMap->getObjects().size();
+    game.sprites.reserve(spritesLen); // prevents resizing(?)
     // build static collision objects from map data
     for (auto& obj : tileMap->getObjects()) {
         if (!obj.visible) continue;
@@ -280,7 +305,7 @@ void InGame::loadTilemap(const std::string& name) {
                                     item->addBehavior(std::make_unique<CollectItemBehavior>(game, item, player, "red_potion", 1));
                                 }
                                
-                                game.sprites.push_back(item);
+                                game.sprites.emplace_back(item);
                                 break;
                             }
                         }
@@ -315,7 +340,7 @@ void InGame::loadTilemap(const std::string& name) {
             if (data.contains("behaviors")) {
                 addBehaviorsToSprite(sprite, data.at("behaviors"), data.at("behaviorData"));
             }
-            game.sprites.push_back(sprite);
+            game.sprites.emplace_back(sprite);
         }
     }
     // calculate the map dimensions (to be used by the camera)
@@ -464,7 +489,7 @@ void InGame::update(float deltaTime) {
                 ); // hitbox doesn't really matter
 
                 spriteMap[*currentWeapon] = wpn;
-                game.sprites.push_back(wpn);
+                game.sprites.emplace_back(wpn);
 
                 wpn->setTextures({ weaponKey });
                 wpn->setHurtbox(-1.0f, -1.0f, data.at("HurtboxWidth"), data.at("HurtboxHeight"));
@@ -569,6 +594,11 @@ void InGame::update(float deltaTime) {
         }
     }
 
+    // particles
+    for (auto& emitter : emitters) {
+        emitter.update(deltaTime);
+    }
+
     // Camera follows the player
     Vector2 target = {
         player->rect.x + player->rect.width / 2,
@@ -671,6 +701,10 @@ void InGame::draw() {
         for (Sprite* sprite : drawOrder) {
             sprite->draw();
             sprite->drawBehavior();
+        }
+        // particles
+        for (auto& emitter : emitters) {
+            emitter.draw();
         }
         // now draw the top layer above the sprites
         if (lastLayer >= 0 && tileMap->layers[lastLayer].visible) {

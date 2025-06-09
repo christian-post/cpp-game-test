@@ -13,7 +13,7 @@ void Preload::startup() {
     // for an animated sprite, the keys have to contain the suffixes
     // _idle, _run, _hit, [...]
     loadQueue.emplace("Loading textures", [&]() {
-        l.loadtextures({
+        l.loadTextures({
             {
                 "sprite_default_idle", {
                     "./resources/textures/sprites/sprite_default_idle_anim_f0.png",
@@ -153,6 +153,8 @@ void Preload::startup() {
             // background images
             { "title_image", { "./resources/textures/images/title.png" }},
             });
+            // spritesheets
+            l.loadSpritesheet("./resources/textures/sprites/projectiles.png", 8, 8, "magic_ball_idle");
         });
 
     // load the tileset (the textures)

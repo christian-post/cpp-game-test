@@ -45,9 +45,9 @@ void Sprite::animate(float deltaTime) {
     if (!doesAnimate) return;
 
     elapsedtime += deltaTime;
-    if (elapsedtime >= frameTime && !frames.empty()) {
+    if (elapsedtime >= frameTime && !frames[currentTextureKey].empty()) {
         elapsedtime = 0.0f;
-        currentFrame = (currentFrame + 1) % frames.size();
+        currentFrame = (currentFrame + 1) % frames[currentTextureKey].size();
     }
     // latch the last direction (used for animation)
     if (vel.x == 0.0f && vel.y == 0.0f) {

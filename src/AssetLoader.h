@@ -27,8 +27,9 @@ private:
     
 public:
     ~AssetLoader();
-    void loadtexturesFromDirectory(const std::string& directory);
-    void loadtextures(const std::unordered_map<std::string, std::vector<std::string>>& textureMap);
+    void loadTexturesFromDirectory(const std::string& directory);
+    void loadTextures(const std::unordered_map<std::string, std::vector<std::string>>& textureMap);
+    void loadSpritesheet(const std::string& filename, int frameWidth, int frameHeight, const std::string& key = "");
     void Loadtileset(const std::string& filename, int tileSize);
     void LoadtilesetFromTiled(const std::string& filename);
     void LoadtileMapFromTiled(const std::string& filename);

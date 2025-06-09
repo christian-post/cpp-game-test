@@ -154,6 +154,7 @@ kernel32.lib
     <ClCompile Include="src\Events.cpp" />
     <ClCompile Include="src\Game.cpp" />
     <ClCompile Include="src\ItemData.cpp" />
+    <ClCompile Include="src\Particle.cpp" />
     <ClCompile Include="src\scenes\GameOver.cpp" />
     <ClCompile Include="src\scenes\HUD.cpp" />
     <ClCompile Include="src\scenes\InGame.cpp" />
@@ -174,10 +175,12 @@ kernel32.lib
     <ClInclude Include="src\Commands.h" />
     <ClInclude Include="src\Controls.h" />
     <ClInclude Include="src\CutsceneManager.h" />
+    <ClInclude Include="src\Emitter.h" />
     <ClInclude Include="src\EventManager.h" />
     <ClInclude Include="src\Events.h" />
     <ClInclude Include="src\Game.h" />
     <ClInclude Include="src\ItemData.h" />
+    <ClInclude Include="src\Particle.h" />
     <ClInclude Include="src\scenes\HUD.h" />
     <ClInclude Include="src\InventoryManager.h" />
     <ClInclude Include="src\scenes\InventoryUI.h" />

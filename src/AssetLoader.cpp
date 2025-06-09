@@ -23,7 +23,7 @@ AssetLoader::~AssetLoader() {
     }
 }
 
-void AssetLoader::loadtexturesFromDirectory(const std::string& directory) {
+void AssetLoader::loadTexturesFromDirectory(const std::string& directory) {
     // Looks for png files in a given directory that match the pattern key_n.png
     // and automatically groups and loads them
     // TODO: currently unused
@@ -40,10 +40,10 @@ void AssetLoader::loadtexturesFromDirectory(const std::string& directory) {
     }
 }
 
-void AssetLoader::loadtextures(const std::unordered_map<std::string, std::vector<std::string>>& textureMap) {
+void AssetLoader::loadTextures(const std::unordered_map<std::string, std::vector<std::string>>& textureMap) {
     // loads textures by filenames
     /*  Example:
-    assetLoader.loadtextures({
+    assetLoader.loadTextures({
         {"player_idle", {"assets/player_idle_1.png", "assets/player_idle_2.png"}},
         {"player_run", {"assets/player_run_1.png", "assets/player_run_2.png", "assets/player_run_3.png"}}
     });
@@ -63,6 +63,29 @@ void AssetLoader::loadtextures(const std::unordered_map<std::string, std::vector
         }
     }
 }
+
+void AssetLoader::loadSpritesheet(const std::string& filename, int frameWidth, int frameHeight, const std::string& key) {
+    namespace fs = std::filesystem;
+    if (!fs::exists(filename)) {
+        TraceLog(LOG_ERROR, "ERROR: File not found:  %s", filename.c_str());
+        return;
+    }
+    std::string id = key.empty() ? fs::path(filename).stem().string() : key;
+    Texture2D sheet = LoadTexture(filename.c_str());
+    int columns = sheet.width / frameWidth;
+    int rows = sheet.height / frameHeight;
+    for (int y = 0; y < rows; ++y) {
+        for (int x = 0; x < columns; ++x) {
+            Image subImage = LoadImageFromTexture(sheet);
+            Rectangle src = { (float)(x * frameWidth), (float)(y * frameHeight), (float)frameWidth, (float)frameHeight };
+            ImageCrop(&subImage, src);
+            textureGroups[id].push_back(LoadTextureFromImage(subImage));
+            UnloadImage(subImage);
+        }
+    }
+    UnloadTexture(sheet);
+}
+
 
 void AssetLoader::Loadtileset(const std::string& filename, int tileSize) {
     // Loads the tiles directly from an image, give the correct tile size
