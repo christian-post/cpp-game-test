@@ -43,6 +43,8 @@ TODO: refactor
 - dedicated Sprite.jump() method
 - posOffsetX and posOffsetY in weapons data currently unused
 - Weapon hurtbox should appear only a fraction of the weapon's lifetime
+- IMPORTANT!! refactor the sprite's animation frames naming conventions (no "idle" etc.)
+- Can repeated events go infinite?
 
 BUGS:
 - RandomWalkBehavior: choose new target after some time if the current target can't be reached

@@ -6,7 +6,6 @@
 #include <memory>
 #include "json.hpp"
 #include "Utils.h"
-#include "Emitter.h"
 
 class InGame : public Scene {
 public:
@@ -52,5 +51,4 @@ private:
     size_t numChunksX = 0;
     size_t numChunksY = 0;
     std::vector<std::vector<RenderTexture2D>> tilemapChunks; // stores chunks of eachs of the layers of a map
-    std::vector<Emitter> emitters; // particle emitters
 };

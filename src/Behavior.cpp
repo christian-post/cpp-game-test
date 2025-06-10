@@ -6,6 +6,8 @@
 #include "Controls.h"
 #include "Utils.h"
 #include "ItemData.h"
+#include "Emitter.h"
+#include "Particle.h"
 #include <any>
 #include <cmath>
 #include <array>
@@ -390,4 +392,111 @@ void TradeItemBehavior::draw() {
 		std::string priceText = "x" + std::to_string(price);
 		DrawText(priceText.c_str(), x + 8, y, 10, WHITE);
 	}
+}
+
+ProjectileBehavior::ProjectileBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, bool steer): game{ game }, self{ self }, target{ target }, steer{ steer }
+{
+	if (!steer && self && target) {
+		Vector2 selfCenter = GetRectCenter(self->rect);
+		Vector2 targetCenter = GetRectCenter(target->rect);
+		float dx = targetCenter.x - selfCenter.x;
+		float dy = targetCenter.y - selfCenter.y;
+		float dist = sqrtf(dx * dx + dy * dy);
+		direction = { dx / dist, dy / dist };
+	}
+	self->isColliding = false; // prevents collision separation by the InGame scene
+}
+
+void ProjectileBehavior::update(float deltaTime) {
+	if (auto s = self.lock(), t = target.lock(); s && t) {
+		// check if the projectile hit a wall
+		for (const auto& wall : game.walls) {
+			if (CheckCollisionRecs(s->rect, *wall)) {
+				s->markForDeletion();
+				return;
+			}
+		}
+		// check if the target was hit
+		if (CheckCollisionRecs(s->rect, t->rect)) {
+			s->markForDeletion();
+			return;
+		}
+		if (steer) {
+			// TODO: only steer a little bit towards the target
+			Vector2 selfCenter = GetRectCenter(s->rect);
+			Vector2 targetCenter = GetRectCenter(t->rect);
+			float dx = targetCenter.x - selfCenter.x;
+			float dy = targetCenter.y - selfCenter.y;
+			float dist = sqrtf(dx * dx + dy * dy);
+			s->acc.x = dx / dist;
+			s->acc.y = dy / dist;
+		}
+		else {
+			s->acc = direction;
+		}
+	}
+}
+
+ShootBehavior::ShootBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target) : game{ game }, self{ self }, target{ target }
+{
+}
+
+void ShootBehavior::update(float deltaTime) {
+	timer += deltaTime;
+	if (timer >= interval) {
+		timer = 0.0f;
+		if (auto s = self.lock(), t = target.lock(); s && t) {
+			game.eventManager.pushRepeatedEvent("projectileTest", 0.2f, nullptr, [=]() {
+				auto projectile = std::make_shared<Sprite>(
+					game, s->position.x, s->position.y, 8.0f, 8.0f, "fireball", "fireball"
+				);
+				game.sprites.emplace_back(projectile);
+				projectile->setTextures({ "fireball_run" });
+				projectile->addBehavior(std::make_unique<ProjectileBehavior>(game, projectile, t, false));
+				projectile->canHurtPlayer = true;
+				projectile->damage = 2;
+				projectile->speed = 20;
+				projectile->frameTime = 0.1f;
+				//projectile->tint = RED;
+				// add a Particle effect
+				std::unique_ptr<Emitter> emitter = std::make_unique<Emitter>(30);
+				emitter->location = s->position;
+				emitter->spawnInterval = 0.1f;
+				emitter->emitterLifetime = -1.0f;
+				emitter->spawnRadius = 0.0f;
+				emitter->spawnRadiusVariance = 2.0f;
+				emitter->prototype.velocity = { 0.0f, 0.0f };
+				emitter->velocityVariance = { 10.0f, 10.0f };
+				emitter->lifetimeVariance = 0.05f;
+				emitter->alphaVariance = 0.8f;
+
+				std::unique_ptr<Particle> proto = std::make_unique<Particle>();
+				proto->velocity = { 0.0f, 0.0f };
+				proto->lifetime = 0.4f;
+				proto->alpha = 0.7f;
+				proto->animationSpeed = 0.1f;
+				proto->tint = RED;
+				proto->setAnimationFrames(game.loader.getTextures("fireball_run"));
+
+				emitter->prototype = *proto;
+
+				projectile->addBehavior(std::make_unique<EmitterBehavior>(game, projectile, std::move(emitter), std::move(proto)));
+				}, 1); // shoot three times
+		}
+	}
+}
+
+EmitterBehavior::EmitterBehavior(Game& game, std::shared_ptr<Sprite> self, std::unique_ptr<Emitter> emitter, std::unique_ptr<Particle> prototype) : game{ game }, self{ self }, emitter{ std::move(emitter) }, prototype{ std::move(prototype) }
+{
+}
+
+void EmitterBehavior::update(float deltaTime) {
+	if (auto s = self.lock(); s) {
+		emitter->location = GetRectCenter(s->rect);
+	}
+	emitter->update(deltaTime);
+}
+
+void EmitterBehavior::draw() {
+	emitter->draw();
 }

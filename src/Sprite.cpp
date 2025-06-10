@@ -197,10 +197,11 @@ void Sprite::draw() {
         source.width = -source.width;
     }
 
-    Color tint = WHITE;
+    //Color tint = WHITE;
+    Color currentTint = tint;
     if (iFrameTimer > 0.0f && !dying) {
         bool flicker = ((int)(iFrameTimer * 10) % 2) == 0;
-        tint = flicker ? Fade(WHITE, 0.5f) : WHITE;
+        currentTint = flicker ? Fade(tint, 0.5f) : tint;
     }
     // draw the texture (change the tint if the sprite has been hit)
     // also rotate around the bottom center
@@ -214,7 +215,7 @@ void Sprite::draw() {
         SetShaderValue(*activeShader->shader, durationLoc, &activeShader->duration, SHADER_UNIFORM_FLOAT);
         BeginShaderMode(*activeShader->shader);
     }
-    DrawTexturePro(texture, source, dest, origin, rotationAngle, tint);
+    DrawTexturePro(texture, source, dest, origin, rotationAngle, currentTint);
     if (activeShader) EndShaderMode();
 }
 

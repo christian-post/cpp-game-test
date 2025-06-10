@@ -9,13 +9,13 @@
 #include "EventManager.h"
 #include "CutsceneManager.h"
 #include "InventoryManager.h"
+#include "Emitter.h"
 #include "json.hpp"
 
 
 #define DARKBURGUNDY { 20, 0, 8, 255 }
 
 class Command;
-
 
 class Game {
 private:
@@ -75,6 +75,7 @@ public:
     // game objects
     std::vector<std::unique_ptr<Rectangle>> walls; // everything with static collision
     std::vector<std::shared_ptr<Sprite>> sprites; // dynamic objects
+    std::vector<Emitter> emitters; // particle emitters
 
     void killSprite(const std::shared_ptr<Sprite>& sprite);
     void clearSprites(bool clearPersistent = false);

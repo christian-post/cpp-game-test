@@ -31,8 +31,11 @@
     "damage": 3,
     "knockback": 15.0,
     "speed": 14.0,
-    "behaviors": [ "RandomWalk", "Chase" ],
-    "behaviorData": { "chaseTarget": "player" },
+    "behaviors": [ "RandomWalk", "Watch", "Shoot" ],
+    "behaviorData": {
+      "watchTarget": "player",
+      "shootTarget": "player"
+    },
     "itemDrops": [ [ "itemDropHeart", 0.5 ] ]
   },
   "goblin": {

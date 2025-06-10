@@ -35,6 +35,7 @@ public:
     std::string currentTextureKey = "default";
     std::optional<ShaderState> activeShader = std::nullopt;
     direction lastDirection = RIGHT;
+    Color tint = WHITE;
     float rotationAngle = 0.0f;
     float frameTime = 0.12f; // animation speed
     float elapsedtime = 0.0f;

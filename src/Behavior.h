@@ -6,6 +6,8 @@
 
 class Game;
 class Sprite;
+struct Emitter;
+struct Particle;
 
 enum direction {
 	LEFT,
@@ -15,10 +17,10 @@ enum direction {
 };
 
 enum weaponType {
-	SWING,
-	POKE,
-	SHOOT,
-	WHACK
+	SWING = 0,
+	POKE = 1,
+	SHOOT = 2,
+	WHACK = 3
 };
 
 class Behavior {
@@ -179,4 +181,45 @@ private:
 	uint32_t price;
 	bool triggered = false;
 	bool collided = false;
+};
+
+class ProjectileBehavior : public Behavior {
+public:
+	ProjectileBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, bool steer = false);
+	void update(float deltaTime) override;
+
+private:
+	Game& game;
+	std::weak_ptr<Sprite> self;
+	std::weak_ptr<Sprite> target;
+	bool steer;
+	Vector2 direction = { 0.0f, 0.0f };
+};
+
+class ShootBehavior : public Behavior {
+public:
+	ShootBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target);
+	void update(float deltaTime) override;
+
+private:
+	Game& game;
+	std::weak_ptr<Sprite> self;
+	std::weak_ptr<Sprite> target;
+	float timer = 0.0f;
+	// TODO change in constructor
+	float interval = 2.0f;
+};
+
+
+class EmitterBehavior : public Behavior {
+public:
+	EmitterBehavior(Game& game, std::shared_ptr<Sprite> self, std::unique_ptr<Emitter> emitter, std::unique_ptr<Particle> prototype);
+	void update(float deltaTime) override;
+	void draw() override;
+
+private:
+	Game& game;
+	std::weak_ptr<Sprite> self;
+	std::unique_ptr<Emitter> emitter;
+	std::unique_ptr<Particle> prototype;
 };

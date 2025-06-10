@@ -155,6 +155,8 @@ void Preload::startup() {
             });
             // spritesheets
             l.loadSpritesheet("./resources/textures/sprites/projectiles.png", 8, 8, "magic_ball_idle");
+            l.loadSpritesheet("./resources/textures/sprites/projectiles.png", 8, 8, "magic_ball_run"); // TODO temporary fix
+            l.loadSpritesheet("./resources/textures/sprites/fireball_16x4.png", 16, 16, "fireball_run");
         });
 
     // load the tileset (the textures)

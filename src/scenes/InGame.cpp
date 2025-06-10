@@ -76,27 +76,40 @@ void InGame::startup() {
     //setupConditionalEvents(*this);
 
     // Testing a particle emitter
-    Emitter emitter(40);
-    emitter.location = { 60.0f, 100.0f };
-    emitter.spawnInterval = 0.02f;
-    emitter.emitterLifetime = -1.0f;
-    emitter.spawnRadius = 0.0f;
-    emitter.spawnRadiusVariance = 4.0f;
-    emitter.prototype.velocity = { 0.0f, 0.0f };
-    emitter.velocityVariance = { 20.0f, 20.0f };
-    emitter.lifetimeVariance = 0.5f;
-    emitter.alphaVariance = 0.2f;
+    //Emitter emitter(40);
+    //emitter.location = { 60.0f, 100.0f };
+    //emitter.spawnInterval = 0.02f;
+    //emitter.emitterLifetime = -1.0f;
+    //emitter.spawnRadius = 0.0f;
+    //emitter.spawnRadiusVariance = 4.0f;
+    //emitter.prototype.velocity = { 0.0f, 0.0f };
+    //emitter.velocityVariance = { 20.0f, 20.0f };
+    //emitter.lifetimeVariance = 0.5f;
+    //emitter.alphaVariance = 0.2f;
 
-    Particle proto;
-    proto.velocity = { 0.0f, 0.0f };
-    proto.lifetime = 1.0f;
-    proto.alpha = 1.0f;
-    proto.tint = RED;
-    proto.animationSpeed = 0.1f;
-    proto.setAnimationFrames(game.loader.getTextures("magic_ball_idle"));
+    //Particle proto;
+    //proto.velocity = { 0.0f, 0.0f };
+    //proto.lifetime = 1.0f;
+    //proto.alpha = 1.0f;
+    //proto.tint = RED;
+    //proto.animationSpeed = 0.1f;
+    //proto.setAnimationFrames(game.loader.getTextures("magic_ball_idle"));
 
-    emitter.prototype = proto;
-    emitters.push_back(emitter);
+    //emitter.prototype = proto;
+    //emitters.push_back(emitter);
+
+    /*game.eventManager.pushRepeatedEvent("projectileTest", 2.0f, nullptr, [this]() {
+        auto projectile = std::make_shared<Sprite>(
+            game, 3.5f * tileSize, 6.5f * tileSize, 8.0f, 8.0f, "magic_ball", "magic_ball"
+        );
+        game.sprites.emplace_back(projectile);
+        projectile->setTextures({ "magic_ball_idle", "magic_ball_run"});
+        projectile->addBehavior(std::make_unique<ProjectileBehavior>(game, projectile, player, true));
+        projectile->canHurtPlayer = true;
+        projectile->damage = 2;
+        projectile->speed = 40;
+    }, 
+        1000);*/
 
     // TODO: adding some items for testing
     game.eventManager.pushDelayedEvent("testItemsForStart", 0.1f, nullptr, [this]() {
@@ -169,6 +182,10 @@ void InGame::addBehaviorsToSprite(std::shared_ptr<Sprite> sprite, const std::vec
                 std::vector<std::string> texts = game.loader.getText(textKey);
                 sprite->addBehavior(std::make_unique<DialogueBehavior>(game, sprite, player, texts));
             }
+        }
+        else if (key == "Shoot") {
+            std::string targetName = behaviorData.value("shootTarget", "");
+            sprite->addBehavior(std::make_unique<ShootBehavior>(game, sprite, spriteMap[targetName]));
         }
     }
 }
@@ -595,7 +612,7 @@ void InGame::update(float deltaTime) {
     }
 
     // particles
-    for (auto& emitter : emitters) {
+    for (auto& emitter : game.emitters) {
         emitter.update(deltaTime);
     }
 
@@ -703,7 +720,7 @@ void InGame::draw() {
             sprite->drawBehavior();
         }
         // particles
-        for (auto& emitter : emitters) {
+        for (auto& emitter : game.emitters) {
             emitter.draw();
         }
         // now draw the top layer above the sprites

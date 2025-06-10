@@ -90,7 +90,14 @@ void Particle::draw() {
     Color finalColor = tint;
     finalColor.a = static_cast<unsigned char>(alpha * 255.0f);
 
-    DrawTextureV(*tex, position, finalColor);
+    //DrawTextureV(*tex, position, finalColor);
+    Vector2 origin = { tex->width / 2.0f, tex->height / 2.0f };
+    DrawTexturePro(*tex,
+        { 0, 0, static_cast<float>(tex->width), static_cast<float>(tex->height) },
+        { position.x, position.y, static_cast<float>(tex->width), static_cast<float>(tex->height) },
+        origin,
+        0.0f,
+        finalColor);
 }
 
 void Particle::reset() {
