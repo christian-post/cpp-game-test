@@ -15,7 +15,7 @@ struct Emitter {
     float spawnRadius = 0.0f;
     float spawnRadiusVariance = 0.0f;
 
-    Vector2 velocityVariance = {};
+    Vector2 velocityVariance = { 0.0f, 0.0f };
     float lifetimeVariance = 0.0f;
     float alphaVariance = 0.0f;
 

@@ -457,25 +457,17 @@ void ShootBehavior::update(float deltaTime) {
 				projectile->damage = 2;
 				projectile->speed = 20;
 				projectile->frameTime = 0.1f;
-				//projectile->tint = RED;
 				// add a Particle effect
-				std::unique_ptr<Emitter> emitter = std::make_unique<Emitter>(30);
+				std::unique_ptr<Emitter> emitter = std::make_unique<Emitter>(4);
 				emitter->location = s->position;
-				emitter->spawnInterval = 0.1f;
-				emitter->emitterLifetime = -1.0f;
-				emitter->spawnRadius = 0.0f;
-				emitter->spawnRadiusVariance = 2.0f;
-				emitter->prototype.velocity = { 0.0f, 0.0f };
-				emitter->velocityVariance = { 10.0f, 10.0f };
+				emitter->spawnInterval = 0.2f;
 				emitter->lifetimeVariance = 0.05f;
-				emitter->alphaVariance = 0.8f;
+				emitter->velocityVariance = { 5.0f, 5.0f };
 
 				std::unique_ptr<Particle> proto = std::make_unique<Particle>();
 				proto->velocity = { 0.0f, 0.0f };
 				proto->lifetime = 0.4f;
-				proto->alpha = 0.7f;
-				proto->animationSpeed = 0.1f;
-				proto->tint = RED;
+				proto->alpha = 0.9f;
 				proto->setAnimationFrames(game.loader.getTextures("fireball_run"));
 
 				emitter->prototype = *proto;

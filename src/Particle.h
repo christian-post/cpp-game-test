@@ -4,11 +4,13 @@
 #include <vector>
 
 struct Particle {
-    Vector2 position;
-    Vector2 velocity;
-    float alpha;
-    Color tint;
-    float lifetime;
+    Vector2 position = { 0.0f, 0.0f };
+    Vector2 velocity = { 0.0f, 0.0f };
+    float alpha = 1.0f;
+    float startAlpha = 1.0f;
+    float endAlpha = 0.0f;
+    Color tint = WHITE;
+    float lifetime = 1.0f;
     float age = 0.0f;
 
     std::vector<Texture2D*> animationFrames;
@@ -19,6 +21,7 @@ struct Particle {
 
     bool active = false;
 
+    Particle();
     void update(float deltaTime);
     void draw();
     void reset();

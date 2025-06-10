@@ -60,6 +60,11 @@ void Emitter::emit() {
     }
 }
 
+Particle::Particle()
+{
+    startAlpha = alpha;
+}
+
 void Particle::update(float deltaTime) {
     if (!active) return;
 
@@ -71,6 +76,8 @@ void Particle::update(float deltaTime) {
 
     position.x += velocity.x * deltaTime;
     position.y += velocity.y * deltaTime;
+
+    alpha = startAlpha + (endAlpha - startAlpha) * (age / lifetime);
 
     if (!animationFrames.empty()) {
         animationTimer += deltaTime;
@@ -90,7 +97,6 @@ void Particle::draw() {
     Color finalColor = tint;
     finalColor.a = static_cast<unsigned char>(alpha * 255.0f);
 
-    //DrawTextureV(*tex, position, finalColor);
     Vector2 origin = { tex->width / 2.0f, tex->height / 2.0f };
     DrawTexturePro(*tex,
         { 0, 0, static_cast<float>(tex->width), static_cast<float>(tex->height) },
@@ -104,6 +110,7 @@ void Particle::reset() {
     age = 0.0f;
     currentFrame = 0;
     animationTimer = 0.0f;
+    startAlpha = alpha;
     active = true;
 }
 
