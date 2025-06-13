@@ -11,5 +11,8 @@
   ],
   "merchantDialogue1": [
     "Buy somethin' will ya!"
+  ],
+  "chestClosed": [
+    "The chest won't open."
   ]
 }

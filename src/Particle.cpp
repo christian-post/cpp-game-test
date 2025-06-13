@@ -1,6 +1,7 @@
 #include "Particle.h"
 #include "Emitter.h"
 #include <cmath>
+#include <string>
 
 Emitter::Emitter(size_t maxParticles)
     : maxParticles(maxParticles), rng(std::random_device{}()) {
@@ -79,6 +80,8 @@ void Particle::update(float deltaTime) {
 
     alpha = startAlpha + (endAlpha - startAlpha) * (age / lifetime);
 
+    size = startSize + (endSize - startSize) * (age / lifetime);
+
     if (!animationFrames.empty()) {
         animationTimer += deltaTime;
         if (animationTimer >= animationSpeed) {
@@ -98,12 +101,11 @@ void Particle::draw() {
     finalColor.a = static_cast<unsigned char>(alpha * 255.0f);
 
     Vector2 origin = { tex->width / 2.0f, tex->height / 2.0f };
-    DrawTexturePro(*tex,
-        { 0, 0, static_cast<float>(tex->width), static_cast<float>(tex->height) },
-        { position.x, position.y, static_cast<float>(tex->width), static_cast<float>(tex->height) },
-        origin,
-        0.0f,
-        finalColor);
+
+    Rectangle source = { 0, 0, static_cast<float>(tex->width), static_cast<float>(tex->height) };
+    Rectangle dest = { position.x, position.y, static_cast<float>(tex->width) * size, static_cast<float>(tex->height) * size };
+
+    DrawTexturePro(*tex, source, dest, origin, 0.0f, finalColor);
 }
 
 void Particle::reset() {

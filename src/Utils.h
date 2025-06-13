@@ -2,7 +2,8 @@
 #include "raylib.h"    
 #include <string>       
 #include <vector>         
-#include <memory>   
+#include <memory>
+#include <cstdarg>
 
 class Sprite;
 
@@ -24,3 +25,11 @@ struct CameraShake {
     bool isActive() const { return duration > 0.0f; }
 };
 
+inline std::string format(const char* fmt, ...) {
+    char buffer[256]; // adjust size if needed
+    va_list args;
+    va_start(args, fmt);
+    std::vsnprintf(buffer, sizeof(buffer), fmt, args);
+    va_end(args);
+    return std::string(buffer);
+}

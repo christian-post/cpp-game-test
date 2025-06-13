@@ -314,6 +314,7 @@ void DialogueBehavior::update(float deltaTime) {
 	if (auto s = self.lock(), p = player.lock(); s && p) {
 		if (CheckCollisionRecs(s->rect, p->rect) && (game.buttonsDown & CONTROL_ACTION1)) {
 			triggered = true;
+			// TODO: why is this check needed again?
 			if (auto scene = dynamic_cast<InGame*>(game.getScene("InGame"))) {
 				game.cutsceneManager.queueCommand(new Command_Textbox(game, dialogTexts[currentTextIndex]));
 				game.cutsceneManager.queueCommand(new Command_Callback([this]() {
@@ -334,8 +335,6 @@ TradeItemBehavior::TradeItemBehavior(Game& game, std::shared_ptr<Sprite> self, s
 
 void TradeItemBehavior::update(float deltaTime) {
 	if (triggered) return;
-	// TODO: show the price next to the item
-
 	if (auto s = self.lock(), p = player.lock(); s && p) {
 		if (CheckCollisionRecs(s->rect, p->rect)) {
 			// show the coin amount
@@ -446,34 +445,35 @@ void ShootBehavior::update(float deltaTime) {
 	if (timer >= interval) {
 		timer = 0.0f;
 		if (auto s = self.lock(), t = target.lock(); s && t) {
-			game.eventManager.pushRepeatedEvent("projectileTest", 0.2f, nullptr, [=]() {
-				auto projectile = std::make_shared<Sprite>(
-					game, s->position.x, s->position.y, 8.0f, 8.0f, "fireball", "fireball"
-				);
-				game.sprites.emplace_back(projectile);
-				projectile->setTextures({ "fireball_run" });
-				projectile->addBehavior(std::make_unique<ProjectileBehavior>(game, projectile, t, false));
-				projectile->canHurtPlayer = true;
-				projectile->damage = 2;
-				projectile->speed = 20;
-				projectile->frameTime = 0.1f;
-				// add a Particle effect
-				std::unique_ptr<Emitter> emitter = std::make_unique<Emitter>(4);
-				emitter->location = s->position;
-				emitter->spawnInterval = 0.2f;
-				emitter->lifetimeVariance = 0.05f;
-				emitter->velocityVariance = { 5.0f, 5.0f };
+			// TODO: make this modular
+			game.playSound("fireball");
+			auto projectile = std::make_shared<Sprite>(
+				game, s->position.x, s->position.y, 8.0f, 8.0f, "fireball", "fireball"
+			);
+			game.sprites.emplace_back(projectile);
+			projectile->setTextures({ "fireball_run" });
+			projectile->addBehavior(std::make_unique<ProjectileBehavior>(game, projectile, t, false));
+			projectile->canHurtPlayer = true;
+			projectile->damage = 2;
+			projectile->speed = 20;
+			projectile->frameTime = 0.1f;
+			// add a Particle effect
+			std::unique_ptr<Emitter> emitter = std::make_unique<Emitter>(20);
+			emitter->location = s->position;
+			emitter->spawnInterval = 0.2f;
+			emitter->lifetimeVariance = 0.05f;
+			emitter->velocityVariance = { 5.0f, 5.0f };
 
-				std::unique_ptr<Particle> proto = std::make_unique<Particle>();
-				proto->velocity = { 0.0f, 0.0f };
-				proto->lifetime = 0.4f;
-				proto->alpha = 0.9f;
-				proto->setAnimationFrames(game.loader.getTextures("fireball_run"));
+			std::unique_ptr<Particle> proto = std::make_unique<Particle>();
+			proto->velocity = { 0.0f, 0.0f };
+			proto->lifetime = 1.6f;
+			proto->alpha = 0.9f;
+			proto->endSize = 0.2f;
+			proto->setAnimationFrames(game.loader.getTextures("fireball_run"));
 
-				emitter->prototype = *proto;
+			emitter->prototype = *proto;
 
-				projectile->addBehavior(std::make_unique<EmitterBehavior>(game, projectile, std::move(emitter), std::move(proto)));
-				}, 1); // shoot three times
+			projectile->addBehavior(std::make_unique<EmitterBehavior>(game, projectile, std::move(emitter), std::move(proto)));
 		}
 	}
 }
@@ -491,4 +491,48 @@ void EmitterBehavior::update(float deltaTime) {
 
 void EmitterBehavior::draw() {
 	emitter->draw();
+}
+
+ChestBehavior::ChestBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> player, const std::string& itemName, uint32_t itemAmount) : game{ game }, self{ self }, player{ player }, itemName{ itemName }, itemAmount{ itemAmount }
+{}
+
+void ChestBehavior::update(float deltaTime) {
+	if (triggered) return;
+	if (auto s = self.lock(), p = player.lock(); s && p) {
+		interactionRect.x = s->rect.x;
+		interactionRect.y = s->rect.y;
+		interactionRect.width = s->rect.width;
+		interactionRect.height = s->rect.height + 4.0f;
+		if (CheckCollisionRecs(interactionRect, p->rect) && (game.buttonsDown & CONTROL_ACTION1)) {
+			triggered = true;
+			auto& itemData = game.inventory.getItemData();
+			const ItemData& data = itemData.at(itemName);
+
+			s->currentFrame = 2;
+			showItem = true;
+			game.eventManager.pushDelayedEvent("hideItem", 2.0f, nullptr, [&]() {
+				showItem = false;
+				});
+
+			if (itemAmount == 1) {
+			game.cutsceneManager.queueCommand(new Command_Textbox(game, format("You got the %s.", data.displayName.c_str())));
+			}
+			else {
+				game.cutsceneManager.queueCommand(new Command_Textbox(game, format("You got: %s x%u", data.displayName.c_str(), itemAmount)));
+			}
+			game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>(itemName, itemAmount));
+		}
+	}
+}
+
+void ChestBehavior::draw() {
+	if (!showItem) return;
+	if (auto s = self.lock()) {
+		int x = (int)s->position.x;
+		int y = (int)s->position.y - 16;
+		auto& itemData = game.inventory.getItemData();
+		const ItemData& data = itemData.at(itemName);
+		const auto& textures = game.loader.getTextures(data.textureKey);
+		DrawTexture(textures[0], x, y, WHITE);
+	}
 }

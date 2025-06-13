@@ -112,6 +112,13 @@ void Preload::startup() {
                 }
             },
             {
+                "chest_idle", {
+                    "./resources/textures/sprites/chest_empty_open_anim_f0.png",
+                    "./resources/textures/sprites/chest_empty_open_anim_f1.png",
+                    "./resources/textures/sprites/chest_empty_open_anim_f2.png"
+                }
+            },
+            {
                 "dwarf_m_idle", {
                     "./resources/textures/sprites/dwarf_m_idle_anim_f0.png",
                     "./resources/textures/sprites/dwarf_m_idle_anim_f1.png",
@@ -157,6 +164,7 @@ void Preload::startup() {
             l.loadSpritesheet("./resources/textures/sprites/projectiles.png", 8, 8, "magic_ball_idle");
             l.loadSpritesheet("./resources/textures/sprites/projectiles.png", 8, 8, "magic_ball_run"); // TODO temporary fix
             l.loadSpritesheet("./resources/textures/sprites/fireball_16x4.png", 16, 16, "fireball_run");
+            l.loadSpritesheet("./resources/textures/sprites/smoke_16x6.png", 16, 16, "smoke_idle");
         });
 
     // load the tileset (the textures)
@@ -223,6 +231,7 @@ void Preload::startup() {
         l.LoadSoundFile("./resources/sound/sfx/menuSelect.wav");
         l.LoadSoundFile("./resources/sound/sfx/heal.wav");
         l.LoadSoundFile("./resources/sound/sfx/hammer.wav");
+        l.LoadSoundFile("./resources/sound/sfx/fireball.wav", 0.5f);
         });
 
     totalLoadSteps = loadQueue.size();

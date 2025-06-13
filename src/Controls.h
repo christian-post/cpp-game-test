@@ -13,12 +13,14 @@ enum Controls : uint32_t {
     CONTROL_ACTION2 = 1 << 5,
     CONTROL_ACTION3 = 1 << 6,
     CONTROL_ACTION4 = 1 << 7,
-    CONTROL_CONFIRM = 1 << 8,
-    CONTROL_CANCEL = 1 << 9,
-    CONTROL_DEBUG = 1 << 10,
-    CONTROL_DEBUG_K1 = 1 << 11,
-    CONTROL_DEBUG_K2 = 2 << 12,
-    CONTROL_DEBUG_K3 = 2 << 13
+    CONTROL_ACTIONL = 1 << 8,
+    CONTROL_ACTIONR = 1 << 9,
+    CONTROL_CONFIRM = 1 << 10,
+    CONTROL_CANCEL = 1 << 11,
+    CONTROL_DEBUG = 1 << 12,
+    CONTROL_DEBUG_K1 = 1 << 13,
+    CONTROL_DEBUG_K2 = 2 << 14,
+    CONTROL_DEBUG_K3 = 2 << 15
 };
 
 // function that takes one of the other functions below and checks for each of the Controls

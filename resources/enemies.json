@@ -31,10 +31,11 @@
     "damage": 3,
     "knockback": 15.0,
     "speed": 14.0,
-    "behaviors": [ "RandomWalk", "Watch", "Shoot" ],
+    "behaviors": [ "RandomWalk", "Watch", "Shoot", "Emitter" ],
     "behaviorData": {
       "watchTarget": "player",
-      "shootTarget": "player"
+      "shootTarget": "player",
+      "particle":  "smoke_idle"
     },
     "itemDrops": [ [ "itemDropHeart", 0.5 ] ]
   },

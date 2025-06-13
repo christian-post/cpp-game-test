@@ -223,3 +223,20 @@ private:
 	std::unique_ptr<Emitter> emitter;
 	std::unique_ptr<Particle> prototype;
 };
+
+class ChestBehavior : public Behavior {
+public:
+	ChestBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> player, const std::string& itemName, uint32_t itemAmount);
+	void update(float deltaTime) override;
+	void draw() override;
+
+private:
+	Game& game;
+	std::weak_ptr<Sprite> self;
+	std::weak_ptr<Sprite> player;
+	std::string itemName; 
+	uint32_t itemAmount;
+	bool triggered = false;
+	bool showItem = false;
+	Rectangle interactionRect = Rectangle{ 0.0f, 0.0f ,0.0f, 0.0f };
+};

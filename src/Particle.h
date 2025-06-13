@@ -12,6 +12,9 @@ struct Particle {
     Color tint = WHITE;
     float lifetime = 1.0f;
     float age = 0.0f;
+    float startSize = 1.0f;
+    float endSize = 1.0f;
+    float size = 1.0f;
 
     std::vector<Texture2D*> animationFrames;
     void setAnimationFrames(const std::vector<Texture2D>& textures);

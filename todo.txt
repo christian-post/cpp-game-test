@@ -1,5 +1,4 @@
 features
-- chests with items (ChestOpenBehavior shows the item and starts a dialog)
 - Pathfinding
 - talking to NPCs
 -- dialogue options
@@ -13,11 +12,13 @@ Scenes
 
 - Dungeon Generation
 -- premade rooms (different sizes with multiples of 16x16)
-
+-- dungeon layout in data
+-- loading rooms in chunks
 
 - Sprites
 -- behavior priority system
 -- drawing priority/layer system
+-- add smoke Emitter effect to Demon enemy
 
 - Cutscene command system (modular)
 -- Command_MoveToPath(target, posX, posY, duration) // benutzt pathfinding

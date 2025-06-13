@@ -64,14 +64,14 @@ private:
 
 class Command_Textbox : public Command {
 public:
-    Command_Textbox(Game& game, std::string_view text);
+    Command_Textbox(Game& game, std::string text);
     ~Command_Textbox();
     void update(float deltaTime) override;
     void draw() override;
 
 private:
     TextBox* textbox = nullptr;
-    std::string_view textToDisplay;
+    std::string textToDisplay;
 };
 
 class Command_Callback : public Command {

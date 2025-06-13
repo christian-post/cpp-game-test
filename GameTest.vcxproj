@@ -160,6 +160,7 @@ kernel32.lib
     <ClCompile Include="src\scenes\InGame.cpp" />
     <ClCompile Include="src\InventoryManager.cpp" />
     <ClCompile Include="src\scenes\InventoryUI.cpp" />
+    <ClCompile Include="src\scenes\MapUI.cpp" />
     <ClCompile Include="src\scenes\Preload.cpp" />
     <ClCompile Include="src\scenes\TitleScreen.cpp" />
     <ClCompile Include="src\Main.cpp" />
@@ -187,6 +188,7 @@ kernel32.lib
     <ClInclude Include="src\Scene.h" />
     <ClInclude Include="src\scenes\GameOver.h" />
     <ClInclude Include="src\scenes\InGame.h" />
+    <ClInclude Include="src\scenes\MapUI.h" />
     <ClInclude Include="src\scenes\Preload.h" />
     <ClInclude Include="src\scenes\TitleScreen.h" />
     <ClInclude Include="src\Sprite.h" />

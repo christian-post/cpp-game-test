@@ -56,7 +56,7 @@ void Command_LookTowards::update(float deltaTime) {
     }
 }
 
-Command_Textbox::Command_Textbox(Game& game, std::string_view text) : textToDisplay(text) {
+Command_Textbox::Command_Textbox(Game& game, std::string text) : textToDisplay(text) {
     float w = game.gameScreenWidth * 0.9f;
     float x = game.gameScreenWidth * 0.05f;
     float h = game.getSetting("textboxHeight").get<float>();

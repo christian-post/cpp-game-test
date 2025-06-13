@@ -1,12 +1,5 @@
 #pragma once
 #include "Scene.h"
-#include <iostream>
-#include <cstdint>
-#include <vector>
-#include <string> 
-#include <unordered_map>
-#include <array>
-#include "ItemData.h"
 
 
 enum inventoryState {
@@ -18,11 +11,10 @@ enum inventoryState {
     SLIDING_RIGHT
 };
 
-class InventoryUI : public Scene {
-    // scene responsible for drawing the inventory and all the items
-    // as well as item selection etc
+class MapUI : public Scene {
+    // scene responsible for drawing the dungeon map
 public:
-    InventoryUI(Game& game, const std::string& name);
+    MapUI(Game& game, const std::string& name);
     void startup() override;
     void update(float deltaTime) override;
     void draw() override;
@@ -37,8 +29,4 @@ private:
     float speed = 0.0f;
     float slideDuration = 1.0f;
     inventoryState state = NONE;
-    size_t index = 0; // selected item index
-    uint32_t weaponsRows = 3;
-    uint32_t cols = 5;
-    std::map<std::string, ItemData> itemData;
 };

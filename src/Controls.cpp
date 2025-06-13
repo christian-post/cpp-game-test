@@ -15,6 +15,8 @@ uint32_t GetControls(KeyCheckFunc keyFunc, GamepadCheckFunc gamepadFunc) {
     if (keyFunc(KEY_P)) controls |= CONTROL_ACTION2;
     if (keyFunc(KEY_K)) controls |= CONTROL_ACTION3;
     if (keyFunc(KEY_L)) controls |= CONTROL_ACTION4;
+    if (keyFunc(KEY_M)) controls |= CONTROL_ACTIONR;
+    if (keyFunc(KEY_N)) controls |= CONTROL_ACTIONL;
     if (keyFunc(KEY_ENTER)) controls |= CONTROL_CONFIRM;
     if (keyFunc(KEY_BACKSPACE)) controls |= CONTROL_CANCEL;
     if (keyFunc(KEY_F1)) controls |= CONTROL_DEBUG;
@@ -34,6 +36,8 @@ uint32_t GetControls(KeyCheckFunc keyFunc, GamepadCheckFunc gamepadFunc) {
         if (gamepadFunc(0, GAMEPAD_BUTTON_RIGHT_FACE_RIGHT)) controls |= CONTROL_ACTION4;
         if (gamepadFunc(0, GAMEPAD_BUTTON_MIDDLE_RIGHT)) controls |= CONTROL_CONFIRM;
         if (gamepadFunc(0, GAMEPAD_BUTTON_MIDDLE_LEFT)) controls |= CONTROL_CANCEL;
+        if (gamepadFunc(0, GAMEPAD_BUTTON_LEFT_TRIGGER_1)) controls |= CONTROL_ACTIONL;
+        if (gamepadFunc(0, GAMEPAD_BUTTON_RIGHT_TRIGGER_1)) controls |= CONTROL_ACTIONR;
     }
 
     return controls;

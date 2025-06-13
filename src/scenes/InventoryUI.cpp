@@ -37,10 +37,23 @@ void InventoryUI::update(float deltaTime) {
             game.eventManager.pushEvent("InventoryDone");
         }
         break;
+    case SLIDING_LEFT:
+        if (x > static_cast<float>(width) * -1.0f) {
+            x = std::max(static_cast<float>(width) * -1.0f, x - deltaTime * speed);
+        }
+        else {
+            //game.eventManager.pushEvent("InventoryDone");
+            // TODO: push "openMap" event
+        }
+        break;
     case OPENED:
         if (game.buttonsPressed & CONTROL_CONFIRM) {
             state = CLOSING;
             game.playSound("menuClose");
+        }
+        if (game.buttonsPressed & CONTROL_ACTIONR) {
+            state = SLIDING_LEFT;
+            //game.playSound("menuClose");
         }
         // cursor movement (only when there are weapons)
         auto& items = game.inventory.getItems();

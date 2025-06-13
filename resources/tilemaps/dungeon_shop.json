@@ -63,7 +63,7 @@
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 197, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -298,6 +298,50 @@
                  "width":40,
                  "x":108,
                  "y":232
+                }, 
+                {
+                 "height":16,
+                 "id":18,
+                 "name":"chest",
+                 "properties":[
+                        {
+                         "name":"amount",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"item",
+                         "type":"string",
+                         "value":"weapon_double_axe"
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":16,
+                 "x":176,
+                 "y":64
+                }, 
+                {
+                 "height":16,
+                 "id":19,
+                 "name":"chest",
+                 "properties":[
+                        {
+                         "name":"amount",
+                         "type":"int",
+                         "value":10
+                        }, 
+                        {
+                         "name":"item",
+                         "type":"string",
+                         "value":"red_potion"
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":16,
+                 "x":208,
+                 "y":64
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -306,7 +350,7 @@
          "y":0
         }],
  "nextlayerid":6,
- "nextobjectid":18,
+ "nextobjectid":20,
  "orientation":"orthogonal",
  "properties":[
         {

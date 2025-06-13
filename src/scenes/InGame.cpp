@@ -120,7 +120,7 @@ void InGame::startup() {
         game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("coin", 99));
         // just add more to fill the inventory
         game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_bow", 1));
-        game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_double_axe", 1));
+        //game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_double_axe", 1));
         game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_hammer", 1));
         game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_mace", 1));
         game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_spear", 1));
@@ -186,6 +186,23 @@ void InGame::addBehaviorsToSprite(std::shared_ptr<Sprite> sprite, const std::vec
         else if (key == "Shoot") {
             std::string targetName = behaviorData.value("shootTarget", "");
             sprite->addBehavior(std::make_unique<ShootBehavior>(game, sprite, spriteMap[targetName]));
+        }
+        else if (key == "Emitter") {
+            // TODO: make the emitter and particle more customizable
+            std::unique_ptr<Emitter> emitter = std::make_unique<Emitter>(20);
+            emitter->spawnInterval = 0.2f;
+            emitter->lifetimeVariance = 0.05f;
+            emitter->velocityVariance = { 20.0f, 20.0f };
+
+            std::unique_ptr<Particle> proto = std::make_unique<Particle>();
+            proto->velocity = { 0.0f, 0.0f };
+            proto->lifetime = 1.6f;
+            proto->startAlpha = 0.5f;
+            proto->endSize = 0.2f;
+            proto->setAnimationFrames(game.loader.getTextures(behaviorData.value("particle", "")));
+
+            emitter->prototype = *proto;
+            sprite->addBehavior(std::make_unique<EmitterBehavior>(game, sprite, std::move(emitter), std::move(proto)));
         }
     }
 }
@@ -264,6 +281,7 @@ void InGame::loadTilemap(const std::string& name) {
             // TODO: for persistent sprites, check if they exist in the spriteMap
             if (obj.name == "teleport") {
                 sprite->isColliding = false;
+                sprite->visible = false;
                 std::string targetMap = obj.properties.value("targetMap", "");
                 float targetX = obj.properties.value("targetPosX", 0.0f);
                 float targetY = obj.properties.value("targetPosY", 0.0f);
@@ -353,6 +371,12 @@ void InGame::loadTilemap(const std::string& name) {
                 sprite->canHurtPlayer = true;
                 sprite->visible = false;
                 sprite->isColliding = false;
+            }
+            else if (obj.name == "chest") {
+                sprite->doesAnimate = false;
+                sprite->staticCollision = true;
+                sprite->setTextures({ "chest_idle" });
+                sprite->addBehavior(std::make_unique<ChestBehavior>(game, sprite, player, static_cast<std::string>(obj.properties.value("item", "coin")), static_cast<uint32_t>(obj.properties.value("amount", 999))));
             }
             if (data.contains("behaviors")) {
                 addBehaviorsToSprite(sprite, data.at("behaviors"), data.at("behaviorData"));

@@ -85,7 +85,7 @@ public:
     Sprite* getPlayer();
 
     void playSound(const std::string& key);
-    bool soundOn = false;
+    bool soundOn = true;
     bool debug = false;
 
 private:
