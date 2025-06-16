@@ -21,7 +21,10 @@ void InGame::startup() {
     player->persistent = true;
     game.sprites.emplace_back(player);  // add to the sprites vector
     player->setTextures({ "player_idle", "player_run", "player_hit" });
-    player->health = 3;
+
+    game.createDungeon(4, 4);
+    loadTilemap();
+    player->moveTo(7.5 * float(tileSize), float(8 * tileSize));
 
     // retrieve the tilemap
     // and set the player's position in the first room
@@ -32,8 +35,8 @@ void InGame::startup() {
     //loadTilemap("test_dungeon1");
     //loadTilemap("test_dungeon2");
     //player->moveTo(float(10 * tileSize), float(15 * tileSize) + 4.0f); // test_dungeon2
-    loadTilemap("dungeon_shop");
-    player->moveTo(float(6 * tileSize), float(5 * tileSize) + 4.0f); 
+    //loadTilemap("dungeon_shop");
+    //player->moveTo(float(6 * tileSize), float(5 * tileSize) + 4.0f); 
 
     // setup the camera
     camera.target = Vector2{ player->rect.x, player->rect.y };
@@ -42,11 +45,11 @@ void InGame::startup() {
     camera.zoom = 1.0f;
 
     // event listeners for the InGame scene
-    game.eventManager.addListener("teleport", [this](std::any data) {
+    /*game.eventManager.addListener("teleport", [this](std::any data) {
         const auto& teleportData = std::any_cast<const TeleportEvent&>(data);
         loadTilemap(teleportData.targetMap);
         player->moveTo(teleportData.targetPos.x * tileSize, teleportData.targetPos.y * tileSize);
-        });
+        });*/
 
     game.eventManager.addListener("setMusicVolume", [this](std::any data) {
             if (music) SetMusicVolume(*music, std::any_cast<float>(data));
@@ -112,28 +115,28 @@ void InGame::startup() {
         1000);*/
 
     // TODO: adding some items for testing
-    game.eventManager.pushDelayedEvent("testItemsForStart", 0.1f, nullptr, [this]() {
-        // give the player the sword for starters
-        game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_sword", 1));
-        // another item
-        game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("red_potion", 2));
-        game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("coin", 99));
-        // just add more to fill the inventory
-        game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_bow", 1));
-        //game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_double_axe", 1));
-        game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_hammer", 1));
-        game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_mace", 1));
-        game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_spear", 1));
-        game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_baton_with_spikes", 1));
-        game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_arrow", 1));
-        game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("green_potion", 1));
-        game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("blue_potion", 1));
+    //game.eventManager.pushDelayedEvent("testItemsForStart", 0.1f, nullptr, [this]() {
+    //    // give the player the sword for starters
+    //    game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_sword", 1));
+    //    // another item
+    //    game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("red_potion", 2));
+    //    game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("coin", 99));
+    //    // just add more to fill the inventory
+    //    game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_bow", 1));
+    //    //game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_double_axe", 1));
+    //    game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_hammer", 1));
+    //    game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_mace", 1));
+    //    game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_spear", 1));
+    //    game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_baton_with_spikes", 1));
+    //    game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_arrow", 1));
+    //    game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("green_potion", 1));
+    //    game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("blue_potion", 1));
 
-        //game.eventManager.pushEvent("weaponSet", std::string("weapon_sword"));
-        //game.eventManager.pushEvent("weaponSet", std::string("weapon_double_axe"));
-        game.eventManager.pushEvent("weaponSet", std::string("weapon_hammer"));
-        //game.eventManager.pushEvent("weaponSet", std::string("weapon_spear"));
-        });
+    //    //game.eventManager.pushEvent("weaponSet", std::string("weapon_sword"));
+    //    //game.eventManager.pushEvent("weaponSet", std::string("weapon_double_axe"));
+    //    game.eventManager.pushEvent("weaponSet", std::string("weapon_hammer"));
+    //    //game.eventManager.pushEvent("weaponSet", std::string("weapon_spear"));
+    //    });
 }
 
 Sprite* InGame::getSprite(const std::string& name) {
@@ -142,14 +145,6 @@ Sprite* InGame::getSprite(const std::string& name) {
         return it->second.get();
     }
     return nullptr;
-}
-
-void InGame::advanceRoomState(const std::string& name) {
-    // room states are powers of 2
-    roomStates[name] <<= 1;
-    if (roomStates[name] == 0)
-        roomStates[name] = 1;
-    TraceLog(LOG_INFO, "room state of %s is now %d", name.c_str(), static_cast<int>(roomStates[name]));
 }
 
 void InGame::addBehaviorsToSprite(std::shared_ptr<Sprite> sprite, const std::vector<std::string>& behaviors, const nlohmann::json& behaviorData) {
@@ -180,7 +175,8 @@ void InGame::addBehaviorsToSprite(std::shared_ptr<Sprite> sprite, const std::vec
             std::string textKey = behaviorData.value("dialogue", "");
             if (textKey.length()) {
                 std::vector<std::string> texts = game.loader.getText(textKey);
-                sprite->addBehavior(std::make_unique<DialogueBehavior>(game, sprite, player, texts));
+                std::string voice = behaviorData.value("voice", "tone");
+                sprite->addBehavior(std::make_unique<DialogueBehavior>(game, sprite, player, texts, voice));
             }
         }
         else if (key == "Shoot") {
@@ -207,22 +203,18 @@ void InGame::addBehaviorsToSprite(std::shared_ptr<Sprite> sprite, const std::vec
     }
 }
 
-void InGame::loadTilemap(const std::string& name) {
+void InGame::loadTilemap() {
     // TODO: this gets big, put this somewhere else
-    tileMap = &game.loader.getTilemap(name);
-    tileSize = tileMap->tileWidth;
+    tileMap = game.currentDungeon->loadCurrentTileMap();
+    game.currentDungeon->setVisited(game.currentDungeon->getCurrentRoomIndex());
+    if (!tileMap) return;
     // remove static and dynamic (non-persistent) sprites
     game.walls.clear();
     game.clearSprites();
 
     // the room state controls how objects are spawned
     // states start with 1
-    if (roomStates.find(name) == roomStates.end()) {
-        roomStates[name] = 1;
-    }
-    uint8_t currentState = roomStates[name];
-
-    TraceLog(LOG_INFO, "Loading room %s in state %d", name.c_str(), (int)currentState);
+    uint8_t currentState = game.currentDungeon->getCurrentRoomState();
 
     const auto& spriteData = game.loader.getSpriteData();
     size_t spritesLen = tileMap->getObjects().size();
@@ -385,6 +377,7 @@ void InGame::loadTilemap(const std::string& name) {
         }
     }
     // calculate the map dimensions (to be used by the camera)
+    tileSize = tileMap->tileWidth;
     worldWidth = tileMap->width * tileSize;
     worldHeight = tileMap->height * tileSize;
 
@@ -559,7 +552,6 @@ void InGame::update(float deltaTime) {
             game.pauseScene(this->getName());
             game.startScene("InventoryUI");
             game.eventManager.addListener("InventoryDone", [this](std::any) {
-                this->game.stopScene("InventoryUI");
                 this->game.resumeScene(this->getName());
                 });
             game.eventManager.pushEvent("setMusicVolume", 0.3f);
@@ -663,25 +655,38 @@ void InGame::update(float deltaTime) {
     }
     camera.target = target;
 
+    // check player out of map bounds
+    // TODO: make a function for this
+    int8_t offset = 0;
+    auto [_, cols] = game.currentDungeon->getSize();
+    if (player->rect.x < 0.0f) {
+        offset = -1;
+        player->moveTo(worldWidth - player->rect.width * 1.5f, player->position.y);
+    }
+    else if (player->rect.x + player->rect.width > worldWidth) {
+        offset = 1;
+        player->moveTo(player->rect.width * 0.5f, player->position.y);
+    }
+    else if (player->rect.y < 0.0f) {
+        offset = int8_t(cols) * -1;
+        player->moveTo(player->position.x, worldHeight - player->rect.height * 1.5f);
+    }
+    else if (player->rect.y + player->rect.height > worldHeight) {
+        offset = int8_t(cols);
+        player->moveTo(player->position.x, player->rect.height * 0.5f);
+    }
+    if (offset != 0) {
+        uint8_t newIndex = game.currentDungeon->getCurrentRoomIndex() + offset;
+        game.currentDungeon->setCurrentRoomIndex(newIndex);
+        loadTilemap();
+    }
+
     // player dies, GameOver scene starts
     if (player->health < 1) {
         game.pauseScene(getName());
         if (music) StopMusicStream(*music);
         game.stopScene("HUD");
         game.startScene("GameOver");
-    }
-
-    // TODO: debug mode stuff
-    if (game.debug) {
-        if (game.buttonsPressed & CONTROL_DEBUG_K1) {
-            // teleport to next map
-            currentRoomIndex = (currentRoomIndex + 1) % roomDebug.size();
-            auto [targetMap, targetPos] = roomDebug[currentRoomIndex];
-
-            TraceLog(LOG_INFO, "going to next room %s", targetMap.c_str());
-            TeleportEvent event{ targetMap, targetPos };
-            game.eventManager.pushEvent("teleport", std::any(event));
-        }
     }
 }
 
@@ -717,52 +722,57 @@ void InGame::draw() {
     ClearBackground(BLACK);
 
     BeginMode2D(camera);
-        // draw the textures that are affected by the camera
+    // draw the textures that are affected by the camera
         
-        // draw each tilemap layer except the top one
+    // draw each tilemap layer except the top one
+    int lastLayer = 0;
+    if (tileMap) {
         int totalLayers = static_cast<int>(tileMap->layers.size());
-        int lastLayer = (totalLayers > 1) ? totalLayers - 1 : -1;
+        lastLayer = (totalLayers > 1) ? totalLayers - 1 : -1;
 
         for (int layerIndex = 0; layerIndex < totalLayers; ++layerIndex) {
             if (layerIndex == lastLayer || !tileMap->layers[layerIndex].visible) continue;
             drawTilemapChunks(layerIndex);
         }
+    }
  
-        // Draw the sprites after sorting them by their bottom y position, also respect the drawing layer of each sprite (fixed)
-        std::vector<Sprite*> drawOrder;
-        drawOrder.reserve(game.sprites.size());
-        for (const auto& sprite : game.sprites) {
-            drawOrder.push_back(sprite.get());
-        }
-        std::sort(drawOrder.begin(), drawOrder.end(), [](Sprite* a, Sprite* b) {
-            if (a->drawLayer != b->drawLayer)
-                return a->drawLayer < b->drawLayer;
-            return (a->rect.y + a->rect.height) < (b->rect.y + b->rect.height);
-            });
-        for (Sprite* sprite : drawOrder) {
-            sprite->draw();
-            sprite->drawBehavior();
-        }
-        // particles
-        for (auto& emitter : game.emitters) {
-            emitter.draw();
-        }
+    // Draw the sprites after sorting them by their bottom y position, also respect the drawing layer of each sprite (fixed)
+    std::vector<Sprite*> drawOrder;
+    drawOrder.reserve(game.sprites.size());
+    for (const auto& sprite : game.sprites) {
+        drawOrder.push_back(sprite.get());
+    }
+    std::sort(drawOrder.begin(), drawOrder.end(), [](Sprite* a, Sprite* b) {
+        if (a->drawLayer != b->drawLayer)
+            return a->drawLayer < b->drawLayer;
+        return (a->rect.y + a->rect.height) < (b->rect.y + b->rect.height);
+        });
+    for (Sprite* sprite : drawOrder) {
+        sprite->draw();
+        sprite->drawBehavior();
+    }
+    // particles
+    for (auto& emitter : game.emitters) {
+        emitter.draw();
+    }
+    if (tileMap) {
         // now draw the top layer above the sprites
         if (lastLayer >= 0 && tileMap->layers[lastLayer].visible) {
             drawTilemapChunks(lastLayer);
         }
+    }
 
-        if (game.debug) {
-            for (const auto& wall : game.walls) {
-                DrawRectangleLines((int)wall->x, (int)wall->y, (int)wall->width, (int)wall->height, BLUE);
-            }
-            for (const auto& sprite : game.sprites) {
-                DrawRectangleLines((int)sprite->rect.x, (int)sprite->rect.y, (int)sprite->rect.width, (int)sprite->rect.height, GREEN);
-            }
-            for (const auto& sprite : game.sprites) {
-                DrawRectangleLines((int)sprite->hurtbox.x, (int)sprite->hurtbox.y, (int)sprite->hurtbox.width, (int)sprite->hurtbox.height, RED);
-            }
+    if (game.debug) {
+        for (const auto& wall : game.walls) {
+            DrawRectangleLines((int)wall->x, (int)wall->y, (int)wall->width, (int)wall->height, BLUE);
         }
+        for (const auto& sprite : game.sprites) {
+            DrawRectangleLines((int)sprite->rect.x, (int)sprite->rect.y, (int)sprite->rect.width, (int)sprite->rect.height, GREEN);
+        }
+        for (const auto& sprite : game.sprites) {
+            DrawRectangleLines((int)sprite->hurtbox.x, (int)sprite->hurtbox.y, (int)sprite->hurtbox.width, (int)sprite->hurtbox.height, RED);
+        }
+    }
     EndMode2D();
     // cutscene stuff (textboxes etc) gets drawn relative to window position
     game.cutsceneManager.draw();

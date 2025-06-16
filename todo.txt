@@ -26,10 +26,12 @@ Scenes
 -- Command_CameraPan(x, y, duration) // camera pans towards a target position (and then back?)
 
 - Misc
--- 
+-- show controls dynamically in game
+-- add xbox controller buttons
 
 - Music/Sounds:
 -- Inventory select item --> different sound
+-- Customize the Command_Textbox to allow for different speaking sounds (or none)
 
 TODO: refactor
 - add a "persistent" property to event listeners (non-persistent listeners are removed after one event)

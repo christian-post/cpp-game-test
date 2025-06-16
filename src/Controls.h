@@ -1,6 +1,5 @@
 #pragma once
 #include <cstdint>
-#include <iostream>
 
 enum Controls : uint32_t {
     // creates Bitmasks for each of the buttons
@@ -26,6 +25,8 @@ enum Controls : uint32_t {
 // function that takes one of the other functions below and checks for each of the Controls
 using KeyCheckFunc = bool (*)(int);
 using GamepadCheckFunc = bool (*)(int, int);
+
+bool WasGamepadUsedLast();
 
 uint32_t GetControls(KeyCheckFunc keyFunc, GamepadCheckFunc gamepadFunc);
 

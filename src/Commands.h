@@ -64,7 +64,7 @@ private:
 
 class Command_Textbox : public Command {
 public:
-    Command_Textbox(Game& game, std::string text);
+    Command_Textbox(Game& game, std::string text, std::string voice = "tone");
     ~Command_Textbox();
     void update(float deltaTime) override;
     void draw() override;
@@ -72,6 +72,7 @@ public:
 private:
     TextBox* textbox = nullptr;
     std::string textToDisplay;
+    std::string voice;
 };
 
 class Command_Callback : public Command {

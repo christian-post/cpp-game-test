@@ -10,9 +10,9 @@ struct Emitter;
 struct Particle;
 
 enum direction {
-	LEFT,
 	RIGHT,
 	UP,
+	LEFT,
 	DOWN
 };
 
@@ -155,7 +155,7 @@ private:
 
 class DialogueBehavior : public Behavior {
 public:
-	DialogueBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> player, std::vector<std::string> dialogTexts);
+	DialogueBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> player, std::vector<std::string> dialogTexts, std::string voice);
 	void update(float deltaTime) override;
 
 private:
@@ -163,6 +163,7 @@ private:
 	std::weak_ptr<Sprite> self;
 	std::weak_ptr<Sprite> player;
 	std::vector<std::string> dialogTexts;
+	std::string voice;
 	size_t currentTextIndex = 0;
 	bool triggered = false;
 };

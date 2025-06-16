@@ -305,8 +305,8 @@ void CollectItemBehavior::update(float deltaTime) {
 	}
 }
 
-DialogueBehavior::DialogueBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> player, std::vector<std::string> dialogTexts)
-	: game{ game }, self{ self }, player{ player }, dialogTexts{ std::move(dialogTexts) } {
+DialogueBehavior::DialogueBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> player, std::vector<std::string> dialogTexts, std::string voice)
+	: game{ game }, self{ self }, player{ player }, dialogTexts{ std::move(dialogTexts) }, voice{ voice } {
 }
 
 void DialogueBehavior::update(float deltaTime) {
@@ -316,7 +316,7 @@ void DialogueBehavior::update(float deltaTime) {
 			triggered = true;
 			// TODO: why is this check needed again?
 			if (auto scene = dynamic_cast<InGame*>(game.getScene("InGame"))) {
-				game.cutsceneManager.queueCommand(new Command_Textbox(game, dialogTexts[currentTextIndex]));
+				game.cutsceneManager.queueCommand(new Command_Textbox(game, dialogTexts[currentTextIndex], voice));
 				game.cutsceneManager.queueCommand(new Command_Callback([this]() {
 					game.eventManager.pushDelayedEvent("resetDialogTrigger", 0.1f, nullptr, [this]() {
 						if (currentTextIndex < dialogTexts.size() - 1)
@@ -510,12 +510,18 @@ void ChestBehavior::update(float deltaTime) {
 
 			s->currentFrame = 2;
 			showItem = true;
+			game.playSound("doorOpen_2");
 			game.eventManager.pushDelayedEvent("hideItem", 2.0f, nullptr, [&]() {
 				showItem = false;
 				});
 
+			game.cutsceneManager.queueCommand(new Command_Wait(0.5f));
+			game.cutsceneManager.queueCommand(new Command_Callback([&]() {
+				game.playSound("Rise03");
+				}));
+			game.cutsceneManager.queueCommand(new Command_Wait(0.5f));
 			if (itemAmount == 1) {
-			game.cutsceneManager.queueCommand(new Command_Textbox(game, format("You got the %s.", data.displayName.c_str())));
+				game.cutsceneManager.queueCommand(new Command_Textbox(game, format("You got the %s.", data.displayName.c_str())));
 			}
 			else {
 				game.cutsceneManager.queueCommand(new Command_Textbox(game, format("You got: %s x%u", data.displayName.c_str(), itemAmount)));

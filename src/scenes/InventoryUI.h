@@ -9,15 +9,6 @@
 #include "ItemData.h"
 
 
-enum inventoryState {
-    NONE,
-    OPENING,
-    OPENED,
-    CLOSING,
-    SLIDING_LEFT,
-    SLIDING_RIGHT
-};
-
 class InventoryUI : public Scene {
     // scene responsible for drawing the inventory and all the items
     // as well as item selection etc
@@ -35,10 +26,9 @@ private:
     uint32_t height = 0;
     uint32_t width = 0;
     float speed = 0.0f;
-    float slideDuration = 1.0f;
-    inventoryState state = NONE;
+    float slideDuration = 0.5f;
     size_t index = 0; // selected item index
-    uint32_t weaponsRows = 3;
+    uint32_t weaponsRows = 2;
     uint32_t cols = 5;
     std::map<std::string, ItemData> itemData;
 };

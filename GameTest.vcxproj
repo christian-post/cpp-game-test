@@ -150,6 +150,7 @@ kernel32.lib
     <ClCompile Include="src\Commands.cpp" />
     <ClCompile Include="src\Controls.cpp" />
     <ClCompile Include="src\CutsceneManager.cpp" />
+    <ClCompile Include="src\Dungeon.cpp" />
     <ClCompile Include="src\EventManager.cpp" />
     <ClCompile Include="src\Events.cpp" />
     <ClCompile Include="src\Game.cpp" />
@@ -176,6 +177,7 @@ kernel32.lib
     <ClInclude Include="src\Commands.h" />
     <ClInclude Include="src\Controls.h" />
     <ClInclude Include="src\CutsceneManager.h" />
+    <ClInclude Include="src\Dungeon.h" />
     <ClInclude Include="src\Emitter.h" />
     <ClInclude Include="src\EventManager.h" />
     <ClInclude Include="src\Events.h" />

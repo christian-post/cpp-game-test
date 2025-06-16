@@ -4,15 +4,16 @@
 #include "Utils.h"
 #include "Controls.h"
 
-TextBox::TextBox(Game& game, float x, float y, float width, float height, int fontSize)
+TextBox::TextBox(Game& game, float x, float y, float width, float height, int fontSize, std::string voice)
     : game(game), 
     x{ x }, 
     y{ y }, 
     width{ width }, 
     height{ height }, 
     fontSize{ fontSize }, 
-    textContent{ "" } {
-
+    textContent{ "" } ,
+    voice{ voice }
+{
     textSpeed = game.getSetting("textDelay");
 }
 
@@ -93,19 +94,19 @@ void TextBox::update(float deltaTime) {
         // play a pitched sound; the pitch is determined by the word length
         for (int i = oldIndex; i < currentStrIndex && i < formattedtext.size(); ++i) {
             if (i == 0 || formattedtext[i - 1] == ' ' || formattedtext[i - 1] == '\n') {
-                // Find word length
-                int wordLen = 0;
-                while (i + wordLen < formattedtext.size() &&
-                    formattedtext[i + wordLen] != ' ' &&
-                    formattedtext[i + wordLen] != '\n') {
-                    ++wordLen;
+                Sound& s = game.loader.getSound(voice);
+                if (pitchVoice) {
+                    // Map word length to pitch (example: longer words = lower pitch)
+                    // Find word length
+                    int wordLen = 0;
+                    while (i + wordLen < formattedtext.size() &&
+                        formattedtext[i + wordLen] != ' ' &&
+                        formattedtext[i + wordLen] != '\n') {
+                        ++wordLen;
+                    }
+                    float pitch = 1.2f - 0.05f * std::min(wordLen, 10);
+                    SetSoundPitch(s, pitch);
                 }
-
-                // Map word length to pitch (example: longer words = lower pitch)
-                float pitch = 1.2f - 0.05f * std::min(wordLen, 10);
-
-                Sound& s = game.loader.getSound("powerUp4");
-                SetSoundPitch(s, pitch);
                 PlaySound(s);
                 break;
             }

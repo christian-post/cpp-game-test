@@ -5,6 +5,7 @@
 #include "InGame.h"
 #include "HUD.h"
 #include "InventoryUI.h"
+#include "MapUI.h"
 #include "GameOver.h"
 #include "Utils.h"
 
@@ -34,6 +35,7 @@ Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this) {
     registerScene<InGame>("InGame", 0);
     registerScene<HUD>("HUD", 1);
     registerScene<InventoryUI>("InventoryUI", 2);
+    registerScene<MapUI>("MapUI", 2);
     registerScene<GameOver>("GameOver", 2);
 }
 
@@ -105,6 +107,31 @@ void Game::processMarkedScenes() {
     }
 }
 
+void Game::createDungeon(size_t roomsW, size_t roomsH)
+{
+    currentDungeon = std::make_unique<Dungeon>(*this, roomsW, roomsH);
+
+    // TODO: hardcoding for now
+    Room r1{loader.getTilemap("dungeon001"), 0b1111};
+    Room r2{loader.getTilemap("dungeon002"), 0b0011};
+    Room r3{loader.getTilemap("dungeon003"), 0b1001};
+    Room r4{loader.getTilemap("dungeon004"), 0b1100};
+    Room r5{loader.getTilemap("dungeon005"), 0b0010};
+
+    currentDungeon->insertRoom(3, 2, std::move(r1));
+    currentDungeon->insertRoom(2, 2, std::move(r2));
+    currentDungeon->insertRoom(2, 1, std::move(r3));
+    currentDungeon->insertRoom(3, 1, std::move(r4));
+    currentDungeon->insertRoom(3, 3, std::move(r5));
+
+    currentDungeon->setCurrentRoomIndex(14); // start in R1
+    currentDungeon->makeMinimapTextures();
+
+    // TODO
+    // check connections and modify teleporters
+    // set the player's starting position correctly
+}
+
 void Game::killSprite(const std::shared_ptr<Sprite>& sprite) {
     auto it = std::find(sprites.begin(), sprites.end(), sprite);
     if (it != sprites.end()) {
@@ -147,6 +174,7 @@ Sprite* Game::getPlayer() {
 }
 
 void Game::playSound(const std::string& key){
+    if (!soundOn || !sfxOn) return;
     PlaySound(loader.getSound(key));
 }
 
@@ -161,7 +189,7 @@ void Game::update(float deltaTime) {
 }
 
 void Game::playMusic() {
-    if (!soundOn) return;
+    if (!soundOn || !musicOn) return;
     for (auto& [name, scene] : scenes) {
         if (scene && scene->isActive()) {
             if (scene->music) {
@@ -214,8 +242,9 @@ void Game::draw() {
             WHITE);
 
         if (debug) {
+            DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Fade(BLACK, 0.5f));
             // show the state of the scenes
-            int fontSize = 18;
+            int fontSize = 24;
 
             std::string s_activeScenes = "Scenes active:\n";
             std::string s_pausedScenes = "Scenes paused:\n";
@@ -223,14 +252,15 @@ void Game::draw() {
             std::string s_drawOrder = "Draw Order:\n";
 
             for (auto& [name, scene] : scenes) {
+                std::string stateInfo = " (" + std::to_string(static_cast<int>(scene->getState())) + ")";
                 if (scene && scene->isActive() && !scene->isPaused()) {
-                    s_activeScenes += scene->getName() + "\n";
+                    s_activeScenes += scene->getName() + stateInfo + "\n";
                 }
                 else if (scene && scene->isActive() && scene->isPaused()) {
-                    s_pausedScenes += scene->getName() + "\n";
+                    s_pausedScenes += scene->getName() + stateInfo + "\n";
                 }
                 else if (scene && !scene->isActive()) {
-                    s_inactiveScenes += scene->getName() + "\n";
+                    s_inactiveScenes += scene->getName() + stateInfo + "\n";
                 }
             }
             for (Scene* scene : activeScenes) {

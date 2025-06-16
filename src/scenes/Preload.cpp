@@ -165,6 +165,7 @@ void Preload::startup() {
             l.loadSpritesheet("./resources/textures/sprites/projectiles.png", 8, 8, "magic_ball_run"); // TODO temporary fix
             l.loadSpritesheet("./resources/textures/sprites/fireball_16x4.png", 16, 16, "fireball_run");
             l.loadSpritesheet("./resources/textures/sprites/smoke_16x6.png", 16, 16, "smoke_idle");
+            l.loadSpritesheet("./resources/textures/sprites/xbox_buttons_16x16.png", 16, 16, "xbox_buttons");
         });
 
     // load the tileset (the textures)
@@ -183,6 +184,11 @@ void Preload::startup() {
         l.LoadtileMapFromTiled("./resources/tilemaps/test_dungeon2.json");
         l.LoadtileMapFromTiled("./resources/tilemaps/test_dungeon3.json");
         l.LoadtileMapFromTiled("./resources/tilemaps/test_fields.json");
+        l.LoadtileMapFromTiled("./resources/tilemaps/dungeon001.json");
+        l.LoadtileMapFromTiled("./resources/tilemaps/dungeon002.json");
+        l.LoadtileMapFromTiled("./resources/tilemaps/dungeon003.json");
+        l.LoadtileMapFromTiled("./resources/tilemaps/dungeon004.json");
+        l.LoadtileMapFromTiled("./resources/tilemaps/dungeon005.json");
         });
     // load the font
     loadQueue.emplace("Loading fonts", [&]() {
@@ -222,16 +228,21 @@ void Preload::startup() {
         l.LoadSoundFile("./resources/sound/sfx/powerUp1.wav");
         l.LoadSoundFile("./resources/sound/sfx/powerUp2.wav");
         l.LoadSoundFile("./resources/sound/sfx/powerUp3.wav");
-        l.LoadSoundFile("./resources/sound/sfx/powerUp4.wav", 0.5f); // used for Textboxes
+        l.LoadSoundFile("./resources/sound/sfx/powerUp4.wav", 0.5f);
+        l.LoadSoundFile("./resources/sound/sfx/powerUp5.wav"); 
+        l.LoadSoundFile("./resources/sound/sfx/powerUp6.wav");
         l.LoadSoundFile("./resources/sound/sfx/hurt1.wav");
         l.LoadSoundFile("./resources/sound/sfx/gameover.wav");
         l.LoadSoundFile("./resources/sound/sfx/menuOpen.wav");
         l.LoadSoundFile("./resources/sound/sfx/menuClose.wav");
-        l.LoadSoundFile("./resources/sound/sfx/menuCursor.wav");
+        l.LoadSoundFile("./resources/sound/sfx/menuCursor.wav", 0.5f);
         l.LoadSoundFile("./resources/sound/sfx/menuSelect.wav");
         l.LoadSoundFile("./resources/sound/sfx/heal.wav");
         l.LoadSoundFile("./resources/sound/sfx/hammer.wav");
         l.LoadSoundFile("./resources/sound/sfx/fireball.wav", 0.5f);
+        l.LoadSoundFile("./resources/sound/sfx/Rise02.wav");
+        l.LoadSoundFile("./resources/sound/sfx/Rise03.wav");
+        l.LoadSoundFile("./resources/sound/sfx/tone.wav");
         });
 
     totalLoadSteps = loadQueue.size();

@@ -88,11 +88,30 @@ void HUD::draw() {
     const auto& frameTex = game.loader.getTextures("inventory_item_frame")[0];
     DrawTexture(frameTex, weaponX - frameTex.width / 2, weaponY - frameTex.height / 2, WHITE);
     auto& textures = game.loader.getTextures(equippedWeapon);
-    if (textures.empty()) {
-        return;
+    if (!textures.empty()) {
+        const auto& wpnTex = textures[0];
+        DrawTexture(wpnTex, weaponX - wpnTex.width / 2, weaponY - wpnTex.height / 2, WHITE);        
     }
-    const auto& wpnTex = textures[0];
-    DrawTexture(wpnTex, weaponX - wpnTex.width / 2, weaponY - wpnTex.height / 2, WHITE);
+
+    // draw the mini map
+    auto [cols, rows] = game.currentDungeon->getSize();
+    size_t currentRoomIndex = game.currentDungeon->getCurrentRoomIndex();
+    const int spacing = 1;
+    const int cellWidth = 6;
+    const int cellHeight = 4;
+    const int mapX = game.gameScreenWidth - cols * (cellWidth + spacing) - 6;
+    const int mapY = 6;
+    for (int i = 0; i < cols * rows; ++i) {
+        int col = i % cols;
+        int row = i / cols;
+        int cellX = mapX + col * (cellWidth + spacing);
+        int cellY = mapY + row * (cellHeight + spacing);
+        Color color = DARKGRAY;
+        if (i == currentRoomIndex) {
+            color = WHITE;
+        }
+        DrawRectangle(cellX, cellY, cellWidth, cellHeight, color);
+    }
 
     // whenever a collectable item is picked up
     // TODO this break when it's a coin

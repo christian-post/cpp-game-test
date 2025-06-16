@@ -6,7 +6,9 @@
     "knockback": 0.0,
     "speed": 10.0,
     "behaviors": [],
-    "behaviorData": {}
+    "behaviorData": {
+      "voice": "powerUp4"
+    }
   },
   "elfCompanion": {
     "textureKey": "elf_f",
@@ -15,7 +17,8 @@
     "behaviors": [ "RandomWalk", "Watch", "Dialogue" ],
     "behaviorData": {
       "watchTarget": "player",
-      "dialogue": "elfDialogue1"
+      "dialogue": "elfDialogue1",
+      "voice": "powerUp4"
     }
   },
   "merchant": {
@@ -23,7 +26,8 @@
     "behaviors": [ "Watch", "Dialogue" ],
     "behaviorData": {
       "watchTarget": "player",
-      "dialogue": "merchantDialogue1"
+      "dialogue": "merchantDialogue1",
+      "voice": "powerUp6"
     }
   },
   "dungeon_door": {

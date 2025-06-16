@@ -139,11 +139,13 @@ Here is the default button layout:
 Classic RPG Tileset by [Jestan](https://jestan.itch.io/classic-rpg)</br>
 "Dubious Dungeon" by [Bogart VGM](https://opengameart.org/content/dubious-dungeon)</br>
 "Dungeon 02" by [Fantasy Music](https://opengameart.org/content/dungeon-02)</br>
-"title screen" by [frenchyboy](https://opengameart.org/content/title-screen)
-"No Hope (You died)" by [CleytonKauffman]https://opengameart.org/users/cleytonkauffman
-"8bit adventure" by [CodeManu](https://opengameart.org/content/8bit-adventure)
+"title screen" by [frenchyboy](https://opengameart.org/content/title-screen)</br>
+"No Hope (You died)" by [CleytonKauffman](https://opengameart.org/users/cleytonkauffman)</br>
+"8bit adventure" by [CodeManu](https://opengameart.org/content/8bit-adventure)</br>
 "50 RPG sound effects" by [Kenney](https://opengameart.org/content/50-rpg-sound-effects)</br>
 "80 CC0 RPG SFX" by [rubberduck](https://opengameart.org/content/80-cc0-rpg-sfx)</br>
+"Level up, power up, Coin get (13 Sounds)" by [wobblebox](https://opengameart.org/content/level-up-power-up-coin-get-13-sounds)</br>
+"XBOX UI Prompt Pack" by [actuallyKron](https://actuallykron.itch.io/xbox-ui-prompts)</br>
 
 ## Some Notes on the Software Design
 

@@ -12,7 +12,7 @@ void InventoryUI::startup() {
     y = float(game.gameScreenHeight); // start the inventory hidden at the bottom
     topY = game.getSetting("HudHeight");
     width = game.gameScreenWidth;
-    height = game.gameScreenHeight;
+    height = game.gameScreenHeight - game.getSetting("HudHeight");
     // set the sliding speed so that it takes "slideDuration" seconds to expand the inventory
     speed = height / slideDuration;
     state = OPENING;
@@ -30,11 +30,12 @@ void InventoryUI::update(float deltaTime) {
         }
         break;
     case CLOSING:
-        if (y < height) {
-            y = std::min(static_cast<float>(height), y + deltaTime * speed);
+        if (y < game.gameScreenHeight) {
+            y = std::min(static_cast<float>(game.gameScreenHeight), y + deltaTime * speed);
         }
         else {
             game.eventManager.pushEvent("InventoryDone");
+            game.stopScene("InventoryUI");
         }
         break;
     case SLIDING_LEFT:
@@ -42,8 +43,17 @@ void InventoryUI::update(float deltaTime) {
             x = std::max(static_cast<float>(width) * -1.0f, x - deltaTime * speed);
         }
         else {
-            //game.eventManager.pushEvent("InventoryDone");
-            // TODO: push "openMap" event
+            game.pauseScene("InventoryUI");
+            state = SLIDING_RIGHT;
+        }
+        break;
+    case SLIDING_RIGHT:
+        if (x < 0.0f) {
+            x = std::min(0.0f, x + deltaTime * speed);
+        }
+        else {
+            game.pauseScene("MapUI");
+            state = OPENED;
         }
         break;
     case OPENED:
@@ -53,7 +63,8 @@ void InventoryUI::update(float deltaTime) {
         }
         if (game.buttonsPressed & CONTROL_ACTIONR) {
             state = SLIDING_LEFT;
-            //game.playSound("menuClose");
+            game.playSound("menuOpen");
+            game.startScene("MapUI");
         }
         // cursor movement (only when there are weapons)
         auto& items = game.inventory.getItems();
@@ -145,6 +156,15 @@ void InventoryUI::draw() {
 
     // background
     DrawRectangle(int(x), int(y), int(width), int(height), DARKBURGUNDY);
+    static const uint32_t spacing = 32;
+    static const uint32_t marginLeft = 24;
+    static const uint32_t marginTop = 24;
+    Rectangle r1 = { x + marginLeft * 0.5f, y + marginTop * 0.5f, float(spacing * cols), float(spacing * weaponsRows) };
+    Rectangle r2 = { r1.x, y + marginTop + float(spacing * weaponsRows), float(spacing * cols), float(spacing) };
+    Rectangle r3 = { x + float(cols) * float(spacing) + 2.0f * float(marginLeft), r1.y, float(spacing), r1.height + r2.height + marginTop * 0.5f };
+    DrawRectangleRounded(r1, 0.2f, 0, LIGHTBURGUNDY);
+    DrawRectangleRounded(r2, 0.2f, 0, LIGHTBURGUNDY);
+    DrawRectangleRounded(r3, 0.2f, 0, LIGHTBURGUNDY);
 
     std::vector<const InventoryItem*> flatItems;
     for (const auto& [key, item] : items[WEAPON]) flatItems.push_back(&item);
@@ -153,9 +173,7 @@ void InventoryUI::draw() {
     for (const auto& [key, item] : items[KEY]) flatItems.push_back(&item);
 
     // selectable weapons
-    static const uint32_t spacing = 32;
-    static const uint32_t marginLeft = 24;
-    static const uint32_t marginTop = 24;
+    
     for (size_t i = 0; i < weaponsSize; ++i) {
         size_t row = i / cols;
         size_t col = i % cols;
@@ -166,7 +184,7 @@ void InventoryUI::draw() {
     }
 
     // consumables
-    uint32_t itemsStartY = weaponsRows * spacing;
+    uint32_t itemsStartY = (weaponsRows + 1) * spacing;
     for (size_t i = weaponsSize; i < weaponsSize + consumablesSize; ++i) {
         size_t row = (i - weaponsSize) / cols;
         size_t col = (i - weaponsSize) % cols;
@@ -181,7 +199,7 @@ void InventoryUI::draw() {
     }
 
     // passive items, draw as column
-    uint32_t passivesStartX = cols * spacing + 2 * marginLeft; 
+    uint32_t passivesStartX = int(x) + cols * spacing + 2 * marginLeft;
     for (size_t i = weaponsSize + consumablesSize; i < weaponsSize + consumablesSize + passiveSize; ++i) {
         const auto& tex = game.loader.getTextures(flatItems[i]->first->textureKey)[0];
         int centerX = int(passivesStartX);
@@ -219,23 +237,42 @@ void InventoryUI::draw() {
     uint32_t textY = int(y) + int(game.gameScreenHeight - topY) - fontSize - 24;
     if (index < weaponsSize) {
         const char* weaponText = flatItems[index]->first->displayName.c_str();
-        uint32_t textX = (int(game.gameScreenWidth) - MeasureText(weaponText, fontSize)) / 2;
+        uint32_t textX = int(x) + (int(game.gameScreenWidth) - MeasureText(weaponText, fontSize)) / 2;
         
         DrawText(weaponText, textX, textY, fontSize, LIGHTGRAY);
     }
     else if (index < totalItems) {
         size_t consumableIndex = index - weaponsSize;
         const char* consumableText = flatItems[index]->first->displayName.c_str();
-        uint32_t textX = (int(game.gameScreenWidth) - MeasureText(consumableText, fontSize)) / 2;
+        uint32_t textX = int(x) + (int(game.gameScreenWidth) - MeasureText(consumableText, fontSize)) / 2;
         DrawText(consumableText, textX, textY, fontSize, LIGHTGRAY);
     }
 
-    // help text
-    fontSize = 6;
-    const char* helpText = "Equip/use with O";
-    uint32_t helpTextX = (int(game.gameScreenWidth) - MeasureText(helpText, fontSize)) / 2;
-    uint32_t helpTextY = int(y) + int(game.gameScreenHeight - topY) - fontSize - 8;
-    DrawText(helpText, helpTextX, helpTextY, fontSize, LIGHTGRAY);
+    // help texts
+    if (state == OPENED) {
+        fontSize = 6;
+        const char* helpText = nullptr;
+        const char* textLeft = nullptr;
+        const char* textRight = nullptr;
+        if (WasGamepadUsedLast()) {
+            helpText = "Equip/use with A";
+            textLeft = "<< LB";
+            textRight = "RB >>";
+        }
+        else {
+            helpText = "Equip/use with O";
+            textLeft = "<< N";
+            textRight = "M >>";
+        }
+        uint32_t helpTextX = int(x) + (int(game.gameScreenWidth) - MeasureText(helpText, fontSize)) / 2;
+        uint32_t helpTextY = int(y) + int(game.gameScreenHeight - topY) - fontSize - 8;
+        DrawText(helpText, helpTextX, helpTextY, fontSize, LIGHTGRAY);
+
+        uint32_t txtR = int(x) + int(game.gameScreenWidth) - MeasureText(textRight, fontSize) - 4;
+        uint32_t txtL = int(x) + 4;
+        DrawText(textRight, txtR, helpTextY, fontSize, LIGHTGRAY);
+        DrawText(textLeft, txtL, helpTextY, fontSize, LIGHTGRAY);
+    }
 }
 
 void InventoryUI::end() {

@@ -10,10 +10,12 @@
 #include "CutsceneManager.h"
 #include "InventoryManager.h"
 #include "Emitter.h"
+#include "Dungeon.h"
 #include "json.hpp"
 
 
 #define DARKBURGUNDY { 20, 0, 8, 255 }
+#define LIGHTBURGUNDY { 40, 0, 16, 255 }
 
 class Command;
 
@@ -77,16 +79,22 @@ public:
     std::vector<std::shared_ptr<Sprite>> sprites; // dynamic objects
     std::vector<Emitter> emitters; // particle emitters
 
+    // Dungeon management
+    std::unique_ptr<Dungeon> currentDungeon = nullptr; 
+    void createDungeon(size_t roomsW, size_t roomsH);
+
     void killSprite(const std::shared_ptr<Sprite>& sprite);
     void clearSprites(bool clearPersistent = false);
     void processMarkedSprites();
 
-    // store a reference to the player sprite in case a scene other than InGame needs it
-    Sprite* getPlayer();
+    Sprite* getPlayer(); // store a reference to the player sprite in case a scene other than InGame needs it
 
     void playSound(const std::string& key);
-    bool soundOn = true;
-    bool debug = false;
+    bool soundOn = false; // all sound, overwrites the other two
+    bool musicOn = true;
+    bool sfxOn = true;
+
+    bool debug = false; // controls the debug menu and functions
 
 private:
     bool running = true;

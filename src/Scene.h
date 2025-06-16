@@ -6,6 +6,15 @@
 
 class Game;
 
+enum inventoryState {
+    NONE,
+    OPENING,
+    OPENED,
+    CLOSING,
+    SLIDING_LEFT,
+    SLIDING_RIGHT
+};
+
 class Scene {
     // scene base class
 public:
@@ -32,7 +41,8 @@ public:
 
     void setDrawPriority(int prio) { drawPriority = prio; }
     int getDrawPriority() const { return drawPriority; }
-    Game& getGame() { return game; };
+    Game& getGame() { return game; }
+    inventoryState getState() { return state; }
 
     bool markedForStarting = false;
 
@@ -48,6 +58,7 @@ protected:
     bool active = false;
     bool paused = false;
     bool markedForDeletion = false;
+    inventoryState state = NONE;
 };
 
 
