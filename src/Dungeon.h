@@ -2,10 +2,18 @@
 #include <memory>
 #include <vector>
 #include <optional>
+#include <unordered_map>
 #include "TileMap.h"
 #include <raylib.h>
 
 class Game;
+
+struct ObjectState {
+	// used to store object state between room visits
+	bool isOpened = false;
+	bool isDefeated = false;
+	// tbc
+};
 
 
 class Room {
@@ -14,6 +22,7 @@ public:
 	TileMap tilemap;
 	uint8_t state = 1;
 	bool visited = false;
+	std::unordered_map<uint32_t, ObjectState> objectStates;
 
 	Room(TileMap tilemap, uint8_t doors = 0b0000)
 		: doors(doors), tilemap(std::move(tilemap)) {
@@ -33,6 +42,7 @@ public:
 	void setCurrentRoomIndex(size_t idx) { currentRoomIndex = idx; }
 	void advanceRoomState();
 	uint8_t getCurrentRoomState();
+	std::unordered_map<uint32_t, ObjectState>& getCurrentRoomObjectStates();
 	const TileMap* loadCurrentTileMap();
 	void insertRoom(size_t row, size_t col, Room&& room);
 	std::pair<size_t, size_t> getSize() const;

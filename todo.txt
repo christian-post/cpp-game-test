@@ -7,13 +7,10 @@ features
 
 Scenes
 - more menu scenes:
--- Dungeon map
 -- game menu (save, load, end game)
 
 - Dungeon Generation
--- premade rooms (different sizes with multiples of 16x16)
--- dungeon layout in data
--- loading rooms in chunks
+-- random
 
 - Sprites
 -- behavior priority system
@@ -26,8 +23,8 @@ Scenes
 -- Command_CameraPan(x, y, duration) // camera pans towards a target position (and then back?)
 
 - Misc
--- show controls dynamically in game
--- add xbox controller buttons
+-- add xbox controller button textures
+-- draw connections between mini map rooms
 
 - Music/Sounds:
 -- Inventory select item --> different sound
@@ -48,6 +45,7 @@ TODO: refactor
 - Weapon hurtbox should appear only a fraction of the weapon's lifetime
 - IMPORTANT!! refactor the sprite's animation frames naming conventions (no "idle" etc.)
 - Can repeated events go infinite?
+- add Room ID to Object ID to avoid duplicates
 
 BUGS:
 - RandomWalkBehavior: choose new target after some time if the current target can't be reached

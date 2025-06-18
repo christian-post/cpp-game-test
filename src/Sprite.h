@@ -27,6 +27,7 @@ public:
     std::unordered_map<std::string, std::vector<Texture2D>> frames;
     std::string spriteName; // used for general idengtification
     std::string textureKey; // used for finding the correct texture
+    uint32_t tileMapID = 0;
     int currentFrame = 0;
     bool doesAnimate = true;
     int drawLayer = 0;

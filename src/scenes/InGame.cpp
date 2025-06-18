@@ -206,8 +206,9 @@ void InGame::addBehaviorsToSprite(std::shared_ptr<Sprite> sprite, const std::vec
 void InGame::loadTilemap() {
     // TODO: this gets big, put this somewhere else
     tileMap = game.currentDungeon->loadCurrentTileMap();
-    game.currentDungeon->setVisited(game.currentDungeon->getCurrentRoomIndex());
     if (!tileMap) return;
+    auto& objectStates = game.currentDungeon->getCurrentRoomObjectStates();
+    //game.currentDungeon->setVisited(game.currentDungeon->getCurrentRoomIndex());
     // remove static and dynamic (non-persistent) sprites
     game.walls.clear();
     game.clearSprites();
@@ -223,10 +224,13 @@ void InGame::loadTilemap() {
     for (auto& obj : tileMap->getObjects()) {
         if (!obj.visible) continue;
 
-        // first, check if the object should be in this state
+        // first, check if the object should exist in this room state
         uint8_t objectState = obj.properties.value("roomState", 0); // objects spawn in every state by default
-        TraceLog(LOG_INFO, "creating %s - <%s> objectState: %d",
-            obj.type.c_str(), obj.name.empty() ? "unnamed" : obj.name.c_str(), objectState);
+        TraceLog(LOG_INFO, "creating %s - <%s>, id: %d, objectState: %d",
+            obj.type.c_str(), 
+            obj.name.empty() ? "unnamed" : obj.name.c_str(), 
+            obj.id, objectState
+        );
 
         if (objectState != 0 && (objectState & currentState) == 0)
             // object does not spawn in the currentState
@@ -238,6 +242,10 @@ void InGame::loadTilemap() {
             );
         }
         else if (obj.type == "sprite") {
+            if (objectStates[obj.id].isDefeated) {
+                // has been killed before, skip
+                continue;
+            }
             std::string spriteName = obj.properties.value("spriteName", "sprite_default");
             const auto& data = spriteData.contains(spriteName)
                 ? spriteData.at(spriteName)
@@ -262,6 +270,7 @@ void InGame::loadTilemap() {
             sprite->speed = obj.properties.value("speed", sprite->speed);
             sprite->damage = obj.properties.value("damage", sprite->damage);
             sprite->knockback = obj.properties.value("knockback", sprite->knockback);
+            sprite->tileMapID = obj.id;
 
             float hurtboxW = obj.properties.value("hurtboxW", 0.0f);
             float hurtboxH = obj.properties.value("hurtboxH", 0.0f);
@@ -368,8 +377,30 @@ void InGame::loadTilemap() {
                 sprite->doesAnimate = false;
                 sprite->staticCollision = true;
                 sprite->setTextures({ "chest_idle" });
-                sprite->addBehavior(std::make_unique<ChestBehavior>(game, sprite, player, static_cast<std::string>(obj.properties.value("item", "coin")), static_cast<uint32_t>(obj.properties.value("amount", 999))));
+
+                if (objectStates[obj.id].isOpened) {
+                    sprite->currentFrame = 2;
+                }
+                else {
+                    std::string eventKey = "chest_opened_" + std::to_string(obj.id);
+                    game.eventManager.addListener(eventKey, [&](std::any data) {
+                        uint32_t eventId = std::any_cast<uint32_t>(data);
+                        if (eventId == obj.id) {
+                            objectStates[obj.id].isOpened = true;
+                        }
+                        });
+                    sprite->addBehavior(std::make_unique<ChestBehavior>(game, sprite, player, static_cast<std::string>(obj.properties.value("item", "coin")), static_cast<uint32_t>(obj.properties.value("amount", 999))));
+                }
             }
+            // add an event that changes the isDefeated field for this sprite
+            std::string eventKey = "defeated_" + std::to_string(obj.id);
+            game.eventManager.addListener(eventKey, [&](std::any data) {
+                uint32_t eventId = std::any_cast<uint32_t>(data);
+                if (eventId == obj.id) {
+                    objectStates[obj.id].isDefeated = true;
+                }
+                });
+
             if (data.contains("behaviors")) {
                 addBehaviorsToSprite(sprite, data.at("behaviors"), data.at("behaviorData"));
             }
@@ -486,10 +517,13 @@ void InGame::update(float deltaTime) {
             sprite->dying = true;
             sprite->removeAllBehaviors();
             sprite->addBehavior(std::make_unique<DeathBehavior>(game, sprite, 2.0f));
+            // TODO: unify these two events
             std::string eventName = "killSprite_" + std::to_string(reinterpret_cast<uintptr_t>(sprite.get()));
             game.eventManager.pushDelayedEvent(eventName, 2.01f, nullptr, [this, sprite]() {
                 sprite->markForDeletion();
                 });
+            std::string eventKey = "defeated_" + std::to_string(sprite->tileMapID);
+            game.eventManager.pushEvent(eventKey, sprite->tileMapID);
         }
     }
     // if a cutscene is active, it takes control over the player
@@ -615,7 +649,7 @@ void InGame::update(float deltaTime) {
 
         // weapon damage
         // everything that can hurt the player can also be damaged
-        if (sprite->isEnemy) {
+        if (sprite->isEnemy && currentWeapon.has_value()) {
             Sprite* weapon = getSprite(*currentWeapon);
             if (weapon && sprite->iFrameTimer < 0.001f && sprite->health > 0 &&
                 CheckCollisionRecs(weapon->hurtbox, sprite->rect)) {

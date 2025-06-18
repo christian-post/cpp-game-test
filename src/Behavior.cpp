@@ -527,6 +527,9 @@ void ChestBehavior::update(float deltaTime) {
 				game.cutsceneManager.queueCommand(new Command_Textbox(game, format("You got: %s x%u", data.displayName.c_str(), itemAmount)));
 			}
 			game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>(itemName, itemAmount));
+			// trigger the event that changes the object state
+			std::string eventKey = "chest_opened_" + std::to_string(s->tileMapID);
+			game.eventManager.pushEvent(eventKey, s->tileMapID);
 		}
 	}
 }

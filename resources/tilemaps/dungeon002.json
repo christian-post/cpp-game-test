@@ -230,40 +230,6 @@
                  "width":72,
                  "x":24,
                  "y":172
-                }, 
-                {
-                 "height":8,
-                 "id":13,
-                 "name":"teleport",
-                 "properties":[
-                        {
-                         "name":"direction",
-                         "type":"int",
-                         "value":3
-                        }],
-                 "rotation":0,
-                 "type":"sprite",
-                 "visible":true,
-                 "width":40,
-                 "x":108,
-                 "y":248
-                }, 
-                {
-                 "height":32,
-                 "id":14,
-                 "name":"teleport",
-                 "properties":[
-                        {
-                         "name":"direction",
-                         "type":"int",
-                         "value":2
-                        }],
-                 "rotation":0,
-                 "type":"sprite",
-                 "visible":true,
-                 "width":8,
-                 "x":0,
-                 "y":128
                 }],
          "opacity":1,
          "type":"objectgroup",

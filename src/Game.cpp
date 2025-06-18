@@ -153,12 +153,6 @@ void Game::clearSprites(bool clearPersistent) {
 }
 
 void Game::processMarkedSprites() {
-    // TODO debugging
-    //for (const auto& sprite : sprites) {
-    //    if (sprite->isMarkedForDeletion()) {
-    //        TraceLog(LOG_INFO, "Marked for deletion: %s at %p", sprite->spriteName.c_str(), sprite.get());
-    //    }
-    //}
     sprites.erase(std::remove_if(sprites.begin(), sprites.end(),
         [](auto sprite) {
             return sprite->isMarkedForDeletion();

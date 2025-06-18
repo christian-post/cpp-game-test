@@ -100,14 +100,17 @@ void MapUI::draw() {
             Rectangle dst = { (float)cellX, (float)cellY, (float)cellWidth, (float)cellHeight };
             DrawTexturePro(tex, src, dst, { 0, 0 }, 0.0f, WHITE);
             if (i == currentRoomIndex && cursorOn && state == OPENED) {
-                // draw a player as a blinking white circle
+                // draw a player as a blinking circle
                 const Vector2& pos = game.getPlayer()->position;
                 auto [roomW, roomH] = game.currentDungeon->getRoomSize(currentRoomIndex);
                 float u = pos.x / (float)roomW;
                 float v = pos.y / (float)roomH;
                 float px = cellX + u * cellWidth;
                 float py = cellY + v * cellHeight;
-                DrawCircle((int)px, (int)py, 3.0f, WHITE);
+                //Color c = { 114, 214, 206, 255 };
+                //DrawCircle((int)px, (int)py, 3.0f, c);
+                const auto& tex = game.loader.getTextures("knight_map_mini")[0];
+                DrawTexture(tex, (int)px, (int)py, WHITE);
             }
         }
     }

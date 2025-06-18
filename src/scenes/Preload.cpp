@@ -157,6 +157,7 @@ void Preload::startup() {
                     "./resources/textures/sprites/doors_leaf_open.png",
                 }
             },
+            { "knight_map_mini", { "./resources/textures/sprites/knight_map_mini.png" }},
             // background images
             { "title_image", { "./resources/textures/images/title.png" }},
             });

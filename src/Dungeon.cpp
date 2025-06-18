@@ -21,6 +21,11 @@ uint8_t Dungeon::getCurrentRoomState()
     return rooms[currentRoomIndex]->state;
 }
 
+std::unordered_map<uint32_t, ObjectState>& Dungeon::getCurrentRoomObjectStates()
+{
+    return rooms[currentRoomIndex]->objectStates;
+}
+
 const TileMap* Dungeon::loadCurrentTileMap()
 {
     if (currentRoomIndex > rooms.size()) {
@@ -31,6 +36,7 @@ const TileMap* Dungeon::loadCurrentTileMap()
         TraceLog(LOG_ERROR, "No room at current index");
         return nullptr;
     }
+    setVisited(currentRoomIndex); // TODO: is it always correct to set this here?
     return &rooms[currentRoomIndex]->tilemap;
 }
 

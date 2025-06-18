@@ -40,6 +40,7 @@ struct TileObject {
     std::string type, name;
     float x, y, width, height;
     bool visible;
+    uint32_t id;
     nlohmann::json properties;
 
     TileObject(const nlohmann::json& objJson) :
@@ -49,7 +50,8 @@ struct TileObject {
         x(objJson["x"]),
         y(objJson["y"]),
         width(objJson["width"]),
-        height(objJson["height"])
+        height(objJson["height"]),
+        id(objJson["id"])
     {
         if (objJson.contains("properties") && objJson["properties"].is_array()) {
             for (const auto& p : objJson["properties"]) {

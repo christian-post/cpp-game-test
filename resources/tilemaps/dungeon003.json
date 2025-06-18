@@ -116,40 +116,6 @@
          "name":"sprites",
          "objects":[
                 {
-                 "height":32,
-                 "id":11,
-                 "name":"teleport",
-                 "properties":[
-                        {
-                         "name":"direction",
-                         "type":"int",
-                         "value":0
-                        }],
-                 "rotation":0,
-                 "type":"sprite",
-                 "visible":true,
-                 "width":8,
-                 "x":248,
-                 "y":128
-                }, 
-                {
-                 "height":8,
-                 "id":12,
-                 "name":"teleport",
-                 "properties":[
-                        {
-                         "name":"direction",
-                         "type":"int",
-                         "value":3
-                        }],
-                 "rotation":0,
-                 "type":"sprite",
-                 "visible":true,
-                 "width":40,
-                 "x":108,
-                 "y":248
-                }, 
-                {
                  "height":24,
                  "id":13,
                  "name":"hurt",
