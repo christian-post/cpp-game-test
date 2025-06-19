@@ -45,6 +45,24 @@ void InGame::startup() {
     camera.zoom = 1.0f;
 
     // event listeners for the InGame scene
+
+    game.eventManager.addListener("moveCamera", [&](std::any data) {
+        auto [targetX, targetY] = std::any_cast<std::pair<float, float>>(data);
+        // clamp to world boundaries
+        // TODO: make this a function
+        // TODO: take into account whether the HUD is visible or not
+        float HudHeight = game.getSetting("HudHeight");
+        float minX = game.gameScreenWidth / 2.0f;
+        //float minY = game.gameScreenHeight / 2.0f - HudHeight;
+        float minY = game.gameScreenHeight / 2.0f;
+        float maxX = worldWidth - game.gameScreenWidth / 2.0f;
+        float maxY = worldHeight - game.gameScreenHeight / 2.0f;
+        //targetY -= HudHeight * 0.5f;
+        targetX = Clamp(targetX, minX, maxX);
+        targetY = Clamp(targetY, minY, maxY);
+        camera.target = Vector2{ targetX, targetY };
+        });
+
     /*game.eventManager.addListener("teleport", [this](std::any data) {
         const auto& teleportData = std::any_cast<const TeleportEvent&>(data);
         loadTilemap(teleportData.targetMap);
@@ -73,70 +91,16 @@ void InGame::startup() {
         }
         });
 
-
     // ##### Events that progress the game ####
     // // TODO: comment out during debugging
-    //setupConditionalEvents(*this);
-
-    // Testing a particle emitter
-    //Emitter emitter(40);
-    //emitter.location = { 60.0f, 100.0f };
-    //emitter.spawnInterval = 0.02f;
-    //emitter.emitterLifetime = -1.0f;
-    //emitter.spawnRadius = 0.0f;
-    //emitter.spawnRadiusVariance = 4.0f;
-    //emitter.prototype.velocity = { 0.0f, 0.0f };
-    //emitter.velocityVariance = { 20.0f, 20.0f };
-    //emitter.lifetimeVariance = 0.5f;
-    //emitter.alphaVariance = 0.2f;
-
-    //Particle proto;
-    //proto.velocity = { 0.0f, 0.0f };
-    //proto.lifetime = 1.0f;
-    //proto.alpha = 1.0f;
-    //proto.tint = RED;
-    //proto.animationSpeed = 0.1f;
-    //proto.setAnimationFrames(game.loader.getTextures("magic_ball_idle"));
-
-    //emitter.prototype = proto;
-    //emitters.push_back(emitter);
-
-    /*game.eventManager.pushRepeatedEvent("projectileTest", 2.0f, nullptr, [this]() {
-        auto projectile = std::make_shared<Sprite>(
-            game, 3.5f * tileSize, 6.5f * tileSize, 8.0f, 8.0f, "magic_ball", "magic_ball"
-        );
-        game.sprites.emplace_back(projectile);
-        projectile->setTextures({ "magic_ball_idle", "magic_ball_run"});
-        projectile->addBehavior(std::make_unique<ProjectileBehavior>(game, projectile, player, true));
-        projectile->canHurtPlayer = true;
-        projectile->damage = 2;
-        projectile->speed = 40;
-    }, 
-        1000);*/
+    setupConditionalEvents(*this);
 
     // TODO: adding some items for testing
-    //game.eventManager.pushDelayedEvent("testItemsForStart", 0.1f, nullptr, [this]() {
-    //    // give the player the sword for starters
-    //    game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_sword", 1));
-    //    // another item
-    //    game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("red_potion", 2));
-    //    game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("coin", 99));
-    //    // just add more to fill the inventory
-    //    game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_bow", 1));
-    //    //game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_double_axe", 1));
-    //    game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_hammer", 1));
-    //    game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_mace", 1));
-    //    game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_spear", 1));
-    //    game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_baton_with_spikes", 1));
-    //    game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_arrow", 1));
-    //    game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("green_potion", 1));
-    //    game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("blue_potion", 1));
-
-    //    //game.eventManager.pushEvent("weaponSet", std::string("weapon_sword"));
-    //    //game.eventManager.pushEvent("weaponSet", std::string("weapon_double_axe"));
-    //    game.eventManager.pushEvent("weaponSet", std::string("weapon_hammer"));
-    //    //game.eventManager.pushEvent("weaponSet", std::string("weapon_spear"));
-    //    });
+    game.eventManager.pushDelayedEvent("testItemsForStart", 0.1f, nullptr, [this]() {
+        // give the player the sword for starters
+        game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_double_axe", 1));
+        game.eventManager.pushEvent("weaponSet", std::string("weapon_double_axe"));
+        });
 }
 
 Sprite* InGame::getSprite(const std::string& name) {
@@ -208,22 +172,19 @@ void InGame::loadTilemap() {
     tileMap = game.currentDungeon->loadCurrentTileMap();
     if (!tileMap) return;
     auto& objectStates = game.currentDungeon->getCurrentRoomObjectStates();
-    //game.currentDungeon->setVisited(game.currentDungeon->getCurrentRoomIndex());
     // remove static and dynamic (non-persistent) sprites
     game.walls.clear();
     game.clearSprites();
-
     // the room state controls how objects are spawned
     // states start with 1
     uint8_t currentState = game.currentDungeon->getCurrentRoomState();
 
     const auto& spriteData = game.loader.getSpriteData();
     size_t spritesLen = tileMap->getObjects().size();
-    game.sprites.reserve(spritesLen); // prevents resizing(?)
+    game.sprites.reserve(spritesLen);
     // build static collision objects from map data
     for (auto& obj : tileMap->getObjects()) {
         if (!obj.visible) continue;
-
         // first, check if the object should exist in this room state
         uint8_t objectState = obj.properties.value("roomState", 0); // objects spawn in every state by default
         TraceLog(LOG_INFO, "creating %s - <%s>, id: %d, objectState: %d",
@@ -231,11 +192,10 @@ void InGame::loadTilemap() {
             obj.name.empty() ? "unnamed" : obj.name.c_str(), 
             obj.id, objectState
         );
-
         if (objectState != 0 && (objectState & currentState) == 0)
             // object does not spawn in the currentState
             continue;
-
+        // object type-specific code
         if (obj.type == "wall") {
             game.walls.push_back(std::make_unique<Rectangle>(
                 Rectangle{ obj.x, obj.y, obj.width, obj.height })
@@ -271,14 +231,12 @@ void InGame::loadTilemap() {
             sprite->damage = obj.properties.value("damage", sprite->damage);
             sprite->knockback = obj.properties.value("knockback", sprite->knockback);
             sprite->tileMapID = obj.id;
-
             float hurtboxW = obj.properties.value("hurtboxW", 0.0f);
             float hurtboxH = obj.properties.value("hurtboxH", 0.0f);
             if (hurtboxW != 0.0f && hurtboxH != 0.0f) {
                 sprite->setHurtbox(-1.0f, -1.0f, hurtboxW, hurtboxH);
             }
-
-            // specific attributes
+            // specific sprite attributes
             // TODO: for persistent sprites, check if they exist in the spriteMap
             if (obj.name == "teleport") {
                 sprite->isColliding = false;
@@ -312,16 +270,14 @@ void InGame::loadTilemap() {
                     std::string eventName = "killSprite_" + std::to_string(reinterpret_cast<uintptr_t>(sprite.get()));
                     game.eventManager.addListener(eventName, [this, weakSprite, data](std::any) {
                         auto s = weakSprite.lock();
-                        if (!s) return;
-
+                        if (!s) 
+                            return;
                         float rand = static_cast<float>(GetRandomValue(0, 10000)) / 10000.0f;
                         float accum = 0.0f;
-
                         for (const auto& drop : data["itemDrops"]) {
                             std::string itemId = drop.at(0);
                             float chance = drop.at(1);
                             accum += chance;
-
                             if (rand < accum) {
                                 auto item = std::make_shared<Sprite>(
                                     game, s->position.x, s->position.y, 12.0f, 12.0f, itemId, itemId
@@ -340,7 +296,6 @@ void InGame::loadTilemap() {
                                 else if (itemId == "flask_big_red") {
                                     item->addBehavior(std::make_unique<CollectItemBehavior>(game, item, player, "red_potion", 1));
                                 }
-                               
                                 game.sprites.emplace_back(item);
                                 break;
                             }
@@ -362,6 +317,7 @@ void InGame::loadTilemap() {
                 }
                 // door trigger
                 std::string triggerKey = obj.properties.value("event", "");
+                game.eventManager.removeListeners(triggerKey);
                 game.eventManager.addListener(triggerKey, [this, sprite](std::any) {
                     sprite->currentFrame = 1; // second anim frame has to be the opened door
                     sprite->staticCollision = false;
@@ -383,6 +339,7 @@ void InGame::loadTilemap() {
                 }
                 else {
                     std::string eventKey = "chest_opened_" + std::to_string(obj.id);
+                    game.eventManager.removeListeners(eventKey);
                     game.eventManager.addListener(eventKey, [&](std::any data) {
                         uint32_t eventId = std::any_cast<uint32_t>(data);
                         if (eventId == obj.id) {
@@ -394,13 +351,14 @@ void InGame::loadTilemap() {
             }
             // add an event that changes the isDefeated field for this sprite
             std::string eventKey = "defeated_" + std::to_string(obj.id);
+            game.eventManager.removeListeners(eventKey);
             game.eventManager.addListener(eventKey, [&](std::any data) {
                 uint32_t eventId = std::any_cast<uint32_t>(data);
+                auto& currentRoomObjectStates = game.currentDungeon->getCurrentRoomObjectStates();
                 if (eventId == obj.id) {
-                    objectStates[obj.id].isDefeated = true;
+                    currentRoomObjectStates[obj.id].isDefeated = true;
                 }
                 });
-
             if (data.contains("behaviors")) {
                 addBehaviorsToSprite(sprite, data.at("behaviors"), data.at("behaviorData"));
             }
@@ -411,7 +369,6 @@ void InGame::loadTilemap() {
     tileSize = tileMap->tileWidth;
     worldWidth = tileMap->width * tileSize;
     worldHeight = tileMap->height * tileSize;
-
     // Tile map calculations, used for rendering
     const Tileset& tileset = game.loader.getTileset(tileMap->getTilesetName());
     const Texture2D& texture = game.loader.getTextures(tileset.name)[0];
@@ -420,28 +377,24 @@ void InGame::loadTilemap() {
     const size_t tilesPerChunkY = tileChunkSize / tileSize;
     numChunksX = (worldWidth + tileChunkSize - 1) / tileChunkSize;
     numChunksY = (worldHeight + tileChunkSize - 1) / tileChunkSize;
-
     // prepare the Tilemap texture chunks
     // TODO: draw chunks dynamically instead of storing them all beforehand?
     size_t totalLayers = tileMap->layers.size();
     tilemapChunks.resize(totalLayers);
-
     for (size_t layerIndex = 0; layerIndex < totalLayers; ++layerIndex) {
         const auto& layer = tileMap->getLayer(layerIndex);
-        if (!layer.visible) continue;
-
+        if (!layer.visible) 
+            continue;
         tilemapChunks[layerIndex].resize(numChunksX * numChunksY);
-
         for (size_t cy = 0; cy < numChunksY; ++cy) {
             for (size_t cx = 0; cx < numChunksX; ++cx) {
                 size_t idx = cy * numChunksX + cx;
                 RenderTexture2D chunk = LoadRenderTexture(tileChunkSize, tileChunkSize);
                 BeginTextureMode(chunk);
                 ClearBackground(BLANK);
-
+                //  
                 size_t startTileX = cx * tilesPerChunkX;
                 size_t startTileY = cy * tilesPerChunkY;
-
                 for (size_t y = 0; y < tilesPerChunkY; ++y) {
                     for (size_t x = 0; x < tilesPerChunkX; ++x) {
                         size_t mapX = startTileX + x;
@@ -666,7 +619,7 @@ void InGame::update(float deltaTime) {
         emitter.update(deltaTime);
     }
 
-    // Camera follows the player
+    // Camera follows the player (center)
     Vector2 target = {
         player->rect.x + player->rect.width / 2,
         player->rect.y + player->rect.height / 2
@@ -677,9 +630,7 @@ void InGame::update(float deltaTime) {
     float minY = game.gameScreenHeight / 2.0f - HudHeight;
     float maxX = worldWidth - game.gameScreenWidth / 2.0f;
     float maxY = worldHeight - game.gameScreenHeight / 2.0f;
-
-    target.y -= HudHeight * 0.5f;
-
+    target.y -= HudHeight * 0.5f; // TODO: forgot what this does
     target.x = Clamp(target.x, minX, maxX);
     target.y = Clamp(target.y, minY, maxY);
     // apply a screen shake effect if the event was called
@@ -687,7 +638,9 @@ void InGame::update(float deltaTime) {
         cameraShake.update(deltaTime);
         target = cameraShake.apply(target);
     }
-    camera.target = target;
+    if (!game.cutsceneManager.hasCameraControl()) {
+        camera.target = target;
+    }
 
     // check player out of map bounds
     // TODO: make a function for this
@@ -746,8 +699,10 @@ void InGame::drawTilemapChunks(int layerIndex) {
             Rectangle dst = { drawPos.x, drawPos.y, (float)tileChunkSize, (float)tileChunkSize };
             Vector2 origin = { 0, 0 };
             DrawTexturePro(tilemapChunks[layerIndex][idx].texture, src, dst, origin, 0.0f, WHITE);
-            if (game.debug)
+            if (game.debug) {
+                DrawCircle((int)camera.target.x, (int)camera.target.y, 8, WHITE);
                 DrawRectangleLines((int)drawPos.x, (int)drawPos.y, tileChunkSize, tileChunkSize, RED);
+            }
         }
     }
 }

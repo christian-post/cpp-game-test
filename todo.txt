@@ -15,12 +15,11 @@ Scenes
 - Sprites
 -- behavior priority system
 -- drawing priority/layer system
--- add smoke Emitter effect to Demon enemy
+-- shadows
 
 - Cutscene command system (modular)
 -- Command_MoveToPath(target, posX, posY, duration) // benutzt pathfinding
 -- Command_ShowTextbox(text, target)  // target für Sprechblase
--- Command_CameraPan(x, y, duration) // camera pans towards a target position (and then back?)
 
 - Misc
 -- add xbox controller button textures
@@ -39,7 +38,8 @@ TODO: refactor
 - a way to control the page break of a text box
 - when predrawing the Tilemap chunks, don't store textures that are completely transparent
 - does it make sense for Behaviors to have a draw method, or can this be solved differently?
-- no event listeners check for delayed events with callbacks
+- don't check event listeners for delayed events with callbacks
+- add a "unique" property to addListener that removes old listeners if they exist
 - dedicated Sprite.jump() method
 - posOffsetX and posOffsetY in weapons data currently unused
 - Weapon hurtbox should appear only a fraction of the weapon's lifetime

@@ -93,3 +93,18 @@ public:
 private:
     float screenWidth, screenHeight, barHeight = 0.0f, speed;
 };
+
+class Command_CameraPan : public Command {
+public:
+    Command_CameraPan(Game& game, float targetX, float targetY, float duration);
+    void update(float deltaTime) override;
+
+private:
+    Game& game;
+    float startX = 0.0f;
+    float startY = 0.0f;
+    float targetX, targetY;
+    float duration;
+    float elapsed = 0.0f;
+};
+

@@ -102,3 +102,25 @@ void Command_Letterbox::draw() {
         DrawRectangle(0, (int)(screenHeight - barHeight), (int)screenWidth, (int)barHeight, BLACK);
     }
 }
+
+Command_CameraPan::Command_CameraPan(Game& game, float targetX, float targetY, float duration) : game{ game }, targetX{ targetX }, targetY{ targetY }, duration{ duration }
+{
+    started = true;
+    startX = game.getPlayer()->rect.x;
+    startY = game.getPlayer()->rect.y;
+    game.cutsceneManager.setCameraControl(true);
+}
+
+void Command_CameraPan::update(float deltaTime) {
+    if (started) {
+        elapsed += deltaTime;
+        float t = std::min(elapsed / duration, 1.0f);
+        float newX = startX + t * (targetX - startX);
+        float newY = startY + t * (targetY - startY);
+        game.eventManager.pushEvent("moveCamera", std::make_any<std::pair<float, float>>(newX, newY));
+        if (t >= 1.0f) {
+            started = false;
+            done = true;
+        }
+    }
+}

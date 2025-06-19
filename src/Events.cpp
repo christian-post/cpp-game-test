@@ -5,7 +5,38 @@
 #include "Behavior.h"
 
 void setupConditionalEvents(InGame& inGame) {
-    //auto& game = inGame.getGame();
+    auto& game = inGame.getGame();
+
+    game.eventManager.pushConditionalEvent(
+        // the player has defeated all the enemies in the second room
+        // TODO: change the conditions?
+        [&]() {
+            return inGame.tileMap->getName() == "dungeon004" &&
+                std::none_of(game.sprites.begin(), game.sprites.end(),
+                    [](const std::shared_ptr<Sprite>& s) {
+                        return s->isEnemy;
+                    });
+        },
+        [&]() {
+            TraceLog(LOG_INFO, "enemies defeated");
+            game.eventManager.pushDelayedEvent("defeatDialog", 0.1f, nullptr, [&]() {
+                game.eventManager.pushEvent("hideHUD");
+                game.cutsceneManager.queueCommand(new Command_CameraPan(game, 110.0f, 20.0f, 2.0f));
+                game.cutsceneManager.queueCommand(new Command_Wait(0.5f));
+                game.cutsceneManager.queueCommand(new Command_Callback([&]() {
+                    game.eventManager.pushEvent("door004open");
+                    game.playSound("doorOpen_2");
+                    }));
+                game.cutsceneManager.queueCommand(new Command_Wait(1.5f));
+                game.cutsceneManager.queueCommand(new Command_Callback([&]() {
+                    game.eventManager.pushEvent("showHUD");
+                    game.cutsceneManager.setCameraControl(false);
+                    }));
+                });
+            game.currentDungeon->advanceRoomState();
+            //inGame.advanceRoomState("test_dungeon");
+        }
+    );
 
     //game.eventManager.pushConditionalEvent(
     //    // Start of the game

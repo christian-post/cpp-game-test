@@ -80,8 +80,8 @@ void TextBox::update(float deltaTime) {
         timer = 0.0f;
         int oldIndex = currentStrIndex;
         currentStrIndex += charAtATime;
-
         // Play a randomly pitched sound at the beginning of a word
+        // TODO: currently unused
         /*for (int i = oldIndex; i < currentStrIndex && i < formattedtext.size(); ++i) {
             if (i == 0 || formattedtext[i - 1] == ' ' || formattedtext[i - 1] == '\n') {
                 Sound& s = game.loader.getSound("powerUp4");
@@ -93,6 +93,8 @@ void TextBox::update(float deltaTime) {
         }*/
         // play a pitched sound; the pitch is determined by the word length
         for (int i = oldIndex; i < currentStrIndex && i < formattedtext.size(); ++i) {
+            if (!game.soundOn)
+                break;
             if (i == 0 || formattedtext[i - 1] == ' ' || formattedtext[i - 1] == '\n') {
                 Sound& s = game.loader.getSound(voice);
                 if (pitchVoice) {

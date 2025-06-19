@@ -17,12 +17,15 @@ class CutsceneManager {
     std::queue<QueuedCommand> commands;
     std::vector<Command*> nonBlocking;
     bool active = false;
+    bool controlsCamera = false;
 
 public:
     void queueCommand(Command* cmd, bool blocking = true);
     void update(float deltaTime);
     void draw();
     bool isActive() const { return active; }
+    bool hasCameraControl() const { return controlsCamera; }
+    void setCameraControl(bool set) { controlsCamera = set; }
 
     std::string currentCommandName() const {
         if (!commands.empty()) {
