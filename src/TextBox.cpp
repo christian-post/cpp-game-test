@@ -70,15 +70,15 @@ void TextBox::setTextContent(std::string_view text) {
 
 void TextBox::update(float deltaTime) {
     // show more than one character if text speed is faster than the frame rate
-    int charAtATime = 1;
+    size_t charAtATime = 1;
     if (textSpeed < deltaTime) {
-        charAtATime = int(deltaTime / textSpeed);
+        charAtATime = static_cast<size_t>(deltaTime / textSpeed);
     }
 
     timer += deltaTime;
     if (timer >= textSpeed) {
         timer = 0.0f;
-        int oldIndex = currentStrIndex;
+        size_t oldIndex = currentStrIndex;
         currentStrIndex += charAtATime;
         // Play a randomly pitched sound at the beginning of a word
         // TODO: currently unused
@@ -92,7 +92,7 @@ void TextBox::update(float deltaTime) {
             }
         }*/
         // play a pitched sound; the pitch is determined by the word length
-        for (int i = oldIndex; i < currentStrIndex && i < formattedtext.size(); ++i) {
+        for (size_t i = oldIndex; i < currentStrIndex && i < formattedtext.size(); ++i) {
             if (!game.soundOn)
                 break;
             if (i == 0 || formattedtext[i - 1] == ' ' || formattedtext[i - 1] == '\n') {

@@ -65,6 +65,7 @@ public:
     void refillHealth() { health = maxHealth; }
     float iFrameTimer = 0.0f; // duration of invincibility (s)
     bool canHurtPlayer = false;
+    bool followsPlayer = false;
     bool isEnemy = false;
     uint32_t damage = 0;
     float knockback = 10.0f;

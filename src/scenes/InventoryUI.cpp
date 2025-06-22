@@ -228,7 +228,7 @@ void InventoryUI::draw() {
         }
         const auto& cursorTex = game.loader.getTextures("inventory_cursor")[0];
         int cursorX = int(x + marginLeft + spacing * cursorCol - cursorTex.width / 2);
-        int cursorY = cursorBaseY + spacing * cursorRow - cursorTex.height / 2;
+        int cursorY = cursorBaseY + spacing * (int)cursorRow - cursorTex.height / 2;
         DrawTexture(cursorTex, cursorX, cursorY, WHITE);
     }
 

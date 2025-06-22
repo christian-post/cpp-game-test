@@ -126,6 +126,20 @@ void Preload::startup() {
                     "./resources/textures/sprites/dwarf_m_idle_anim_f3.png",
                 }
             },
+            {
+                "wall_fountain_basin_idle", {
+                    "./resources/textures/sprites/wall_fountain_basin_red_anim_f0.png",
+                    "./resources/textures/sprites/wall_fountain_basin_red_anim_f1.png",
+                    "./resources/textures/sprites/wall_fountain_basin_red_anim_f2.png",
+                }
+            },
+            {
+                "wall_fountain_mid_idle", {
+                    "./resources/textures/sprites/wall_fountain_mid_red_anim_f0.png",
+                    "./resources/textures/sprites/wall_fountain_mid_red_anim_f1.png",
+                    "./resources/textures/sprites/wall_fountain_mid_red_anim_f2.png",
+                }
+            },
             // inventory sprites
             {
                 "hearts", {
@@ -276,7 +290,7 @@ void Preload::draw() {
     int rectW = int(game.gameScreenWidth * 0.6);
     int rectH = 16;
     DrawRectangleLines(rectX, rectY, rectW, rectH, WHITE);
-    DrawRectangle(rectX, rectY, rectW * progress, rectH, WHITE);
+    DrawRectangle(rectX, rectY, static_cast<int>(static_cast<float>(rectW) * progress), rectH, WHITE);
 }
 
 void Preload::end() {

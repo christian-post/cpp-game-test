@@ -13,7 +13,6 @@
 #include "Dungeon.h"
 #include "json.hpp"
 
-
 #define DARKBURGUNDY { 20, 0, 8, 255 }
 #define LIGHTBURGUNDY { 40, 0, 16, 255 }
 
@@ -90,7 +89,7 @@ public:
     Sprite* getPlayer(); // store a reference to the player sprite in case a scene other than InGame needs it
 
     void playSound(const std::string& key);
-    bool soundOn = false; // all sound, overwrites the other two
+    bool soundOn = true; // all sound, overwrites the other two
     bool musicOn = true;
     bool sfxOn = true;
 

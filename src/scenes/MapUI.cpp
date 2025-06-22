@@ -80,17 +80,19 @@ void MapUI::draw() {
     // TODO: hard coding the values for now
     const int spacing = 4;
     const int border = 24;
-    auto [cols, rows] = game.currentDungeon->getSize();
+    std::pair<size_t, size_t> size = game.currentDungeon->getSize();
+    const int cols = static_cast<int>(size.first);
+    const int rows = static_cast<int>(size.second);
     size_t currentRoomIndex = game.currentDungeon->getCurrentRoomIndex();
-    const int cellWidth = (width - 2 * border - (cols - 1) * spacing) / cols;
-    const int cellHeight = (height - 2 * border - (rows - 1) * spacing) / rows;
+    const int cellWidth = (static_cast<int>(width) - 2 * border - (cols - 1) * spacing) / cols;
+    const int cellHeight = (static_cast<int>(height) - 2 * border - (rows - 1) * spacing) / rows;
 
     auto& minimaps = game.currentDungeon->minimapTextures;
     for (int i = 0; i < cols * rows; ++i) {
         int col = i % cols;
         int row = i / cols;
-        int cellX = x + border + col * (cellWidth + spacing);
-        int cellY = y + border + row * (cellHeight + spacing);
+        int cellX = static_cast<int>(x) + border + col * (cellWidth + spacing);
+        int cellY = static_cast<int>(y) + border + row * (cellHeight + spacing);
         Color color = DARKGRAY;
         DrawRectangle(cellX, cellY, cellWidth, cellHeight, color);
 
@@ -107,14 +109,11 @@ void MapUI::draw() {
                 float v = pos.y / (float)roomH;
                 float px = cellX + u * cellWidth;
                 float py = cellY + v * cellHeight;
-                //Color c = { 114, 214, 206, 255 };
-                //DrawCircle((int)px, (int)py, 3.0f, c);
                 const auto& tex = game.loader.getTextures("knight_map_mini")[0];
                 DrawTexture(tex, (int)px, (int)py, WHITE);
             }
         }
     }
-
     // help texts
     if (state == OPENED) {
         int fontSize = 6;

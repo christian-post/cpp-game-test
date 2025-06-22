@@ -99,11 +99,11 @@ void HUD::draw() {
     const int spacing = 1;
     const int cellWidth = 6;
     const int cellHeight = 4;
-    const int mapX = game.gameScreenWidth - cols * (cellWidth + spacing) - 6;
+    const int mapX = static_cast<int>(game.gameScreenWidth) - static_cast<int>(cols) * (cellWidth + spacing) - 6;
     const int mapY = 6;
-    for (int i = 0; i < cols * rows; ++i) {
-        int col = i % cols;
-        int row = i / cols;
+    for (size_t i = 0; i < cols * rows; ++i) {
+        int col = static_cast<int>(i % cols);
+        int row = static_cast<int>(i / cols);
         int cellX = mapX + col * (cellWidth + spacing);
         int cellY = mapY + row * (cellHeight + spacing);
         Color color = DARKGRAY;

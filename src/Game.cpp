@@ -111,24 +111,17 @@ void Game::createDungeon(size_t roomsW, size_t roomsH)
 {
     currentDungeon = std::make_unique<Dungeon>(*this, roomsW, roomsH);
 
-    // TODO: hardcoding for now
-    Room r1{loader.getTilemap("dungeon001"), 0b1111};
-    Room r2{loader.getTilemap("dungeon002"), 0b0011};
-    Room r3{loader.getTilemap("dungeon003"), 0b1001};
-    Room r4{loader.getTilemap("dungeon004"), 0b1100};
-    Room r5{loader.getTilemap("dungeon005"), 0b0010};
-
-    currentDungeon->insertRoom(3, 2, std::move(r1));
-    currentDungeon->insertRoom(2, 2, std::move(r2));
-    currentDungeon->insertRoom(2, 1, std::move(r3));
-    currentDungeon->insertRoom(3, 1, std::move(r4));
-    currentDungeon->insertRoom(3, 3, std::move(r5));
+    // TODO: hardcoding this for now
+    currentDungeon->insertRoom(3, 2, Room{ loader.getTilemap("dungeon001"), 0b1111 });
+    currentDungeon->insertRoom(2, 2, Room{ loader.getTilemap("dungeon002"), 0b0011 });
+    currentDungeon->insertRoom(2, 1, Room{ loader.getTilemap("dungeon003"), 0b1001 });
+    currentDungeon->insertRoom(3, 1, Room{ loader.getTilemap("dungeon004"), 0b1100 });
+    currentDungeon->insertRoom(3, 3, Room{ loader.getTilemap("dungeon005"), 0b0010 });
 
     currentDungeon->setCurrentRoomIndex(14); // start in R1
     currentDungeon->makeMinimapTextures();
 
     // TODO
-    // check connections and modify teleporters
     // set the player's starting position correctly
 }
 

@@ -12,9 +12,9 @@ struct ObjectState {
 	// used to store object state between room visits
 	bool isOpened = false;
 	bool isDefeated = false;
+	size_t dialogIndex = 0;
 	// tbc
 };
-
 
 class Room {
 public:
@@ -41,6 +41,7 @@ public:
 	size_t getCurrentRoomIndex() const { return currentRoomIndex; }
 	void setCurrentRoomIndex(size_t idx) { currentRoomIndex = idx; }
 	void advanceRoomState();
+	void advanceRoomState(size_t index);
 	uint8_t getCurrentRoomState();
 	std::unordered_map<uint32_t, ObjectState>& getCurrentRoomObjectStates();
 	const TileMap* loadCurrentTileMap();

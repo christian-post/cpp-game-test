@@ -8,9 +8,10 @@
     "behaviors": [],
     "behaviorData": {
       "voice": "powerUp4"
-    }
+    },
+    "collides": 1
   },
-  "elfCompanion": {
+  "elfCompanion1": {
     "textureKey": "elf_f",
     "health": 100,
     "speed": 10.0,
@@ -18,6 +19,17 @@
     "behaviorData": {
       "watchTarget": "player",
       "dialogue": "elfDialogue1",
+      "voice": "powerUp4"
+    }
+  },
+  "elfCompanion2": {
+    "textureKey": "elf_f",
+    "health": 100,
+    "speed": 10.0,
+    "behaviors": [ "Watch", "Dialogue" ],
+    "behaviorData": {
+      "watchTarget": "player",
+      "dialogue": "elfDialogue2",
       "voice": "powerUp4"
     }
   },
@@ -32,5 +44,13 @@
   },
   "dungeon_door": {
     "textureKey": "dungeon_door"
+  },
+  "wall_fountain_basin": {
+    "textureKey": "wall_fountain_basin",
+    "collides": 0
+  },
+  "wall_fountain_mid": {
+    "textureKey": "wall_fountain_mid",
+    "collides": 0
   }
 }

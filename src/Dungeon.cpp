@@ -7,13 +7,15 @@ Dungeon::Dungeon(Game& game, size_t roomsW, size_t roomsH) : game{ game }, rooms
 	rooms.resize(roomsW * roomsH);
 }
 
-void Dungeon::advanceRoomState()
-{
-    // room states are powers of 2
-    rooms[currentRoomIndex]->state <<= 1;
-    if (rooms[currentRoomIndex]->state == 0)
-        rooms[currentRoomIndex]->state = 1;
-    TraceLog(LOG_INFO, "room state is now %d", rooms[currentRoomIndex]->state);
+void Dungeon::advanceRoomState() {
+    advanceRoomState(currentRoomIndex);
+}
+
+void Dungeon::advanceRoomState(size_t index) {
+    rooms[index]->state <<= 1;
+    if (rooms[index]->state == 0)
+        rooms[index]->state = 1;
+    TraceLog(LOG_INFO, "Room state of %s is now %d", rooms[index]->tilemap.getName().c_str(), rooms[index]->state);
 }
 
 uint8_t Dungeon::getCurrentRoomState()
@@ -98,11 +100,10 @@ void Dungeon::makeMinimapTextures()
             for (size_t y = 0; y < tileMap->height; ++y) {
                 for (size_t x = 0; x < tileMap->width; ++x) {
                     if (!layer.data[y][x]) continue;
-                    int tileIndex = layer.data[y][x] - 1;
-
-                    int tileX = (tileIndex % tilesPerRow) * tileSize;
-                    int tileY = (tileIndex / tilesPerRow) * tileSize;
-                    Rectangle src = { (float)tileX, (float)tileY, (float)tileSize, (float)tileSize };
+                    size_t tileIndex = static_cast<size_t>(layer.data[y][x] - 1);
+                    float tileX = static_cast<float>(tileIndex % tilesPerRow) * tileSize;
+                    float tileY = (static_cast<float>(tileIndex) / static_cast<float>(tilesPerRow)) * tileSize;
+                    Rectangle src = { tileX, tileY, (float)tileSize, (float)tileSize };
 
                     float scaleX = (float)miniWidth / (tileMap->width * tileSize);
                     float scaleY = (float)miniHeight / (tileMap->height * tileSize);

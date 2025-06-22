@@ -1,12 +1,7 @@
 #include "InGame.h"
-#include "Game.h"
-#include "Commands.h"
-#include "raylib.h"
 #include "raymath.h"
-#include "Utils.h"
 #include "Behavior.h"
 #include "Controls.h"
-#include <stdexcept>
 #include "Events.h"
 
 
@@ -21,22 +16,11 @@ void InGame::startup() {
     player->persistent = true;
     game.sprites.emplace_back(player);  // add to the sprites vector
     player->setTextures({ "player_idle", "player_run", "player_hit" });
-
-    game.createDungeon(4, 4);
-    loadTilemap();
-    player->moveTo(7.5 * float(tileSize), float(8 * tileSize));
-
     // retrieve the tilemap
     // and set the player's position in the first room
-    // some sprites need the player reference, so this has to come after the player
-    // 
-    //loadTilemap("test_map_large");
-    //player->moveTo(float(44 * tileSize), float(73 * tileSize) + 4.0f); // for the large test map only
-    //loadTilemap("test_dungeon1");
-    //loadTilemap("test_dungeon2");
-    //player->moveTo(float(10 * tileSize), float(15 * tileSize) + 4.0f); // test_dungeon2
-    //loadTilemap("dungeon_shop");
-    //player->moveTo(float(6 * tileSize), float(5 * tileSize) + 4.0f); 
+    game.createDungeon(4, 4);
+    loadTilemap();
+    player->moveTo(7.5f * float(tileSize), float(8 * tileSize));
 
     // setup the camera
     camera.target = Vector2{ player->rect.x, player->rect.y };
@@ -231,10 +215,14 @@ void InGame::loadTilemap() {
             sprite->damage = obj.properties.value("damage", sprite->damage);
             sprite->knockback = obj.properties.value("knockback", sprite->knockback);
             sprite->tileMapID = obj.id;
+            sprite->drawLayer = obj.properties.value("drawLayer", 0);
             float hurtboxW = obj.properties.value("hurtboxW", 0.0f);
             float hurtboxH = obj.properties.value("hurtboxH", 0.0f);
             if (hurtboxW != 0.0f && hurtboxH != 0.0f) {
                 sprite->setHurtbox(-1.0f, -1.0f, hurtboxW, hurtboxH);
+            }
+            if (data.contains("collides")) {
+                sprite->isColliding = static_cast<bool>(data.at("collides").get<int>());
             }
             // specific sprite attributes
             // TODO: for persistent sprites, check if they exist in the spriteMap
@@ -249,8 +237,11 @@ void InGame::loadTilemap() {
                     Vector2{ targetX, targetY }
                 ));
             }
-            else if (obj.name == "npc" && !spriteMap[spriteName]) {
-                spriteMap[spriteName] = sprite;
+            else if (obj.name == "npc") {
+                if (!spriteMap[spriteName]) {
+                    // // TODO: handle this differently, this might create empty references
+                    spriteMap[spriteName] = sprite;
+                }
                 sprite->setTextures({ textureKey + "_idle", textureKey + "_run" });
             }
             else if (obj.name == "tradeItem") {
@@ -308,7 +299,8 @@ void InGame::loadTilemap() {
                 sprite->setTextures({ textureKey + "_idle" });
                 sprite->doesAnimate = false;
                 // TODO: set the open state in Tiled Data
-                if (currentState == 1) {
+                uint8_t openState = obj.properties.value("openState", 0);
+                if (currentState < openState) {
                     sprite->staticCollision = true;
                 }
                 else {
@@ -392,7 +384,6 @@ void InGame::loadTilemap() {
                 RenderTexture2D chunk = LoadRenderTexture(tileChunkSize, tileChunkSize);
                 BeginTextureMode(chunk);
                 ClearBackground(BLANK);
-                //  
                 size_t startTileX = cx * tilesPerChunkX;
                 size_t startTileY = cy * tilesPerChunkY;
                 for (size_t y = 0; y < tilesPerChunkY; ++y) {
@@ -425,6 +416,12 @@ void InGame::loadTilemap() {
         currentMusicKey = tileMap->getMusicKey();
         music = &const_cast<Music&>(game.loader.getMusic(currentMusicKey));
         PlayMusicStream(*music);
+    }
+    // check for NPCs that follow the player
+    for (const auto& sprite : game.sprites) {
+        if (sprite->followsPlayer) {
+            sprite->moveTo(player->position.x, player->position.y);
+        }
     }
 }
 
@@ -630,7 +627,7 @@ void InGame::update(float deltaTime) {
     float minY = game.gameScreenHeight / 2.0f - HudHeight;
     float maxX = worldWidth - game.gameScreenWidth / 2.0f;
     float maxY = worldHeight - game.gameScreenHeight / 2.0f;
-    target.y -= HudHeight * 0.5f; // TODO: forgot what this does
+    target.y -= HudHeight * 0.5f; // TODO: is this really correct?
     target.x = Clamp(target.x, minX, maxX);
     target.y = Clamp(target.y, minY, maxY);
     // apply a screen shake effect if the event was called
@@ -663,7 +660,7 @@ void InGame::update(float deltaTime) {
         player->moveTo(player->position.x, player->rect.height * 0.5f);
     }
     if (offset != 0) {
-        uint8_t newIndex = game.currentDungeon->getCurrentRoomIndex() + offset;
+        uint8_t newIndex = (uint8_t)game.currentDungeon->getCurrentRoomIndex() + offset;
         game.currentDungeon->setCurrentRoomIndex(newIndex);
         loadTilemap();
     }
@@ -708,24 +705,21 @@ void InGame::drawTilemapChunks(int layerIndex) {
 }
 
 void InGame::draw() {
-    ClearBackground(BLACK);
+    ClearBackground(RED);  // red just for camera debugging
 
-    BeginMode2D(camera);
-    // draw the textures that are affected by the camera
-        
+    BeginMode2D(camera); // draw the textures that are affected by the camera
     // draw each tilemap layer except the top one
     int lastLayer = 0;
     if (tileMap) {
         int totalLayers = static_cast<int>(tileMap->layers.size());
         lastLayer = (totalLayers > 1) ? totalLayers - 1 : -1;
-
         for (int layerIndex = 0; layerIndex < totalLayers; ++layerIndex) {
             if (layerIndex == lastLayer || !tileMap->layers[layerIndex].visible) continue;
             drawTilemapChunks(layerIndex);
         }
     }
- 
     // Draw the sprites after sorting them by their bottom y position, also respect the drawing layer of each sprite (fixed)
+    // TODO add a flag to sprite that makes an exception from this sorting
     std::vector<Sprite*> drawOrder;
     drawOrder.reserve(game.sprites.size());
     for (const auto& sprite : game.sprites) {

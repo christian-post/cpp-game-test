@@ -1,5 +1,6 @@
 #include "AssetLoader.h"
 #include <iostream>
+#include <fstream>
 
 
 AssetLoader::~AssetLoader() {
