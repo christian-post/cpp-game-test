@@ -18,6 +18,7 @@ std::map<std::string, ItemData> createItemData() {
     data["bomb"] = ItemData{ CONSUMABLE, "Bomb", "bomb_idle" };
     data["coin"] = ItemData{ PASSIVE, "Coin", "itemDropCoin_idle" };
     data["weapon_arrow"] = ItemData{ PASSIVE, "Arrows", "weapon_arrow" };
+    data["key"] = ItemData{ PASSIVE, "Key", "item_key" };
 
     return data;
 }

@@ -165,6 +165,7 @@ void Preload::startup() {
             { "itemDropHeart_idle", { "./resources/textures/sprites/item_drop_heart.png" } },
             { "itemDropCoin_idle", { "./resources/textures/sprites/item_drop_coin.png" } },
             { "bomb_idle", { "./resources/textures/sprites/bomb_f0.png" } },
+            { "item_key", { "./resources/textures/sprites/item_key.png" } },
             {
                 "dungeon_door_idle", {
                     "./resources/textures/sprites/doors_leaf_closed.png",

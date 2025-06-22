@@ -137,6 +137,7 @@ Here is the default button layout:
 
 16x16 DungeonTileset II by [0x72](https://0x72.itch.io/dungeontileset-ii)</br>
 Classic RPG Tileset by [Jestan](https://jestan.itch.io/classic-rpg)</br>
+Roguelike/RPG Items by [@JoeCreates}(https://opengameart.org/content/roguelikerpg-items)</br>
 "Dubious Dungeon" by [Bogart VGM](https://opengameart.org/content/dubious-dungeon)</br>
 "Dungeon 02" by [Fantasy Music](https://opengameart.org/content/dungeon-02)</br>
 "title screen" by [frenchyboy](https://opengameart.org/content/title-screen)</br>

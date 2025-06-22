@@ -80,11 +80,11 @@ void InGame::startup() {
     setupConditionalEvents(*this);
 
     // TODO: adding some items for testing
-    game.eventManager.pushDelayedEvent("testItemsForStart", 0.1f, nullptr, [this]() {
-        // give the player the sword for starters
-        game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_double_axe", 1));
-        game.eventManager.pushEvent("weaponSet", std::string("weapon_double_axe"));
-        });
+    //game.eventManager.pushDelayedEvent("testItemsForStart", 0.1f, nullptr, [this]() {
+    //    // give the player the sword for starters
+    //    game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_double_axe", 1));
+    //    game.eventManager.pushEvent("weaponSet", std::string("weapon_double_axe"));
+    //    });
 }
 
 Sprite* InGame::getSprite(const std::string& name) {

@@ -521,7 +521,13 @@ void ChestBehavior::update(float deltaTime) {
 				}));
 			game.cutsceneManager.queueCommand(new Command_Wait(0.5f));
 			if (itemAmount == 1) {
-				game.cutsceneManager.queueCommand(new Command_Textbox(game, format("You got the %s.", data.displayName.c_str())));
+				// TODO: add a "unique" property to Item that is checkd here instead
+				if (data.type == CONSUMABLE || data.type == PASSIVE) {
+					game.cutsceneManager.queueCommand(new Command_Textbox(game, format("You got a %s.", data.displayName.c_str())));
+				}
+				else {
+					game.cutsceneManager.queueCommand(new Command_Textbox(game, format("You got the %s.", data.displayName.c_str())));
+				}
 			}
 			else {
 				game.cutsceneManager.queueCommand(new Command_Textbox(game, format("You got: %s x%u", data.displayName.c_str(), itemAmount)));
