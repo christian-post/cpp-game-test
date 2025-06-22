@@ -147,25 +147,3 @@ Roguelike/RPG Items by [@JoeCreates}(https://opengameart.org/content/roguelikerp
 "80 CC0 RPG SFX" by [rubberduck](https://opengameart.org/content/80-cc0-rpg-sfx)</br>
 "Level up, power up, Coin get (13 Sounds)" by [wobblebox](https://opengameart.org/content/level-up-power-up-coin-get-13-sounds)</br>
 "XBOX UI Prompt Pack" by [actuallyKron](https://actuallykron.itch.io/xbox-ui-prompts)</br>
-
-## Some Notes on the Software Design
-
-### The Game object
-Game is the overarching data structure that is responsible for the game loop as well as high-level operations above the individual game scenes and objects.
-It manages scenes, events, assets, and the main render texture that the scenes can draw to. The game loop consists of update, and draw. The update method is for the game logic, and most high-level game objects have an update method as well, that gets called here. The dt between frames is passed to all of them to ensure framerate-independency. In draw, the scenes draw to the main render texture.
-
-### Scenes
-A scene can encapsulate/abstract any part of the game. Currently, I'm using the following scenes:
-
-#### Preload
-This scene runs before all others, and is responsible for loading all assets (external data) that are being used later. Currently I am loading everything up front, because it's not much. I might have to think about loading/streaming additional data later, but the game isn't nearly as big for this to be necessary.
-Once the loading is done, this scene stops and calls the TitleSceen.
-TODO: I'm planning to make a loading bar animation that runs parallel to the data streaming, but I'll probably need parallelism (std::thread) for this...
-
-#### TitleScreen
-Nothing to see here, really. Just press any key to advance.
-Known bugs: The button you press here gets also registered in the next scene (InGame), but I'm not sure why.
-
-#### InGame
-This is the most important scene (shocking, I know). It handles updating and displaying of the (visible and invisible) game objects. Most of these are instances of the Sprite class, more on that later.
-
