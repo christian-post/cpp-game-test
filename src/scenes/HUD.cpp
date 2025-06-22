@@ -120,7 +120,7 @@ void HUD::draw() {
         auto& invItems = game.inventory.getItems();
         const ItemData& data = itemData.at(collectedItem);
         const Texture2D& itemTex = game.loader.getTextures(data.textureKey)[0];
-        int itemX = weaponX + 36;
+        int itemX = weaponX + 24;
         DrawTexture(itemTex, itemX, collectedItemY, WHITE);
         ItemType type = data.type;
         uint32_t qty = invItems[type].at(collectedItem).second;

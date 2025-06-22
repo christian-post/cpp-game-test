@@ -32,7 +32,7 @@ void setupConditionalEvents(InGame& inGame) {
                 game.cutsceneManager.queueCommand(new Command_Wait(1.0f));
                 game.cutsceneManager.queueCommand(new Command_MoveTo(npcRef, npcX, npcY, 2.0f));
                 game.cutsceneManager.queueCommand(new Command_Wait(0.5f));
-                game.cutsceneManager.queueCommand(new Command_Textbox(game, "Is that a sword? Great! I'll follow you, now we can fight our way out of here."));
+                game.cutsceneManager.queueCommand(new Command_Textbox(game, "Is that a sword? Great! I'll follow you, now we can fight our way out of here.", "powerUp4", true));
                 game.cutsceneManager.queueCommand(new Command_Callback([&]() {
                     game.eventManager.pushEvent("showHUD");
                     game.currentDungeon->advanceRoomState();

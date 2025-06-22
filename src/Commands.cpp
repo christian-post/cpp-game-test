@@ -56,7 +56,7 @@ void Command_LookTowards::update(float deltaTime) {
     }
 }
 
-Command_Textbox::Command_Textbox(Game& game, std::string text, std::string voice) : textToDisplay{ text }, voice{ voice } {
+Command_Textbox::Command_Textbox(Game& game, std::string text, std::string voice, bool pitch) : textToDisplay{ text }, voice{ voice } {
     float w = game.gameScreenWidth * 0.9f;
     float x = game.gameScreenWidth * 0.05f;
     float h = game.getSetting("textboxHeight").get<float>();
@@ -64,7 +64,7 @@ Command_Textbox::Command_Textbox(Game& game, std::string text, std::string voice
         ? game.getSetting("HudHeight").get<float>()
         : game.gameScreenHeight - h - game.gameScreenHeight * 0.05f;
     textbox = new TextBox(game, x, y, w, h, 10, voice);
-    textbox->setVoicePitch(false);
+    textbox->setVoicePitch(pitch);
     name = "TextBox";
 }
 

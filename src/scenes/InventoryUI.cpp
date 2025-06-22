@@ -255,12 +255,12 @@ void InventoryUI::draw() {
         const char* textLeft = nullptr;
         const char* textRight = nullptr;
         if (WasGamepadUsedLast()) {
-            helpText = "Equip/use with A";
+            helpText = "Equip/use with [A]"; // TODO draw a sprite that shows the buttons
             textLeft = "<< LB";
             textRight = "RB >>";
         }
         else {
-            helpText = "Equip/use with O";
+            helpText = "Equip/use with [O]";
             textLeft = "<< N";
             textRight = "M >>";
         }

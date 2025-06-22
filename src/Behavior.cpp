@@ -316,7 +316,8 @@ void DialogueBehavior::update(float deltaTime) {
 			triggered = true;
 			// TODO: why is this check needed again?
 			if (auto scene = dynamic_cast<InGame*>(game.getScene("InGame"))) {
-				game.cutsceneManager.queueCommand(new Command_Textbox(game, dialogTexts[currentTextIndex], voice));
+				bool pitch = (voice == "tone") ? false : true;
+				game.cutsceneManager.queueCommand(new Command_Textbox(game, dialogTexts[currentTextIndex], voice, pitch));
 				game.cutsceneManager.queueCommand(new Command_Callback([this]() {
 					game.eventManager.pushDelayedEvent("resetDialogTrigger", 0.1f, nullptr, [this]() {
 						if (currentTextIndex < dialogTexts.size() - 1)
@@ -520,18 +521,21 @@ void ChestBehavior::update(float deltaTime) {
 				game.playSound("Rise03");
 				}));
 			game.cutsceneManager.queueCommand(new Command_Wait(0.5f));
+			std::string message;
 			if (itemAmount == 1) {
-				// TODO: add a "unique" property to Item that is checkd here instead
-				if (data.type == CONSUMABLE || data.type == PASSIVE) {
-					game.cutsceneManager.queueCommand(new Command_Textbox(game, format("You got a %s.", data.displayName.c_str())));
+				// TODO: add a "unique" property to Item that is checked here instead
+				if (data.type == WEAPON) {
+					message = format("You got the %s. Open your inventory to equip it, then use with [P].", data.displayName.c_str());
 				}
 				else {
-					game.cutsceneManager.queueCommand(new Command_Textbox(game, format("You got the %s.", data.displayName.c_str())));
+					message = format("You got a %s.", data.displayName.c_str());
 				}
 			}
 			else {
-				game.cutsceneManager.queueCommand(new Command_Textbox(game, format("You got: %s x%u", data.displayName.c_str(), itemAmount)));
+				message = format("You got: %s x%u", data.displayName.c_str(), itemAmount);
 			}
+			game.cutsceneManager.queueCommand(new Command_Textbox(game, message));
+			// event that adds the item to the inventory
 			game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>(itemName, itemAmount));
 			// trigger the event that changes the object state
 			std::string eventKey = "chest_opened_" + std::to_string(s->tileMapID);
