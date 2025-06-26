@@ -165,6 +165,11 @@
                          "value":"door001open"
                         }, 
                         {
+                         "name":"locked",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
                          "name":"openState",
                          "type":"int",
                          "value":16
@@ -280,6 +285,28 @@
                  "width":16,
                  "x":192,
                  "y":48
+                }, 
+                {
+                 "height":16,
+                 "id":30,
+                 "name":"chest",
+                 "properties":[
+                        {
+                         "name":"amount",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"item",
+                         "type":"string",
+                         "value":"key"
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":16,
+                 "x":160,
+                 "y":176
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -461,7 +488,7 @@
          "y":0
         }],
  "nextlayerid":7,
- "nextobjectid":30,
+ "nextobjectid":31,
  "orientation":"orthogonal",
  "properties":[
         {

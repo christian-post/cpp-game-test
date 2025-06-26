@@ -11,7 +11,7 @@ void EventManager::pushEvent(const std::string& key, std::any value) {
 	// also call listeners
 	auto it = listeners.find(key);
 	if (it != listeners.end()) {
-		TraceLog(LOG_INFO, "calling the event listeners for %s", key.c_str());
+		//TraceLog(LOG_INFO, "calling the event listeners for %s", key.c_str());
 		for (auto& callback : it->second) {
 			callback(value);
 		}

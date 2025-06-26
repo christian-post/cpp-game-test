@@ -68,15 +68,37 @@ Command_Textbox::Command_Textbox(Game& game, std::string text, std::string voice
     name = "TextBox";
 }
 
-Command_Textbox::~Command_Textbox() { delete textbox; }
-
-void Command_Textbox::update(float deltaTime) {
-    if (!started) { textbox->setTextContent(textToDisplay); started = true; }
-    textbox->update(deltaTime);
-    done = textbox->isFinished();
+Command_Textbox::~Command_Textbox() { 
+    delete textbox; 
 }
 
-void Command_Textbox::draw() { textbox->draw(); }
+void Command_Textbox::updateCooldown(float deltaTime) {
+    if (textboxCooldown) {
+        textboxCooldownTimer -= deltaTime;
+        if (textboxCooldownTimer <= 0.0f) {
+            textboxCooldown = false;
+            textboxCooldownTimer = 0.0f;
+        }
+    }
+}
+
+void Command_Textbox::update(float deltaTime) {
+    if (!started) { 
+        textbox->setTextContent(textToDisplay); 
+        started = true; 
+    }
+    textbox->update(deltaTime);
+    done = textbox->isFinished();
+    if (done) {
+        textboxCooldown = true;
+        textboxCooldownTimer = 1.0f;
+    }
+}
+
+void Command_Textbox::draw() {
+    if (textboxCooldown) return;
+    textbox->draw(); 
+}
 
 Command_Callback::Command_Callback(std::function<void()> callback) : callback(callback) {
     name = "Callback";

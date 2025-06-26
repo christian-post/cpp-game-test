@@ -73,6 +73,12 @@ private:
     TextBox* textbox = nullptr;
     std::string textToDisplay;
     std::string voice;
+    static inline float textboxCooldownTimer = 0.0f;
+    static inline bool textboxCooldown = false;
+
+public:
+    static void updateCooldown(float deltaTime); // advance the timer when this Command is inactive
+    static bool isTextboxCooldown() { return textboxCooldown; }
 };
 
 class Command_Callback : public Command {

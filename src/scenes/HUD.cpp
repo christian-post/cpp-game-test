@@ -4,6 +4,7 @@
 #include "InGame.h"
 #include "Utils.h"
 #include "ItemData.h"
+#include "Controls.h"
 
 
 HUD::HUD(Game& game, const std::string& name) : Scene(game, name), heartImages{} {
@@ -39,6 +40,19 @@ HUD::HUD(Game& game, const std::string& name) : Scene(game, name), heartImages{}
 
     game.eventManager.addListener("hideCoinAmount", [this](std::any data) {
         showCoinAmount = false;
+        });
+
+    game.eventManager.addListener("showHelpText", [this](std::any data) {
+        if (showHelpText) return;
+        auto [label, key, index] = std::any_cast<std::tuple<std::string, char, int>>(data);
+        helpText = label;
+        helpTextKey = key;
+        helpTextButtonIndex = index;
+        showHelpText = true;
+        });
+
+    game.eventManager.addListener("hideHelpText", [this](std::any data) {
+        showHelpText = false;
         });
 }
 
@@ -114,7 +128,7 @@ void HUD::draw() {
     }
 
     // whenever a collectable item is picked up
-    // TODO this break when it's a coin
+    // TODO this break when it's not a coin
     if (showCollectedItem) {
         auto& itemData = game.inventory.getItemData();
         auto& invItems = game.inventory.getItems();
@@ -135,6 +149,31 @@ void HUD::draw() {
         uint32_t qty = game.inventory.getItemQuantity("coin");
         std::string qtyText = "x" + std::to_string(qty);
         DrawText(qtyText.c_str(), coinX + 8, 8, 10, LIGHTGRAY);
+    }
+    if (showHelpText) {
+        const char* ht = helpText.c_str();
+        int fontSize = 10;
+        int margin = 2;
+        int txtPosX = 12;
+        int txtPosY = static_cast<int>(game.gameScreenHeight) - 2 * margin - fontSize;
+        int txtH = fontSize + 2 * margin;
+        if (WasGamepadUsedLast()) {
+            // show the respective button texture
+            const auto& buttonTex = game.loader.getTextures("xbox_buttons")[helpTextButtonIndex];
+            int txtW = MeasureText(ht, fontSize) + 2 * margin + buttonTex.width;
+            DrawRectangle(txtPosX, txtPosY, txtW, txtH, BLACK);
+            DrawTexture(buttonTex, txtPosX, txtPosY, WHITE);
+            txtPosX += buttonTex.width;
+            DrawText(ht, txtPosX + margin, txtPosY + margin, fontSize, LIGHTGRAY);
+        }
+        else {
+            // show a text with the respective key
+            std::string displayText = helpText;
+            displayText = "[" + std::string(1, helpTextKey) + "]: " + helpText;
+            int txtW = MeasureText(displayText.c_str(), fontSize) + 2 * margin;
+            DrawRectangle(txtPosX, txtPosY, txtW, txtH, BLACK);
+            DrawText(displayText.c_str(), txtPosX + margin, txtPosY + margin, fontSize, LIGHTGRAY);
+        }
     }
 }
 

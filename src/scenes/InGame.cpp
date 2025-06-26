@@ -302,6 +302,11 @@ void InGame::loadTilemap() {
                 uint8_t openState = obj.properties.value("openState", 0);
                 if (currentState < openState) {
                     sprite->staticCollision = true;
+                    bool locked = obj.properties.value("locked", false);
+                    if (locked) {
+                        sprite->currentFrame = 2;
+                        sprite->addBehavior(std::make_unique<OpenLockBehavior>(game, sprite, player));
+                    }
                 }
                 else {
                     sprite->currentFrame = 1;
@@ -478,11 +483,11 @@ void InGame::update(float deltaTime) {
     }
     // if a cutscene is active, it takes control over the player
     // otherwise, the player is controled by input
+    game.cutsceneManager.update(deltaTime);
     if (!game.cutsceneManager.isActive()) {
         player->getControls();
-
-        // testing a weapon (sword)
-        // TODO: needs to be more modular
+        // testing a weapon
+        // TODO: needs to be in its own function
         if (game.buttonsDown & CONTROL_ACTION2) {
             // spawn the weapon next to the player if not already there
             // TODO write a wrapper for this, or get weapon data from JSON file
@@ -525,12 +530,9 @@ void InGame::update(float deltaTime) {
                     wpn->markForDeletion();
                     game.eventManager.removeListeners("killWeapon");
                     });
-
-                // play the sound
                 game.playSound("slash");
             }
         }
-
         if (game.buttonsPressed & CONTROL_CONFIRM) {
             // TODO: bind events to all the button functionality
             game.pauseScene(this->getName());
@@ -540,19 +542,16 @@ void InGame::update(float deltaTime) {
                 });
             game.eventManager.pushEvent("setMusicVolume", 0.3f);
         }
-
         for (const auto& sprite : game.sprites) {
             if (sprite) {
                 sprite->executeBehavior(deltaTime);
                 sprite->update(deltaTime);
-                sprite->animate(deltaTime);
             }
         }
-    } else {
-        game.cutsceneManager.update(deltaTime);
-        for (const auto& sprite : game.sprites) {
-            sprite->animate(deltaTime);
-        }
+    }
+    // animate always, regardless of cutscene
+    for (const auto& sprite : game.sprites) {
+        sprite->animate(deltaTime);
     }
 
     // collision of sprites with static objects (walls)

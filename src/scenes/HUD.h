@@ -27,7 +27,12 @@ private:
     bool showCollectedItem = false;
     int collectedItemY = 0;
     float collectedItemTimer = 0.0f;
-    std::string collectedItem = "";
+    std::string collectedItem;
     // show the amount of coins for shopping
     bool showCoinAmount = false;
+    // show a help text for the controls
+    bool showHelpText = false;
+    std::string helpText;
+    char helpTextKey = '\0';
+    int helpTextButtonIndex = 0;
 };

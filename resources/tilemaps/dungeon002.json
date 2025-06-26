@@ -226,6 +226,11 @@
                          "value":"door001open"
                         }, 
                         {
+                         "name":"locked",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
                          "name":"openState",
                          "type":"int",
                          "value":2
@@ -239,8 +244,8 @@
                  "type":"sprite",
                  "visible":true,
                  "width":32,
-                 "x":116,
-                 "y":228
+                 "x":112,
+                 "y":224
                 }, 
                 {
                  "height":16,

@@ -8,6 +8,9 @@ void CutsceneManager::queueCommand(Command* cmd, bool blocking) {
 }
 
 void CutsceneManager::update(float deltaTime) {
+	// advance the global cooldown timer(s)
+	Command_Textbox::updateCooldown(deltaTime);
+	// handle the Commands logic
 	for (auto it = nonBlocking.begin(); it != nonBlocking.end(); ) {
 		(*it)->update(deltaTime);
 		if ((*it)->isDone() && !(*it)->isPersistent()) {
@@ -47,7 +50,6 @@ void CutsceneManager::update(float deltaTime) {
 			}
 		}
 	}
-
 	active = !commands.empty() || !nonBlocking.empty();
 }
 

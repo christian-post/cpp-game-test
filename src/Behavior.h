@@ -166,6 +166,7 @@ private:
 	std::string voice;
 	size_t currentTextIndex = 0;
 	bool triggered = false;
+	bool collided = false;
 };
 
 class TradeItemBehavior : public Behavior {
@@ -238,6 +239,21 @@ private:
 	std::string itemName; 
 	uint32_t itemAmount;
 	bool triggered = false;
+	bool collided = false;
 	bool showItem = false;
+	Rectangle interactionRect = Rectangle{ 0.0f, 0.0f ,0.0f, 0.0f };
+};
+
+class OpenLockBehavior : public Behavior {
+public:
+	OpenLockBehavior(Game& game, std::shared_ptr<Sprite> door, std::shared_ptr<Sprite> player);
+	void update(float deltaTime) override;
+
+private:
+	Game& game;
+	std::weak_ptr<Sprite> door;
+	std::weak_ptr<Sprite> player;
+	bool triggered = false;
+	bool collided = true;
 	Rectangle interactionRect = Rectangle{ 0.0f, 0.0f ,0.0f, 0.0f };
 };

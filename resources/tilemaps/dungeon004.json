@@ -143,6 +143,11 @@
                          "value":"door004open"
                         }, 
                         {
+                         "name":"locked",
+                         "type":"bool",
+                         "value":false
+                        }, 
+                        {
                          "name":"openState",
                          "type":"int",
                          "value":2

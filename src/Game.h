@@ -89,7 +89,7 @@ public:
     Sprite* getPlayer(); // store a reference to the player sprite in case a scene other than InGame needs it
 
     void playSound(const std::string& key);
-    bool soundOn = true; // all sound, overwrites the other two
+    bool soundOn = false; // all sound, overwrites the other two
     bool musicOn = true;
     bool sfxOn = true;
 

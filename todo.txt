@@ -19,10 +19,10 @@ Scenes
 
 - Cutscene command system (modular)
 -- Command_MoveToPath(target, posX, posY, duration) // benutzt pathfinding
--- Command_ShowTextbox(text, target)  // target für Sprechblase
 
 - Misc
 -- add xbox controller button textures
+-- "showHint" event that displays button function, like "O TALK"
 -- draw connections between mini map rooms
 
 - Music/Sounds:

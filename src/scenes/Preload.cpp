@@ -170,6 +170,7 @@ void Preload::startup() {
                 "dungeon_door_idle", {
                     "./resources/textures/sprites/doors_leaf_closed.png",
                     "./resources/textures/sprites/doors_leaf_open.png",
+                    "./resources/textures/sprites/doors_leaf_locked.png",
                 }
             },
             { "knight_map_mini", { "./resources/textures/sprites/knight_map_mini.png" }},

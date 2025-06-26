@@ -312,19 +312,31 @@ DialogueBehavior::DialogueBehavior(Game& game, std::shared_ptr<Sprite> self, std
 void DialogueBehavior::update(float deltaTime) {
 	if (triggered) return;
 	if (auto s = self.lock(), p = player.lock(); s && p) {
-		if (CheckCollisionRecs(s->rect, p->rect) && (game.buttonsDown & CONTROL_ACTION1)) {
-			triggered = true;
-			// TODO: why is this check needed again?
-			if (auto scene = dynamic_cast<InGame*>(game.getScene("InGame"))) {
-				bool pitch = (voice == "tone") ? false : true;
-				game.cutsceneManager.queueCommand(new Command_Textbox(game, dialogTexts[currentTextIndex], voice, pitch));
-				game.cutsceneManager.queueCommand(new Command_Callback([this]() {
-					game.eventManager.pushDelayedEvent("resetDialogTrigger", 0.1f, nullptr, [this]() {
-						if (currentTextIndex < dialogTexts.size() - 1)
-							++currentTextIndex;
-						triggered = false;
-						});
-					}));
+		if (CheckCollisionRecs(s->rect, p->rect)) {
+			if (!collided) {
+				game.eventManager.pushEvent("showHelpText", std::make_any<std::tuple<std::string, char, int>>(std::tuple<std::string, char, int>{"TALK", 'O', 9}));
+				collided = true;
+			}
+			if (game.buttonsDown & CONTROL_ACTION1 && !Command_Textbox::isTextboxCooldown()) {
+				triggered = true;
+				// TODO: why is this check needed again?
+				if (auto scene = dynamic_cast<InGame*>(game.getScene("InGame"))) {
+					bool pitch = (voice == "tone") ? false : true;
+					game.cutsceneManager.queueCommand(new Command_Textbox(game, dialogTexts[currentTextIndex], voice, pitch));
+					game.cutsceneManager.queueCommand(new Command_Callback([this]() {
+						game.eventManager.pushDelayedEvent("resetDialogTrigger", 0.3f, nullptr, [this]() {
+							if (currentTextIndex < dialogTexts.size() - 1)
+								++currentTextIndex;
+							triggered = false;
+							});
+						}));
+				}
+			}
+		}
+		else {
+			if (collided) {
+				collided = false;
+				game.eventManager.pushEvent("hideHelpText");
 			}
 		}
 	}
@@ -365,7 +377,8 @@ void TradeItemBehavior::update(float deltaTime) {
 				else {
 					game.cutsceneManager.queueCommand(new Command_Textbox(game, "You can't afford this item."));
 					game.cutsceneManager.queueCommand(new Command_Callback([this]() {
-						game.eventManager.pushDelayedEvent("resetDialogTrigger", 0.1f, nullptr, [this]() {
+						// "de-bounce" the interaction by delaying the "triggered" flag
+						game.eventManager.pushDelayedEvent("resetDialogTrigger", 0.2f, nullptr, [this]() {
 							triggered = false;
 							});
 						}));
@@ -504,42 +517,53 @@ void ChestBehavior::update(float deltaTime) {
 		interactionRect.y = s->rect.y;
 		interactionRect.width = s->rect.width;
 		interactionRect.height = s->rect.height + 4.0f;
-		if (CheckCollisionRecs(interactionRect, p->rect) && (game.buttonsDown & CONTROL_ACTION1)) {
-			triggered = true;
-			auto& itemData = game.inventory.getItemData();
-			const ItemData& data = itemData.at(itemName);
+		if (CheckCollisionRecs(interactionRect, p->rect)) {
+			if (!collided) {
+				game.eventManager.pushEvent("showHelpText", std::make_any<std::tuple<std::string, char, int>>(std::tuple<std::string, char, int>{"OPEN", 'O', 9}));
+				collided = true;
+			}
+			if (game.buttonsDown & CONTROL_ACTION1) {
+				triggered = true;
+				auto& itemData = game.inventory.getItemData();
+				const ItemData& data = itemData.at(itemName);
+				s->currentFrame = 2;
+				showItem = true;
+				game.playSound("doorOpen_2");
+				game.eventManager.pushDelayedEvent("hideItem", 2.0f, nullptr, [&]() {
+					showItem = false;
+					});
 
-			s->currentFrame = 2;
-			showItem = true;
-			game.playSound("doorOpen_2");
-			game.eventManager.pushDelayedEvent("hideItem", 2.0f, nullptr, [&]() {
-				showItem = false;
-				});
-
-			game.cutsceneManager.queueCommand(new Command_Wait(0.5f));
-			game.cutsceneManager.queueCommand(new Command_Callback([&]() {
-				game.playSound("Rise03");
-				}));
-			game.cutsceneManager.queueCommand(new Command_Wait(0.5f));
-			std::string message;
-			if (itemAmount == 1) {
-				// TODO: add a "unique" property to Item that is checked here instead
-				if (data.type == WEAPON) {
-					message = format("You got the %s. Open your inventory to equip it, then use with [P].", data.displayName.c_str());
+				game.cutsceneManager.queueCommand(new Command_Wait(0.5f));
+				game.cutsceneManager.queueCommand(new Command_Callback([&]() {
+					game.playSound("Rise03");
+					}));
+				game.cutsceneManager.queueCommand(new Command_Wait(0.5f));
+				std::string message;
+				if (itemAmount == 1) {
+					// TODO: add a "unique" property to Item that is checked here instead
+					if (data.type == WEAPON) {
+						message = format("You got the %s. Open your inventory to equip it, then use with [P].", data.displayName.c_str());
+					}
+					else {
+						message = format("You got a %s.", data.displayName.c_str());
+					}
 				}
 				else {
-					message = format("You got a %s.", data.displayName.c_str());
+					message = format("You got: %s x%u", data.displayName.c_str(), itemAmount);
 				}
+				game.cutsceneManager.queueCommand(new Command_Textbox(game, message));
+				// event that adds the item to the inventory
+				game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>(itemName, itemAmount));
+				// trigger the event that changes the object state
+				std::string eventKey = "chest_opened_" + std::to_string(s->tileMapID);
+				game.eventManager.pushEvent(eventKey, s->tileMapID);
 			}
-			else {
-				message = format("You got: %s x%u", data.displayName.c_str(), itemAmount);
+		} 
+		else {
+			if (collided) {
+				game.eventManager.pushEvent("hideHelpText");
+				collided = false;
 			}
-			game.cutsceneManager.queueCommand(new Command_Textbox(game, message));
-			// event that adds the item to the inventory
-			game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>(itemName, itemAmount));
-			// trigger the event that changes the object state
-			std::string eventKey = "chest_opened_" + std::to_string(s->tileMapID);
-			game.eventManager.pushEvent(eventKey, s->tileMapID);
 		}
 	}
 }
@@ -553,5 +577,57 @@ void ChestBehavior::draw() {
 		const ItemData& data = itemData.at(itemName);
 		const auto& textures = game.loader.getTextures(data.textureKey);
 		DrawTexture(textures[0], x, y, WHITE);
+	}
+}
+
+OpenLockBehavior::OpenLockBehavior(Game& game, std::shared_ptr<Sprite> door, std::shared_ptr<Sprite> player)
+	: game{ game }, door{ door }, player{ player }{
+}
+
+void OpenLockBehavior::update(float deltaTime) {
+	if (triggered) return;
+	if (auto d = door.lock(), p = player.lock(); d && p) {
+		interactionRect.x = d->rect.x;
+		interactionRect.y = d->rect.y;
+		interactionRect.width = d->rect.width;
+		interactionRect.height = d->rect.height + 4.0f;
+		if (CheckCollisionRecs(interactionRect, p->rect)) {
+			if (!collided) {
+				game.eventManager.pushEvent("showHelpText", std::make_any<std::tuple<std::string, char, int>>(std::tuple<std::string, char, int>{"OPEN", 'O', 9}));
+				collided = true;
+			}
+			if (game.buttonsDown & CONTROL_ACTION1) {
+				// check for keys
+				uint32_t qty = game.inventory.getItemQuantity("key");
+				triggered = true;
+				if (qty == 0) {
+					game.cutsceneManager.queueCommand(new Command_Textbox(game, "Looks like you need a key to open this door."));
+					game.cutsceneManager.queueCommand(new Command_Callback([this]() {
+						// "de-bounce" the interaction by delaying the "triggered" flag
+						game.eventManager.pushDelayedEvent("resetDialogTrigger", 0.2f, nullptr, [this]() {
+							triggered = false;
+							});
+						}));
+					return;
+				}
+				game.eventManager.pushEvent("removeItem", std::make_any<std::pair<std::string, uint32_t>>("key", 1));
+				game.eventManager.pushDelayedEvent("unlockedDoor", 0.1f, nullptr, [d, this]() {
+					this->game.playSound("bookPlace1");
+					d->currentFrame = 0;
+					});
+				game.eventManager.pushDelayedEvent("openedDoor", 0.8f, nullptr, [d, this]() {
+					this->game.playSound("doorOpen_2");
+					d->currentFrame = 1;
+					d->staticCollision = false;
+					this->done = true;
+					});
+			}
+		}
+		else {
+			if (collided) {
+				game.eventManager.pushEvent("hideHelpText");
+				collided = false;
+			}
+		}
 	}
 }
