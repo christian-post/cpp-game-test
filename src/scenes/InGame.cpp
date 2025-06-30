@@ -224,6 +224,10 @@ void InGame::loadTilemap() {
             if (data.contains("collides")) {
                 sprite->isColliding = static_cast<bool>(data.at("collides").get<int>());
             }
+            //if (obj.properties.contains("dialogue")) {
+            //    data["behaviorData"]["dialogue"] = obj.properties["dialogue"].get<std::string>();
+            //}
+
             // specific sprite attributes
             // TODO: for persistent sprites, check if they exist in the spriteMap
             if (obj.name == "teleport") {

@@ -14,5 +14,8 @@
   ],
   "chestClosed": [
     "The chest won't open."
+  ],
+  "testLongText": [
+    "This is a very long text that is used to test the text wrapping functionality in the game.\fIt should be long enough to ensure that it wraps correctly across multiple lines in the game's dialogue box. The text should also contain various characters and punctuation to ensure that it displays correctly in different scenarios. By the way, does the form feed work?\fLet's see how well this works out in practice, shall we? Let's keep going until we reach a point where we can be sure that the text wrapping is functioning as expected. Now some very long words: hyperquantilicious, or transmogrification, ultracrepidarianism, maybe pseudophilosophical, and counterevolutionary."
   ]
 }

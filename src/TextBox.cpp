@@ -17,51 +17,67 @@ TextBox::TextBox(Game& game, float x, float y, float width, float height, int fo
     textSpeed = game.getSetting("textDelay");
 }
 
+void TextBox::endPage(size_t index) { 
+    pageDone = true;
+    currentPageStartIndex += index;
+    currentLine = 0;
+} // helper function
+
 void TextBox::formatText() {
     formattedtext.clear();
-    std::string_view text = textContent.substr(currentPageStartIndex);  // Avoid copying
-
+    std::string_view text = textContent.substr(currentPageStartIndex);
+    // Handle forced page break
+    size_t ffPos = text.find('\f');
+    if (ffPos != std::string_view::npos) {
+        text = text.substr(0, ffPos);  // only process text up to \f
+    }
     size_t start = 0;
-    size_t spacePos = 0;  // position of the next whitespace
+	size_t spacePos = 0; // position of the next space
     std::string line;
-
+	// find the next space
     while ((spacePos = text.find(' ', start)) != std::string_view::npos) {
         std::string_view word = text.substr(start, spacePos - start);
         std::string testLine = line.empty() ? std::string(word) : line + " " + std::string(word);
-
         if (MeasureText(testLine.c_str(), fontSize) > int(width) - 10) {
             formattedtext += line + "\n";
-
             currentLine++;
-
-            // check if the next line would exceed the box
             Vector2 size = MeasureTextEx(GetFontDefault(), formattedtext.c_str(), float(fontSize), 2.0f);
-            // measure one line
-            float lineSize = size.y / (currentLine + 1);
-            // test if another line would exceed the box
-            // TODO: somehow this is inconsistent
-            if (lineSize * (currentLine + 1) + lineSize > height) {
-                pageDone = true;
-                currentPageStartIndex += start;
-                currentLine = 0;
+            float lineHeight = size.y / (currentLine + 1);
+            if (lineHeight * (currentLine + 1) + lineHeight > height) {
+                endPage(start);
                 return;
             }
-            line = std::string(word);  // Start new line
+            line = std::string(word);
         }
         else {
             line = testLine;
         }
-        start = spacePos + 1;  // Move to next word
+        start = spacePos + 1;
     }
-
-    // Add the last word/line
     if (start < text.size()) {
-        if (!line.empty()) line += " ";
-        line += std::string(text.substr(start));
+        std::string_view word = text.substr(start);
+        std::string testLine = line.empty() ? std::string(word) : line + " " + std::string(word);
+        if (MeasureText(testLine.c_str(), fontSize) > int(width) - 10) {
+            formattedtext += line + "\n";
+            currentLine++;
+            Vector2 size = MeasureTextEx(GetFontDefault(), formattedtext.c_str(), float(fontSize), 2.0f);
+            float lineHeight = size.y / (currentLine + 1);
+            if (lineHeight * (currentLine + 1) + lineHeight > height) {
+                endPage(start);
+                return;
+            }
+            line = std::string(word);
+        }
+        else {
+            line = testLine;
+        }
     }
     formattedtext += line;
+    // End page if form feed was in original string
+    if (ffPos != std::string_view::npos) {
+        endPage(ffPos + 1);
+    }
 }
-
 
 void TextBox::setTextContent(std::string_view text) {
     textContent = text;

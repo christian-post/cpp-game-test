@@ -140,6 +140,11 @@ void Preload::startup() {
                     "./resources/textures/sprites/wall_fountain_mid_red_anim_f2.png",
                 }
             },
+            {
+                "signpost_idle", {
+                    "./resources/textures/sprites/signpost.png"
+                }
+            },
             // inventory sprites
             {
                 "hearts", {

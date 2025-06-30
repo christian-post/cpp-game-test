@@ -42,6 +42,15 @@
       "voice": "powerUp6"
     }
   },
+  "signpost": {
+    "textureKey": "signpost",
+    "behaviors": [ "Dialogue" ],
+    "behaviorData": {
+      "voice": "tone",
+      "dialogue": "testLongText"
+    },
+    "collides": 0
+  },
   "dungeon_door": {
     "textureKey": "dungeon_door"
   },

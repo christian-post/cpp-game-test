@@ -33,4 +33,5 @@ private:
     float textSpeed = 0.005f;  // how often a new char appears, in ms
     std::string voice = "tone";  // key for the sound that is played at each word
     bool pitchVoice = true;
+    void endPage(size_t index);
 };
