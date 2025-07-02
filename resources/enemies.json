@@ -1,6 +1,10 @@
 {
   "enemy_default": {
-    "textureKey": "sprite_default",
+    "textures": [
+      "sprite_default_idle",
+      "sprite_default_idle",
+      "sprite_default_idle"
+    ],
     "health": 100,
     "damage": 1,
     "knockback": 1.0,
@@ -10,7 +14,10 @@
     "itemDrops": []
   },
   "skelet": {
-    "textureKey": "skelet",
+    "textures": [
+      "skelet_idle",
+      "skelet_run"
+    ],
     "health": 4,
     "damage": 1,
     "knockback": 10.0,
@@ -24,7 +31,10 @@
     ]
   },
   "big_demon": {
-    "textureKey": "big_demon",
+    "textures": [
+      "big_demon_idle",
+      "big_demon_run"
+    ],
     "health": 8,
     "damage": 3,
     "knockback": 15.0,
@@ -33,12 +43,15 @@
     "behaviorData": {
       "watchTarget": "player",
       "shootTarget": "player",
-      "particle":  "smoke_idle"
+      "particle": "smoke_idle"
     },
     "itemDrops": [ [ "itemDropHeart", 0.5 ] ]
   },
   "goblin": {
-    "textureKey": "goblin",
+    "textures": [
+      "goblin_idle",
+      "goblin_run"
+    ],
     "health": 2,
     "damage": 1,
     "knockback": 8.0,

@@ -6,7 +6,7 @@
 #include "Utils.h"
 
 
-Sprite::Sprite(Game& game, float x, float y, float w, float h, const std::string& spriteName, const std::string& textureKey)
+Sprite::Sprite(Game& game, float x, float y, float w, float h, const std::string& spriteName)
     : game(game),
     rect{ x, y, w, h },
     hurtbox{ x, y, w, h},
@@ -14,12 +14,13 @@ Sprite::Sprite(Game& game, float x, float y, float w, float h, const std::string
     vel{ 0.0f, 0.0f },
     position{ (float)x, (float)y },
     spriteName{ spriteName },
-    textureKey{ textureKey },
     behaviors{},
     health{ 10 }, // default values
     maxHealth{ 10 }
 {
-    frames["default"] = { game.loader.fallbackTexture };
+    //frames[IDLE] = { game.loader.fallbackTexture };
+    //frames[RUN] = { game.loader.fallbackTexture };
+    //frames[HIT] = { game.loader.fallbackTexture };
 }
 
 Sprite::~Sprite() {
@@ -27,16 +28,14 @@ Sprite::~Sprite() {
     TraceLog(LOG_INFO, "Sprite destroyed: %s at %p", spriteName.c_str(), this);
 }
 
-void Sprite::setTextures(std::initializer_list<std::string> keys) {
+void Sprite::setTextures(std::vector<std::string> keys) {
+    frames.clear();
     for (const auto& key : keys) {
         const auto& textures = game.loader.getTextures(key);
         if (textures.empty()) {
             TraceLog(LOG_ERROR, "Missing texture for key: %s", key.c_str());
         }
-        frames[key] = textures;
-    }
-    if (keys.begin() != keys.end()) {
-        currentTextureKey = *keys.begin();
+        frames.push_back(textures);
     }
 }
 
@@ -45,16 +44,16 @@ void Sprite::animate(float deltaTime) {
     if (!doesAnimate) return;
 
     elapsedtime += deltaTime;
-    if (elapsedtime >= frameTime && !frames[currentTextureKey].empty()) {
+    if (elapsedtime >= frameTime && !frames[currentAnimState].empty()) {
         elapsedtime = 0.0f;
-        currentFrame = (currentFrame + 1) % frames[currentTextureKey].size();
+        currentFrame = (currentFrame + 1) % frames[currentAnimState].size();
     }
     // latch the last direction (used for animation)
     if (vel.x == 0.0f && vel.y == 0.0f) {
-        currentTextureKey = textureKey + "_idle";
+        currentAnimState = IDLE;
     }
     else {
-        currentTextureKey = textureKey + "_run";
+        currentAnimState = RUN;
         if (vel.x > 0.0f) {
             lastDirection = RIGHT; // right
         }
@@ -170,17 +169,13 @@ void Sprite::update(float deltaTime) {
 
 void Sprite::draw() {
     if (!visible || markedForDeletion) return;
-
-    const std::string& key = (frames.count(currentTextureKey) > 0) ? currentTextureKey : "default";
-    auto& textures = frames[key];
-
+    auto& textures = frames[currentAnimState];
     if (currentFrame >= textures.size()) {
+        // show that something went wrong
         DrawRectangleRec(rect, BLUE);
         return;
     }
-
     Texture2D& texture = textures[currentFrame];
-
     // Define source and destination rectangles
     Rectangle source = { 0.0f, 0.0f, (float)texture.width, (float)texture.height };
 
@@ -191,12 +186,10 @@ void Sprite::draw() {
     };
 
     Vector2 origin = { source.width / 2.0f, source.height };
-
     // Flip horizontally if lastDirection is LEFT
     if (lastDirection == LEFT) {
         source.width = -source.width;
     }
-
     //Color tint = WHITE;
     Color currentTint = tint;
     if (iFrameTimer > 0.0f && !dying) {

@@ -9,9 +9,7 @@
 #include "Behavior.h"
 #include <cstdint>
 
-
 class Game;
-
 
 struct ShaderState {
     const Shader* shader = nullptr;
@@ -20,20 +18,28 @@ struct ShaderState {
     int flipX = 0;
 };
 
+enum AnimState {
+    IDLE,
+    RUN,
+    HIT
+};
+
 
 class Sprite {
 public:
     Game& game;
-    std::unordered_map<std::string, std::vector<Texture2D>> frames;
-    std::string spriteName; // used for general idengtification
-    std::string textureKey; // used for finding the correct texture
+    std::vector<std::vector<Texture2D>> frames;
+    std::string spriteName; // used for general identification
+    //std::string textureKey; // used for finding the correct texture
     uint32_t tileMapID = 0;
     int currentFrame = 0;
     bool doesAnimate = true;
     int drawLayer = 0;
     bool visible = true;
     bool persistent = false; // controls whether the sprite survives between map changes
-    std::string currentTextureKey = "default";
+    //std::string currentTextureKey = "default";
+    AnimState currentAnimState = IDLE;
+
     std::optional<ShaderState> activeShader = std::nullopt;
     direction lastDirection = RIGHT;
     Color tint = WHITE;
@@ -71,9 +77,9 @@ public:
     float knockback = 10.0f;
     bool dying = false; // flag for the death animation
     
-    Sprite(Game& game, float x, float y, float w, float h, const std::string& spriteName, const std::string& textureKey);
+    Sprite(Game& game, float x, float y, float w, float h, const std::string& spriteName);
     ~Sprite();
-    void setTextures(std::initializer_list<std::string> keys);
+    void setTextures(std::vector<std::string> keys);
     void animate(float deltaTime);
     void setHurtbox(float x = -1.0f, float y = -1.0f, float width = -1.0f, float height = -1.0f, bool center = false);
     void getControls();

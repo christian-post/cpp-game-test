@@ -400,7 +400,7 @@ void TradeItemBehavior::draw() {
 	if (auto s = self.lock()) {
 		int x = (int)s->position.x - 4;
 		int y = (int)s->position.y + 16;
-		const auto& coinTex = game.loader.getTextures("itemDropCoin_idle")[0];
+		const auto& coinTex = game.loader.getTextures("itemDropCoin")[0];
 		DrawTexture(coinTex, x, y, WHITE);
 		std::string priceText = "x" + std::to_string(price);
 		DrawText(priceText.c_str(), x + 8, y, 10, WHITE);
@@ -462,10 +462,10 @@ void ShootBehavior::update(float deltaTime) {
 			// TODO: make this modular
 			game.playSound("fireball");
 			auto projectile = std::make_shared<Sprite>(
-				game, s->position.x, s->position.y, 8.0f, 8.0f, "fireball", "fireball"
+				game, s->position.x, s->position.y, 8.0f, 8.0f, "fireball"
 			);
 			game.sprites.emplace_back(projectile);
-			projectile->setTextures({ "fireball_run" });
+			projectile->setTextures({ "fireball" });
 			projectile->addBehavior(std::make_unique<ProjectileBehavior>(game, projectile, t, false));
 			projectile->canHurtPlayer = true;
 			projectile->damage = 2;

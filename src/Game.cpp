@@ -20,6 +20,8 @@ Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this) {
     SetWindowMinSize(320, 240);
     InitAudioDevice();
 
+    soundOn = getSetting("soundOn");
+
     // Render texture initialization, used to hold the rendering result so we can easily resize it
     // see https://github.com/raysan5/raylib/blob/master/examples/core/core_window_letterbox.c
     gameScreenWidth = getSetting("gameScreenWidth");
@@ -44,8 +46,8 @@ const nlohmann::json& Game::getSetting(const std::string& key) const {
         return settings->at(key);
     }
     catch (const std::out_of_range&) {
-        std::cerr << "[Settings] Missing key: " << key << "\n";
-        std::terminate(); // or throw
+        TraceLog(LOG_ERROR, "[Settings] Missing key: %s", key.c_str());
+        std::terminate();
     }
 }
 
@@ -110,15 +112,26 @@ void Game::processMarkedScenes() {
 void Game::createDungeon(size_t roomsW, size_t roomsH)
 {
     currentDungeon = std::make_unique<Dungeon>(*this, roomsW, roomsH);
-
-    // TODO: hardcoding this for now
+    // TODO: hardcoding this here for now
+    /*
+    ## test dungeon ##
+       0   1   2   3
+    1  x 006   x   x
+    2  x 003 002   x
+    3  x 004 001 005
+    */
+    // coordinates are row, column
+    // second argument is the directions of the doors, starting at the right and going counter clockwise
     currentDungeon->insertRoom(3, 2, Room{ loader.getTilemap("dungeon001"), 0b1111 });
     currentDungeon->insertRoom(2, 2, Room{ loader.getTilemap("dungeon002"), 0b0011 });
     currentDungeon->insertRoom(2, 1, Room{ loader.getTilemap("dungeon003"), 0b1001 });
     currentDungeon->insertRoom(3, 1, Room{ loader.getTilemap("dungeon004"), 0b1100 });
     currentDungeon->insertRoom(3, 3, Room{ loader.getTilemap("dungeon005"), 0b0010 });
+    currentDungeon->insertRoom(1, 1, Room{ loader.getTilemap("dungeon006"), 0b0101 });
+    //currentDungeon->insertRoom(0, 0, Room{ loader.getTilemap("test_map_small"), 0b0000 }); // test dungeon
 
     currentDungeon->setCurrentRoomIndex(14); // start in R1
+    //currentDungeon->setCurrentRoomIndex(0); // TODO: testing
     currentDungeon->makeMinimapTextures();
 
     // TODO

@@ -9,7 +9,7 @@ void InGame::startup() {
     // create the player sprite
     // the "spriteName" argument has to match the texture keys (the part before the "_")
     player = std::make_shared<Sprite>(
-        game, 0.0f, 0.0f, 14.0f, 12.0f, "player", "player"
+        game, 0.0f, 0.0f, 14.0f, 12.0f, "player"
     );
 
     spriteMap["player"] = player;
@@ -168,7 +168,8 @@ void InGame::loadTilemap() {
     game.sprites.reserve(spritesLen);
     // build static collision objects from map data
     for (auto& obj : tileMap->getObjects()) {
-        if (!obj.visible) continue;
+        if (!obj.visible) 
+            continue;
         // first, check if the object should exist in this room state
         uint8_t objectState = obj.properties.value("roomState", 0); // objects spawn in every state by default
         TraceLog(LOG_INFO, "creating %s - <%s>, id: %d, objectState: %d",
@@ -187,21 +188,23 @@ void InGame::loadTilemap() {
         }
         else if (obj.type == "sprite") {
             if (objectStates[obj.id].isDefeated) {
-                // has been killed before, skip
+                // this sprite is dead, skip it
                 continue;
             }
             std::string spriteName = obj.properties.value("spriteName", "sprite_default");
+            // get the data for this sprite from the JSON
             const auto& data = spriteData.contains(spriteName)
                 ? spriteData.at(spriteName)
                 : spriteData.at("sprite_default");
             if (!spriteData.contains(spriteName)) {
                 TraceLog(LOG_WARNING, "Missing sprite data for %s, falling back to sprite_default", spriteName.c_str());
             }
+            // store default data seperately to replace individual attributes
             const auto& defaultData = spriteData.at("sprite_default");
+            auto textureKeys = data.contains("textures") ? data.at("textures").get<std::vector<std::string>>() : defaultData.at("textures").get<std::vector<std::string>>();
             // instanciate the sprite
-            auto textureKey = data.contains("textureKey") ? data.at("textureKey").get<std::string>() : defaultData.at("textureKey").get<std::string>();
             auto sprite = std::make_shared<Sprite>(
-                game, obj.x, obj.y, obj.width, obj.height, obj.name, textureKey
+                game, obj.x, obj.y, obj.width, obj.height, obj.name
             );
             // generic attributes
             // from JSON data
@@ -224,6 +227,7 @@ void InGame::loadTilemap() {
             if (data.contains("collides")) {
                 sprite->isColliding = static_cast<bool>(data.at("collides").get<int>());
             }
+            // TODO: is this still needed?
             //if (obj.properties.contains("dialogue")) {
             //    data["behaviorData"]["dialogue"] = obj.properties["dialogue"].get<std::string>();
             //}
@@ -246,10 +250,10 @@ void InGame::loadTilemap() {
                     // // TODO: handle this differently, this might create empty references
                     spriteMap[spriteName] = sprite;
                 }
-                sprite->setTextures({ textureKey + "_idle", textureKey + "_run" });
+                sprite->setTextures(textureKeys);
             }
             else if (obj.name == "tradeItem") {
-                sprite->setTextures({ spriteName + "_idle" });
+                sprite->setTextures(std::vector<std::string>{ spriteName });
                 sprite->doesAnimate = false;
                 uint32_t cost = obj.properties.value("cost", 999);
                 std::string name = obj.properties.value("name", "error"); // TODO switch spriteName and Name
@@ -258,7 +262,7 @@ void InGame::loadTilemap() {
             else if (obj.name == "enemy") {
                 sprite->canHurtPlayer = true;
                 sprite->isEnemy = true;
-                sprite->setTextures({ textureKey + "_idle", textureKey + "_run" });
+                sprite->setTextures(textureKeys);
                 // spawn the item drops if the enemy is defeated
                 if (data.contains("itemDrops")) {
                     std::weak_ptr<Sprite> weakSprite = sprite;
@@ -275,9 +279,9 @@ void InGame::loadTilemap() {
                             accum += chance;
                             if (rand < accum) {
                                 auto item = std::make_shared<Sprite>(
-                                    game, s->position.x, s->position.y, 12.0f, 12.0f, itemId, itemId
+                                    game, s->position.x, s->position.y, 12.0f, 12.0f, itemId
                                 );
-                                item->setTextures({ itemId + "_idle" });
+                                item->setTextures(std::vector<std::string>{ itemId });
                                 item->drawLayer = 1;
                                 item->doesAnimate = false;
                                 item->isColliding = false;
@@ -300,7 +304,7 @@ void InGame::loadTilemap() {
             }
             else if (obj.name == "door") {
                 sprite->spriteName = spriteName;
-                sprite->setTextures({ textureKey + "_idle" });
+                sprite->setTextures(textureKeys);
                 sprite->doesAnimate = false;
                 // TODO: set the open state in Tiled Data
                 uint8_t openState = obj.properties.value("openState", 0);
@@ -333,7 +337,7 @@ void InGame::loadTilemap() {
             else if (obj.name == "chest") {
                 sprite->doesAnimate = false;
                 sprite->staticCollision = true;
-                sprite->setTextures({ "chest_idle" });
+                sprite->setTextures({ "chest" });
 
                 if (objectStates[obj.id].isOpened) {
                     sprite->currentFrame = 2;
@@ -512,7 +516,7 @@ void InGame::update(float deltaTime) {
                 float offsetY = data.at("HurtboxOffsetY");
 
                 auto wpn = std::make_shared<Sprite>(
-                    game, 0.0f, 0.0f, 16.0f, 16.0f, weaponKey, weaponKey
+                    game, 0.0f, 0.0f, 16.0f, 16.0f, weaponKey
                 ); // hitbox doesn't really matter
 
                 spriteMap[*currentWeapon] = wpn;

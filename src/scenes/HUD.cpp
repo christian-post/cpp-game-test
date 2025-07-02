@@ -143,7 +143,7 @@ void HUD::draw() {
     }
     if (showCoinAmount) {
         // TODO get rid of repeated code
-        const auto& coinTex = game.loader.getTextures("itemDropCoin_idle")[0];
+        const auto& coinTex = game.loader.getTextures("itemDropCoin")[0];
         int coinX = weaponX + 36;
         DrawTexture(coinTex, coinX, 8, WHITE);
         uint32_t qty = game.inventory.getItemQuantity("coin");

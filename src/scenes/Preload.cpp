@@ -15,13 +15,7 @@ void Preload::startup() {
     loadQueue.emplace("Loading textures", [&]() {
         l.loadTextures({
             {
-                "sprite_default_idle", {
-                    "./resources/textures/sprites/sprite_default_idle_anim_f0.png",
-                    "./resources/textures/sprites/sprite_default_idle_anim_f1.png"
-                }
-            },
-            {
-                "sprite_default_run", {
+                "sprite_default", {
                     "./resources/textures/sprites/sprite_default_idle_anim_f0.png",
                     "./resources/textures/sprites/sprite_default_idle_anim_f1.png"
                 }
@@ -112,7 +106,7 @@ void Preload::startup() {
                 }
             },
             {
-                "chest_idle", {
+                "chest", {
                     "./resources/textures/sprites/chest_empty_open_anim_f0.png",
                     "./resources/textures/sprites/chest_empty_open_anim_f1.png",
                     "./resources/textures/sprites/chest_empty_open_anim_f2.png"
@@ -127,21 +121,21 @@ void Preload::startup() {
                 }
             },
             {
-                "wall_fountain_basin_idle", {
+                "wall_fountain_basin", {
                     "./resources/textures/sprites/wall_fountain_basin_red_anim_f0.png",
                     "./resources/textures/sprites/wall_fountain_basin_red_anim_f1.png",
                     "./resources/textures/sprites/wall_fountain_basin_red_anim_f2.png",
                 }
             },
             {
-                "wall_fountain_mid_idle", {
+                "wall_fountain_mid", {
                     "./resources/textures/sprites/wall_fountain_mid_red_anim_f0.png",
                     "./resources/textures/sprites/wall_fountain_mid_red_anim_f1.png",
                     "./resources/textures/sprites/wall_fountain_mid_red_anim_f2.png",
                 }
             },
             {
-                "signpost_idle", {
+                "signpost", {
                     "./resources/textures/sprites/signpost.png"
                 }
             },
@@ -164,15 +158,15 @@ void Preload::startup() {
             { "weapon_mace", { "./resources/textures/sprites/weapon_mace.png" }},
             { "weapon_spear", { "./resources/textures/sprites/weapon_spear.png" }},
             { "weapon_arrow", { "./resources/textures/sprites/weapon_arrow.png" }},
-            { "flask_big_red_idle", { "./resources/textures/sprites/flask_big_red.png" }},
-            { "flask_big_green_idle", { "./resources/textures/sprites/flask_big_green.png" }},
-            { "flask_big_blue_idle", { "./resources/textures/sprites/flask_big_blue.png" }},
-            { "itemDropHeart_idle", { "./resources/textures/sprites/item_drop_heart.png" } },
-            { "itemDropCoin_idle", { "./resources/textures/sprites/item_drop_coin.png" } },
-            { "bomb_idle", { "./resources/textures/sprites/bomb_f0.png" } },
+            { "flask_big_red", { "./resources/textures/sprites/flask_big_red.png" }},
+            { "flask_big_green", { "./resources/textures/sprites/flask_big_green.png" }},
+            { "flask_big_blue", { "./resources/textures/sprites/flask_big_blue.png" }},
+            { "itemDropHeart", { "./resources/textures/sprites/item_drop_heart.png" } },
+            { "itemDropCoin", { "./resources/textures/sprites/item_drop_coin.png" } },
+            { "bomb", { "./resources/textures/sprites/bomb_f0.png" } },
             { "item_key", { "./resources/textures/sprites/item_key.png" } },
             {
-                "dungeon_door_idle", {
+                "dungeon_door", {
                     "./resources/textures/sprites/doors_leaf_closed.png",
                     "./resources/textures/sprites/doors_leaf_open.png",
                     "./resources/textures/sprites/doors_leaf_locked.png",
@@ -183,10 +177,9 @@ void Preload::startup() {
             { "title_image", { "./resources/textures/images/title.png" }},
             });
             // spritesheets
-            l.loadSpritesheet("./resources/textures/sprites/projectiles.png", 8, 8, "magic_ball_idle");
-            l.loadSpritesheet("./resources/textures/sprites/projectiles.png", 8, 8, "magic_ball_run"); // TODO temporary fix
-            l.loadSpritesheet("./resources/textures/sprites/fireball_16x4.png", 16, 16, "fireball_run");
-            l.loadSpritesheet("./resources/textures/sprites/smoke_16x6.png", 16, 16, "smoke_idle");
+            l.loadSpritesheet("./resources/textures/sprites/projectiles.png", 8, 8, "magic_ball");
+            l.loadSpritesheet("./resources/textures/sprites/fireball_16x4.png", 16, 16, "fireball");
+            l.loadSpritesheet("./resources/textures/sprites/smoke_16x6.png", 16, 16, "smoke");
             l.loadSpritesheet("./resources/textures/sprites/xbox_buttons_16x16.png", 16, 16, "xbox_buttons");
         });
 
@@ -201,16 +194,12 @@ void Preload::startup() {
         l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_shop.json");
         l.LoadtileMapFromTiled("./resources/tilemaps/test_map_small.json");
         l.LoadtileMapFromTiled("./resources/tilemaps/test_map_big.json");
-        l.LoadtileMapFromTiled("./resources/tilemaps/test_dungeon.json");
-        l.LoadtileMapFromTiled("./resources/tilemaps/test_dungeon1.json");
-        l.LoadtileMapFromTiled("./resources/tilemaps/test_dungeon2.json");
-        l.LoadtileMapFromTiled("./resources/tilemaps/test_dungeon3.json");
-        l.LoadtileMapFromTiled("./resources/tilemaps/test_fields.json");
         l.LoadtileMapFromTiled("./resources/tilemaps/dungeon001.json");
         l.LoadtileMapFromTiled("./resources/tilemaps/dungeon002.json");
         l.LoadtileMapFromTiled("./resources/tilemaps/dungeon003.json");
         l.LoadtileMapFromTiled("./resources/tilemaps/dungeon004.json");
         l.LoadtileMapFromTiled("./resources/tilemaps/dungeon005.json");
+        l.LoadtileMapFromTiled("./resources/tilemaps/dungeon006.json");
         });
     // load the font
     loadQueue.emplace("Loading fonts", [&]() {

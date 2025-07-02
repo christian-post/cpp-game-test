@@ -8,6 +8,7 @@
   "PlayeriFrames": 1.0,
   "HudHeight": 32.0,
   "textDelay": 0.02,
+  "soundOn": true,
   "keyBindings": {
     "W": "CONTROL_UP",
     "S": "CONTROL_DOWN",
