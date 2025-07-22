@@ -14,7 +14,7 @@ Scenes
 - Sprites
 -- behavior priority system
 -- drawing priority/layer system
--- shadows
+-- shadows!
 
 - Cutscene command system (modular)
 -- Command_MoveToPath(target, posX, posY, duration) // benutzt pathfinding
@@ -39,8 +39,17 @@ TODO: refactor
 - posOffsetX and posOffsetY in weapons data currently unused
 - Weapon hurtbox should appear only a fraction of the weapon's lifetime
 - Can repeated events go infinite?
+- Error check for a wrong emitter texture key
 
 BUGS:
 - RandomWalkBehavior: choose new target after some time if the current target can't be reached
 - show item pickup for all collectibles
 - F5 does not reset inventory and events
+- IMPORTANT Fireball sprites are messed up
+- Door sprites are squished
+- Mini Map Images are mirrored
+
+
+RELEASE CHECKLIST
+- replace tabs with spaces
+- turn on sounds and music

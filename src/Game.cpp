@@ -8,6 +8,7 @@
 #include "MapUI.h"
 #include "GameOver.h"
 #include "Utils.h"
+#include <sstream>
 
 
 Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this) {
@@ -109,6 +110,16 @@ void Game::processMarkedScenes() {
     }
 }
 
+std::shared_ptr<Sprite> Game::createSprite(std::string spriteName, Rectangle& rect)
+{
+    auto sprite = std::make_shared<Sprite>(
+        *this, rect.x, rect.y, rect.width, rect.height, spriteName
+    );
+    // delay the addition to the sprites vector until the end of the loop
+    spritesToAdd.push_back(sprite);
+    return sprite;
+}
+
 void Game::createDungeon(size_t roomsW, size_t roomsH)
 {
     currentDungeon = std::make_unique<Dungeon>(*this, roomsW, roomsH);
@@ -122,16 +133,32 @@ void Game::createDungeon(size_t roomsW, size_t roomsH)
     */
     // coordinates are row, column
     // second argument is the directions of the doors, starting at the right and going counter clockwise
+     
+#define TEST_ROOM
+     
+     
+#ifdef TEST_ROOM
+    currentDungeon->insertRoom(0, 0, Room{ loader.getTilemap("test_map_small"), 0b0000 }); // test dungeon
+#else
     currentDungeon->insertRoom(3, 2, Room{ loader.getTilemap("dungeon001"), 0b1111 });
     currentDungeon->insertRoom(2, 2, Room{ loader.getTilemap("dungeon002"), 0b0011 });
     currentDungeon->insertRoom(2, 1, Room{ loader.getTilemap("dungeon003"), 0b1001 });
     currentDungeon->insertRoom(3, 1, Room{ loader.getTilemap("dungeon004"), 0b1100 });
     currentDungeon->insertRoom(3, 3, Room{ loader.getTilemap("dungeon005"), 0b0010 });
     currentDungeon->insertRoom(1, 1, Room{ loader.getTilemap("dungeon006"), 0b0101 });
-    //currentDungeon->insertRoom(0, 0, Room{ loader.getTilemap("test_map_small"), 0b0000 }); // test dungeon
+#endif // TEST_ROOM
 
+    // TODO: debugging, setting all rooms to visited
+    for (int i = 0; i < roomsW * roomsH; i++) {
+        currentDungeon->setVisited(i);
+    }
+
+#ifdef TEST_ROOM
+    currentDungeon->setCurrentRoomIndex(0); // TODO: testing
+#else 
     currentDungeon->setCurrentRoomIndex(14); // start in R1
-    //currentDungeon->setCurrentRoomIndex(0); // TODO: testing
+#endif // TEST_ROOM
+
     currentDungeon->makeMinimapTextures();
 
     // TODO
@@ -163,6 +190,13 @@ void Game::processMarkedSprites() {
         [](auto sprite) {
             return sprite->isMarkedForDeletion();
         }), sprites.end());
+
+    // add any new sprites to the vector
+    // TODO: just doing this here, no need for a seperate function I guess
+    for (auto s : spritesToAdd) {
+        sprites.push_back(s);
+    }
+    spritesToAdd.clear();
 }
 
 Sprite* Game::getPlayer() {
@@ -242,7 +276,7 @@ void Game::draw() {
             WHITE);
 
         if (debug) {
-            DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Fade(BLACK, 0.5f));
+            DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Fade(BLACK, 0.25f));
             // show the state of the scenes
             int fontSize = 24;
 
@@ -271,6 +305,11 @@ void Game::draw() {
             DrawText(s_pausedScenes.c_str(), int(GetScreenWidth() * 0.3f), 4, fontSize, WHITE);
             DrawText(s_inactiveScenes.c_str(), int(GetScreenWidth() * 0.6f), 4, fontSize, WHITE);
             DrawText(s_drawOrder.c_str(), 4, int(GetScreenHeight() * 0.6f), fontSize, WHITE); // lower part of screen
+
+            std::ostringstream ss;
+            ss << "Room: " << currentDungeon->loadCurrentTileMap()->getName()
+                << " (" << currentDungeon->getCurrentRoomIndex() << ")";
+            DrawText(ss.str().c_str(), 4, int(GetScreenHeight() * 0.8f), fontSize, WHITE);
         }
     EndDrawing();
 }

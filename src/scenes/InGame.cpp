@@ -80,11 +80,11 @@ void InGame::startup() {
     setupConditionalEvents(*this);
 
     // TODO: adding some items for testing
-    //game.eventManager.pushDelayedEvent("testItemsForStart", 0.1f, nullptr, [this]() {
-    //    // give the player the sword for starters
-    //    game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_double_axe", 1));
-    //    game.eventManager.pushEvent("weaponSet", std::string("weapon_double_axe"));
-    //    });
+    game.eventManager.pushDelayedEvent("testItemsForStart", 0.1f, nullptr, [this]() {
+        // give the player the sword for starters
+        game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_double_axe", 1));
+        game.eventManager.pushEvent("weaponSet", std::string("weapon_double_axe"));
+        });
 }
 
 Sprite* InGame::getSprite(const std::string& name) {
@@ -129,7 +129,15 @@ void InGame::addBehaviorsToSprite(std::shared_ptr<Sprite> sprite, const std::vec
         }
         else if (key == "Shoot") {
             std::string targetName = behaviorData.value("shootTarget", "");
-            sprite->addBehavior(std::make_unique<ShootBehavior>(game, sprite, spriteMap[targetName]));
+            shootingConfig conf;
+            // TODO get these values from Tiled data
+            conf.projectileKey = "fireball";
+            conf.speed = 20.0f;
+            conf.amount = 10;
+            conf.velocityVariance = { 1.0f, 1.0f };
+            conf.spawnInterval = 0.1f;
+            conf.lifetimeVariance = 0.2f;
+            sprite->addBehavior(std::make_unique<ShootBehavior>(game, sprite, spriteMap[targetName], conf));
         }
         else if (key == "Emitter") {
             // TODO: make the emitter and particle more customizable
@@ -202,9 +210,14 @@ void InGame::loadTilemap() {
             // store default data seperately to replace individual attributes
             const auto& defaultData = spriteData.at("sprite_default");
             auto textureKeys = data.contains("textures") ? data.at("textures").get<std::vector<std::string>>() : defaultData.at("textures").get<std::vector<std::string>>();
+            // get the hitbox dimensions for the constructor
+            // if not specified in the JSON data, it takes the dimensions from the Tiled object data
+            Vector2 hitbox = data.contains("hitbox") ?
+                Vector2{ data.at("hitbox")[0].get<float>(), data.at("hitbox")[1].get<float>() } :
+                Vector2{ obj.width, obj.height };
             // instanciate the sprite
             auto sprite = std::make_shared<Sprite>(
-                game, obj.x, obj.y, obj.width, obj.height, obj.name
+                game, obj.x, obj.y, hitbox.x, hitbox.y, obj.name
             );
             // generic attributes
             // from JSON data
@@ -212,6 +225,9 @@ void InGame::loadTilemap() {
             sprite->damage = data.contains("damage") ? data.at("damage").get<int>() : defaultData.at("damage").get<int>();
             sprite->speed = data.contains("speed") ? data.at("speed").get<float>() : defaultData.at("speed").get<float>();
             sprite->knockback = data.contains("knockback") ? data.at("knockback").get<float>() : defaultData.at("knockback").get<float>();
+            sprite->hitboxOffset = data.contains("hitboxOffset") ?
+                Vector2{ data.at("hitboxOffset")[0].get<float>(), data.at("hitboxOffset")[1].get<float>() } :
+                Vector2{ 0.0f, 0.0f };
             // attributes from Tiled data (instance-specific, overwrite JSON data)
             sprite->spriteName = spriteName;
             sprite->speed = obj.properties.value("speed", sprite->speed);
@@ -281,19 +297,25 @@ void InGame::loadTilemap() {
                                 auto item = std::make_shared<Sprite>(
                                     game, s->position.x, s->position.y, 12.0f, 12.0f, itemId
                                 );
-                                item->setTextures(std::vector<std::string>{ itemId });
+                                auto& itemData = game.inventory.getItemData();
+                                auto it = itemData.find(itemId);
+                                if (it != itemData.end()) {
+                                    const ItemData& data = it->second;
+                                    item->setTextures(std::vector<std::string>{ data.textureKey });
+                                }
+                                else {
+                                    item->setTextures(std::vector<std::string>{ "sprite_default" }); // missing item data
+                                }
                                 item->drawLayer = 1;
                                 item->doesAnimate = false;
                                 item->isColliding = false;
                                 // TODO: this does not scale well. write a function that handles any itemID
+                                // make ItemDripHeart an Item with type "IMMEDIATE"
                                 if (itemId == "itemDropHeart" && player) {
                                     item->addBehavior(std::make_unique<HealBehavior>(game, item, player, 2));
                                 }
-                                else if (itemId == "itemDropCoin") {
-                                    item->addBehavior(std::make_unique<CollectItemBehavior>(game, item, player, "coin", 1));
-                                }
-                                else if (itemId == "flask_big_red") {
-                                    item->addBehavior(std::make_unique<CollectItemBehavior>(game, item, player, "red_potion", 1));
+                                else {
+                                    item->addBehavior(std::make_unique<CollectItemBehavior>(game, item, player, itemId, 1));
                                 }
                                 game.sprites.emplace_back(item);
                                 break;
@@ -451,7 +473,7 @@ void InGame::resolveAxisX(const std::shared_ptr<Sprite>& sprite, const Rectangle
         sprite->position.x = obstacle.x + obstacle.width;
     }
     sprite->vel.x = 0.0f;
-    sprite->rect.x = sprite->position.x;
+    sprite->rect.x = sprite->position.x + sprite->hitboxOffset.x;
 }
 
 void InGame::resolveAxisY(const std::shared_ptr<Sprite>& sprite, const Rectangle& obstacle) {
@@ -467,7 +489,7 @@ void InGame::resolveAxisY(const std::shared_ptr<Sprite>& sprite, const Rectangle
         sprite->position.y = obstacle.y + obstacle.height + 0.1f;
     }
     sprite->vel.y = 0.0f;
-    sprite->rect.y = sprite->position.y;
+    sprite->rect.y = sprite->position.y + sprite->hitboxOffset.y;
 }
 
 
@@ -704,7 +726,6 @@ void InGame::drawTilemapChunks(int layerIndex) {
             Vector2 origin = { 0, 0 };
             DrawTexturePro(tilemapChunks[layerIndex][idx].texture, src, dst, origin, 0.0f, WHITE);
             if (game.debug) {
-                DrawCircle((int)camera.target.x, (int)camera.target.y, 8, WHITE);
                 DrawRectangleLines((int)drawPos.x, (int)drawPos.y, tileChunkSize, tileChunkSize, RED);
             }
         }
@@ -762,6 +783,7 @@ void InGame::draw() {
         for (const auto& sprite : game.sprites) {
             DrawRectangleLines((int)sprite->hurtbox.x, (int)sprite->hurtbox.y, (int)sprite->hurtbox.width, (int)sprite->hurtbox.height, RED);
         }
+        DrawCircle((int)player->position.x, (int)player->position.y, 2, BLUE);
     }
     EndMode2D();
     // cutscene stuff (textboxes etc) gets drawn relative to window position
@@ -772,6 +794,8 @@ void InGame::draw() {
         // show the player's z velocity
         debugText += "player z vel: " + std::to_string(player->vz);
         DrawText(debugText.c_str(), 4, game.gameScreenHeight - 22, 10, LIGHTGRAY);
+
+        DrawCircle((int)camera.target.x, (int)camera.target.y, 2, WHITE);
     }
 }
 

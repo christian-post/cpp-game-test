@@ -8,6 +8,7 @@ enum ItemType {
     WEAPON,
     PASSIVE,
     KEY,
+    IMMEDIATE,
     NUM_ITEM_TYPES // last type used for array size
 };
 

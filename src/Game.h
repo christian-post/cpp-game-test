@@ -77,6 +77,7 @@ public:
     std::vector<std::unique_ptr<Rectangle>> walls; // everything with static collision
     std::vector<std::shared_ptr<Sprite>> sprites; // dynamic objects
     std::vector<Emitter> emitters; // particle emitters
+    std::shared_ptr<Sprite> createSprite(std::string spriteName, Rectangle& rect); // TODO: or return a reference to the sprite?
 
     // Dungeon management
     std::unique_ptr<Dungeon> currentDungeon = nullptr; 
@@ -101,4 +102,5 @@ private:
     std::unordered_map<std::string, std::function<std::unique_ptr<Scene>(const std::string&)>> sceneRegistry; // stores scene constructors
     std::unordered_map<std::string, int> scenePriorities; // stores the drawing order (TODO: also control the update order?)
     void setSceneState(const std::string& name, bool active, bool paused);
+    std::vector<std::shared_ptr<Sprite>> spritesToAdd; // stores the sprites that are later added to the actual sprites vector (prevents changing the vector during the update loop)
 };

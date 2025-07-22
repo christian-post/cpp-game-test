@@ -1,19 +1,6 @@
 {
-  "enemy_default": {
-    "textures": [
-      "sprite_default_idle",
-      "sprite_default_idle",
-      "sprite_default_idle"
-    ],
-    "health": 100,
-    "damage": 1,
-    "knockback": 1.0,
-    "speed": 5.0,
-    "behaviors": [],
-    "behaviorData": {},
-    "itemDrops": []
-  },
   "skelet": {
+    "inherits": "sprite_default",
     "textures": [
       "skelet_idle",
       "skelet_run"
@@ -27,10 +14,11 @@
       "chaseTarget": "player"
     },
     "itemDrops": [
-      [ "itemDropCoin", 1.0 ]
+      [ "heart_1up", 1.0 ]
     ]
   },
   "big_demon": {
+    "inherits": "sprite_default",
     "textures": [
       "big_demon_idle",
       "big_demon_run"
@@ -43,11 +31,13 @@
     "behaviorData": {
       "watchTarget": "player",
       "shootTarget": "player",
-      "particle": "smoke_idle"
+      "shootProjectile": "fireball",
+      "particle": "smoke"
     },
-    "itemDrops": [ [ "itemDropHeart", 0.5 ] ]
+    "itemDrops": [ [ "heart_1up", 1.0 ] ]
   },
   "goblin": {
+    "inherits": "sprite_default",
     "textures": [
       "goblin_idle",
       "goblin_run"
@@ -58,6 +48,6 @@
     "speed": 10.0,
     "behaviors": [ "RandomWalk", "Chase" ],
     "behaviorData": { "chaseTarget": "player" },
-    "itemDrops": [ [ "itemDropCoin", 0.75 ] ]
+    "itemDrops": [ [ "coin", 0.75 ] ]
   }
 }

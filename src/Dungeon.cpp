@@ -23,6 +23,11 @@ uint8_t Dungeon::getCurrentRoomState()
     return rooms[currentRoomIndex]->state;
 }
 
+uint8_t Dungeon::getRoomDoors(size_t index)
+{
+    return rooms[index]->doors;
+}
+
 std::unordered_map<uint32_t, ObjectState>& Dungeon::getCurrentRoomObjectStates()
 {
     return rooms[currentRoomIndex]->objectStates;
@@ -71,8 +76,16 @@ bool Dungeon::hasVisited(size_t index) const
     return rooms[index]->visited;
 }
 
+void Dungeon::setVisited(size_t index)
+{
+    if (index < rooms.size() && rooms[index]) {
+        rooms[index]->visited = true;
+    }
+}
+
 void Dungeon::makeMinimapTextures()
 {
+    // creates downscaled images of the rooms for the mini map
     constexpr int miniWidth = 36;
     constexpr int miniHeight = 24;
     constexpr int tileSize = 16;
@@ -90,9 +103,14 @@ void Dungeon::makeMinimapTextures()
         const Tileset& tileset = game.loader.getTileset(tileMap->getTilesetName());
         const Texture2D& texture = game.loader.getTextures(tileset.name)[0];
         const size_t tilesPerRow = tileset.columns;
+        //float scaleX = (float)miniWidth / (tileMap->width * tileSize);
+        //float scaleY = (float)miniHeight / (tileMap->height * tileSize);
 
-        RenderTexture2D mini = LoadRenderTexture(miniWidth, miniHeight);
-        BeginTextureMode(mini);
+        // NEW: scaling down the room image AFTER all tiles have been drawn
+        std::pair<size_t, size_t> tilemapSize = getRoomSize(currentRoomIndex);
+        RenderTexture2D normal = LoadRenderTexture(tilemapSize.first, tilemapSize.second); // 1:1 size
+        RenderTexture2D mini = LoadRenderTexture(miniWidth, miniHeight); // downscaled room texture
+        BeginTextureMode(normal);
         ClearBackground(BLANK);
         for (size_t layerIndex = 0; layerIndex < tileMap->layers.size(); ++layerIndex) {
             const auto& layer = tileMap->getLayer(layerIndex);
@@ -100,21 +118,25 @@ void Dungeon::makeMinimapTextures()
             for (size_t y = 0; y < tileMap->height; ++y) {
                 for (size_t x = 0; x < tileMap->width; ++x) {
                     if (!layer.data[y][x]) continue;
+                    // sample the source rect from the normally sized Tilemap
                     size_t tileIndex = static_cast<size_t>(layer.data[y][x] - 1);
                     float tileX = static_cast<float>(tileIndex % tilesPerRow) * tileSize;
                     float tileY = (static_cast<float>(tileIndex) / static_cast<float>(tilesPerRow)) * tileSize;
                     Rectangle src = { tileX, tileY, (float)tileSize, (float)tileSize };
 
-                    float scaleX = (float)miniWidth / (tileMap->width * tileSize);
-                    float scaleY = (float)miniHeight / (tileMap->height * tileSize);
-                    float px = x * tileSize * scaleX;
-                    float py = y * tileSize * scaleY;
-                    Rectangle dst = { px, py, tileSize * scaleX, tileSize * scaleY };
-
+                    float px = x * tileSize;
+                    float py = y * tileSize;
+                    Rectangle dst = { px, py, tileSize, tileSize };
+                    // draw the tile
                     DrawTexturePro(texture, src, dst, { 0, 0 }, 0.0f, WHITE);
                 }
             }
         }
+        EndTextureMode();
+        BeginTextureMode(mini);
+        Rectangle src = { 0.0f, 0.0f, static_cast<float>(normal.texture.width), static_cast<float>(normal.texture.height) };
+        Rectangle dst = { 0.0f, 0.0f, static_cast<float>(mini.texture.width), static_cast<float>(mini.texture.height) };
+        DrawTexturePro(normal.texture, src, dst, { 0, 0 }, 0.0f, WHITE);
         EndTextureMode();
         minimapTextures.push_back(mini);
     }

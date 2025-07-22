@@ -6,7 +6,7 @@
 
 InventoryManager::InventoryManager(Game& game) : game(game) {
     itemData = createItemData();
-    // TODO: add callbacks back to the items
+    // TODO: add callbacks in ItemData.cpp?
     itemData["red_potion"].onConsume = [this, isRefilling = false]() mutable {
         if (isRefilling) return false;
 
@@ -14,6 +14,23 @@ InventoryManager::InventoryManager(Game& game) : game(game) {
         if (player->health == player->maxHealth)
             return false;
 
+        int repeats = player->maxHealth - player->health;
+        isRefilling = true;
+        this->game.eventManager.pushRepeatedEvent("refill_health", 0.2f, {}, [=]() {
+            player->health += 1;
+            this->game.playSound("heart");
+            }, repeats, [&]() {
+                isRefilling = false;
+                });
+            return true;
+        };
+
+    itemData["heart_1up"].onConsume = [this, isRefilling = false]() mutable {
+        // adds 1 extra heart
+        if (isRefilling) return false;
+
+        auto* player = this->game.getPlayer();
+        player->maxHealth += 2;
         int repeats = player->maxHealth - player->health;
         isRefilling = true;
         this->game.eventManager.pushRepeatedEvent("refill_health", 0.2f, {}, [=]() {

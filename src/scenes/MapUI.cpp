@@ -87,6 +87,13 @@ void MapUI::draw() {
     const int cellWidth = (static_cast<int>(width) - 2 * border - (cols - 1) * spacing) / cols;
     const int cellHeight = (static_cast<int>(height) - 2 * border - (rows - 1) * spacing) / rows;
 
+    std::array<Vector2, 4> offsets = {
+        Vector2{ float(cellWidth), float(cellHeight / 2 - spacing / 2) },
+        Vector2{ float(cellWidth / 2 - spacing / 2), -1.0f * float(spacing)},
+        Vector2{ -1.0f * float(spacing), float(cellHeight / 2 - spacing / 2) },
+        Vector2{ float(cellWidth / 2 - spacing / 2), float(cellHeight)}
+    }; // TODO: don't redefine this every time, change the array values instead
+
     auto& minimaps = game.currentDungeon->minimapTextures;
     for (int i = 0; i < cols * rows; ++i) {
         int col = i % cols;
@@ -101,6 +108,23 @@ void MapUI::draw() {
             Rectangle src = { 0, 0, (float)tex.width, -(float)tex.height };
             Rectangle dst = { (float)cellX, (float)cellY, (float)cellWidth, (float)cellHeight };
             DrawTexturePro(tex, src, dst, { 0, 0 }, 0.0f, WHITE);
+
+            // indicate the connections between rooms
+            uint8_t doors = game.currentDungeon->getRoomDoors(i);
+
+            for (int j = 3; j >= 0; j--) {
+                bool isDoor = (doors >> j) & 1;
+                if (isDoor) {
+                    Rectangle r = {
+                        dst.x + offsets[3 - j].x,
+                        dst.y + offsets[3 - j].y,
+                        float(spacing),
+                        float(spacing)
+                    };
+                    DrawRectangleRec(r, color);
+                }
+            }
+
             if (i == currentRoomIndex && cursorOn && state == OPENED) {
                 // draw a player as a blinking circle
                 const Vector2& pos = game.getPlayer()->position;

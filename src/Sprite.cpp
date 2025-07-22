@@ -18,9 +18,11 @@ Sprite::Sprite(Game& game, float x, float y, float w, float h, const std::string
     health{ 10 }, // default values
     maxHealth{ 10 }
 {
-    //frames[IDLE] = { game.loader.fallbackTexture };
-    //frames[RUN] = { game.loader.fallbackTexture };
-    //frames[HIT] = { game.loader.fallbackTexture };
+    // TODO: solve this differently!
+    frames.resize(3);
+    frames[IDLE] = { game.loader.fallbackTexture };
+    frames[RUN] = { game.loader.fallbackTexture };
+    frames[HIT] = { game.loader.fallbackTexture };
 }
 
 Sprite::~Sprite() {
@@ -106,15 +108,16 @@ void Sprite::moveTo(float x, float y) {
     // moves the sprite instantly, without applying physics
     // makes sure all the rects are placed accordingly
     position = { x, y };
-    rect.x = position.x;
-    rect.y = position.y;
+    rect.x = position.x + hitboxOffset.x;
+    rect.y = position.y + hitboxOffset.y;
     // center the hurtbox
     hurtbox.x = rect.x + (rect.width - hurtbox.width) / 2 + hurtboxOffset.x;
     hurtbox.y = rect.y + (rect.height - hurtbox.height) / 2 + hurtboxOffset.y;
 }
 
 void Sprite::update(float deltaTime) {
-    if (markedForDeletion) return;
+    if (markedForDeletion) 
+        return;
     // applies laws of motion according to the acceleration that was
     // set prior to this step (either by player input, Cutscene commands,
     // or a Behavior
@@ -178,19 +181,29 @@ void Sprite::draw() {
     Texture2D& texture = textures[currentFrame];
     // Define source and destination rectangles
     Rectangle source = { 0.0f, 0.0f, (float)texture.width, (float)texture.height };
-
     Rectangle dest = {
-        rect.x + rect.width / 2.0f, 
-        rect.y + rect.height + z,  // apply the z axis, but only visually
-        source.width, source.height
+        position.x + rect.width / 2.0f + hitboxOffset.x,
+        position.y + rect.height + hitboxOffset.y + z,
+        (float)texture.width,
+        (float)texture.height
     };
+    Vector2 origin = { texture.width / 2.0f, texture.height };
 
-    Vector2 origin = { source.width / 2.0f, source.height };
+    if (game.debug) {
+        Rectangle debugRect = { 
+            dest.x - origin.x, 
+            dest.y - origin.y, 
+            dest.width, 
+            dest.height 
+        };
+        DrawRectangleRec(debugRect, BLUE);
+    }
+
+
     // Flip horizontally if lastDirection is LEFT
     if (lastDirection == LEFT) {
         source.width = -source.width;
     }
-    //Color tint = WHITE;
     Color currentTint = tint;
     if (iFrameTimer > 0.0f && !dying) {
         bool flicker = ((int)(iFrameTimer * 10) % 2) == 0;

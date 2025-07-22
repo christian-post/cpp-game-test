@@ -49,6 +49,7 @@ public:
 
     // physics
     Rectangle rect; // hitbox for collision
+    Vector2 hitboxOffset = { 0.0f, 0.0f }; // hitbox origin can differ from position
     Rectangle hurtbox; // hurtbox for attacks
     Vector2 hurtboxOffset = { 0.0f, 0.0f };
     bool isColliding = true;

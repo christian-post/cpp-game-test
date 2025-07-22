@@ -13,15 +13,17 @@
     "behaviorData": {
       "voice": "powerUp4"
     },
-    "collides": 1
+    "collides": 1,
+    "hitbox": [ 16.0, 16.0 ],
+    "hitboxOffset": [ 0.0, 0.0 ]
   },
   "elfCompanion1": {
+    "inherits": "sprite_default",
     "textures": [
       "elf_f_idle",
       "elf_f_run"
     ],
     "health": 100,
-    "speed": 10.0,
     "behaviors": [ "RandomWalk", "Watch", "Dialogue" ],
     "behaviorData": {
       "watchTarget": "player",
@@ -30,12 +32,7 @@
     }
   },
   "elfCompanion2": {
-    "textures": [
-      "elf_f_idle",
-      "elf_f_run"
-    ],
-    "health": 100,
-    "speed": 10.0,
+    "inherits": "elfCompanion1",
     "behaviors": [ "Watch", "Dialogue" ],
     "behaviorData": {
       "watchTarget": "player",
@@ -44,6 +41,7 @@
     }
   },
   "merchant": {
+    "inherits": "sprite_default",
     "textures": [
       "dwarf_m_idle",
       "dwarf_m_run"
@@ -56,6 +54,7 @@
     }
   },
   "signpost": {
+    "inherits": "sprite_default",
     "textures": [
       "signpost"
     ],
@@ -67,18 +66,23 @@
     "collides": 0
   },
   "dungeon_door": {
+    "inherits": "sprite_default",
     "textureKey": "dungeon_door",
     "textures": [
       "dungeon_door"
-    ]
+    ],
+    "hitbox": [ 32.0, 24.0 ],
+    "hitboxOffset": [ 0.0, 0.0 ]
   },
   "wall_fountain_basin": {
+    "inherits": "sprite_default",
     "textures": [
       "wall_fountain_basin"
     ],
     "collides": 0
   },
   "wall_fountain_mid": {
+    "inherits": "sprite_default",
     "textures": [
       "wall_fountain_mid"
     ],
