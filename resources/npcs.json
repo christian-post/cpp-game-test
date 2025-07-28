@@ -24,9 +24,8 @@
       "elf_f_run"
     ],
     "health": 100,
-    "behaviors": [ "RandomWalk", "Watch", "Dialogue" ],
+    "behaviors": [ "RandomWalk", "Dialogue" ],
     "behaviorData": {
-      "watchTarget": "player",
       "dialogue": "elfDialogue1",
       "voice": "powerUp4"
     }

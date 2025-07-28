@@ -32,10 +32,21 @@ public:
     CameraShake cameraShake;
 
     // light effects
-    Light lights[1] = {
+    // TODO: these need to be dynamic and can't be hard-coded here
+    // use a vector instead
+    Light lights[MAX_LIGHTS] = {
         {{0.0f, 0.0f}, 12.0f},
+        {{0.0f, 0.0f}, 12.0f},
+        {{0.0f, 0.0f}, 12.0f},
+        {{0.0f, 0.0f}, 12.0f},
+        {{0.0f, 0.0f}, 12.0f},
+        {{0.0f, 0.0f}, 12.0f},
+        {{0.0f, 0.0f}, 12.0f},
+        {{0.0f, 0.0f}, 12.0f},
+        {{0.0f, 0.0f}, 12.0f},
+        {{0.0f, 0.0f}, 12.0f}
     };
-    int lightCount = 1;
+    int lightCount = MAX_LIGHTS;
 
     // collision
     void resolveAxisX(const std::shared_ptr<Sprite>& sprite, const Rectangle& obstacle);

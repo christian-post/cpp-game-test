@@ -185,7 +185,8 @@ void WeaponBehavior::update(float deltaTime) {
                     if (!shaken && progress > 0.5f) {
                         s->game.eventManager.pushEvent("screenShake", std::make_tuple(0.1f, 0.0f, 10.0f));
                         s->game.playSound("hammer");
-                        o->az = -1.0f; // player jumps
+                        // player jumps
+                        o->jump();
                         shaken = true;
                     }
                 }

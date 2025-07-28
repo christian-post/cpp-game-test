@@ -7,7 +7,12 @@ void DrawLightOverlay(Texture2D& texture, const Shader& shader, Light* lights, i
     Vector2 centers[MAX_LIGHTS];
     float radii[MAX_LIGHTS];
     for (int i = 0; i < lightCount; i++) {
-        centers[i] = lights[i].center;
+        if (lights[i].active) {
+            centers[i] = lights[i].center;
+        }
+        else {
+            centers[i] = { -100.0f, -100.0f };
+        }
         radii[i] = lights[i].radius;
     }
     SetShaderValue(shader, GetShaderLocation(shader, "u_lightCount"), &lightCount, SHADER_UNIFORM_INT);

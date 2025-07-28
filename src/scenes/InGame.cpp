@@ -16,6 +16,7 @@ void InGame::startup() {
     player->persistent = true;
     game.sprites.emplace_back(player);  // add to the sprites vector
     player->setTextures({ "player_idle", "player_run", "player_hit" });
+    player->emitsLight = true; // TODO: for debugging, until I program the lamp item
     // retrieve the tilemap
     // and set the player's position in the first room
     game.createDungeon(4, 4);
@@ -82,8 +83,8 @@ void InGame::startup() {
     // TODO: adding some items for testing
     game.eventManager.pushDelayedEvent("testItemsForStart", 0.1f, nullptr, [this]() {
         // give the player the sword for starters
-        game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_double_axe", 1));
-        game.eventManager.pushEvent("weaponSet", std::string("weapon_double_axe"));
+        game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_hammer", 1));
+        game.eventManager.pushEvent("weaponSet", std::string("weapon_hammer"));
         });
 }
 
@@ -228,6 +229,7 @@ void InGame::loadTilemap() {
             sprite->hitboxOffset = data.contains("hitboxOffset") ?
                 Vector2{ data.at("hitboxOffset")[0].get<float>(), data.at("hitboxOffset")[1].get<float>() } :
                 Vector2{ 0.0f, 0.0f };
+            //sprite->emitsLight = true; // TODO
             // attributes from Tiled data (instance-specific, overwrite JSON data)
             sprite->spriteName = spriteName;
             sprite->speed = obj.properties.value("speed", sprite->speed);
@@ -593,10 +595,27 @@ void InGame::update(float deltaTime) {
         }
     }
     // animate always, regardless of cutscene
-    for (const auto& sprite : game.sprites) {
-        sprite->animate(deltaTime);
+    // also handle lights
+    size_t currentLightIndex = 0;
+    float lightRadius = 24.0f;
+
+    for (int i = 0; i < MAX_LIGHTS; i++) {
+        lights[i].active = false;
     }
 
+    for (const auto& sprite : game.sprites) {
+        // progress the animation index and change the textures if necessary
+        sprite->animate(deltaTime);
+        // check if the sprite emits light in dark rooms
+        // and give it a light cone
+        if (game.currentDungeon->isRoomDark() && sprite->emitsLight && currentLightIndex < MAX_LIGHTS) {
+            lights[currentLightIndex].center = GetWorldToScreen2D(GetRectCenter(sprite->rect), camera);
+            lights[currentLightIndex].center.y += sprite->z; // apply jump height
+            lights[currentLightIndex].radius = lightRadius; // TODO
+            lights[currentLightIndex].active = true;
+            currentLightIndex++;
+        }
+    }
     // collision of sprites with static objects (walls)
     // TODO: make this a method of Sprite?
     // 
@@ -804,13 +823,9 @@ void InGame::draw() {
     EndMode2D();
 
     // draw lighting in dark rooms
-    Vector2 target = GetRectCenter(player->rect);
-    float lightRadius = 24.0f;
-    Vector2 screenCenter = GetWorldToScreen2D(target, camera);
-    lights[0].center = screenCenter;
-    lights[0].radius = lightRadius;
     // TODO: should game.target be passed as an argument to scene.draw() instead of being indirectly accessible to the scenes?
-    DrawLightOverlay(game.target.texture, game.loader.getShader("light_mask"), lights, lightCount, static_cast<float>(game.gameScreenWidth), static_cast<float>(game.gameScreenHeight));
+    if (game.currentDungeon->isRoomDark())
+        DrawLightOverlay(game.target.texture, game.loader.getShader("light_mask"), lights, lightCount, static_cast<float>(game.gameScreenWidth), static_cast<float>(game.gameScreenHeight));
 
     // cutscene stuff (textboxes etc) gets drawn relative to window position
     game.cutsceneManager.draw();

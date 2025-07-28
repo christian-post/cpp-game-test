@@ -115,6 +115,11 @@ void Sprite::moveTo(float x, float y) {
     hurtbox.y = rect.y + (rect.height - hurtbox.height) / 2 + hurtboxOffset.y;
 }
 
+void Sprite::jump()
+{
+    az = -1.0f;
+}
+
 void Sprite::update(float deltaTime) {
     if (markedForDeletion) 
         return;

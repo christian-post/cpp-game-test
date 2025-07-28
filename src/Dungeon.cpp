@@ -23,6 +23,11 @@ uint8_t Dungeon::getCurrentRoomState()
     return rooms[currentRoomIndex]->state;
 }
 
+bool Dungeon::isRoomDark()
+{
+    return rooms[currentRoomIndex]->dark;
+}
+
 uint8_t Dungeon::getRoomDoors(size_t index)
 {
     return rooms[index]->doors;
@@ -133,10 +138,6 @@ void Dungeon::makeMinimapTextures()
         EndTextureMode();
         // draw to the small surface
         BeginTextureMode(mini);
-        //Rectangle src = { 0.0f, 0.0f, static_cast<float>(normal.texture.width), static_cast<float>(normal.texture.height) * -1.0f }; // important: flip the Y axis!
-        //Rectangle dst = { 0.0f, 0.0f, static_cast<float>(mini.texture.width), static_cast<float>(mini.texture.height) };
-        //DrawTexturePro(normal.texture, src, dst, { 0, 0 }, 0.0f, WHITE);
- 
         // TODO: testing modal filtering for less noisy images
         Image fullImg = LoadImageFromTexture(normal.texture);
         Color* pixels = LoadImageColors(fullImg);

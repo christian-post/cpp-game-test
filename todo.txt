@@ -23,6 +23,7 @@ Scenes
 - Music/Sounds:
 -- Inventory select item --> different sound
 
+
 TODO: refactor
 - add a "persistent" property to event listeners (non-persistent listeners are removed after one event)
 - Remove all coupling between Game and Sprite?
@@ -32,7 +33,7 @@ TODO: refactor
 - does it make sense for Behaviors to have a draw method, or can this be solved differently?
 - don't check event listeners for delayed events with callbacks
 - add a "unique" property to addListener that removes old listeners if they exist
-- dedicated Sprite.jump() method
+- Sprite.jump() method: add argument "jumpHeight" that roughly corresponds to the number of pixels
 - posOffsetX and posOffsetY in weapons data currently unused
 - Weapon hurtbox should appear only a fraction of the weapon's lifetime
 - Can repeated events go infinite?
@@ -40,11 +41,13 @@ TODO: refactor
 - create a particles.json file with presets for Particles and Emitters. Give Particle and Emitter a .fromData() function
 - Event keys should be enums instead of strings
 
+
 BUGS:
 - RandomWalkBehavior: choose new target after some time if the current target can't be reached
 - show item pickup for all collectibles
 - F5 does not reset inventory and events
 - Door sprites are squished
+- Attribute inheritance from json does not work for sprites
 
 
 RELEASE CHECKLIST

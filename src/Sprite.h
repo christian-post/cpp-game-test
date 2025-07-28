@@ -37,7 +37,7 @@ public:
     int drawLayer = 0;
     bool visible = true;
     bool persistent = false; // controls whether the sprite survives between map changes
-    //std::string currentTextureKey = "default";
+    bool emitsLight = false; // in dark rooms, if the sprite gets a light cone
     AnimState currentAnimState = IDLE;
 
     std::optional<ShaderState> activeShader = std::nullopt;
@@ -65,6 +65,7 @@ public:
     float z = 0.0f;
     float vz = 0.0f;
     float az = 0.0f;
+    void jump();
 
     // gameplay variables
     uint32_t health; // current health
