@@ -105,7 +105,7 @@ void MapUI::draw() {
 
         if (i < minimaps.size() && game.currentDungeon->hasVisited(i)) {
             const auto& tex = minimaps[i].texture;
-            Rectangle src = { 0, 0, (float)tex.width, -(float)tex.height };
+            Rectangle src = { 0, 0, (float)tex.width, (float)tex.height };
             Rectangle dst = { (float)cellX, (float)cellY, (float)cellWidth, (float)cellHeight };
             DrawTexturePro(tex, src, dst, { 0, 0 }, 0.0f, WHITE);
 

@@ -16,6 +16,12 @@
 #define DARKBURGUNDY { 20, 0, 8, 255 }
 #define LIGHTBURGUNDY { 40, 0, 16, 255 }
 
+
+// Debug flags
+//#define TEST_ROOM
+
+
+
 class Command;
 
 class Game {
@@ -67,7 +73,12 @@ public:
     InventoryManager inventory;
 
     bool isRunning() const { return running; }
+    bool isRestartRequested() const { return restartRequested; }
     void end() { running = false; }
+    void restart() {
+        running = false;
+        restartRequested = true; 
+    }
 
     // input management
     uint32_t buttonsPressed;
@@ -98,6 +109,7 @@ public:
 
 private:
     bool running = true;
+    bool restartRequested = false; // triggers a restart (Game instance is recreated)
     std::unordered_map<std::string, std::unique_ptr<Scene>> scenes; // contains active game scenes
     std::unordered_map<std::string, std::function<std::unique_ptr<Scene>(const std::string&)>> sceneRegistry; // stores scene constructors
     std::unordered_map<std::string, int> scenePriorities; // stores the drawing order (TODO: also control the update order?)

@@ -2,9 +2,10 @@
 #include "Scene.h"
 #include "Sprite.h"
 #include "TileMap.h"
+#include "Utils.h"
+#include "CircleOverlay.h"
 #include <memory>
 #include "json.hpp"
-#include "Utils.h"
 
 class InGame : public Scene {
 public:
@@ -29,6 +30,12 @@ public:
 
     Camera2D camera = {};
     CameraShake cameraShake;
+
+    // light effects
+    Light lights[1] = {
+        {{0.0f, 0.0f}, 12.0f},
+    };
+    int lightCount = 1;
 
     // collision
     void resolveAxisX(const std::shared_ptr<Sprite>& sprite, const Rectangle& obstacle);

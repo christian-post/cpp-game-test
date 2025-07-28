@@ -29,9 +29,9 @@ void GameOver::startup() {
 
 void GameOver::update(float dt) {
     if (showText2 && AnyKeyPressed(game.buttonsPressed)) {
-        // end the game
-        // TODO: restart the game
-        game.end();
+        // restart the game
+        // TODO: show a menu (restart, end)
+        game.restart();
     }
 }
 

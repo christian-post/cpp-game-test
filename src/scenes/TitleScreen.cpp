@@ -14,11 +14,8 @@ void TitleScreen::startup() {
 
 void TitleScreen::update(float deltaTime) {
     transparency = (unsigned char)((sinf(float(GetTime()) * PI) + 1.0f) * 127.5f);
-
     if (AnyKeyPressed(game.buttonsPressed)) {
-        game.startScene("InventoryManager");
-        game.startScene("InGame");
-        game.startScene("HUD");
+        game.startScene("StartMenu");
         game.stopScene(getName());
     }
 }

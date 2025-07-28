@@ -2,6 +2,7 @@
 #include "Controls.h"
 #include "Preload.h"
 #include "TitleScreen.h"
+#include "StartMenu.h"
 #include "InGame.h"
 #include "HUD.h"
 #include "InventoryUI.h"
@@ -35,6 +36,7 @@ Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this) {
     // the second argument is priority for the drawing order
     registerScene<Preload>("Preload", 0);
     registerScene<TitleScreen>("TitleScreen", 0);
+    registerScene<StartMenu>("StartMenu", 0);
     registerScene<InGame>("InGame", 0);
     registerScene<HUD>("HUD", 1);
     registerScene<InventoryUI>("InventoryUI", 2);
@@ -133,9 +135,6 @@ void Game::createDungeon(size_t roomsW, size_t roomsH)
     */
     // coordinates are row, column
     // second argument is the directions of the doors, starting at the right and going counter clockwise
-     
-#define TEST_ROOM
-     
      
 #ifdef TEST_ROOM
     currentDungeon->insertRoom(0, 0, Room{ loader.getTilemap("test_map_small"), 0b0000 }); // test dungeon
@@ -344,20 +343,15 @@ void Game::run() {
         playMusic();
         draw();
 
-        // restarting the game
-        // TODO: should be an event
+        // restarting the game (debugging)
         if (IsKeyPressed(KEY_F5)) {
-            eventManager.clearAll();
-            for (auto sprite : sprites) {
-                sprite->markForDeletion();
-            }
-            resetScenes();
-            startScene("TitleScreen");
+            restart();
         }
         processMarkedSprites();
         processMarkedScenes();
     }
     // cleanup after the game loop
     UnloadRenderTexture(target);
+    CloseAudioDevice();
     CloseWindow();
 }

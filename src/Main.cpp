@@ -4,7 +4,11 @@ int main() {
     //SetTraceLogLevel(LOG_WARNING);
     SetTraceLogLevel(LOG_INFO);
 
-    Game game;
-    game.run();
+    while (true) {
+        Game game;
+        game.run();
+        if (!game.isRestartRequested()) 
+            break;
+    }
     return 0;
 }

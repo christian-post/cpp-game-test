@@ -10,11 +10,14 @@ AssetLoader::~AssetLoader() {
             UnloadTexture(texture);
         }
     }
+    // shaders
+    for (auto& it : shaders) {
+        UnloadShader(*it.second);
+    }
     // fonts
     for (auto& it : fonts) {
         UnloadFont(it.second);
     }
-    fonts.clear();
     // unload the music and sounds
     for (auto& it : musicTracks) {
         UnloadMusicStream(it.second);

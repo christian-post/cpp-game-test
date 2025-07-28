@@ -1,5 +1,4 @@
 ﻿#include "InventoryUI.h"
-//#include "InventoryManager.h"
 #include "Game.h"
 #include "Controls.h"
 #include "raylib.h"
@@ -173,7 +172,6 @@ void InventoryUI::draw() {
     for (const auto& [key, item] : items[KEY]) flatItems.push_back(&item);
 
     // selectable weapons
-    
     for (size_t i = 0; i < weaponsSize; ++i) {
         size_t row = i / cols;
         size_t col = i % cols;

@@ -20,11 +20,9 @@ Scenes
 -- Command_MoveToPath(target, posX, posY, duration) // benutzt pathfinding
 
 - Misc
--- draw connections between mini map rooms
 
 - Music/Sounds:
 -- Inventory select item --> different sound
--- Customize the Command_Textbox to allow for different speaking sounds (or none)
 
 TODO: refactor
 - add a "persistent" property to event listeners (non-persistent listeners are removed after one event)
@@ -40,16 +38,17 @@ TODO: refactor
 - Weapon hurtbox should appear only a fraction of the weapon's lifetime
 - Can repeated events go infinite?
 - Error check for a wrong emitter texture key
+- create a particles.json file with presets for Particles and Emitters. Give Particle and Emitter a .fromData() function
+- Event keys should be enums instead of strings
 
 BUGS:
 - RandomWalkBehavior: choose new target after some time if the current target can't be reached
 - show item pickup for all collectibles
 - F5 does not reset inventory and events
-- IMPORTANT Fireball sprites are messed up
 - Door sprites are squished
-- Mini Map Images are mirrored
 
 
 RELEASE CHECKLIST
 - replace tabs with spaces
 - turn on sounds and music
+- hand crafted title image

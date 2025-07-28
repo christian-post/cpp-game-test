@@ -3,7 +3,7 @@
 #include "Behavior.h"
 #include "Controls.h"
 #include "Events.h"
-
+#include "Utils.h"
 
 void InGame::startup() {
     // create the player sprite
@@ -668,6 +668,9 @@ void InGame::update(float deltaTime) {
         camera.target = target;
     }
 
+    // update light circle position
+    /*lights[0].center = GetWorldToScreen2D(target, camera);*/
+
     // check player out of map bounds
     // TODO: make a function for this
     int8_t offset = 0;
@@ -786,6 +789,16 @@ void InGame::draw() {
         DrawCircle((int)player->position.x, (int)player->position.y, 2, BLUE);
     }
     EndMode2D();
+
+    // draw lighting in dark rooms
+    Vector2 target = GetRectCenter(player->rect);
+    float lightRadius = 24.0f;
+    Vector2 screenCenter = GetWorldToScreen2D(target, camera);
+    lights[0].center = screenCenter;
+    lights[0].radius = lightRadius;
+    // TODO: should game.target be passed as an argument to scene.draw() instead of being indirectly accessible to the scenes?
+    DrawLightOverlay(game.target.texture, game.loader.getShader("light_mask"), lights, lightCount, static_cast<float>(game.gameScreenWidth), static_cast<float>(game.gameScreenHeight));
+
     // cutscene stuff (textboxes etc) gets drawn relative to window position
     game.cutsceneManager.draw();
     // overlay debug info texts

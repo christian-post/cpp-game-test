@@ -1,0 +1,27 @@
+{
+  "defaultEmitter": {
+    "type": "emitter",
+    "particleKey": "defaultParticle",
+    "spawnInterval": 1.0,
+    "emitterLifetime": -1.0,
+    "spawnRadius": 0.0,
+    "spawnRadiusVariance": 0.0,
+    "velocityVarianceX": 0.0,
+    "velocityVarianceY": 0.0,
+    "lifetimeVariance": 0.0,
+    "alphaVariance": 0.0
+  },
+  "defaultParticle": {
+    "type": "particle",
+    "textureKey": "sprite_default",
+    "velocityX": 0.0,
+    "velocityY": 0.0,
+    "startAlpha": 1.0,
+    "endAlpha": 0.0,
+    "tint": [255,255,255,255],
+    "lifetime": 1.0,
+    "startSize": 1.0,
+    "endSize": 1.0,
+    "animationSpeed": 0.1
+  }
+}

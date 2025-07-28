@@ -209,6 +209,7 @@ void Preload::startup() {
     // load shaders
     loadQueue.emplace("Loading shaders", [&]() {
         l.LoadShaderFile("./resources/shaders/crumble.fs");
+        l.LoadShaderFile("./resources/shaders/light_mask.fs");
         });
     // JSON data
     loadQueue.emplace("Loading JSON data", [&]() {

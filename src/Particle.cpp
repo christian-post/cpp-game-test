@@ -116,6 +116,24 @@ void Particle::reset() {
     active = true;
 }
 
+void Particle::fromData(nlohmann::json& data)
+{
+    // set the values from JSON data
+    velocity = { data.at("velocityX").get<float>(), data.at("velocityY").get<float>() };
+    startAlpha = data.at("startAlpha").get<float>();
+    endAlpha = data.at("endAlpha").get<float>();
+    auto tintVec = data.at("tint");
+    tint = Color{
+        static_cast<unsigned char>(tintVec[0].get<int>()),
+        static_cast<unsigned char>(tintVec[1].get<int>()),
+        static_cast<unsigned char>(tintVec[2].get<int>()),
+        static_cast<unsigned char>(tintVec[3].get<int>())
+    };
+    lifetime = data.at("lifetime").get<float>();
+    startSize = data.at("startSize").get<float>();
+    endSize = data.at("endSize").get<float>();
+}
+
 void Particle::setAnimationFrames(const std::vector<Texture2D>& textures) {
     animationFrames.clear();
     for (const auto& tex : textures) {
