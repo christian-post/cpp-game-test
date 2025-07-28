@@ -567,8 +567,21 @@ void InGame::update(float deltaTime) {
             // TODO: bind events to all the button functionality
             game.pauseScene(this->getName());
             game.startScene("InventoryUI");
+            // TODO: make this a single-use event
             game.eventManager.addListener("InventoryDone", [this](std::any) {
+                // return to this scene
                 this->game.resumeScene(this->getName());
+                });
+            game.eventManager.pushEvent("setMusicVolume", 0.3f);
+        }
+        if (game.buttonsPressed & CONTROL_CANCEL) {
+            game.pauseScene(this->getName());
+            game.sleepScene("HUD");
+            game.startScene("SelectMenu");
+            game.eventManager.addListener("SelectMenuDone", [this](std::any) {
+                // return to this scene
+                this->game.resumeScene(this->getName());
+                game.wakeScene("HUD");
                 });
             game.eventManager.pushEvent("setMusicVolume", 0.3f);
         }
@@ -669,7 +682,7 @@ void InGame::update(float deltaTime) {
     }
 
     // update light circle position
-    /*lights[0].center = GetWorldToScreen2D(target, camera);*/
+    //lights[0].center = GetWorldToScreen2D(target, camera);
 
     // check player out of map bounds
     // TODO: make a function for this

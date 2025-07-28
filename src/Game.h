@@ -12,6 +12,7 @@
 #include "Emitter.h"
 #include "Dungeon.h"
 #include "json.hpp"
+#include <stdexcept>
 
 #define DARKBURGUNDY { 20, 0, 8, 255 }
 #define LIGHTBURGUNDY { 40, 0, 16, 255 }
@@ -46,12 +47,12 @@ public:
     void run();
 
     // scene management
-    void startScene(const std::string& name);
-    void stopScene(const std::string& name);
-    void sleepScene(const std::string& name);
-    void wakeScene(const std::string& name);
-    void pauseScene(const std::string& name);
-    void resumeScene(const std::string& name);
+    void startScene(const std::string& name); // calls Scene.startup()
+    void stopScene(const std::string& name); // calls Scene.stop()
+    void sleepScene(const std::string& name); // sets scene inactive (no update, draw or sound)
+    void wakeScene(const std::string& name); // activates an inactive scene
+    void pauseScene(const std::string& name); // stops Scene.update(), but still draws and plays sound
+    void resumeScene(const std::string& name); // unpauses a pause scene
     void processMarkedScenes();
     void resetScenes();
 

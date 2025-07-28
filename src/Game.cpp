@@ -3,6 +3,7 @@
 #include "Preload.h"
 #include "TitleScreen.h"
 #include "StartMenu.h"
+#include "SelectMenu.h"
 #include "InGame.h"
 #include "HUD.h"
 #include "InventoryUI.h"
@@ -37,6 +38,7 @@ Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this) {
     registerScene<Preload>("Preload", 0);
     registerScene<TitleScreen>("TitleScreen", 0);
     registerScene<StartMenu>("StartMenu", 0);
+    registerScene<SelectMenu>("SelectMenu", 0);
     registerScene<InGame>("InGame", 0);
     registerScene<HUD>("HUD", 1);
     registerScene<InventoryUI>("InventoryUI", 2);
@@ -67,6 +69,7 @@ void Game::startScene(const std::string& name) {
     }
     else {
         TraceLog(LOG_ERROR, "Scene not registered: %s", name.c_str());
+        throw std::invalid_argument("No scene with this name. See console for details.");
     }
 }
 

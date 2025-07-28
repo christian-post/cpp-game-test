@@ -5,8 +5,7 @@ features
 - Save and load feature
 
 Scenes
-- more menu scenes:
--- game menu (save, load, end game)
+-
 
 - Dungeon Generation
 -- random

@@ -29,7 +29,3 @@ void StartMenu::update(float deltaTime) {
 void StartMenu::draw() {
     menu.draw();
 }
-
-void StartMenu::end() {
-
-}
