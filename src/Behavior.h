@@ -268,13 +268,14 @@ private:
 
 class OpenLockBehavior : public Behavior {
 public:
-    OpenLockBehavior(Game& game, std::shared_ptr<Sprite> door, std::shared_ptr<Sprite> player);
+    OpenLockBehavior(Game& game, std::shared_ptr<Sprite> door, std::shared_ptr<Sprite> player, const std::string& triggerKey);
     void update(float deltaTime) override;
 
 private:
     Game& game;
     std::weak_ptr<Sprite> door;
     std::weak_ptr<Sprite> player;
+    std::string triggerKey;
     bool triggered = false;
     bool collided = true;
     Rectangle interactionRect = Rectangle{ 0.0f, 0.0f ,0.0f, 0.0f };

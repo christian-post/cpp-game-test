@@ -17,6 +17,24 @@ void InGame::startup() {
     game.sprites.emplace_back(player);  // add to the sprites vector
     player->setTextures({ "player_idle", "player_run", "player_hit" });
     player->emitsLight = true; // TODO: for debugging, until I program the lamp item
+
+    // check for existing loaded savegame data here
+    // TODO put this in seperate function for less spaghetti
+    auto saveData = game.getSaveData();
+    if (saveData) {
+        player->maxHealth = saveData->playerMaxHealth;
+        player->health = std::max(static_cast<uint32_t>(6), saveData->playerHealth);
+        // add the items once the scenes have fully started
+        game.eventManager.pushDelayedEvent("itemFromSaveData", 0.1f, nullptr, [this, saveData]() {
+            for (const auto& itemPair : saveData->items) {
+                this->game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>(itemPair.first, itemPair.second));
+            }
+            });
+
+        // TODO:
+        // - room states
+    }
+
     // retrieve the tilemap
     // and set the player's position in the first room
     game.createDungeon(4, 4);
@@ -83,8 +101,9 @@ void InGame::startup() {
     // TODO: adding some items for testing
     game.eventManager.pushDelayedEvent("testItemsForStart", 0.1f, nullptr, [this]() {
         // give the player the sword for starters
-        game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_hammer", 1));
-        game.eventManager.pushEvent("weaponSet", std::string("weapon_hammer"));
+        //game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("heart_1up", 99));
+        //game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_hammer", 1));
+        //game.eventManager.pushEvent("weaponSet", std::string("weapon_hammer"));
         });
 }
 
@@ -163,15 +182,16 @@ void InGame::addBehaviorsToSprite(std::shared_ptr<Sprite> sprite, const std::vec
 void InGame::loadTilemap() {
     // TODO: this gets big, put this somewhere else
     tileMap = game.currentDungeon->loadCurrentTileMap();
-    if (!tileMap) return;
-    auto& objectStates = game.currentDungeon->getCurrentRoomObjectStates();
     // remove static and dynamic (non-persistent) sprites
     game.walls.clear();
     game.clearSprites();
+    // check if there even is a valid tile map
+    if (!tileMap)
+        return;
     // the room state controls how objects are spawned
     // states start with 1
     uint8_t currentState = game.currentDungeon->getCurrentRoomState();
-
+    auto& objectStates = game.currentDungeon->getCurrentRoomObjectStates();
     const auto& spriteData = game.loader.getSpriteData();
     size_t spritesLen = tileMap->getObjects().size();
     game.sprites.reserve(spritesLen);
@@ -332,12 +352,15 @@ void InGame::loadTilemap() {
                 sprite->doesAnimate = false;
                 // TODO: set the open state in Tiled Data
                 uint8_t openState = obj.properties.value("openState", 0);
-                if (currentState < openState) {
+
+                std::string triggerKey = obj.properties.value("event", "");
+
+                if (currentState < openState && !objectStates[obj.id].isOpened) {
                     sprite->staticCollision = true;
                     bool locked = obj.properties.value("locked", false);
                     if (locked) {
                         sprite->currentFrame = 2;
-                        sprite->addBehavior(std::make_unique<OpenLockBehavior>(game, sprite, player));
+                        sprite->addBehavior(std::make_unique<OpenLockBehavior>(game, sprite, player, triggerKey));
                     }
                 }
                 else {
@@ -345,11 +368,10 @@ void InGame::loadTilemap() {
                     sprite->staticCollision = false;
                 }
                 // door trigger
-                std::string triggerKey = obj.properties.value("event", "");
-                game.eventManager.removeListeners(triggerKey);
-                game.eventManager.addListener(triggerKey, [this, sprite](std::any) {
-                    sprite->currentFrame = 1; // second anim frame has to be the opened door
-                    sprite->staticCollision = false;
+                // TODO: moved into OpenLockBehavior
+                //game.eventManager.removeListeners(triggerKey);
+                game.eventManager.addListener(triggerKey, [&](std::any) {
+                    objectStates[obj.id].isOpened = true;
                     });
             }
             else if (obj.name == "hurt") {

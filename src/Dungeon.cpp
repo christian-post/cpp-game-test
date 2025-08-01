@@ -4,7 +4,12 @@
 
 Dungeon::Dungeon(Game& game, size_t roomsW, size_t roomsH) : game{ game }, roomsW { roomsW }, roomsH{ roomsH }
 {
-	rooms.resize(roomsW * roomsH);
+    rooms.resize(roomsW * roomsH);
+}
+
+std::vector<std::optional<Room>>& Dungeon::getRooms()
+{
+    return rooms; // idk if this is good practice
 }
 
 void Dungeon::advanceRoomState() {
@@ -25,6 +30,8 @@ uint8_t Dungeon::getCurrentRoomState()
 
 bool Dungeon::isRoomDark()
 {
+    if (currentRoomIndex > rooms.size())
+        return false;
     return rooms[currentRoomIndex]->dark;
 }
 

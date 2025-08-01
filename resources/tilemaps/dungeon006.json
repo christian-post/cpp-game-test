@@ -199,7 +199,7 @@
                  "y":28
                 }, 
                 {
-                 "height":32,
+                 "height":24,
                  "id":9,
                  "name":"door",
                  "properties":[
@@ -218,7 +218,7 @@
                  "visible":true,
                  "width":32,
                  "x":112,
-                 "y":16
+                 "y":24
                 }, 
                 {
                  "height":16,

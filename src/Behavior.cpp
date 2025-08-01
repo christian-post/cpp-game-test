@@ -577,8 +577,8 @@ void ChestBehavior::draw() {
     }
 }
 
-OpenLockBehavior::OpenLockBehavior(Game& game, std::shared_ptr<Sprite> door, std::shared_ptr<Sprite> player)
-    : game{ game }, door{ door }, player{ player }{
+OpenLockBehavior::OpenLockBehavior(Game& game, std::shared_ptr<Sprite> door, std::shared_ptr<Sprite> player, const std::string& triggerKey)
+    : game{ game }, door{ door }, player{ player }, triggerKey{ triggerKey } {
 }
 
 void OpenLockBehavior::update(float deltaTime) {
@@ -611,6 +611,8 @@ void OpenLockBehavior::update(float deltaTime) {
                 game.eventManager.pushDelayedEvent("unlockedDoor", 0.1f, nullptr, [d, this]() {
                     this->game.playSound("bookPlace1");
                     d->currentFrame = 0;
+                    this->game.eventManager.pushEvent(triggerKey); // triggers a change in the persistent room data
+                    // TODO: open the same door from the other side
                     });
                 game.eventManager.pushDelayedEvent("openedDoor", 0.8f, nullptr, [d, this]() {
                     this->game.playSound("doorOpen_2");

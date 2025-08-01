@@ -1,9 +1,10 @@
 #pragma once
-#include "raylib.h"    
-#include <string>       
-#include <vector>         
+#include "raylib.h"
+#include <string>
+#include <vector>
 #include <memory>
 #include <cstdarg>
+#include <filesystem>
 
 class Sprite;
 
@@ -12,6 +13,7 @@ bool isPathClear(const Rectangle& currentRect, Vector2 targetPos, const std::vec
 void applyKnockback(Sprite& sourceSprite, Sprite& targetSprite, float strength);
 std::vector<std::string> splitCSV(const std::string& input);
 float getRandomFloat(float min, float max);
+std::vector<std::string> listJSONFiles(const std::string& path);
 
 struct CameraShake {
     float duration = 0.0f;

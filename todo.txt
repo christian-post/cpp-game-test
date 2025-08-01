@@ -33,21 +33,21 @@ TODO: refactor
 - does it make sense for Behaviors to have a draw method, or can this be solved differently?
 - don't check event listeners for delayed events with callbacks
 - add a "unique" property to addListener that removes old listeners if they exist
-- Sprite.jump() method: add argument "jumpHeight" that roughly corresponds to the number of pixels
 - posOffsetX and posOffsetY in weapons data currently unused
 - Weapon hurtbox should appear only a fraction of the weapon's lifetime
 - Can repeated events go infinite?
 - Error check for a wrong emitter texture key
 - create a particles.json file with presets for Particles and Emitters. Give Particle and Emitter a .fromData() function
 - Event keys should be enums instead of strings
+- Sprite.jump() method: add argument "jumpHeight" that roughly corresponds to the number of pixels
 
 
 BUGS:
 - RandomWalkBehavior: choose new target after some time if the current target can't be reached
 - show item pickup for all collectibles
-- F5 does not reset inventory and events
-- Door sprites are squished
 - Attribute inheritance from json does not work for sprites
+- does Sprite.jump() work as intended?
+- door in room 002 does not open from event "door001open" when triggered from another room
 
 
 RELEASE CHECKLIST

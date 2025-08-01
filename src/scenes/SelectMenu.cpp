@@ -15,6 +15,14 @@ void SelectMenu::startup()
             }
         },
         {
+            "Save Game",
+            [&]() {
+                game.eventManager.pushEvent("saveGame");
+                game.eventManager.pushEvent("SelectMenuDone");
+                game.stopScene(getName());
+            }
+        },
+        {
             "Restart Game", [&]() {
                 game.restart();
             }

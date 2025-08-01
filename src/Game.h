@@ -11,6 +11,7 @@
 #include "InventoryManager.h"
 #include "Emitter.h"
 #include "Dungeon.h"
+#include "Savegame.h"
 #include "json.hpp"
 #include <stdexcept>
 
@@ -80,6 +81,10 @@ public:
         running = false;
         restartRequested = true; 
     }
+    // saving and loading the game state
+    void save();
+    void load();
+    std::shared_ptr<SaveGame> getSaveData();
 
     // input management
     uint32_t buttonsPressed;
@@ -116,4 +121,5 @@ private:
     std::unordered_map<std::string, int> scenePriorities; // stores the drawing order (TODO: also control the update order?)
     void setSceneState(const std::string& name, bool active, bool paused);
     std::vector<std::shared_ptr<Sprite>> spritesToAdd; // stores the sprites that are later added to the actual sprites vector (prevents changing the vector during the update loop)
+    std::shared_ptr<SaveGame> savegame = nullptr; // store save data
 };

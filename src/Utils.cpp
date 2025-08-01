@@ -70,3 +70,13 @@ Vector2 CameraShake::apply(const Vector2& baseTarget) const {
     }
     return baseTarget;
 }
+
+std::vector<std::string> listJSONFiles(const std::string& path) {
+    std::vector<std::string> jsonFiles;
+    for (const auto& entry : std::filesystem::directory_iterator(path)) {
+        if (entry.path().extension() == ".json") {
+            jsonFiles.push_back(entry.path().string());
+        }
+    }
+    return jsonFiles;
+}

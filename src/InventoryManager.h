@@ -9,7 +9,7 @@
 #include "ItemData.h"
 
 class Game;
-using InventoryItem = std::pair<const ItemData*, uint32_t>;
+using InventoryItem = std::pair<const ItemData*, uint32_t>; // second item of pair is quantity
 
 class InventoryManager {
 public:

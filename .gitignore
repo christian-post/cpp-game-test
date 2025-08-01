@@ -17,3 +17,5 @@ build/
 x64/
 ipch/
 .vs/
+
+savegames/*

@@ -9,6 +9,7 @@ void setupConditionalEvents(InGame& inGame) {
 
     game.eventManager.pushConditionalEvent(
         [&]() {
+            if (!inGame.tileMap) return false;
             return (inGame.tileMap->getName() == "dungeon005" && game.inventory.getItemQuantity("weapon_sword") > 0);
         },
         [&]() {
@@ -18,6 +19,7 @@ void setupConditionalEvents(InGame& inGame) {
 
     game.eventManager.pushConditionalEvent(
         [&]() {
+            if (!inGame.tileMap) return false;
             return (inGame.tileMap->getName() == "dungeon001" && game.inventory.getItemQuantity("weapon_sword") > 0);
             },
         [&]() {
@@ -50,6 +52,7 @@ void setupConditionalEvents(InGame& inGame) {
     game.eventManager.pushConditionalEvent(
         // the player has defeated all the enemies in the second room
         [&]() {
+            if (!inGame.tileMap) return false;
             return inGame.tileMap->getName() == "dungeon004" &&
                 std::none_of(game.sprites.begin(), game.sprites.end(),
                     [](const std::shared_ptr<Sprite>& s) {

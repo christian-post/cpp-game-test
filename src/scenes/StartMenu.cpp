@@ -4,7 +4,14 @@
 #include "raylib.h"
 
 StartMenu::StartMenu(Game& game, const std::string& name) 
-    : Scene(game, name), menu(MenuSelect(game)) {}
+    : Scene(game, name), menu(MenuSelect(game)) {
+
+    game.eventManager.addListener("loadingSavegameSuccess", [&](const std::any& data) {
+            game.startScene("InGame");
+            game.startScene("HUD");
+            game.stopScene(getName());
+        });
+}
 
 void StartMenu::startup() {
     menu.setItems({
@@ -17,7 +24,13 @@ void StartMenu::startup() {
                 game.stopScene(getName());
             }
         },
-        { "Load Game", nullptr }, // TODO
+        { 
+            "Load Game", 
+            [&]() {
+                // TODO go to another menu that lets you select a file
+                game.eventManager.pushEvent("loadGame");
+            }
+        },
         { "Quit", [&]() { game.end(); }}
         });
 }

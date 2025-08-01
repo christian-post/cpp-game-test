@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include "TileMap.h"
 #include <raylib.h>
+#include "json.hpp"
 
 class Game;
 
@@ -15,6 +16,22 @@ struct ObjectState {
     size_t dialogIndex = 0;
     // tbc
 };
+
+// overloaded json loading and serialization functions
+inline void to_json(nlohmann::json& jsonOutput, const ObjectState& state) {
+    jsonOutput = {
+        {"isOpened", state.isOpened},
+        {"isDefeated", state.isDefeated},
+        {"dialogIndex", state.dialogIndex}
+    };
+}
+
+inline void from_json(const nlohmann::json& jsonInput, ObjectState& state) {
+    jsonInput.at("isOpened").get_to(state.isOpened);
+    jsonInput.at("isDefeated").get_to(state.isDefeated);
+    jsonInput.at("dialogIndex").get_to(state.dialogIndex);
+}
+
 
 class Room {
 public:
@@ -37,8 +54,10 @@ private:
     size_t roomsH;
     size_t currentRoomIndex = 0;
     std::vector<std::optional<Room>> rooms;
+
 public:
     Dungeon(Game& game, size_t roomsW, size_t roomsH);
+    std::vector<std::optional<Room>>& getRooms();
     size_t getCurrentRoomIndex() const { return currentRoomIndex; }
     void setCurrentRoomIndex(size_t idx) { currentRoomIndex = idx; } // defines which room (on the grid) the player is currently in
     void advanceRoomState(); // advances the current room's state

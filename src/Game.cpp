@@ -11,6 +11,7 @@
 #include "GameOver.h"
 #include "Utils.h"
 #include <sstream>
+#include <fstream>
 
 
 Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this) {
@@ -115,6 +116,61 @@ void Game::processMarkedScenes() {
     }
 }
 
+void Game::save()
+{
+    // saves the game data to a JSON file
+    SaveGame save; // create a new save game object
+
+    save.playerMaxHealth = getPlayer()->maxHealth;
+    save.playerHealth = std::max(static_cast<uint32_t>(6), getPlayer()->health); // ensure the player always starts with at least 3 hearts
+    save.items = {}; 
+    save.DungeonRooms = {};
+
+    auto& invItems = inventory.getItems();
+    for (size_t type = 0; type < NUM_ITEM_TYPES; type++) {
+        for (auto item : invItems[type]) {
+            save.items.push_back({ item.first, item.second.second }); // key, quantity
+        }
+    }
+
+    // serialize the dungeon room data
+    saveDungeon(save, *currentDungeon);
+
+    auto j = writeDataToJSON(save);
+
+    //j["DungeonRooms"] = {}; // TODO: temporary fix
+
+    // TODO testing
+    std::ofstream file("./savegames/save_0.json");
+    file << j.dump(2);
+
+    TraceLog(LOG_INFO, "The game was saved to save_0.");
+}
+
+void Game::load()
+{
+    TraceLog(LOG_INFO, "Available Save Files:");
+    std::vector<std::string> files = listJSONFiles("./savegames");
+    for (auto file : files)
+        TraceLog(LOG_INFO, file.c_str());
+
+    if (!files.empty()) {
+        std::ifstream fileStream(files[0]);
+        nlohmann::json jsonData;
+        fileStream >> jsonData;
+        // TODO: print the data for debugging
+        TraceLog(LOG_INFO, jsonData.dump(2).c_str());
+
+        savegame = std::make_shared<SaveGame>(readSaveDataFromJSON(jsonData));
+        eventManager.pushEvent("loadingSavegameSuccess");
+    }
+}
+
+std::shared_ptr<SaveGame> Game::getSaveData()
+{
+    return savegame;
+}
+
 std::shared_ptr<Sprite> Game::createSprite(std::string spriteName, Rectangle& rect)
 {
     auto sprite = std::make_shared<Sprite>(
@@ -151,9 +207,9 @@ void Game::createDungeon(size_t roomsW, size_t roomsH)
 #endif // TEST_ROOM
 
     // TODO: debugging, setting all rooms to visited
-    for (int i = 0; i < roomsW * roomsH; i++) {
-        currentDungeon->setVisited(i);
-    }
+    //for (int i = 0; i < roomsW * roomsH; i++) {
+    //    currentDungeon->setVisited(i);
+    //}
 
 #ifdef TEST_ROOM
     currentDungeon->setCurrentRoomIndex(0); // TODO: testing
@@ -308,10 +364,17 @@ void Game::draw() {
             DrawText(s_inactiveScenes.c_str(), int(GetScreenWidth() * 0.6f), 4, fontSize, WHITE);
             DrawText(s_drawOrder.c_str(), 4, int(GetScreenHeight() * 0.6f), fontSize, WHITE); // lower part of screen
 
-            std::ostringstream ss;
-            ss << "Room: " << currentDungeon->loadCurrentTileMap()->getName()
-                << " (" << currentDungeon->getCurrentRoomIndex() << ")";
-            DrawText(ss.str().c_str(), 4, int(GetScreenHeight() * 0.8f), fontSize, WHITE);
+            // TODO: create another function to get the current Tilemap data that doesn't log constantly on error
+            size_t maxIndex = currentDungeon->getSize().first * currentDungeon->getSize().second;
+            if (currentDungeon->getCurrentRoomIndex() < maxIndex) {
+                std::ostringstream ss;
+                ss << "Room: " << currentDungeon->loadCurrentTileMap()->getName()
+                    << " (" << currentDungeon->getCurrentRoomIndex() << ")";
+                DrawText(ss.str().c_str(), 4, int(GetScreenHeight() * 0.8f), fontSize, WHITE);
+            }
+            else {
+                DrawText("invalid room index", 4, int(GetScreenHeight() * 0.8f), fontSize, WHITE);
+            }
         }
     EndDrawing();
 }
@@ -322,7 +385,16 @@ void Game::run() {
 
     // start the first scene
     startScene("Preload");
-
+    // enable saving the game state from any scene
+    eventManager.addListener("saveGame", [&](const std::any& data) {
+        save();
+        });
+    // loading a saved game
+    // TODO: use data for the file index
+    eventManager.addListener("loadGame", [&](const std::any& data) {
+        load();
+        });
+    
     while (running && !WindowShouldClose()) {
         // show FPS in title
         snprintf(title, sizeof(title), "My Game - FPS: %d", GetFPS());
