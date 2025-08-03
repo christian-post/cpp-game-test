@@ -192,7 +192,7 @@ void Sprite::draw() {
         (float)texture.width,
         (float)texture.height
     };
-    Vector2 origin = { texture.width / 2.0f, texture.height };
+    Vector2 origin = { static_cast<float>(texture.width) / 2.0f, static_cast<float>(texture.height)};
 
     if (game.debug) {
         Rectangle debugRect = { 
@@ -203,7 +203,6 @@ void Sprite::draw() {
         };
         DrawRectangleRec(debugRect, BLUE);
     }
-
 
     // Flip horizontally if lastDirection is LEFT
     if (lastDirection == LEFT) {

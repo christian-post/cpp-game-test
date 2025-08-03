@@ -21,10 +21,14 @@ struct SaveGame {
     uint32_t playerHealth = 3;
     uint32_t playerMaxHealth = 3;
     std::vector<std::pair<std::string, uint32_t>> items; // <key, amount>; strings correspond to keys in ItemData.cpp
-    std::unordered_map<uint32_t, RoomData> DungeonRooms; // hash corresponds to room index
     // TODO: create a data structure that allows for multiple dungeons
+    size_t dungeonWidth = 0;
+    size_t dungeonHeight = 0;
+    size_t startingRoomIndex = 0;
+    std::unordered_map<uint32_t, RoomData> DungeonRooms; // hash corresponds to room index
 };
 
 nlohmann::json writeDataToJSON(const SaveGame& saveGame);
 SaveGame readSaveDataFromJSON(const nlohmann::json& jsonInput);
 void saveDungeon(SaveGame & saveGame, Dungeon & dungeon);
+std::unique_ptr<Dungeon> loadDungeon(SaveGame& saveGame, Game& game);

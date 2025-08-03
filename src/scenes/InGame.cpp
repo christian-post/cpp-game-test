@@ -33,11 +33,14 @@ void InGame::startup() {
 
         // TODO:
         // - room states
+        game.currentDungeon = loadDungeon(*saveData, game);
     }
-
+    else {
+        // create a fresh dungeon
+        game.createDungeon(4, 4);
+    }
     // retrieve the tilemap
     // and set the player's position in the first room
-    game.createDungeon(4, 4);
     loadTilemap();
     player->moveTo(7.5f * float(tileSize), float(8 * tileSize));
 

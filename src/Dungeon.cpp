@@ -12,6 +12,15 @@ std::vector<std::optional<Room>>& Dungeon::getRooms()
     return rooms; // idk if this is good practice
 }
 
+void Dungeon::setStartingRoomIndex(size_t idx)
+{
+    startingRoomIndex = idx;
+    if (!playerHasBeenPlaced) {
+        playerHasBeenPlaced = true;
+        currentRoomIndex = idx;
+    }
+}
+
 void Dungeon::advanceRoomState() {
     advanceRoomState(currentRoomIndex);
 }

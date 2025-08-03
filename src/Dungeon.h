@@ -53,13 +53,17 @@ private:
     size_t roomsW;
     size_t roomsH;
     size_t currentRoomIndex = 0;
+    size_t startingRoomIndex = 0;
+    bool playerHasBeenPlaced = false;
     std::vector<std::optional<Room>> rooms;
 
 public:
     Dungeon(Game& game, size_t roomsW, size_t roomsH);
     std::vector<std::optional<Room>>& getRooms();
-    size_t getCurrentRoomIndex() const { return currentRoomIndex; }
+    void setStartingRoomIndex(size_t idx); // defines in which room the player starts;
     void setCurrentRoomIndex(size_t idx) { currentRoomIndex = idx; } // defines which room (on the grid) the player is currently in
+    size_t getCurrentRoomIndex() const { return currentRoomIndex; }
+    size_t getStartingRoomIndex() const { return startingRoomIndex; }
     void advanceRoomState(); // advances the current room's state
     void advanceRoomState(size_t index); // advances the specified room's state
     uint8_t getCurrentRoomState();

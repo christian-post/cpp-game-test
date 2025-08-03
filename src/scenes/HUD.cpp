@@ -114,7 +114,7 @@ void HUD::draw() {
     const int cellWidth = 6;
     const int cellHeight = 4;
     const int mapX = static_cast<int>(game.gameScreenWidth) - static_cast<int>(cols) * (cellWidth + spacing) - 6;
-    const int mapY = y + 6;
+    const int mapY = static_cast<int>(y) + 6;
     for (size_t i = 0; i < cols * rows; ++i) {
         int col = static_cast<int>(i % cols);
         int row = static_cast<int>(i / cols);

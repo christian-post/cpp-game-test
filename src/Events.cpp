@@ -9,6 +9,8 @@ void setupConditionalEvents(InGame& inGame) {
 
     game.eventManager.pushConditionalEvent(
         [&]() {
+            // this event advances the room state after the player got the sword from the chest
+            // TODO: stateful Tiled Map objects (like chests, enemies etc) should probably have the ability to advance the Room state directly, like doors already do
             if (!inGame.tileMap) return false;
             return (inGame.tileMap->getName() == "dungeon005" && game.inventory.getItemQuantity("weapon_sword") > 0);
         },
@@ -19,6 +21,7 @@ void setupConditionalEvents(InGame& inGame) {
 
     game.eventManager.pushConditionalEvent(
         [&]() {
+            // this happens in the first room after the player obtained the sword from the other room
             if (!inGame.tileMap) return false;
             return (inGame.tileMap->getName() == "dungeon001" && game.inventory.getItemQuantity("weapon_sword") > 0);
             },
@@ -34,7 +37,7 @@ void setupConditionalEvents(InGame& inGame) {
                 game.cutsceneManager.queueCommand(new Command_Wait(1.0f));
                 game.cutsceneManager.queueCommand(new Command_MoveTo(npcRef, npcX, npcY, 2.0f));
                 game.cutsceneManager.queueCommand(new Command_Wait(0.5f));
-                game.cutsceneManager.queueCommand(new Command_Textbox(game, "Is that a sword? Great! I'll follow you, now we can fight our way out of here.", "powerUp4", true));
+                game.cutsceneManager.queueCommand(new Command_Textbox(game, "Is that a sword? Great! I'll follow you, now we can fight our way out of here.", "powerUp4", true)); // TODO pass a key to a text in texts.json instead of the actual dialogue string... 
                 game.cutsceneManager.queueCommand(new Command_Callback([&]() {
                     game.eventManager.pushEvent("showHUD");
                     game.currentDungeon->advanceRoomState();
@@ -50,7 +53,7 @@ void setupConditionalEvents(InGame& inGame) {
     );
 
     game.eventManager.pushConditionalEvent(
-        // the player has defeated all the enemies in the second room
+        // the player has defeated all the enemies in the room left of the entrance
         [&]() {
             if (!inGame.tileMap) return false;
             return inGame.tileMap->getName() == "dungeon004" &&

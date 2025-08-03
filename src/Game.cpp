@@ -212,9 +212,9 @@ void Game::createDungeon(size_t roomsW, size_t roomsH)
     //}
 
 #ifdef TEST_ROOM
-    currentDungeon->setCurrentRoomIndex(0); // TODO: testing
+    currentDungeon->setStartingRoomIndex(0); // TODO: testing
 #else 
-    currentDungeon->setCurrentRoomIndex(14); // start in R1
+    currentDungeon->setStartingRoomIndex(14); // start in R1
 #endif // TEST_ROOM
 
     currentDungeon->makeMinimapTextures();

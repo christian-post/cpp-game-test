@@ -4,6 +4,10 @@
 #include <functional>
 #include "Game.h"
 
+/*
+Menu that lets the player select various items
+mostly used in dedicated menu scenes
+*/
 
 struct MenuItem {
     std::string displayName;
@@ -23,4 +27,5 @@ private:
     Game& game;
     std::vector<MenuItem> menuItems;
     size_t menuIndex = 0;
+    size_t fontsize = 10;
 };

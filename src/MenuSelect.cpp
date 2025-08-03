@@ -22,8 +22,8 @@ void MenuSelect::update()
         menuIndex = (menuIndex + menuItems.size() - 1) % menuItems.size();
         game.playSound("menuCursor");
     }
-    // confirm button activates the callback
-    if (game.buttonsPressed & CONTROL_CONFIRM) {
+    // button activates the callback
+    if (game.buttonsPressed & (CONTROL_CONFIRM | CONTROL_ACTION1)) {
         if (!menuItems[menuIndex].callback) {
             TraceLog(LOG_ERROR, "No Callback set for this menu item.");
             return;
@@ -35,13 +35,21 @@ void MenuSelect::update()
 void MenuSelect::draw() {
     ClearBackground(BLACK);
 
+    uint32_t width = game.gameScreenWidth;
+    uint32_t height = game.gameScreenHeight;
+    // center the items on the screen
+    size_t margin = 20;
+    size_t totalHeight = menuItems.size() * (margin + fontsize);
+    size_t startY = (height - totalHeight) / 2;
+
     for (size_t i = 0; i < menuItems.size(); i++) {
-        // TODO: could this be done with less string copying?
         std::string item = menuItems[i].displayName;
-        if (i == menuIndex)
+        if (i == menuIndex) // highlight the selected item
             item = "< " + item + " >";
         else
             item = "  " + item + "  ";
-        DrawText(item.c_str(), 50, 50 + i * 30, 10, LIGHTGRAY);
+        int textWidth = MeasureText(item.c_str(), static_cast<int>(fontsize));
+        int x = (width - textWidth) / 2;
+        DrawText(item.c_str(), x, static_cast<int>(startY + i * (margin + fontsize)), static_cast<int>(fontsize), LIGHTGRAY);
     }
 }

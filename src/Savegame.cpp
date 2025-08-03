@@ -1,4 +1,5 @@
 #include "Savegame.h"
+#include "Game.h"
 
 nlohmann::json writeDataToJSON(const SaveGame& saveGame)
 {
@@ -32,6 +33,10 @@ nlohmann::json writeDataToJSON(const SaveGame& saveGame)
         jsonOutput["DungeonRooms"][std::to_string(roomHash)] = roomJson;
     }
 
+    jsonOutput["DungeonWidth"] = saveGame.dungeonWidth;
+    jsonOutput["DungeonHeight"] = saveGame.dungeonHeight;
+    jsonOutput["StartingRoomIndex"] = saveGame.startingRoomIndex;
+
     return jsonOutput;
 }
 
@@ -48,7 +53,11 @@ SaveGame readSaveDataFromJSON(const nlohmann::json& jsonInput)
             saveGame.items.emplace_back(key, amount);
         }
     }
-
+    // Dungeon metadata
+    saveGame.dungeonWidth = jsonInput.at("DungeonWidth").get<size_t>();
+    saveGame.dungeonHeight = jsonInput.at("DungeonHeight").get<size_t>();
+    saveGame.startingRoomIndex = jsonInput.at("StartingRoomIndex").get<size_t>();
+    // Dungeon room data
     if (jsonInput.contains("DungeonRooms")) {
         for (const auto& roomEntry : jsonInput.at("DungeonRooms").items()) {
             uint32_t roomHash = static_cast<uint32_t>(std::stoul(roomEntry.key()));
@@ -60,17 +69,15 @@ SaveGame readSaveDataFromJSON(const nlohmann::json& jsonInput)
             roomData.doors = roomJson.at("doors").get<uint8_t>();
             roomData.tilemapKey = roomJson.at("tilemapKey").get<std::string>();
 
-            if (!roomJson.contains("objectStates"))
-                continue;
-            for (const auto& objectEntry : roomJson.at("objectStates").items()) {
-                uint32_t objectId = static_cast<uint32_t>(std::stoul(objectEntry.key()));
-                roomData.objectStates[objectId] = objectEntry.value().get<ObjectState>();
+            if (roomJson.contains("objectStates")) {
+                for (const auto& objectEntry : roomJson.at("objectStates").items()) {
+                    uint32_t objectId = static_cast<uint32_t>(std::stoul(objectEntry.key()));
+                    roomData.objectStates[objectId] = objectEntry.value().get<ObjectState>();
+                }
             }
-
             saveGame.DungeonRooms[roomHash] = roomData;
         }
     }
-
     return saveGame;
 }
 
@@ -79,7 +86,7 @@ void saveDungeon(SaveGame& saveGame, Dungeon& dungeon)
     // writes the necessary data to the savegame object
     // rooms is a vector of optionals and may contain empty entries
     // saveGame.DungeonRooms is a tightly packed hash map (though I could also use null in the JSON)
-    auto rooms = dungeon.getRooms();
+    auto& rooms = dungeon.getRooms();
     for (uint32_t i = 0; i < rooms.size(); i++) {
         if (rooms[i]) {
             RoomData rd;
@@ -89,9 +96,33 @@ void saveDungeon(SaveGame& saveGame, Dungeon& dungeon)
             rd.dark = rooms[i]->dark;
             rd.doors = rooms[i]->doors;
             rd.objectStates = rooms[i]->objectStates;
-            rd.tilemapKey = rooms[i]->tilemap.getTilesetName();
+            rd.tilemapKey = rooms[i]->tilemap.getName();
             rd.visited = rooms[i]->visited;
             saveGame.DungeonRooms[i] = rd;
         }
     }
+    auto [width, height] = dungeon.getSize();
+    saveGame.dungeonWidth = width;
+    saveGame.dungeonHeight = height;
+    saveGame.startingRoomIndex = dungeon.getStartingRoomIndex();
+}
+
+std::unique_ptr<Dungeon> loadDungeon(SaveGame& saveGame, Game& game)
+{
+    // creates a dungeon from the save data
+    std::unique_ptr dungeon = std::make_unique<Dungeon>(game, saveGame.dungeonWidth, saveGame.dungeonHeight);
+
+    for (const auto& pair : saveGame.DungeonRooms) {
+        uint32_t index  = pair.first;
+        RoomData roomData = pair.second;
+        uint32_t row = index / saveGame.dungeonWidth;
+        uint32_t col = index % saveGame.dungeonWidth;
+        TileMap tm = game.loader.getTilemap(roomData.tilemapKey);
+        dungeon->insertRoom(row, col, Room{ tm, roomData.doors });
+    }
+
+    dungeon->setStartingRoomIndex(saveGame.startingRoomIndex);
+    dungeon->makeMinimapTextures();
+
+    return dungeon;
 }
