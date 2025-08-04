@@ -5,6 +5,7 @@
 #include <memory>
 #include <cstdarg>
 #include <filesystem>
+#include "json.hpp"
 
 class Sprite;
 
@@ -14,6 +15,7 @@ void applyKnockback(Sprite& sourceSprite, Sprite& targetSprite, float strength);
 std::vector<std::string> splitCSV(const std::string& input);
 float getRandomFloat(float min, float max);
 std::vector<std::string> listJSONFiles(const std::string& path);
+void mergeJson(nlohmann::json& base, const nlohmann::json & override);
 
 struct CameraShake {
     float duration = 0.0f;

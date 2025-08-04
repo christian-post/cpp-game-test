@@ -270,8 +270,8 @@ void Preload::update(float deltaTime) {
     }
     else {
         currentMessage = "Loading finished";
-        game.startScene("TitleScreen");
         game.stopScene("Preload");
+        game.startScene("TitleScreen");
     }
 }
 
@@ -292,6 +292,7 @@ void Preload::draw() {
 }
 
 void Preload::end() {
-    // wait for a split second
+    game.loader.postprocessSpriteData(); // for the JSON sprite data
+    // wait a split second, just in case
     WaitTime(0.25f);
 }

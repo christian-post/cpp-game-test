@@ -1,6 +1,34 @@
 #include "AssetLoader.h"
 #include <iostream>
 #include <fstream>
+#include "Utils.h"
+
+
+nlohmann::json resolveInheritance(const std::unordered_map<std::string, nlohmann::json>& allData, const std::string& key, std::unordered_map<std::string, bool>& visited)
+{
+    // sprites (in npc.json and enemies.json) have an "inherits" field
+    // that specifies another sprite which attributes should be inherited
+    // all sprites inherit at least from "sprite_default"
+    if (visited[key]) 
+        throw std::runtime_error("Cyclic inheritance: " + key);
+    visited[key] = true;
+
+    auto it = allData.find(key);
+    if (it == allData.end()) 
+        throw std::runtime_error("Key not found: " + key);
+
+    nlohmann::json child = it->second;
+
+    if (child.contains("inherits")) {
+        std::string parentKey = child["inherits"];
+        // resolve the data recursively for the parent
+        nlohmann::json parent = resolveInheritance(allData, parentKey, visited);
+        child.erase("inherits");
+        mergeJson(parent, child); // helper function that adds the child's fields to the parent's fields
+        return parent;
+    }
+    return child;
+}
 
 
 AssetLoader::~AssetLoader() {
@@ -205,6 +233,30 @@ void AssetLoader::loadSpriteData(const std::string& filename) {
     }
 }
 
+void AssetLoader::postprocessSpriteData()
+{
+    // resolves inherited fields for all sprites in spriteData
+    // make sure that the json data with "sprite_default" is loaded previously
+    if (spriteData.find("sprite_default") == spriteData.end())
+        throw std::runtime_error("'sprite_default' key missing in spriteData");
+
+    std::unordered_map<std::string, nlohmann::json> rawData;
+    for (const auto& item : spriteData.items()) {
+        rawData[item.key()] = item.value();
+    }
+
+    std::unordered_map<std::string, nlohmann::json> resolvedData;
+    for (const auto& item : rawData) {
+        std::unordered_map<std::string, bool> visited;
+        resolvedData[item.first] = resolveInheritance(rawData, item.first, visited);
+    }
+
+    spriteData.clear();
+    for (const auto& item : resolvedData) {
+        spriteData[item.first] = item.second;
+    }
+}
+
 void AssetLoader::loadtextData(const std::string& filename)
 {
     std::ifstream file(filename);
@@ -278,3 +330,5 @@ void AssetLoader::LoadSoundFile(const std::string& filename, const float volume,
 Sound& AssetLoader::getSound(const std::string& key) {
     return sounds.at(key);
 }
+
+

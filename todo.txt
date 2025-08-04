@@ -45,9 +45,9 @@ TODO: refactor
 BUGS:
 - RandomWalkBehavior: choose new target after some time if the current target can't be reached
 - show item pickup for all collectibles
-- Attribute inheritance from json does not work for sprites
 - does Sprite.jump() work as intended?
 - door in room 002 does not open from event "door001open" when triggered from another room
+- door in room004 does not open after the enemies are defeated
 
 
 RELEASE CHECKLIST

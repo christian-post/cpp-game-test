@@ -9,6 +9,8 @@
 
 namespace fs = std::filesystem;
 
+nlohmann::json resolveInheritance(const std::unordered_map<std::string, nlohmann::json>& allData, const std::string& key, std::unordered_map<std::string, bool>& visited); // merges inherited JSON sprite data recursively
+
 class AssetLoader {
 private:
     std::unordered_map<std::string, std::vector<Texture2D>> textureGroups; // animation frames are grouped together
@@ -34,6 +36,7 @@ public:
     void LoadShaderFile(const std::string& filename);
     void loadSettings(const std::string& filename);
     void loadSpriteData(const std::string& filename);
+    void postprocessSpriteData(); // resolves inheritance
     void loadtextData(const std::string& filename);
     void LoadMusicFile(const std::string& filename, const float volume = 1.0f, const std::string& key = "");
     void LoadSoundFile(const std::string& filename, const float volume = 1.0f, const std::string& key = "");

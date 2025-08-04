@@ -80,3 +80,17 @@ std::vector<std::string> listJSONFiles(const std::string& path) {
     }
     return jsonFiles;
 }
+
+void mergeJson(nlohmann::json& base, const nlohmann::json & override)
+{
+    for (const auto& item : override.items()) {
+        const std::string& key = item.key();
+        const nlohmann::json& value = item.value();
+        if (base.contains(key) && base[key].is_object() && value.is_object()) {
+            mergeJson(base[key], value);
+        }
+        else {
+            base[key] = value;
+        }
+    }
+}
