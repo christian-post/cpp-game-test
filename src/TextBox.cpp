@@ -32,9 +32,9 @@ void TextBox::formatText() {
         text = text.substr(0, ffPos);  // only process text up to \f
     }
     size_t start = 0;
-	size_t spacePos = 0; // position of the next space
+    size_t spacePos = 0; // position of the next space
     std::string line;
-	// find the next space
+    // find the next space
     while ((spacePos = text.find(' ', start)) != std::string_view::npos) {
         std::string_view word = text.substr(start, spacePos - start);
         std::string testLine = line.empty() ? std::string(word) : line + " " + std::string(word);

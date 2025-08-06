@@ -1,11 +1,11 @@
 #include "Utils.h"
-#include "Sprite.h"              
+#include "Sprite.h"
 #include "raylib.h"
 #include "raymath.h"
-#include <algorithm>             
-#include <cmath>                 
-#include <sstream>                
-#include <cstdlib>       
+#include <algorithm>
+#include <cmath>
+#include <sstream>
+#include <cstdlib>
 
 Vector2 GetRectCenter(Rectangle rect) {
     return { rect.x + rect.width / 2.0f, rect.y + rect.height / 2.0f };

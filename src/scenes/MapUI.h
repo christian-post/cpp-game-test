@@ -1,6 +1,6 @@
 #pragma once
 #include "Scene.h"
-
+#include <array>
 
 class MapUI : public Scene {
     // scene responsible for drawing the dungeon map
@@ -22,4 +22,5 @@ private:
     float blinkTimer = 0.0f;
     float blinkSpeed = 0.5f;
     bool cursorOn = false;
+    std::array<Vector2, 4> offsets; // used for minimap formatting
 };

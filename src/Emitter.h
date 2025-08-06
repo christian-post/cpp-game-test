@@ -6,6 +6,7 @@
 #include "Particle.h"
 
 struct Emitter {
+    // emits a certain type of Particle
     Vector2 location = { 0.0f, 0.0f };
     float spawnInterval = 1.0f;
     float timeSinceLastSpawn = 0.0f;

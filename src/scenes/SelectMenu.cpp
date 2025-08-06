@@ -1,8 +1,8 @@
 #include "SelectMenu.h"
+#include <functional>
 
 SelectMenu::SelectMenu(Game& game, const std::string& name) 
     : Scene(game, name), menu(MenuSelect(game)) {}
-
 
 void SelectMenu::startup()
 {

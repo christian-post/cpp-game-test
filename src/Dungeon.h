@@ -14,7 +14,7 @@ struct ObjectState {
     bool isOpened = false;
     bool isDefeated = false;
     size_t dialogIndex = 0;
-    // tbc
+    // TODO: tbc
 };
 
 // overloaded json loading and serialization functions

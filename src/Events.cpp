@@ -4,6 +4,9 @@
 #include "Commands.h"
 #include "Behavior.h"
 
+// any InGame events (like cutscenes) that are triggered by some condition
+// once triggered, they never trigger again
+
 void setupConditionalEvents(InGame& inGame) {
     auto& game = inGame.getGame();
 

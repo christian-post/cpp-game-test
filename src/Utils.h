@@ -30,6 +30,7 @@ struct CameraShake {
 };
 
 inline std::string format(const char* fmt, ...) {
+    // C-string formatting function
     char buffer[256]; // adjust size if needed
     va_list args;
     va_start(args, fmt);

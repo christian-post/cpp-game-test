@@ -4,7 +4,8 @@ features
 -- dialogue options
 
 Scenes
--
+- show a menu (load save, go to title, quit) at the end of GameOver
+- show a menu that displays all json files in savegames/ 
 
 - Dungeon Generation
 -- procedural

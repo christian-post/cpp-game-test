@@ -6,11 +6,8 @@
 
 void Preload::startup() {
     auto& l = game.loader;
-    // TODO: load asynchronous?
-
-    // preload most of the assets that are persistent throughout the game
-
-    // for an animated sprite, the keys have to contain the suffixes
+    // > preload most of the assets that are persistent throughout the game.
+    // > for an animated sprite, the keys have to contain the suffixes
     // _idle, _run, _hit, [...]
     loadQueue.emplace("Loading textures", [&]() {
         l.loadTextures({

@@ -27,7 +27,7 @@ void StartMenu::startup() {
         { 
             "Load Game", 
             [&]() {
-                // TODO go to another menu that lets you select a file
+                // TODO: Transition to another menu that lets you select a file
                 game.eventManager.pushEvent("loadGame");
             }
         },

@@ -11,5 +11,6 @@ public:
     void draw() override;
     void end() override;
 
+private:
     unsigned char transparency = 255;
 };

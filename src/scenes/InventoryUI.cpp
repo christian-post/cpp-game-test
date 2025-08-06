@@ -131,6 +131,7 @@ void InventoryUI::update(float deltaTime) {
         }
 
         if (game.buttonsPressed & CONTROL_ACTION1) {
+            // choose the appropriate action for the selected item
             const auto* selected = flatItems[index];
             if (selected->first->type == WEAPON) {
                 game.eventManager.pushEvent("weaponSet", selected->first->textureKey);
@@ -144,7 +145,6 @@ void InventoryUI::update(float deltaTime) {
     }
 }
 
-
 void InventoryUI::draw() {
     auto& items = game.inventory.getItems();
     size_t weaponsSize = items[WEAPON].size();
@@ -153,7 +153,7 @@ void InventoryUI::draw() {
     size_t keySize = items[KEY].size();
     size_t totalItems = weaponsSize + consumablesSize + passiveSize + keySize;
 
-    // background
+    // construct the background
     DrawRectangle(int(x), int(y), int(width), int(height), DARKBURGUNDY);
     static const uint32_t spacing = 32;
     static const uint32_t marginLeft = 24;

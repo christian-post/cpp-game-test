@@ -6,8 +6,6 @@
 #include "Commands.h"
 
 
-//class Command;
-
 struct QueuedCommand {
     Command* cmd;
     bool blocking;

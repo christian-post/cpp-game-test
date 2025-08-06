@@ -7,7 +7,7 @@
 #include "json.hpp"
 
 struct Tileset {
-    // used to store .tsj files data
+    // used to store the data from *.tsj files
     std::string name, image;
     uint32_t imagewidth, imageheight, tilecount, tileheight, tilewidth, columns;
 
@@ -31,7 +31,6 @@ struct TileLayer {
     int width, height;
     std::vector<std::vector<int>> data;
     std::unordered_map<std::string, std::string> properties;  // TODO parse properties as JSON
-
     TileLayer(const nlohmann::json& layerJson);
 };
 
@@ -68,17 +67,16 @@ struct TileObject {
 
 class TileMap {
 public:
-    size_t width, height, tileWidth, tileHeight;
-    std::vector<TileLayer> layers;
-    std::vector<TileObject> objects;
-
     TileMap(const nlohmann::json& jsonMap, std::string mapName);
     const TileLayer& getLayer(size_t index) const;
     const std::vector<TileObject>& getObjects() const;
-
     const std::string& getName() const { return mapName; }
     const std::string& getTilesetName() const { return tilesetName; }
     const std::string& getMusicKey() const { return music; }
+
+    size_t width, height, tileWidth, tileHeight;
+    std::vector<TileLayer> layers;
+    std::vector<TileObject> objects;
 
 private:
     std::string mapName;

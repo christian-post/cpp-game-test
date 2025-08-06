@@ -23,6 +23,7 @@ void MapUI::update(float deltaTime) {
         cursorOn = !cursorOn;
         blinkTimer -= blinkSpeed;
     }
+    // state machine
     switch (state) {
     case OPENING:
         if (y > topY) {
@@ -87,12 +88,16 @@ void MapUI::draw() {
     const int cellWidth = (static_cast<int>(width) - 2 * border - (cols - 1) * spacing) / cols;
     const int cellHeight = (static_cast<int>(height) - 2 * border - (rows - 1) * spacing) / rows;
 
-    std::array<Vector2, 4> offsets = {
-        Vector2{ float(cellWidth), float(cellHeight / 2 - spacing / 2) },
-        Vector2{ float(cellWidth / 2 - spacing / 2), -1.0f * float(spacing)},
-        Vector2{ -1.0f * float(spacing), float(cellHeight / 2 - spacing / 2) },
-        Vector2{ float(cellWidth / 2 - spacing / 2), float(cellHeight)}
-    }; // TODO: don't redefine this every time, change the array values instead
+    // calculate the minimap offsets
+    // TODO: do I really need to recalculate this every frame?
+    offsets[0].x = float(cellWidth);
+    offsets[0].y = float(cellHeight / 2 - spacing / 2);
+    offsets[1].x = float(cellWidth / 2 - spacing / 2);
+    offsets[1].y = -1.0f * float(spacing);
+    offsets[2].x = -1.0f * float(spacing);
+    offsets[2].y = float(cellHeight / 2 - spacing / 2);
+    offsets[3].x = float(cellWidth / 2 - spacing / 2);
+    offsets[3].y = float(cellHeight);
 
     auto& minimaps = game.currentDungeon->minimapTextures;
     for (int i = 0; i < cols * rows; ++i) {

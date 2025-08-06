@@ -103,6 +103,7 @@ void Game::resetScenes() {
 void Game::processMarkedScenes() {
     for (auto it = scenes.begin(); it != scenes.end(); ) {
         if (it->second->ismarkedForStarting()) {
+            TraceLog(LOG_INFO, "starting scene %s", it->second->getName().c_str());
             it->second->markedForStarting = false;
             it->second->startup();
             it->second->setActive(true);
@@ -137,10 +138,8 @@ void Game::save()
     saveDungeon(save, *currentDungeon);
 
     auto j = writeDataToJSON(save);
-
-    //j["DungeonRooms"] = {}; // TODO: temporary fix
-
-    // TODO testing
+    // TODO: testing a single json file
+    // > add support for multiple files 
     std::ofstream file("./savegames/save_0.json");
     file << j.dump(2);
 
@@ -184,7 +183,7 @@ std::shared_ptr<Sprite> Game::createSprite(std::string spriteName, Rectangle& re
 void Game::createDungeon(size_t roomsW, size_t roomsH)
 {
     currentDungeon = std::make_unique<Dungeon>(*this, roomsW, roomsH);
-    // TODO: hardcoding this here for now
+    // TODO: I'm hardcoding this here for now
     /*
     ## test dungeon ##
        0   1   2   3

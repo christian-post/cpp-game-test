@@ -1,7 +1,6 @@
 #pragma once
 #include "Scene.h"
 #include "MenuSelect.h"
-#include <functional>
 
 class SelectMenu : public Scene {
 public:

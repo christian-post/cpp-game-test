@@ -2,29 +2,22 @@
 #include "Utils.h"
 
 
-EventManager::EventManager() : events{}, listeners{}, delayedEvents{} {
-    // TODO
-}
+EventManager::EventManager() : events{}, listeners{}, delayedEvents{} {}
 
 void EventManager::pushEvent(const std::string& key, std::any value) {
     events[key] = value;
-    // also call listeners
+    // also call the listeners
     auto it = listeners.find(key);
     if (it != listeners.end()) {
-        //TraceLog(LOG_INFO, "calling the event listeners for %s", key.c_str());
         for (auto& callback : it->second) {
             callback(value);
         }
     }
-    //else {
-    //    TraceLog(LOG_WARNING, "No event listeners for %s", key.c_str());
-    //}
 }
 
 void EventManager::pushDelayedEvent(const std::string& key, float delay, std::any value, std::function<void()> callback) {
     delayedEvents.push_back({ key, delay, value, callback });
 }
-
 
 void EventManager::addListener(const std::string& key, std::function<void(std::any)> callback) {
     TraceLog(LOG_INFO, "Adding a event listener for %s", key.c_str());
