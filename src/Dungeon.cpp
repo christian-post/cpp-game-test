@@ -9,7 +9,7 @@ Dungeon::Dungeon(Game& game, size_t roomsW, size_t roomsH) : game{ game }, rooms
 
 std::vector<std::optional<Room>>& Dungeon::getRooms()
 {
-    return rooms; // idk if this is good practice
+    return rooms;
 }
 
 void Dungeon::setStartingRoomIndex(size_t idx)

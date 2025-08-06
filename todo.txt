@@ -2,13 +2,12 @@ features
 - Pathfinding
 - talking to NPCs
 -- dialogue options
-- Save and load feature
 
 Scenes
 -
 
 - Dungeon Generation
--- random
+-- procedural
 
 - Sprites
 -- behavior priority system
@@ -47,7 +46,7 @@ BUGS:
 - show item pickup for all collectibles
 - does Sprite.jump() work as intended?
 - door in room 002 does not open from event "door001open" when triggered from another room
-- door in room004 does not open after the enemies are defeated
+- doors can't be opened from above (hitbox bug)
 
 
 RELEASE CHECKLIST

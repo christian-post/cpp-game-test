@@ -12,6 +12,7 @@ struct RoomData {
     bool visited;
     bool dark;
     uint8_t doors;
+    uint8_t state = 1;
     std::unordered_map< uint32_t, ObjectState> objectStates;
     std::string tilemapKey;
 };

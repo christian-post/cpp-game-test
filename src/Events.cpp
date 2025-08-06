@@ -57,6 +57,7 @@ void setupConditionalEvents(InGame& inGame) {
         [&]() {
             if (!inGame.tileMap) return false;
             return inGame.tileMap->getName() == "dungeon004" &&
+                game.currentDungeon->getCurrentRoomState() < 2 &&
                 std::none_of(game.sprites.begin(), game.sprites.end(),
                     [](const std::shared_ptr<Sprite>& s) {
                         return s->isEnemy;

@@ -204,9 +204,19 @@ void Game::createDungeon(size_t roomsW, size_t roomsH)
     currentDungeon->insertRoom(3, 1, Room{ loader.getTilemap("dungeon004"), 0b1100 });
     currentDungeon->insertRoom(3, 3, Room{ loader.getTilemap("dungeon005"), 0b0010 });
     currentDungeon->insertRoom(1, 1, Room{ loader.getTilemap("dungeon006"), 0b0101 });
+
+    // TODO: setting room dungeon005 dark as a test
+    // maybe put this in the constructor
+    // or make a "setRoomDark" method of Dungeon
+    auto& rooms = currentDungeon->getRooms();
+    auto& room = rooms[15];
+    if (room) {
+        room->dark = true;
+    }
+
 #endif // TEST_ROOM
 
-    // TODO: debugging, setting all rooms to visited
+    // TODO: for mini map debugging, setting all rooms to visited
     //for (int i = 0; i < roomsW * roomsH; i++) {
     //    currentDungeon->setVisited(i);
     //}
@@ -368,8 +378,10 @@ void Game::draw() {
             size_t maxIndex = currentDungeon->getSize().first * currentDungeon->getSize().second;
             if (currentDungeon->getCurrentRoomIndex() < maxIndex) {
                 std::ostringstream ss;
-                ss << "Room: " << currentDungeon->loadCurrentTileMap()->getName()
-                    << " (" << currentDungeon->getCurrentRoomIndex() << ")";
+                std::string roomName = currentDungeon->loadCurrentTileMap()->getName();
+                size_t roomIndex = currentDungeon->getCurrentRoomIndex();
+                uint8_t roomState = currentDungeon->getCurrentRoomState();
+                ss << "Room: " << roomName << " (" << roomIndex << "); state: " << int(roomState);
                 DrawText(ss.str().c_str(), 4, int(GetScreenHeight() * 0.8f), fontSize, WHITE);
             }
             else {

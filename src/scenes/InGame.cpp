@@ -370,11 +370,11 @@ void InGame::loadTilemap() {
                     sprite->currentFrame = 1;
                     sprite->staticCollision = false;
                 }
-                // door trigger
-                // TODO: moved into OpenLockBehavior
-                //game.eventManager.removeListeners(triggerKey);
-                game.eventManager.addListener(triggerKey, [&](std::any) {
+                // external door trigger
+                game.eventManager.addListener(triggerKey, [&, sprite = sprite.get()](std::any) {
                     objectStates[obj.id].isOpened = true;
+                    sprite->currentFrame = 1;
+                    sprite->staticCollision = false;
                     });
             }
             else if (obj.name == "hurt") {

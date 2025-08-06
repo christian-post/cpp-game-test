@@ -23,6 +23,7 @@ nlohmann::json writeDataToJSON(const SaveGame& saveGame)
         roomJson["dark"] = roomData.dark;
         roomJson["doors"] = roomData.doors;
         roomJson["tilemapKey"] = roomData.tilemapKey;
+        roomJson["state"] = roomData.state;
 
         for (const auto& objectEntry : roomData.objectStates) {
             uint32_t objectId = objectEntry.first;
@@ -67,6 +68,7 @@ SaveGame readSaveDataFromJSON(const nlohmann::json& jsonInput)
             roomData.visited = roomJson.at("visited").get<bool>();
             roomData.dark = roomJson.at("dark").get<bool>();
             roomData.doors = roomJson.at("doors").get<uint8_t>();
+            roomData.state = roomJson.at("state").get<uint8_t>();
             roomData.tilemapKey = roomJson.at("tilemapKey").get<std::string>();
 
             if (roomJson.contains("objectStates")) {
@@ -95,6 +97,7 @@ void saveDungeon(SaveGame& saveGame, Dungeon& dungeon)
             // maybe the Tilemap shouldn't be a part of Room; rather just the key, idk
             rd.dark = rooms[i]->dark;
             rd.doors = rooms[i]->doors;
+            rd.state = rooms[i]->state;
             rd.objectStates = rooms[i]->objectStates;
             rd.tilemapKey = rooms[i]->tilemap.getName();
             rd.visited = rooms[i]->visited;
@@ -115,10 +118,15 @@ std::unique_ptr<Dungeon> loadDungeon(SaveGame& saveGame, Game& game)
     for (const auto& pair : saveGame.DungeonRooms) {
         uint32_t index  = pair.first;
         RoomData roomData = pair.second;
+        Room room{ game.loader.getTilemap(roomData.tilemapKey), roomData.doors };
+        room.dark = pair.second.dark;
+        room.state = pair.second.state;
+        for (auto& [objID, state] : roomData.objectStates) {
+            room.objectStates[objID] = state;
+        }
         uint32_t row = index / saveGame.dungeonWidth;
         uint32_t col = index % saveGame.dungeonWidth;
-        TileMap tm = game.loader.getTilemap(roomData.tilemapKey);
-        dungeon->insertRoom(row, col, Room{ tm, roomData.doors });
+        dungeon->insertRoom(row, col, std::move(room));
     }
 
     dungeon->setStartingRoomIndex(saveGame.startingRoomIndex);
