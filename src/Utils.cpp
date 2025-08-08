@@ -94,3 +94,13 @@ void mergeJson(nlohmann::json& base, const nlohmann::json & override)
         }
     }
 }
+
+std::vector<std::string> listFiles(const std::string& path) {
+    std::vector<std::string> files;
+    for (const auto& entry : std::filesystem::directory_iterator(path)) {
+        if (entry.is_regular_file()) {
+            files.push_back(entry.path().string());
+        }
+    }
+    return files;
+}

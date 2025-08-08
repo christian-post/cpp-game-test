@@ -16,6 +16,8 @@ std::vector<std::string> splitCSV(const std::string& input);
 float getRandomFloat(float min, float max);
 std::vector<std::string> listJSONFiles(const std::string& path);
 void mergeJson(nlohmann::json& base, const nlohmann::json & override);
+std::vector<std::string> listFiles(const std::string& path);
+
 
 struct CameraShake {
     float duration = 0.0f;

@@ -3,6 +3,7 @@
 #include "Preload.h"
 #include "TitleScreen.h"
 #include "StartMenu.h"
+#include "SoundTest.h"
 #include "SelectMenu.h"
 #include "InGame.h"
 #include "HUD.h"
@@ -39,6 +40,7 @@ Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this) {
     registerScene<Preload>("Preload", 0);
     registerScene<TitleScreen>("TitleScreen", 0);
     registerScene<StartMenu>("StartMenu", 0);
+    registerScene<SoundTest>("SoundTest", 0);
     registerScene<SelectMenu>("SelectMenu", 0);
     registerScene<InGame>("InGame", 0);
     registerScene<HUD>("HUD", 1);
@@ -399,6 +401,7 @@ void Game::run() {
     // enable saving the game state from any scene
     eventManager.addListener("saveGame", [&](const std::any& data) {
         save();
+        playSound("Rise02");
         });
     // loading a saved game
     // TODO: use data for the file index

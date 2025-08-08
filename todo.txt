@@ -6,6 +6,8 @@ features
 Scenes
 - show a menu (load save, go to title, quit) at the end of GameOver
 - show a menu that displays all json files in savegames/ 
+- enable scrolling in menu scenes
+- Scenes should know from which Scene they came from, so that I don't need to hard-code the scene they return to once finished
 
 - Dungeon Generation
 -- procedural

@@ -1,6 +1,7 @@
 #include "StartMenu.h"
 #include "Game.h"
 #include "Controls.h"
+#include "Utils.h"
 #include "raylib.h"
 
 StartMenu::StartMenu(Game& game, const std::string& name) 
@@ -29,6 +30,13 @@ void StartMenu::startup() {
             [&]() {
                 // TODO: Transition to another menu that lets you select a file
                 game.eventManager.pushEvent("loadGame");
+            }
+        },
+        {
+            "Sound Test",
+            [&]() {
+                game.startScene("SoundTest");
+                game.stopScene(getName());
             }
         },
         { "Quit", [&]() { game.end(); }}
