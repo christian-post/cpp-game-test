@@ -15,7 +15,7 @@ nlohmann::json writeDataToJSON(const SaveGame& saveGame)
     }
 
     for (const auto& roomEntry : saveGame.DungeonRooms) {
-        uint32_t roomHash = roomEntry.first;
+        size_t roomHash = roomEntry.first;
         const RoomData& roomData = roomEntry.second;
 
         nlohmann::json roomJson;
@@ -61,7 +61,7 @@ SaveGame readSaveDataFromJSON(const nlohmann::json& jsonInput)
     // Dungeon room data
     if (jsonInput.contains("DungeonRooms")) {
         for (const auto& roomEntry : jsonInput.at("DungeonRooms").items()) {
-            uint32_t roomHash = static_cast<uint32_t>(std::stoul(roomEntry.key()));
+            size_t roomHash = static_cast<size_t>(std::stoul(roomEntry.key()));
             const auto& roomJson = roomEntry.value();
 
             RoomData roomData;
@@ -89,7 +89,7 @@ void saveDungeon(SaveGame& saveGame, Dungeon& dungeon)
     // rooms is a vector of optionals and may contain empty entries
     // saveGame.DungeonRooms is a tightly packed hash map (though I could also use null in the JSON)
     auto& rooms = dungeon.getRooms();
-    for (uint32_t i = 0; i < rooms.size(); i++) {
+    for (size_t i = 0; i < rooms.size(); i++) {
         if (rooms[i]) {
             RoomData rd;
             rd.objectStates = {}; // ensures "null" in JSON for rooms without stateful objects
@@ -116,7 +116,7 @@ std::unique_ptr<Dungeon> loadDungeon(SaveGame& saveGame, Game& game)
     std::unique_ptr dungeon = std::make_unique<Dungeon>(game, saveGame.dungeonWidth, saveGame.dungeonHeight);
 
     for (const auto& pair : saveGame.DungeonRooms) {
-        uint32_t index  = pair.first;
+        size_t index  = pair.first;
         RoomData roomData = pair.second;
         Room room{ game.loader.getTilemap(roomData.tilemapKey), roomData.doors };
         room.dark = pair.second.dark;
@@ -124,8 +124,8 @@ std::unique_ptr<Dungeon> loadDungeon(SaveGame& saveGame, Game& game)
         for (auto& [objID, state] : roomData.objectStates) {
             room.objectStates[objID] = state;
         }
-        uint32_t row = index / saveGame.dungeonWidth;
-        uint32_t col = index % saveGame.dungeonWidth;
+        size_t row = index / saveGame.dungeonWidth;
+        size_t col = index % saveGame.dungeonWidth;
         dungeon->insertRoom(row, col, std::move(room));
     }
 

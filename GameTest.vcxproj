@@ -227,6 +227,7 @@ kernel32.lib
     <None Include="resources\shaders\light_mask.fs" />
     <None Include="resources\texts.json" />
     <None Include="resources\weapons.json" />
+    <None Include="src\readme.md" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="github\hero.gif" />

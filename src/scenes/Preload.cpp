@@ -198,6 +198,7 @@ void Preload::startup() {
         l.LoadtileMapFromTiled("./resources/tilemaps/dungeon004.json");
         l.LoadtileMapFromTiled("./resources/tilemaps/dungeon005.json");
         l.LoadtileMapFromTiled("./resources/tilemaps/dungeon006.json");
+        l.LoadtileMapFromTiled("./resources/tilemaps/dungeon007.json");
         });
     // load the font
     loadQueue.emplace("Loading fonts", [&]() {

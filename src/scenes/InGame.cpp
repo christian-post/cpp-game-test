@@ -153,7 +153,7 @@ void InGame::addBehaviorsToSprite(std::shared_ptr<Sprite> sprite, const std::vec
         else if (key == "Shoot") {
             std::string targetName = behaviorData.value("shootTarget", "");
             shootingConfig conf;
-            // TODO get these values from Tiled data
+            // TODO get these values from json data
             conf.projectileKey = "fireball";
             conf.speed = 20.0f;
             conf.amount = 10;
@@ -183,7 +183,7 @@ void InGame::addBehaviorsToSprite(std::shared_ptr<Sprite> sprite, const std::vec
 }
 
 void InGame::loadTilemap() {
-    // TODO: this gets big, put this somewhere else
+    // TODO: this is becoming spaghetti
     tileMap = game.currentDungeon->loadCurrentTileMap();
     // remove static and dynamic (non-persistent) sprites
     game.walls.clear();
@@ -386,7 +386,7 @@ void InGame::loadTilemap() {
             else if (obj.name == "chest") {
                 sprite->doesAnimate = false;
                 sprite->staticCollision = true;
-                sprite->setTextures({ "chest" });
+                sprite->setTextures({ spriteName });
 
                 if (objectStates[obj.id].isOpened) {
                     sprite->currentFrame = 2;
@@ -427,6 +427,7 @@ void InGame::loadTilemap() {
     const Tileset& tileset = game.loader.getTileset(tileMap->getTilesetName());
     const Texture2D& texture = game.loader.getTextures(tileset.name)[0];
     const size_t tilesPerRow = tileset.columns;
+    tileChunkSize = game.getSetting("tileChunkSize").get<size_t>();
     const size_t tilesPerChunkX = tileChunkSize / tileSize;
     const size_t tilesPerChunkY = tileChunkSize / tileSize;
     numChunksX = (worldWidth + tileChunkSize - 1) / tileChunkSize;
@@ -443,7 +444,7 @@ void InGame::loadTilemap() {
         for (size_t cy = 0; cy < numChunksY; ++cy) {
             for (size_t cx = 0; cx < numChunksX; ++cx) {
                 size_t idx = cy * numChunksX + cx;
-                RenderTexture2D chunk = LoadRenderTexture(tileChunkSize, tileChunkSize);
+                RenderTexture2D chunk = LoadRenderTexture(static_cast<int>(tileChunkSize), static_cast<int>(tileChunkSize));
                 BeginTextureMode(chunk);
                 ClearBackground(BLANK);
                 size_t startTileX = cx * tilesPerChunkX;
@@ -778,15 +779,15 @@ void InGame::drawTilemapChunks(int layerIndex) {
                 continue;
 
             size_t idx = cy * numChunksX + cx;
-            Vector2 drawPos = { (float)chunkWorldX, (float)chunkWorldY };
+            Vector2 drawPos = { static_cast<float>(chunkWorldX), static_cast<float>(chunkWorldY) };
 
             // chunks are flipped, so the src rect has to be flipped to draw the chunk correctly
-            Rectangle src = { 0, 0, (float)tileChunkSize, -(float)tileChunkSize };
-            Rectangle dst = { drawPos.x, drawPos.y, (float)tileChunkSize, (float)tileChunkSize };
+            Rectangle src = { 0, 0, static_cast<float>(tileChunkSize), -1.0f * static_cast<float>(tileChunkSize) };
+            Rectangle dst = { drawPos.x, drawPos.y, static_cast<float>(tileChunkSize), static_cast<float>(tileChunkSize) };
             Vector2 origin = { 0, 0 };
             DrawTexturePro(tilemapChunks[layerIndex][idx].texture, src, dst, origin, 0.0f, WHITE);
             if (game.debug) {
-                DrawRectangleLines((int)drawPos.x, (int)drawPos.y, tileChunkSize, tileChunkSize, RED);
+                DrawRectangleLines(static_cast<int>(drawPos.x), static_cast<int>(drawPos.y), static_cast<int>(tileChunkSize), static_cast<int>(tileChunkSize), RED);
             }
         }
     }

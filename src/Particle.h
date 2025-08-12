@@ -4,6 +4,12 @@
 #include "json.hpp"
 
 struct Particle {
+    Particle();
+    void update(float deltaTime);
+    void draw();
+    void reset();
+    void fromData(nlohmann::json& data);
+
     Vector2 position = { 0.0f, 0.0f };
     Vector2 velocity = { 0.0f, 0.0f };
     float alpha = 1.0f;
@@ -21,12 +27,5 @@ struct Particle {
     int currentFrame = 0;
     float animationSpeed = 0.1f;
     float animationTimer = 0.0f;
-
     bool active = false;
-
-    Particle();
-    void update(float deltaTime);
-    void draw();
-    void reset();
-    void fromData(nlohmann::json& data);
 };

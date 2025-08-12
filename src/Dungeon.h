@@ -43,7 +43,9 @@ public:
     std::unordered_map<uint32_t, ObjectState> objectStates; // makes object states (dead etc) persistent
 
     Room(TileMap tilemap, uint8_t doors = 0b0000)
-        : doors(doors), tilemap(std::move(tilemap)) {
+        : doors(doors), tilemap(std::move(tilemap)) 
+    {
+        dark = tilemap.isDark();
     }
 };
 
@@ -76,6 +78,6 @@ public:
     std::pair<size_t, size_t> getRoomSize(size_t index) const; // gets the width and height of the room in pixels
     bool hasVisited(size_t index) const;
     void setVisited(size_t index);
-    std::vector<RenderTexture2D> minimapTextures;
     void makeMinimapTextures();
+    std::vector<RenderTexture2D> minimapTextures;
 };

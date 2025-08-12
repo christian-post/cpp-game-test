@@ -25,6 +25,7 @@ enum weaponType {
 
 struct shootingConfig {
     // a copy is passed to ShootBehavior's constructor
+    // // TODO: read these values from particles.json
     // sprite
     std::string projectileKey = "sprite_default";
     std::string sound = "powerUp1"; // just a default sound to indicate a missing override
@@ -230,7 +231,7 @@ private:
     std::weak_ptr<Sprite> target;
     shootingConfig config;
     float timer = 0.0f;
-    // TODO change in constructor
+    // TODO change this in the constructor
     float interval = 2.0f;
 };
 

@@ -451,17 +451,13 @@ void ProjectileBehavior::update(float deltaTime) {
     }
 }
 
-ShootBehavior::ShootBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, shootingConfig config) : game{ game }, self{ self }, target{ target }, config{ config }
-{
-}
+ShootBehavior::ShootBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, shootingConfig config) : game{ game }, self{ self }, target{ target }, config{ config } {}
 
 void ShootBehavior::update(float deltaTime) {
     timer += deltaTime;
     if (timer >= interval) {
         timer = 0.0f;
         if (auto s = self.lock(), t = target.lock(); s && t) {
-            // TODO: make this modular
-            // pass a ShootingConfig struct or something
             game.playSound(config.sound);
             Rectangle sRect = { s->position.x, s->position.y, config.hitboxSize, config.hitboxSize };
             auto projectile = game.createSprite(config.projectileKey, sRect);
@@ -584,10 +580,11 @@ OpenLockBehavior::OpenLockBehavior(Game& game, std::shared_ptr<Sprite> door, std
 void OpenLockBehavior::update(float deltaTime) {
     if (triggered) return;
     if (auto d = door.lock(), p = player.lock(); d && p) {
-        interactionRect.x = d->rect.x;
-        interactionRect.y = d->rect.y;
-        interactionRect.width = d->rect.width;
-        interactionRect.height = d->rect.height + 4.0f;
+        const float padding = 2.0f; // the interaction rect is inflated by a few pixels 
+        interactionRect.x = d->rect.x - padding;
+        interactionRect.y = d->rect.y - padding; 
+        interactionRect.width = d->rect.width + 2.0f * padding;
+        interactionRect.height = d->rect.height + 2.0f * padding;
         if (CheckCollisionRecs(interactionRect, p->rect)) {
             if (!collided) {
                 game.eventManager.pushEvent("showHelpText", std::make_any<std::tuple<std::string, char, int>>(std::tuple<std::string, char, int>{"OPEN", 'O', 9}));

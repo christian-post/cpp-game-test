@@ -261,6 +261,11 @@
                          "name":"item",
                          "type":"string",
                          "value":"key"
+                        }, 
+                        {
+                         "name":"spriteName",
+                         "type":"string",
+                         "value":"chest"
                         }],
                  "rotation":0,
                  "type":"sprite",

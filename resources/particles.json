@@ -18,7 +18,7 @@
     "velocityY": 0.0,
     "startAlpha": 1.0,
     "endAlpha": 0.0,
-    "tint": [255,255,255,255],
+    "tint": [ 255, 255, 255, 255 ],
     "lifetime": 1.0,
     "startSize": 1.0,
     "endSize": 1.0,

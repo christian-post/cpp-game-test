@@ -154,7 +154,7 @@ void Dungeon::makeMinimapTextures()
         EndTextureMode();
         // draw to the small surface
         BeginTextureMode(mini);
-        // TODO: testing modal filtering for less noisy images
+        // TODO: testing mode filtering for less noisy images
         Image fullImg = LoadImageFromTexture(normal.texture);
         Color* pixels = LoadImageColors(fullImg);
         size_t tilesX = tilemapSize.first / tileSize;

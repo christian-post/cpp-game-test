@@ -39,9 +39,13 @@ TileMap::TileMap(const nlohmann::json& jsonMap, std::string mapName)
     music = "";
     if (jsonMap.contains("properties") && jsonMap["properties"].is_array()) {
         for (const auto& prop : jsonMap["properties"]) {
-            if (prop.contains("name") && prop["name"] == "music" && prop.contains("value")) {
-                music = prop["value"];
-                break;
+            if (prop.contains("name") && prop.contains("value")) {
+                // overrides the dungeon music
+                if (prop["name"] == "music")
+                    music = prop["value"];
+                else if (prop["name"] == "dark")
+                    dark = true;
+                //break;
             }
         }
     }

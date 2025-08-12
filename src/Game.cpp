@@ -188,10 +188,11 @@ void Game::createDungeon(size_t roomsW, size_t roomsH)
     // TODO: I'm hardcoding this here for now
     /*
     ## test dungeon ##
-       0   1   2   3
-    1  x 006   x   x
-    2  x 003 002   x
-    3  x 004 001 005
+      0    1    2    3
+    0 x    shop x    x
+    1 x    006  x    x
+    2 007  003  002  x
+    3 x    004  001  005
     */
     // coordinates are row, column
     // second argument is the directions of the doors, starting at the right and going counter clockwise
@@ -201,26 +202,23 @@ void Game::createDungeon(size_t roomsW, size_t roomsH)
 #else
     currentDungeon->insertRoom(3, 2, Room{ loader.getTilemap("dungeon001"), 0b1111 });
     currentDungeon->insertRoom(2, 2, Room{ loader.getTilemap("dungeon002"), 0b0011 });
-    currentDungeon->insertRoom(2, 1, Room{ loader.getTilemap("dungeon003"), 0b1001 });
+    currentDungeon->insertRoom(2, 1, Room{ loader.getTilemap("dungeon003"), 0b1111 });
     currentDungeon->insertRoom(3, 1, Room{ loader.getTilemap("dungeon004"), 0b1100 });
     currentDungeon->insertRoom(3, 3, Room{ loader.getTilemap("dungeon005"), 0b0010 });
     currentDungeon->insertRoom(1, 1, Room{ loader.getTilemap("dungeon006"), 0b0101 });
+    currentDungeon->insertRoom(2, 0, Room{ loader.getTilemap("dungeon007"), 0b1000 });
+    currentDungeon->insertRoom(0, 1, Room{ loader.getTilemap("dungeon_shop"), 0b0001 });
 
     // TODO: setting room dungeon005 dark as a test
     // maybe put this in the constructor
     // or make a "setRoomDark" method of Dungeon
-    auto& rooms = currentDungeon->getRooms();
-    auto& room = rooms[15];
-    if (room) {
-        room->dark = true;
-    }
+    //auto& rooms = currentDungeon->getRooms();
+    //auto& room = rooms[15];
+    //if (room) {
+    //    room->dark = true;
+    //}
 
 #endif // TEST_ROOM
-
-    // TODO: for mini map debugging, setting all rooms to visited
-    //for (int i = 0; i < roomsW * roomsH; i++) {
-    //    currentDungeon->setVisited(i);
-    //}
 
 #ifdef TEST_ROOM
     currentDungeon->setStartingRoomIndex(0); // TODO: testing

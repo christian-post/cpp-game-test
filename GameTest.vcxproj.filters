@@ -223,6 +223,7 @@
     <None Include="resources\npcs.json" />
     <None Include="resources\particles.json" />
     <None Include="resources\shaders\light_mask.fs" />
+    <None Include="src\readme.md" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="github\hero.gif">

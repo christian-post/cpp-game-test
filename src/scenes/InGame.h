@@ -50,7 +50,7 @@ public:
 private:
     size_t worldWidth;
     size_t worldHeight;
-    static const size_t tileChunkSize = 256; // limit the size of the textures that hold the tilemap layers
+    size_t tileChunkSize = 256; // limit the size of the textures that hold the tilemap layers
     size_t numChunksX = 0;
     size_t numChunksY = 0;
     std::vector<std::vector<RenderTexture2D>> tilemapChunks; // stores chunks of eachs of the layers of a map

@@ -6,7 +6,6 @@ features
 Scenes
 - show a menu (load save, go to title, quit) at the end of GameOver
 - show a menu that displays all json files in savegames/ 
-- enable scrolling in menu scenes
 - Scenes should know from which Scene they came from, so that I don't need to hard-code the scene they return to once finished
 
 - Dungeon Generation
@@ -18,9 +17,10 @@ Scenes
 -- shadows!
 
 - Cutscene command system (modular)
--- Command_MoveToPath(target, posX, posY, duration) // benutzt pathfinding
+-- Command_MoveToPath(target, posX, posY, duration) // should use pathfinding
 
 - Misc
+-- ...
 
 - Music/Sounds:
 -- Inventory select item --> different sound
@@ -48,11 +48,10 @@ BUGS:
 - RandomWalkBehavior: choose new target after some time if the current target can't be reached
 - show item pickup for all collectibles
 - does Sprite.jump() work as intended?
-- door in room 002 does not open from event "door001open" when triggered from another room
-- doors can't be opened from above (hitbox bug)
+- door in room 002 does not open from event "door001open" when triggered from another room, and vice versa
+- game still crashes when entering a nonexistent room
 
 
 RELEASE CHECKLIST
-- replace tabs with spaces
 - turn on sounds and music
 - hand crafted title image

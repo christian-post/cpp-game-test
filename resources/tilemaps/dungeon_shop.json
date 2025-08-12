@@ -273,33 +273,6 @@
                  "y":80
                 }, 
                 {
-                 "height":8,
-                 "id":17,
-                 "name":"teleport",
-                 "properties":[
-                        {
-                         "name":"targetMap",
-                         "type":"string",
-                         "value":"test_dungeon1"
-                        }, 
-                        {
-                         "name":"targetPosX",
-                         "type":"float",
-                         "value":18.5
-                        }, 
-                        {
-                         "name":"targetPosY",
-                         "type":"float",
-                         "value":3
-                        }],
-                 "rotation":0,
-                 "type":"sprite",
-                 "visible":true,
-                 "width":40,
-                 "x":108,
-                 "y":232
-                }, 
-                {
                  "height":16,
                  "id":18,
                  "name":"chest",
@@ -313,35 +286,55 @@
                          "name":"item",
                          "type":"string",
                          "value":"weapon_double_axe"
+                        }, 
+                        {
+                         "name":"roomState",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"spriteName",
+                         "type":"string",
+                         "value":"chest"
                         }],
                  "rotation":0,
                  "type":"sprite",
                  "visible":true,
                  "width":16,
-                 "x":176,
-                 "y":64
+                 "x":32,
+                 "y":176
                 }, 
                 {
                  "height":16,
-                 "id":19,
+                 "id":21,
                  "name":"chest",
                  "properties":[
                         {
                          "name":"amount",
                          "type":"int",
-                         "value":10
+                         "value":999
                         }, 
                         {
                          "name":"item",
                          "type":"string",
-                         "value":"red_potion"
+                         "value":"coin"
+                        }, 
+                        {
+                         "name":"roomState",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"spriteName",
+                         "type":"string",
+                         "value":"chest"
                         }],
                  "rotation":0,
                  "type":"sprite",
                  "visible":true,
                  "width":16,
-                 "x":208,
-                 "y":64
+                 "x":64,
+                 "y":176
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -350,7 +343,7 @@
          "y":0
         }],
  "nextlayerid":6,
- "nextobjectid":20,
+ "nextobjectid":22,
  "orientation":"orthogonal",
  "properties":[
         {

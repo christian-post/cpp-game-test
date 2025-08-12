@@ -73,6 +73,7 @@ public:
     const std::string& getName() const { return mapName; }
     const std::string& getTilesetName() const { return tilesetName; }
     const std::string& getMusicKey() const { return music; }
+    const bool isDark() { return dark; }
 
     size_t width, height, tileWidth, tileHeight;
     std::vector<TileLayer> layers;
@@ -82,4 +83,5 @@ private:
     std::string mapName;
     std::string tilesetName;
     std::string music;
+    bool dark = false;
 };

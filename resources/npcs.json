@@ -15,7 +15,8 @@
     },
     "collides": 1,
     "hitbox": [ 16.0, 16.0 ],
-    "hitboxOffset": [ 0.0, 0.0 ]
+    "hitboxOffset": [ 0.0, 0.0 ],
+    "itemDrops": []
   },
   "elfCompanion1": {
     "inherits": "sprite_default",
@@ -63,6 +64,12 @@
       "dialogue": "testLongText"
     },
     "collides": 0
+  },
+  "chest": {
+    "inherits": "sprite_default",
+    "textures": [
+      "chest"
+    ]
   },
   "dungeon_door": {
     "inherits": "sprite_default",

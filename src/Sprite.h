@@ -30,7 +30,6 @@ public:
     Game& game;
     std::vector<std::vector<Texture2D>> frames;
     std::string spriteName; // used for general identification
-    //std::string textureKey; // used for finding the correct texture
     uint32_t tileMapID = 0;
     int currentFrame = 0;
     bool doesAnimate = true;
