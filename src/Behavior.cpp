@@ -402,8 +402,12 @@ void TradeItemBehavior::draw() {
         int x = (int)s->position.x - 4;
         int y = (int)s->position.y + 16;
         const auto& coinTex = game.loader.getTextures("itemDropCoin")[0];
-        DrawTexture(coinTex, x, y, WHITE);
         std::string priceText = "x" + std::to_string(price);
+        int textW = MeasureText(priceText.c_str(), 10);
+        int rectW = coinTex.width + 2 + textW;
+        int rectH = std::max(coinTex.height, 10);
+        DrawRectangle(x, y, rectW, rectH, Color{ 0, 0, 0, 128 });
+        DrawTexture(coinTex, x, y, WHITE);
         DrawText(priceText.c_str(), x + 8, y, 10, WHITE);
     }
 }

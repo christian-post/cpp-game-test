@@ -377,10 +377,16 @@ void Game::draw() {
             size_t maxIndex = currentDungeon->getSize().first * currentDungeon->getSize().second;
             if (currentDungeon->getCurrentRoomIndex() < maxIndex) {
                 std::ostringstream ss;
-                std::string roomName = currentDungeon->loadCurrentTileMap()->getName();
+                const TileMap* tm = currentDungeon->loadCurrentTileMap();
                 size_t roomIndex = currentDungeon->getCurrentRoomIndex();
-                uint8_t roomState = currentDungeon->getCurrentRoomState();
-                ss << "Room: " << roomName << " (" << roomIndex << "); state: " << int(roomState);
+                if (tm) {
+                    std::string roomName = tm->getName();
+                    uint8_t roomState = currentDungeon->getCurrentRoomState();
+                    ss << "Room: " << roomName << " (" << roomIndex << "); state: " << int(roomState);
+                }
+                else {
+                    ss << "no room at index " << roomIndex;
+                }
                 DrawText(ss.str().c_str(), 4, int(GetScreenHeight() * 0.8f), fontSize, WHITE);
             }
             else {
@@ -415,7 +421,9 @@ void Game::run() {
         buttonsPressed = GetControlsPressed();
         buttonsDown = GetControlsDown();
    
-        if (buttonsPressed & CONTROL_DEBUG) debug = !debug; // debug mode toggle
+        // debug mode toggle
+        if (buttonsPressed & CONTROL_DEBUG)
+            debug = !debug; 
         // specific debug functions
         if (debug) {
             if (buttonsPressed & CONTROL_DEBUG_K2) {
@@ -423,6 +431,7 @@ void Game::run() {
             }
         }
 
+        // --- main game loop ---
         float currentTime = float(GetTime());
         float deltaTime = currentTime - lastTime;
         lastTime = currentTime;
@@ -430,7 +439,7 @@ void Game::run() {
         playMusic();
         draw();
 
-        // restarting the game (debugging)
+        // restarting the game TODO: just for faster debugging
         if (IsKeyPressed(KEY_F5)) {
             restart();
         }

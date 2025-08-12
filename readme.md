@@ -121,8 +121,12 @@ Here is the default button layout:
 | Action 4      | L                | B								 | ---                         |
 | Confirm       | Enter            | Start							 | open/close inventory        |
 | Cancel        | Backspace        | Back							 | ---                         |
-| Debug Mode    | F1               | —                               | debug overlay               |
 | Restart Game  | F5               | —                               | restart and go back to title|
+| Debug Mode    | F1               | —                               | debug overlay               |
+| Debug Functions (won't be in the final game) - only available in debug mode
+| Debug 1       | Keypad 1         | —                               | teleport to next room       |
+| Debug 2       | Keypad 2         | —                               | Toggle sound on/off         |
+| Debug 3       | Keypad 3         | —                               | unused                      |
 
 
 

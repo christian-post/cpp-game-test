@@ -153,8 +153,9 @@ void InGame::addBehaviorsToSprite(std::shared_ptr<Sprite> sprite, const std::vec
         else if (key == "Shoot") {
             std::string targetName = behaviorData.value("shootTarget", "");
             shootingConfig conf;
+            conf.projectileKey = behaviorData.value("shootProjectile", conf.projectileKey); // use the default as a fallback
+            conf.sound = behaviorData.value("shootSound", conf.sound);
             // TODO get these values from json data
-            conf.projectileKey = "fireball";
             conf.speed = 20.0f;
             conf.amount = 10;
             conf.velocityVariance = { 1.0f, 1.0f };
@@ -726,9 +727,6 @@ void InGame::update(float deltaTime) {
         camera.target = target;
     }
 
-    // update light circle position
-    //lights[0].center = GetWorldToScreen2D(target, camera);
-
     // check player out of map bounds
     // TODO: make a function for this
     int8_t offset = 0;
@@ -750,7 +748,7 @@ void InGame::update(float deltaTime) {
         player->moveTo(player->position.x, player->rect.height * 0.5f);
     }
     if (offset != 0) {
-        uint8_t newIndex = (uint8_t)game.currentDungeon->getCurrentRoomIndex() + offset;
+        size_t newIndex = (uint8_t)game.currentDungeon->getCurrentRoomIndex() + offset;
         game.currentDungeon->setCurrentRoomIndex(newIndex);
         loadTilemap();
     }
@@ -761,6 +759,16 @@ void InGame::update(float deltaTime) {
         if (music) StopMusicStream(*music);
         game.stopScene("HUD");
         game.startScene("GameOver");
+    }
+
+    // debug functions
+    if (game.debug) {
+        if (game.buttonsPressed & CONTROL_DEBUG_K1) {
+            size_t maxIndex = game.currentDungeon->getSize().first * game.currentDungeon->getSize().second;
+            size_t newIndex = (game.currentDungeon->getCurrentRoomIndex() + 1) % maxIndex;
+            game.currentDungeon->setCurrentRoomIndex(newIndex);
+            loadTilemap();
+        }
     }
 }
 
@@ -794,7 +802,7 @@ void InGame::drawTilemapChunks(int layerIndex) {
 }
 
 void InGame::draw() {
-    ClearBackground(RED);  // red just for camera debugging
+    ClearBackground(BLACK);
 
     BeginMode2D(camera); // draw the textures that are affected by the camera
     // draw each tilemap layer except the top one
@@ -855,15 +863,6 @@ void InGame::draw() {
 
     // cutscene stuff (textboxes etc) gets drawn relative to window position
     game.cutsceneManager.draw();
-    // overlay debug info texts
-    if (game.debug) {
-        std::string debugText = "Debug: ";
-        // show the player's z velocity
-        debugText += "player z vel: " + std::to_string(player->vz);
-        DrawText(debugText.c_str(), 4, game.gameScreenHeight - 22, 10, LIGHTGRAY);
-
-        DrawCircle((int)camera.target.x, (int)camera.target.y, 2, WHITE);
-    }
 }
 
 void InGame::end() {

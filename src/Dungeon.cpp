@@ -39,7 +39,7 @@ uint8_t Dungeon::getCurrentRoomState()
 
 bool Dungeon::isRoomDark()
 {
-    if (currentRoomIndex > rooms.size())
+    if (currentRoomIndex > rooms.size() || !rooms[currentRoomIndex])
         return false;
     return rooms[currentRoomIndex]->dark;
 }
@@ -61,7 +61,6 @@ const TileMap* Dungeon::loadCurrentTileMap()
         return nullptr;
     }
     if (!rooms[currentRoomIndex]) {
-        TraceLog(LOG_ERROR, "No room at current index");
         return nullptr;
     }
     setVisited(currentRoomIndex); // TODO: is it always correct to set this here?

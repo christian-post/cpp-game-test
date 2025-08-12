@@ -32,6 +32,7 @@
       "watchTarget": "player",
       "shootTarget": "player",
       "shootProjectile": "fireball",
+      "shootSound": "fireball",
       "particle": "smoke"
     },
     "itemDrops": [ [ "heart_1up", 1.0 ] ]
