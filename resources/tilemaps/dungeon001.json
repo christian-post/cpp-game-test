@@ -288,33 +288,6 @@
                 }, 
                 {
                  "height":16,
-                 "id":30,
-                 "name":"chest",
-                 "properties":[
-                        {
-                         "name":"amount",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"item",
-                         "type":"string",
-                         "value":"key"
-                        }, 
-                        {
-                         "name":"spriteName",
-                         "type":"string",
-                         "value":"chest"
-                        }],
-                 "rotation":0,
-                 "type":"sprite",
-                 "visible":true,
-                 "width":16,
-                 "x":160,
-                 "y":176
-                }, 
-                {
-                 "height":16,
                  "id":31,
                  "name":"npc",
                  "properties":[

@@ -72,7 +72,9 @@ public:
     bool isRoomDark();
     uint8_t getRoomDoors(size_t index); // TODO: might make a single getter for "Room"...
     std::unordered_map<uint32_t, ObjectState>& getCurrentRoomObjectStates();
+    std::unordered_map<uint32_t, ObjectState>& getRoomObjectStates(size_t index);
     const TileMap* loadCurrentTileMap(); // TODO: does this load or get?
+    const TileMap* loadTileMapByIndex(size_t index);
     void insertRoom(size_t row, size_t col, Room&& room);
     std::pair<size_t, size_t> getSize() const;  // gets ( rooms wide, rooms high )
     std::pair<size_t, size_t> getRoomSize(size_t index) const; // gets the width and height of the room in pixels

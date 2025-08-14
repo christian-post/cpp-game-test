@@ -48,7 +48,7 @@ void setupConditionalEvents(InGame& inGame) {
                         npcRef.persistent = true;
                         npcRef.followsPlayer = true;
                         npcRef.speed = 16;
-                        npcRef.addBehavior(std::make_unique<ChaseBehavior>(game, inGame.spriteMap["elfCompanion2"], inGame.player, 1000.0f, 12.0f, 2000.0f));
+                        npcRef.addBehavior(std::make_unique<ChaseBehavior>(game, inGame.spriteMap["elfCompanion2"], inGame.player, 1000.0f, 20.0f, 2000.0f));
                     }
                     }));
                 });

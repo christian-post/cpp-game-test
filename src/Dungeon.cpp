@@ -54,6 +54,18 @@ std::unordered_map<uint32_t, ObjectState>& Dungeon::getCurrentRoomObjectStates()
     return rooms[currentRoomIndex]->objectStates;
 }
 
+std::unordered_map<uint32_t, ObjectState>& Dungeon::getRoomObjectStates(size_t index)
+{
+    if (currentRoomIndex > rooms.size()) {
+        TraceLog(LOG_ERROR, "Index %d is out of bounds for Rooms array with size %d", currentRoomIndex, rooms.size());
+        throw; // TODO: handle this
+    }
+    if (!rooms[currentRoomIndex]) {
+        throw;
+    }
+    return rooms[index]->objectStates;
+}
+
 const TileMap* Dungeon::loadCurrentTileMap()
 {
     if (currentRoomIndex > rooms.size()) {
@@ -65,6 +77,18 @@ const TileMap* Dungeon::loadCurrentTileMap()
     }
     setVisited(currentRoomIndex); // TODO: is it always correct to set this here?
     return &rooms[currentRoomIndex]->tilemap;
+}
+
+const TileMap* Dungeon::loadTileMapByIndex(size_t index)
+{
+    if (index > rooms.size()) {
+        TraceLog(LOG_ERROR, "Index %d is out of bounds for Rooms array with size %d", index, rooms.size());
+        return nullptr;
+    }
+    if (!rooms[index]) {
+        return nullptr;
+    }
+    return &rooms[index]->tilemap;
 }
 
 void Dungeon::insertRoom(size_t row, size_t col, Room&& room) {

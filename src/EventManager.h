@@ -3,6 +3,7 @@
 #include <functional>
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 #include <any>
 #include <string>
 #include <optional>
@@ -14,6 +15,7 @@ private:
     std::unordered_map<std::string, std::any> events;
     // store a list of event listeners (callbacks that are triggered by an event with that key)
     std::unordered_map<std::string, std::vector<std::function<void(std::any)>>> listeners;
+    // a list of previous events
 
     // callbacks that fire after a given amount of time
     struct TimedEvent {
@@ -52,9 +54,7 @@ public:
     void removeListeners(const std::string& key);
     void cancelRepeatedEvent(const std::string& key);
     void update(float deltaTime); // used to advance timers
-
     void pushConditionalEvent(std::function<bool()> condition, std::function<void()> callback);
-
     void clearAll();
 
     // Get all events (for direct iteration in the scene)
@@ -66,9 +66,9 @@ public:
         std::unordered_map<std::string, std::any> popped = std::move(events);
         events.clear();
         return popped;
-    }
+    } // TODO: is this method even needed?
 
     void clearEvent(const std::string& key) {
         events.erase(key);
-    }
+    } // TODO: is this even needed?
 };

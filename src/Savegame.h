@@ -21,6 +21,7 @@ struct SaveGame {
     // all the data that should be saved between games
     uint32_t playerHealth = 3;
     uint32_t playerMaxHealth = 3;
+    std::string currentWeapon;
     std::vector<std::pair<std::string, uint32_t>> items; // <key, amount>; strings correspond to keys in ItemData.cpp
     // TODO: create a data structure that allows for multiple dungeons
     size_t dungeonWidth = 0;

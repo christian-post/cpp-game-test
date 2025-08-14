@@ -10,14 +10,14 @@ SoundTest::SoundTest(Game& game, const std::string& name) : Scene(game, name), m
 }
 
 void SoundTest::startup() {
-    // TODO: list and play the sounds already loaded instead
+    // TODO: list and play the sounds that already loaded instead
     std::vector<std::string> files = listFiles("./resources/sound/sfx");
     for (const auto& file : files) {
         size_t pos = file.find("sfx") + 4;
         std::string substr = file.substr(pos);
         TraceLog(LOG_INFO, "%s", substr.c_str());
         menu.addItem({ substr, [this, file]() {
-            if (!this->game.soundOn || !this->game.sfxOn) return;
+            //if (!this->game.soundOn || !this->game.sfxOn) return;
             UnloadSound(currentSound);
             currentSound = LoadSound(file.c_str());
             PlaySound(currentSound);

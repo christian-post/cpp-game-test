@@ -29,10 +29,8 @@ void InGame::startup() {
             for (const auto& itemPair : saveData->items) {
                 this->game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>(itemPair.first, itemPair.second));
             }
+            this->game.eventManager.pushEvent("weaponSet", saveData->currentWeapon);
             });
-
-        // TODO:
-        // - room states
         game.currentDungeon = loadDungeon(*saveData, game);
     }
     else {
@@ -155,7 +153,8 @@ void InGame::addBehaviorsToSprite(std::shared_ptr<Sprite> sprite, const std::vec
             shootingConfig conf;
             conf.projectileKey = behaviorData.value("shootProjectile", conf.projectileKey); // use the default as a fallback
             conf.sound = behaviorData.value("shootSound", conf.sound);
-            // TODO get these values from json data
+            conf.damage = behaviorData.value("shootDamage", conf.damage);
+            // TODO get these values also from json data
             conf.speed = 20.0f;
             conf.amount = 10;
             conf.velocityVariance = { 1.0f, 1.0f };
@@ -193,7 +192,7 @@ void InGame::loadTilemap() {
     if (!tileMap)
         return;
     // the room state controls how objects are spawned
-    // states start with 1
+    // room states start with 1
     uint8_t currentState = game.currentDungeon->getCurrentRoomState();
     auto& objectStates = game.currentDungeon->getCurrentRoomObjectStates();
     const auto& spriteData = game.loader.getSpriteData();
@@ -359,24 +358,34 @@ void InGame::loadTilemap() {
 
                 std::string triggerKey = obj.properties.value("event", "");
 
-                if (currentState < openState && !objectStates[obj.id].isOpened) {
+                bool isAlreadyOpen = false; // check if this door already opened from another event
+                for (auto ev : game.eventManager.peekEvents()) {
+                    if (ev.first == triggerKey)
+                        isAlreadyOpen = true;
+                }
+
+                if (currentState < openState && !objectStates[obj.id].isOpened && !isAlreadyOpen) {
                     sprite->staticCollision = true;
                     bool locked = obj.properties.value("locked", false);
                     if (locked) {
                         sprite->currentFrame = 2;
                         sprite->addBehavior(std::make_unique<OpenLockBehavior>(game, sprite, player, triggerKey));
                     }
+
+                    // external door trigger
+                    game.eventManager.addListener(triggerKey, [&, this, sprite = sprite.get()](std::any) {
+                        objectStates[obj.id].isOpened = true;
+                        sprite->currentFrame = 1;
+                        sprite->staticCollision = false;
+                        // TODO open the door in the adjacent room
+                        });
                 }
                 else {
                     sprite->currentFrame = 1;
                     sprite->staticCollision = false;
-                }
-                // external door trigger
-                game.eventManager.addListener(triggerKey, [&, sprite = sprite.get()](std::any) {
                     objectStates[obj.id].isOpened = true;
-                    sprite->currentFrame = 1;
-                    sprite->staticCollision = false;
-                    });
+                }
+                
             }
             else if (obj.name == "hurt") {
                 // invisible sprite with hurtbox (e.g. floor spikes)

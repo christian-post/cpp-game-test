@@ -8,8 +8,9 @@ Scenes
 - show a menu that displays all json files in savegames/ 
 - Scenes should know from which Scene they came from, so that I don't need to hard-code the scene they return to once finished
 
-- Dungeon Generation
--- procedural
+- Dungeon
+-- procedural generation
+-- show a shadow over a room entrance if the adjacent room is dark
 
 - Sprites
 -- behavior priority system
@@ -37,21 +38,22 @@ TODO: refactor
 - add a "unique" property to addListener that removes old listeners if they exist
 - posOffsetX and posOffsetY in weapons data currently unused
 - Weapon hurtbox should appear only a fraction of the weapon's lifetime
-- Can repeated events go infinite?
+- repeated events that go infinite
 - Error check for a wrong emitter texture key
 - create a particles.json file with presets for Particles and Emitters. Give Particle and Emitter a .fromData() function
 - Event keys should be enums instead of strings
 - Sprite.jump() method: add argument "jumpHeight" that roughly corresponds to the number of pixels
+- talking to an NPC should have the least priority when pressing the "interact" button
 
+- door in Room006 should only open after you defeated the enemy (add the event)
+- don't show the "<<" and ">>" help texts in the menu if there is no next screen
 
 BUGS:
 - RandomWalkBehavior: choose new target after some time if the current target can't be reached
-- show item pickup for all collectibles
 - does Sprite.jump() work as intended?
-- door in room 002 does not open from event "door001open" when triggered from another room, and vice versa
-- game still crashes when entering a nonexistent room
+- "open" tooltip does not disappear sometimes
 
 
 RELEASE CHECKLIST
 - turn on sounds and music
-- hand crafted title image
+- hand painted title image

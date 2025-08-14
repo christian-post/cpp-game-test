@@ -14,7 +14,8 @@
       "chaseTarget": "player"
     },
     "itemDrops": [
-      [ "heart_1up", 1.0 ]
+      [ "coin", 0.3 ],
+      [ "heart_drop", 0.2 ]
     ]
   },
   "big_demon": {
@@ -32,6 +33,7 @@
       "watchTarget": "player",
       "shootTarget": "player",
       "shootProjectile": "fireball",
+      "shootDamage": 2,
       "shootSound": "fireball",
       "particle": "smoke"
     },
