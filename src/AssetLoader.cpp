@@ -277,8 +277,13 @@ const nlohmann::json& AssetLoader::getSpriteData() {
 
 const std::vector<std::string>& AssetLoader::getText(std::string& key)
 {
-    return textData.at(key);
+    auto it = textData.find(key);
+    if (it != textData.end())
+        return it->second;
+    TraceLog(LOG_ERROR, TextFormat("AssetLoader::getText - Key '%s' not found", key.c_str()));
+    throw std::runtime_error("Key not found");
 }
+
 
 const std::vector<Texture2D>& AssetLoader::getTextures(const std::string& key) {
     return textureGroups[key]; // Returns and empty vector if key doesn't exist

@@ -539,7 +539,7 @@ void ChestBehavior::update(float deltaTime) {
                 if (itemAmount == 1) {
                     // TODO: add a "unique" property to Item that is checked here instead
                     if (data.type == WEAPON) {
-                        message = format("You got the %s. Open your inventory to equip it, then use with [P].", data.displayName.c_str());
+                        message = format("You got the %s.\nOpen your inventory to equip it, then use with [P].", data.displayName.c_str());
                     }
                     else {
                         message = format("You got a %s.", data.displayName.c_str());

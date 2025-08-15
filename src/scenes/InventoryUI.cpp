@@ -269,7 +269,7 @@ void InventoryUI::draw() {
         uint32_t txtR = int(x) + int(game.gameScreenWidth) - MeasureText(textRight, fontSize) - 4;
         uint32_t txtL = int(x) + 4;
         DrawText(textRight, txtR, helpTextY, fontSize, LIGHTGRAY);
-        DrawText(textLeft, txtL, helpTextY, fontSize, LIGHTGRAY);
+        //DrawText(textLeft, txtL, helpTextY, fontSize, LIGHTGRAY); // TODO: draw dynamically if another screen exists
     }
 }
 

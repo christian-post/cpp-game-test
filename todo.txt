@@ -43,10 +43,10 @@ TODO: refactor
 - create a particles.json file with presets for Particles and Emitters. Give Particle and Emitter a .fromData() function
 - Event keys should be enums instead of strings
 - Sprite.jump() method: add argument "jumpHeight" that roughly corresponds to the number of pixels
-- talking to an NPC should have the least priority when pressing the "interact" button
-
-- door in Room006 should only open after you defeated the enemy (add the event)
+- talking to an NPC should have the least priority when pressing the "interact" button and two or more interactibles are within reach
 - don't show the "<<" and ">>" help texts in the menu if there is no next screen
+
+- add Companion NPC to save data
 
 BUGS:
 - RandomWalkBehavior: choose new target after some time if the current target can't be reached
@@ -57,3 +57,4 @@ BUGS:
 RELEASE CHECKLIST
 - turn on sounds and music
 - hand painted title image
+- test xbox controller

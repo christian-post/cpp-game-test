@@ -96,13 +96,13 @@ void InGame::startup() {
         });
 
     // ##### Events that progress the game ####
-    // // TODO: comment out during debugging
     setupConditionalEvents(*this);
 
     // TODO: adding some items for testing
     game.eventManager.pushDelayedEvent("testItemsForStart", 0.1f, nullptr, [this]() {
         // give the player the sword for starters
         //game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("heart_1up", 99));
+        //game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("key", 99));
         //game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_hammer", 1));
         //game.eventManager.pushEvent("weaponSet", std::string("weapon_hammer"));
         });

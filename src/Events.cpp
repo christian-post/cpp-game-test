@@ -70,8 +70,8 @@ void setupConditionalEvents(InGame& inGame) {
             TraceLog(LOG_INFO, "enemies defeated");
             game.eventManager.pushDelayedEvent("defeatDialog", 0.1f, nullptr, [&]() {
                 game.eventManager.pushEvent("hideHUD");
-                game.cutsceneManager.queueCommand(new Command_CameraPan(game, 110.0f, 20.0f, 2.0f));
-                game.cutsceneManager.queueCommand(new Command_Wait(0.5f));
+                game.cutsceneManager.queueCommand(new Command_CameraPan(game, 110.0f, 20.0f, 1.0f));
+                game.cutsceneManager.queueCommand(new Command_Wait(0.3f));
                 game.cutsceneManager.queueCommand(new Command_Callback([&]() {
                     game.eventManager.pushEvent("door004open");
                     game.playSound("doorOpen_2");
@@ -83,6 +83,57 @@ void setupConditionalEvents(InGame& inGame) {
                     game.currentDungeon->advanceRoomState();
                     }));
                 });      
+        }
+    );
+
+    game.eventManager.pushConditionalEvent(
+        // the player has defeated the demon in room 006
+        [&]() {
+            if (!inGame.tileMap) return false;
+            return inGame.tileMap->getName() == "dungeon006" &&
+                game.currentDungeon->getCurrentRoomState() < 2 &&
+                std::none_of(game.sprites.begin(), game.sprites.end(),
+                    [](const std::shared_ptr<Sprite>& s) {
+                        return s->isEnemy;
+                    });
+        },
+        [&]() {
+            TraceLog(LOG_INFO, "enemies defeated");
+            game.eventManager.pushDelayedEvent("defeatDialog", 0.1f, nullptr, [&]() {
+                game.eventManager.pushEvent("hideHUD");
+                game.cutsceneManager.queueCommand(new Command_CameraPan(game, 110.0f, 20.0f, 1.0f));
+                game.cutsceneManager.queueCommand(new Command_Wait(0.3f));
+                game.cutsceneManager.queueCommand(new Command_Callback([&]() {
+                    game.eventManager.pushEvent("door006open");
+                    game.playSound("doorOpen_2");
+                    }));
+                game.cutsceneManager.queueCommand(new Command_Wait(1.5f));
+                game.cutsceneManager.queueCommand(new Command_Callback([&]() {
+                    game.eventManager.pushEvent("showHUD");
+                    game.cutsceneManager.setCameraControl(false);
+                    game.currentDungeon->advanceRoomState();
+                    }));
+                });
+        }
+    );
+
+    game.eventManager.pushConditionalEvent(
+        [&]() {
+            // give your companion a different dialogue after the last room
+            if (!inGame.tileMap) return false;
+            return (inGame.tileMap->getName() == "dungeon_shop");
+        },
+        [&]() {
+            if (inGame.spriteMap.find("elfCompanion2") == inGame.spriteMap.end())
+                return;
+            game.eventManager.pushDelayedEvent("advanceCompanionDialogue", 0.1f, nullptr, [&]() {
+                Sprite& npcRef = *inGame.spriteMap["elfCompanion2"];
+                npcRef.removeAllBehaviors();
+                npcRef.addBehavior(std::make_unique<ChaseBehavior>(game, inGame.spriteMap["elfCompanion2"], inGame.player, 1000.0f, 20.0f, 2000.0f));
+                std::string textKey = "elfDialogue3";
+                std::vector<std::string> texts = game.loader.getText(textKey);
+                npcRef.addBehavior(std::make_unique<DialogueBehavior>(game, inGame.spriteMap["elfCompanion2"], inGame.player, texts, "powerUp4"));
+                });
         }
     );
 }

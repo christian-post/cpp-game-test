@@ -189,7 +189,6 @@ void Preload::startup() {
         });
     // load the tile maps from text files
     loadQueue.emplace("Loading tilemaps", [&]() {
-        l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_shop.json");
         l.LoadtileMapFromTiled("./resources/tilemaps/test_map_small.json");
         l.LoadtileMapFromTiled("./resources/tilemaps/test_map_big.json");
         l.LoadtileMapFromTiled("./resources/tilemaps/dungeon001.json");
@@ -199,6 +198,7 @@ void Preload::startup() {
         l.LoadtileMapFromTiled("./resources/tilemaps/dungeon005.json");
         l.LoadtileMapFromTiled("./resources/tilemaps/dungeon006.json");
         l.LoadtileMapFromTiled("./resources/tilemaps/dungeon007.json");
+        l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_shop.json");
         });
     // load the font
     loadQueue.emplace("Loading fonts", [&]() {

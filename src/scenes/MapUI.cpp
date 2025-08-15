@@ -160,7 +160,7 @@ void MapUI::draw() {
         uint32_t helpTextY = int(y) + int(game.gameScreenHeight - topY) - fontSize - 8;
         uint32_t txtR = int(x) + int(game.gameScreenWidth) - MeasureText(textRight, fontSize) - 4;
         uint32_t txtL = int(x) + 4;
-        DrawText(textRight, txtR, helpTextY, fontSize, LIGHTGRAY);
+        //DrawText(textRight, txtR, helpTextY, fontSize, LIGHTGRAY); // TODO: draw dynamically if another screen exists
         DrawText(textLeft, txtL, helpTextY, fontSize, LIGHTGRAY);
     }
 }

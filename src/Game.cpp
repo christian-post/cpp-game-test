@@ -126,6 +126,11 @@ void Game::save()
 
     save.playerMaxHealth = getPlayer()->maxHealth;
     save.playerHealth = std::max(static_cast<uint32_t>(6), getPlayer()->health); // ensure the player always starts with at least 3 hearts
+    InGame* inGame = dynamic_cast<InGame*>(getScene("InGame"));
+    if (inGame)
+        save.currentWeapon = *inGame->currentWeapon;
+    else
+        TraceLog(LOG_ERROR, "InGame scene not accessible");
     save.items = {}; 
     save.DungeonRooms = {};
 

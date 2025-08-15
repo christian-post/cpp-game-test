@@ -123,6 +123,7 @@ std::unique_ptr<Dungeon> loadDungeon(SaveGame& saveGame, Game& game)
         Room room{ game.loader.getTilemap(roomData.tilemapKey), roomData.doors };
         room.dark = pair.second.dark;
         room.state = pair.second.state;
+        room.visited = pair.second.visited;
         for (auto& [objID, state] : roomData.objectStates) {
             room.objectStates[objID] = state;
         }
