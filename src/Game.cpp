@@ -131,17 +131,24 @@ void Game::save()
         save.currentWeapon = *inGame->currentWeapon;
     else
         TraceLog(LOG_ERROR, "InGame scene not accessible");
-    save.items = {}; 
-    save.DungeonRooms = {};
 
+    for (auto& sprite : sprites) {
+        // check if a sprite follows the player.
+        // That sprite should be spawned again after loading
+        if (sprite->followsPlayer && sprite->persistent)
+            save.spritesFollowingPlayer.push_back(sprite->spriteName);
+    }
+
+    save.items = {}; 
     auto& invItems = inventory.getItems();
     for (size_t type = 0; type < NUM_ITEM_TYPES; type++) {
-        for (auto item : invItems[type]) {
+        for (auto& item : invItems[type]) {
             save.items.push_back({ item.first, item.second.second }); // key, quantity
         }
     }
 
     // serialize the dungeon room data
+    save.DungeonRooms = {};
     saveDungeon(save, *currentDungeon);
 
     auto j = writeDataToJSON(save);
@@ -157,7 +164,7 @@ void Game::load()
 {
     TraceLog(LOG_INFO, "Available Save Files:");
     std::vector<std::string> files = listJSONFiles("./savegames");
-    for (auto file : files)
+    for (auto& file : files)
         TraceLog(LOG_INFO, file.c_str());
 
     if (!files.empty()) {
@@ -168,6 +175,7 @@ void Game::load()
         TraceLog(LOG_INFO, jsonData.dump(2).c_str());
 
         savegame = std::make_shared<SaveGame>(readSaveDataFromJSON(jsonData));
+        // unpacking the savegame object happens in InGame.cpp at startup
         eventManager.pushEvent("loadingSavegameSuccess");
     }
 }
@@ -249,7 +257,7 @@ void Game::clearSprites(bool clearPersistent) {
     // removes all current sprites
     // keeps the ones with the "persistent" flag, if not stated otherwise
     // TODO: testing delayed removal
-    for (auto sprite: sprites) {
+    for (auto& sprite: sprites) {
         if (!sprite->persistent) {
             sprite->markForDeletion();
             TraceLog(LOG_INFO, "deleting Sprite %s", sprite->spriteName.c_str());
@@ -265,7 +273,7 @@ void Game::processMarkedSprites() {
 
     // add any new sprites to the vector
     // TODO: just doing this here, no need for a seperate function I guess
-    for (auto s : spritesToAdd) {
+    for (auto& s : spritesToAdd) {
         sprites.push_back(s);
     }
     spritesToAdd.clear();

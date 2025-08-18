@@ -9,9 +9,9 @@
 struct RoomData {
     // persistent data for a single room
     // see Dungeon.h
-    bool visited;
-    bool dark;
-    uint8_t doors;
+    bool visited = false;
+    bool dark = false;
+    uint8_t doors = 0b0000;
     uint8_t state = 1;
     std::unordered_map< uint32_t, ObjectState> objectStates;
     std::string tilemapKey;
@@ -22,6 +22,7 @@ struct SaveGame {
     uint32_t playerHealth = 3;
     uint32_t playerMaxHealth = 3;
     std::string currentWeapon;
+    std::vector<std::string> spritesFollowingPlayer; // save keys for sprites that follow the player (might be more than one idk)
     std::vector<std::pair<std::string, uint32_t>> items; // <key, amount>; strings correspond to keys in ItemData.cpp
     // TODO: create a data structure that allows for multiple dungeons
     size_t dungeonWidth = 0;

@@ -2,6 +2,7 @@
 #include "Scene.h"
 #include "Sprite.h"
 #include "TileMap.h"
+#include "Dungeon.h"
 #include "Utils.h"
 #include "CircleOverlay.h"
 #include <memory>
@@ -15,6 +16,7 @@ public:
     void draw() override;
     void end() override;
 
+    void processTileObject(const TileObject& obj, uint8_t currentState, std::unordered_map<uint32_t, ObjectState>& objectStates, const nlohmann::json& spriteData); // helper function that turns Tiled data into sprites etc
     void loadTilemap(); // function that handles room transitions
     void drawTilemapChunks(int layerIndex);
     Sprite* getSprite(const std::string& name);

@@ -71,7 +71,3 @@ const TileLayer& TileMap::getLayer(size_t index) const {
     if (index >= layers.size()) throw std::out_of_range("Layer index out of bounds");
     return layers[index];
 }
-
-const std::vector<TileObject>& TileMap::getObjects() const {
-    return objects;
-}

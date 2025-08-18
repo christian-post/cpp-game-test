@@ -42,6 +42,8 @@ struct TileObject {
     uint32_t id;
     nlohmann::json properties;
 
+    TileObject() = default;
+
     TileObject(const nlohmann::json& objJson) :
         type(objJson["type"]),
         visible(objJson["visible"]),
@@ -69,7 +71,7 @@ class TileMap {
 public:
     TileMap(const nlohmann::json& jsonMap, std::string mapName);
     const TileLayer& getLayer(size_t index) const;
-    const std::vector<TileObject>& getObjects() const;
+    const std::vector<TileObject>& getObjects() const { return objects; }
     const std::string& getName() const { return mapName; }
     const std::string& getTilesetName() const { return tilesetName; }
     const std::string& getMusicKey() const { return music; }
@@ -78,6 +80,7 @@ public:
     size_t width, height, tileWidth, tileHeight;
     std::vector<TileLayer> layers;
     std::vector<TileObject> objects;
+    mutable std::vector<TileObject> dynamicObjects; // TileObjects that get added from somewhere else than the Tiled data
 
 private:
     std::string mapName;
