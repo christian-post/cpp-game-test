@@ -33,7 +33,7 @@ void InventoryUI::update(float deltaTime) {
             y = std::min(static_cast<float>(game.gameScreenHeight), y + deltaTime * speed);
         }
         else {
-            game.eventManager.pushEvent("InventoryDone");
+            game.eventManager.pushEvent(INVENTORY_DONE);
             game.stopScene("InventoryUI");
         }
         break;
@@ -134,11 +134,11 @@ void InventoryUI::update(float deltaTime) {
             // choose the appropriate action for the selected item
             const auto* selected = flatItems[index];
             if (selected->first->type == WEAPON) {
-                game.eventManager.pushEvent("weaponSet", selected->first->textureKey);
+                game.eventManager.pushEvent(WEAPON_SET, selected->first->textureKey);
                 game.playSound("menuSelect");
             }
             else {
-                game.eventManager.pushEvent("consumeItem", selected->first->textureKey);
+                game.eventManager.pushEvent(CONSUME_ITEM, selected->first->textureKey);
             }
         }
         break;
@@ -274,5 +274,5 @@ void InventoryUI::draw() {
 }
 
 void InventoryUI::end() {
-    game.eventManager.pushEvent("setMusicVolume", 1.0f);
+    game.eventManager.pushEvent(SET_MUSIC_VOLUME, 1.0f);
 }

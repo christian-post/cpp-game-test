@@ -9,12 +9,12 @@
 
 HUD::HUD(Game& game, const std::string& name) : Scene(game, name), heartImages{} {
     // event listeners
-    game.eventManager.addListener("hideHUD", [this](std::any) {
+    game.eventManager.addListener(HIDE_HUD, [this](std::any) {
         // start hiding the HUD
         if (visible && !retracting) retracting = true;
         });
 
-    game.eventManager.addListener("showHUD", [this](std::any) {
+    game.eventManager.addListener(SHOW_HUD, [this](std::any) {
         // sliding in the HUD
         if (!visible && retracting) {
             retracting = false;
@@ -22,28 +22,29 @@ HUD::HUD(Game& game, const std::string& name) : Scene(game, name), heartImages{}
         }
         });
 
-    game.eventManager.addListener("weaponSet", [this](std::any data) {
+    game.eventManager.addListener(WEAPON_SET, [this](std::any data) {
         std::string weapon = std::any_cast<std::string>(data);
         equippedWeapon = std::any_cast<std::string>(data);
         TraceLog(LOG_INFO, "player equipped the %s", equippedWeapon.c_str());
         });
 
-    game.eventManager.addListener("itemAdded", [this](std::any data) {
+    game.eventManager.addListener(ITEM_ADDED, [this](std::any data) {
         collectedItem = std::any_cast<std::string>(data);
         showCollectedItem = true;
         collectedItemTimer = 0.0f;
         });
 
-    game.eventManager.addListener("showCoinAmount", [this](std::any data) {
+    game.eventManager.addListener(SHOW_COIN_AMOUNT, [this](std::any data) {
         showCoinAmount = true;
         });
 
-    game.eventManager.addListener("hideCoinAmount", [this](std::any data) {
+    game.eventManager.addListener(HIDE_COIN_AMOUNT, [this](std::any data) {
         showCoinAmount = false;
         });
 
-    game.eventManager.addListener("showHelpText", [this](std::any data) {
-        if (showHelpText) return;
+    game.eventManager.addListener(SHOW_HELP_TEXT, [this](std::any data) {
+        if (showHelpText) 
+            return; // already shows the text; do nothing
         auto [label, key, index] = std::any_cast<std::tuple<std::string, char, int>>(data);
         helpText = label;
         helpTextKey = key;
@@ -51,7 +52,7 @@ HUD::HUD(Game& game, const std::string& name) : Scene(game, name), heartImages{}
         showHelpText = true;
         });
 
-    game.eventManager.addListener("hideHelpText", [this](std::any data) {
+    game.eventManager.addListener(HIDE_HELP_TEXT, [this](std::any data) {
         showHelpText = false;
         });
 }

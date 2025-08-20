@@ -38,7 +38,7 @@ void MapUI::update(float deltaTime) {
             y = std::min(static_cast<float>(game.gameScreenHeight), y + deltaTime * speed);
         }
         else {
-            game.eventManager.pushEvent("InventoryDone");
+            game.eventManager.pushEvent(INVENTORY_DONE);
             game.stopScene("MapUI");
         }
         break;
@@ -166,5 +166,5 @@ void MapUI::draw() {
 }
 
 void MapUI::end() {
-    game.eventManager.pushEvent("setMusicVolume", 1.0f);
+    game.eventManager.pushEvent(SET_MUSIC_VOLUME, 1.0f);
 }

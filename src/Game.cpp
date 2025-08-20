@@ -176,7 +176,7 @@ void Game::load()
 
         savegame = std::make_shared<SaveGame>(readSaveDataFromJSON(jsonData));
         // unpacking the savegame object happens in InGame.cpp at startup
-        eventManager.pushEvent("loadingSavegameSuccess");
+        eventManager.pushEvent(LOADING_SAVEGAME_SUCCESS);
     }
 }
 
@@ -416,13 +416,13 @@ void Game::run() {
     // start the first scene
     startScene("Preload");
     // enable saving the game state from any scene
-    eventManager.addListener("saveGame", [&](const std::any& data) {
+    eventManager.addListener(SAVE_GAME, [&](const std::any& data) {
         save();
         playSound("Rise02");
         });
     // loading a saved game
     // TODO: use data for the file index
-    eventManager.addListener("loadGame", [&](const std::any& data) {
+    eventManager.addListener(LOAD_GAME, [&](const std::any& data) {
         load();
         });
     

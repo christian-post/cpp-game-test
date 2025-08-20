@@ -166,7 +166,7 @@ void WeaponBehavior::update(float deltaTime) {
         lifetime -= deltaTime;
         // show the weapon sprite for a split second longer than the lifetime
         if (lifetime < originalLifetime * -0.2f && !done) {
-            s->game.eventManager.pushEvent("killWeapon", nullptr);
+            s->game.eventManager.pushEvent(KILL_WEAPON, nullptr);
             done = true;
         }
         s->position.x = o->position.x;
@@ -183,7 +183,7 @@ void WeaponBehavior::update(float deltaTime) {
                     s->rotationAngle = (s->lastDirection == RIGHT) ? 90.0f * angle : -90.0f * angle;
 
                     if (!shaken && progress > 0.5f) {
-                        s->game.eventManager.pushEvent("screenShake", std::make_tuple(0.1f, 0.0f, 10.0f));
+                        s->game.eventManager.pushEvent(SCREEN_SHAKE, std::make_tuple(0.1f, 0.0f, 10.0f));
                         s->game.playSound("hammer");
                         // player jumps
                         o->jump();
@@ -238,8 +238,8 @@ void TeleportBehavior::update(float deltaTime) {
     if (auto s = self.lock(), o = other.lock(); s && o && !done) {
         if (CheckCollisionRecs(s->rect, o->rect)) {
             done = true;
-            game.eventManager.pushDelayedEvent("teleportStart", 0.0f, nullptr, [this]() {
-                game.eventManager.pushEvent("teleport", std::any(TeleportEvent{ targetMap, targetPos }));
+            game.eventManager.pushDelayedEvent(UNNAMED, 0.0f, nullptr, [this]() {
+                game.eventManager.pushEvent(TELEPORT, std::any(TeleportEvent{ targetMap, targetPos }));
                 game.playSound("bookPlace1");
                 });
         }
@@ -277,9 +277,9 @@ void CollectItemBehavior::update(float deltaTime) {
                 // check collision and collect the item
                 if (CheckCollisionRecs(s->rect, o->rect)) {
                     // add the item
-                    game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>(name, amount));
+                    game.eventManager.pushEvent(ADD_ITEM, std::make_any<std::pair<std::string, uint32_t>>(name, amount));
                     game.playSound("rupee");
-                    game.eventManager.pushEvent("itemAdded", name);
+                    game.eventManager.pushEvent(ITEM_ADDED, name);
                     state++;
                 }
                 break;
@@ -311,11 +311,12 @@ DialogueBehavior::DialogueBehavior(Game& game, std::shared_ptr<Sprite> self, std
 }
 
 void DialogueBehavior::update(float deltaTime) {
-    if (triggered) return;
+    if (triggered) 
+        return;
     if (auto s = self.lock(), p = player.lock(); s && p) {
         if (CheckCollisionRecs(s->rect, p->rect)) {
             if (!collided) {
-                game.eventManager.pushEvent("showHelpText", std::make_any<std::tuple<std::string, char, int>>(std::tuple<std::string, char, int>{"TALK", 'O', 9}));
+                game.eventManager.pushEvent(SHOW_HELP_TEXT, std::make_any<std::tuple<std::string, char, int>>(std::tuple<std::string, char, int>{"TALK", 'O', 9}));
                 collided = true;
             }
             if (game.buttonsDown & CONTROL_ACTION1 && !Command_Textbox::isTextboxCooldown()) {
@@ -325,7 +326,7 @@ void DialogueBehavior::update(float deltaTime) {
                     bool pitch = (voice == "tone") ? false : true;
                     game.cutsceneManager.queueCommand(new Command_Textbox(game, dialogTexts[currentTextIndex], voice, pitch));
                     game.cutsceneManager.queueCommand(new Command_Callback([this]() {
-                        game.eventManager.pushDelayedEvent("resetDialogTrigger", 0.3f, nullptr, [this]() {
+                        game.eventManager.pushDelayedEvent(UNNAMED, 0.3f, nullptr, [this]() {
                             if (currentTextIndex < dialogTexts.size() - 1)
                                 ++currentTextIndex;
                             triggered = false;
@@ -336,8 +337,9 @@ void DialogueBehavior::update(float deltaTime) {
         }
         else {
             if (collided) {
+                // hide the help text if it was previously activated
                 collided = false;
-                game.eventManager.pushEvent("hideHelpText");
+                game.eventManager.pushEvent(HIDE_HELP_TEXT);
             }
         }
     }
@@ -348,12 +350,13 @@ TradeItemBehavior::TradeItemBehavior(Game& game, std::shared_ptr<Sprite> self, s
 }
 
 void TradeItemBehavior::update(float deltaTime) {
-    if (triggered) return;
+    if (triggered) 
+        return;
     if (auto s = self.lock(), p = player.lock(); s && p) {
         if (CheckCollisionRecs(s->rect, p->rect)) {
             // show the coin amount
             if (!collided) {
-                game.eventManager.pushEvent("showCoinAmount");
+                game.eventManager.pushEvent(SHOW_COIN_AMOUNT);
                 collided = true;
             }
             if (game.buttonsDown & CONTROL_ACTION1) {
@@ -364,13 +367,13 @@ void TradeItemBehavior::update(float deltaTime) {
                 uint32_t qty = game.inventory.getItemQuantity("coin");
 
                 if (qty >= price) {
-                    game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>(name, 1));
-                    game.eventManager.pushEvent("removeItem", std::make_any<std::pair<std::string, uint32_t>>("coin", price));
+                    game.eventManager.pushEvent(ADD_ITEM, std::make_any<std::pair<std::string, uint32_t>>(name, 1));
+                    game.eventManager.pushEvent(REMOVE_ITEM, std::make_any<std::pair<std::string, uint32_t>>("coin", price));
                     done = true;
                     game.playSound("cash");
                     game.cutsceneManager.queueCommand(new Command_Textbox(game, "Thanks for your purchase."));
                     game.cutsceneManager.queueCommand(new Command_Callback([this]() {
-                        game.eventManager.pushDelayedEvent("resetDialogTrigger", 0.1f, nullptr, [this]() {
+                        game.eventManager.pushDelayedEvent(UNNAMED, 0.1f, nullptr, [this]() {
                             triggered = false;
                             });
                         }));
@@ -379,7 +382,7 @@ void TradeItemBehavior::update(float deltaTime) {
                     game.cutsceneManager.queueCommand(new Command_Textbox(game, "You can't afford this item."));
                     game.cutsceneManager.queueCommand(new Command_Callback([this]() {
                         // "de-bounce" the interaction by delaying the "triggered" flag
-                        game.eventManager.pushDelayedEvent("resetDialogTrigger", 0.2f, nullptr, [this]() {
+                        game.eventManager.pushDelayedEvent(UNNAMED, 0.2f, nullptr, [this]() {
                             triggered = false;
                             });
                         }));
@@ -390,7 +393,7 @@ void TradeItemBehavior::update(float deltaTime) {
             if (collided) {
                 collided = false;
                 done = false;
-                game.eventManager.pushEvent("hideCoinAmount");
+                game.eventManager.pushEvent(HIDE_COIN_AMOUNT);
             }
         }
     }
@@ -516,7 +519,7 @@ void ChestBehavior::update(float deltaTime) {
         interactionRect.height = s->rect.height + 4.0f;
         if (CheckCollisionRecs(interactionRect, p->rect)) {
             if (!collided) {
-                game.eventManager.pushEvent("showHelpText", std::make_any<std::tuple<std::string, char, int>>(std::tuple<std::string, char, int>{"OPEN", 'O', 9}));
+                game.eventManager.pushEvent(SHOW_HELP_TEXT, std::make_any<std::tuple<std::string, char, int>>(std::tuple<std::string, char, int>{"OPEN", 'O', 9}));
                 collided = true;
             }
             if (game.buttonsDown & CONTROL_ACTION1) {
@@ -526,7 +529,7 @@ void ChestBehavior::update(float deltaTime) {
                 s->currentFrame = 2;
                 showItem = true;
                 game.playSound("doorOpen_2");
-                game.eventManager.pushDelayedEvent("hideItem", 2.0f, nullptr, [&]() {
+                game.eventManager.pushDelayedEvent(UNNAMED, 2.0f, nullptr, [&]() {
                     showItem = false;
                     });
 
@@ -550,15 +553,16 @@ void ChestBehavior::update(float deltaTime) {
                 }
                 game.cutsceneManager.queueCommand(new Command_Textbox(game, message));
                 // event that adds the item to the inventory
-                game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>(itemName, itemAmount));
+                game.eventManager.pushEvent(ADD_ITEM, std::make_any<std::pair<std::string, uint32_t>>(itemName, itemAmount));
                 // trigger the event that changes the object state
-                std::string eventKey = "chest_opened_" + std::to_string(s->tileMapID);
+                std::string eventStr = "chest_opened_" + std::to_string(s->tileMapID);
+                int eventKey = EventKeyRegistry::getEventKey(eventStr);
                 game.eventManager.pushEvent(eventKey, s->tileMapID);
             }
         } 
         else {
             if (collided) {
-                game.eventManager.pushEvent("hideHelpText");
+                game.eventManager.pushEvent(HIDE_HELP_TEXT);
                 collided = false;
             }
         }
@@ -577,7 +581,7 @@ void ChestBehavior::draw() {
     }
 }
 
-OpenLockBehavior::OpenLockBehavior(Game& game, std::shared_ptr<Sprite> door, std::shared_ptr<Sprite> player, const std::string& triggerKey)
+OpenLockBehavior::OpenLockBehavior(Game& game, std::shared_ptr<Sprite> door, std::shared_ptr<Sprite> player, const int triggerKey)
     : game{ game }, door{ door }, player{ player }, triggerKey{ triggerKey } {
 }
 
@@ -591,7 +595,7 @@ void OpenLockBehavior::update(float deltaTime) {
         interactionRect.height = d->rect.height + 2.0f * padding;
         if (CheckCollisionRecs(interactionRect, p->rect)) {
             if (!collided) {
-                game.eventManager.pushEvent("showHelpText", std::make_any<std::tuple<std::string, char, int>>(std::tuple<std::string, char, int>{"OPEN", 'O', 9}));
+                game.eventManager.pushEvent(SHOW_HELP_TEXT, std::make_any<std::tuple<std::string, char, int>>(std::tuple<std::string, char, int>{"OPEN", 'O', 9}));
                 collided = true;
             }
             if (game.buttonsDown & CONTROL_ACTION1) {
@@ -602,20 +606,20 @@ void OpenLockBehavior::update(float deltaTime) {
                     game.cutsceneManager.queueCommand(new Command_Textbox(game, "Looks like you need a key to open this door."));
                     game.cutsceneManager.queueCommand(new Command_Callback([this]() {
                         // "de-bounce" the interaction by delaying the "triggered" flag
-                        game.eventManager.pushDelayedEvent("resetDialogTrigger", 0.2f, nullptr, [this]() {
+                        game.eventManager.pushDelayedEvent(UNNAMED, 0.2f, nullptr, [this]() {
                             triggered = false;
                             });
                         }));
                     return;
                 }
-                game.eventManager.pushEvent("removeItem", std::make_any<std::pair<std::string, uint32_t>>("key", 1));
-                game.eventManager.pushDelayedEvent("unlockedDoor", 0.1f, nullptr, [d, this]() {
+                game.eventManager.pushEvent(REMOVE_ITEM, std::make_any<std::pair<std::string, uint32_t>>("key", 1));
+                game.eventManager.pushDelayedEvent(UNNAMED, 0.1f, nullptr, [d, this]() {
                     this->game.playSound("bookPlace1");
                     d->currentFrame = 0;
                     this->game.eventManager.pushEvent(triggerKey); // triggers a change in the persistent room data
                     // TODO: open the same door from the other side
                     });
-                game.eventManager.pushDelayedEvent("openedDoor", 0.8f, nullptr, [d, this]() {
+                game.eventManager.pushDelayedEvent(UNNAMED, 0.8f, nullptr, [d, this]() {
                     this->game.playSound("doorOpen_2");
                     d->currentFrame = 1;
                     d->staticCollision = false;
@@ -625,7 +629,7 @@ void OpenLockBehavior::update(float deltaTime) {
         }
         else {
             if (collided) {
-                game.eventManager.pushEvent("hideHelpText");
+                game.eventManager.pushEvent(HIDE_HELP_TEXT);
                 collided = false;
             }
         }

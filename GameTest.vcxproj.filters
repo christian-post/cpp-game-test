@@ -203,6 +203,9 @@
     <ClInclude Include="src\scenes\SoundTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\EventNames.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="todo.txt" />

@@ -12,7 +12,7 @@ void GameOver::startup() {
     if (player)
         player->moveTo(game.gameScreenWidth / 2.0f - ((player->lastDirection == LEFT) ? 16 : 0), game.gameScreenHeight / 2.0f);
 
-    game.eventManager.pushDelayedEvent("advanceGameOver", 2.0f, nullptr, [this]() {
+    game.eventManager.pushDelayedEvent(UNNAMED, 2.0f, nullptr, [this]() {
         showText1 = true;
         music = &const_cast<Music&>(game.loader.getMusic("gameover"));
         PlayMusicStream(*music);
@@ -21,7 +21,7 @@ void GameOver::startup() {
         if (player)
             player->rotationAngle = 90.0f * ((player->lastDirection == LEFT) ? 1 : -1);
     });
-    game.eventManager.pushDelayedEvent("advanceGameOver2", 4.0f, nullptr, [this]() {
+    game.eventManager.pushDelayedEvent(UNNAMED, 4.0f, nullptr, [this]() {
         showText2 = true;
      });
 }

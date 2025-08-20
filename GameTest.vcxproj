@@ -143,6 +143,10 @@ kernel32.lib
 ;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)libs\raylib-5.5_win64_msvc16\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy /Y /E /I "$(ProjectDir)include" "$(OutDir)include"
+xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\AssetLoader.cpp" />
@@ -187,6 +191,7 @@ kernel32.lib
     <ClInclude Include="src\Dungeon.h" />
     <ClInclude Include="src\Emitter.h" />
     <ClInclude Include="src\EventManager.h" />
+    <ClInclude Include="src\EventNames.h" />
     <ClInclude Include="src\Events.h" />
     <ClInclude Include="src\Game.h" />
     <ClInclude Include="src\ItemData.h" />

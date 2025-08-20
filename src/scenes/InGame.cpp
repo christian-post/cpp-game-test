@@ -26,11 +26,11 @@ void InGame::startup() {
         player->maxHealth = saveData->playerMaxHealth;
         player->health = std::max(static_cast<uint32_t>(6), saveData->playerHealth);
         // add the items once the scenes have fully started
-        game.eventManager.pushDelayedEvent("itemFromSaveData", 0.1f, nullptr, [this, saveData]() {
+        game.eventManager.pushDelayedEvent(UNNAMED, 0.1f, nullptr, [this, saveData]() {
             for (const auto& itemPair : saveData->items) {
-                this->game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>(itemPair.first, itemPair.second));
+                this->game.eventManager.pushEvent(ADD_ITEM, std::make_any<std::pair<std::string, uint32_t>>(itemPair.first, itemPair.second));
             }
-            this->game.eventManager.pushEvent("weaponSet", saveData->currentWeapon);
+            this->game.eventManager.pushEvent(WEAPON_SET, saveData->currentWeapon);
             });
         game.currentDungeon = loadDungeon(*saveData, game);
 
@@ -81,7 +81,7 @@ void InGame::startup() {
 
     // event listeners for the InGame scene
 
-    game.eventManager.addListener("moveCamera", [&](std::any data) {
+    game.eventManager.addListener(MOVE_CAMERA, [&](std::any data) {
         auto [targetX, targetY] = std::any_cast<std::pair<float, float>>(data);
         // clamp to world boundaries
         // TODO: make this a function
@@ -98,18 +98,18 @@ void InGame::startup() {
         camera.target = Vector2{ targetX, targetY };
         });
 
-    /*game.eventManager.addListener("teleport", [this](std::any data) {
+    /*game.eventManager.addListener(TELEPORT, [this](std::any data) {
         const auto& teleportData = std::any_cast<const TeleportEvent&>(data);
         loadTilemap(teleportData.targetMap);
         player->moveTo(teleportData.targetPos.x * tileSize, teleportData.targetPos.y * tileSize);
         });*/
 
-    game.eventManager.addListener("setMusicVolume", [this](std::any data) {
+    game.eventManager.addListener(SET_MUSIC_VOLUME, [this](std::any data) {
             if (music) SetMusicVolume(*music, std::any_cast<float>(data));
         });
 
     // event listener that changes the current weapon key
-    game.eventManager.addListener("weaponSet", [this](const std::any& data) {
+    game.eventManager.addListener(WEAPON_SET, [this](const std::any& data) {
         if (data.has_value()) {
             currentWeapon = std::any_cast<std::string>(data);
         }
@@ -119,7 +119,7 @@ void InGame::startup() {
         }
         });
 
-    game.eventManager.addListener("screenShake", [this](std::any value) {
+    game.eventManager.addListener(SCREEN_SHAKE, [this](std::any value) {
         if (value.has_value() && value.type() == typeid(std::tuple<float, float, float>)) {
             auto [duration, xMag, yMag] = std::any_cast<std::tuple<float, float, float>>(value);
             cameraShake.start(duration, xMag, yMag);
@@ -130,12 +130,12 @@ void InGame::startup() {
     setupConditionalEvents(*this);
 
     // TODO: adding some items for testing
-    game.eventManager.pushDelayedEvent("testItemsForStart", 0.1f, nullptr, [this]() {
+    game.eventManager.pushDelayedEvent(UNNAMED, 0.1f, nullptr, [this]() {
         // give the player the sword for starters
-        //game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("heart_1up", 99));
-        //game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("key", 99));
-        //game.eventManager.pushEvent("addItem", std::make_any<std::pair<std::string, uint32_t>>("weapon_hammer", 1));
-        //game.eventManager.pushEvent("weaponSet", std::string("weapon_hammer"));
+        //game.eventManager.pushEvent(ADD_ITEM, std::make_any<std::pair<std::string, uint32_t>>("heart_1up", 99));
+        //game.eventManager.pushEvent(ADD_ITEM, std::make_any<std::pair<std::string, uint32_t>>("key", 99));
+        //game.eventManager.pushEvent(ADD_ITEM, std::make_any<std::pair<std::string, uint32_t>>("weapon_hammer", 1));
+        //game.eventManager.pushEvent(WEAPON_SET, std::string("weapon_hammer"));
         });
 }
 
@@ -327,7 +327,8 @@ void InGame::processTileObject(const TileObject& obj, uint8_t currentState, std:
             if (data.contains("itemDrops")) {
                 std::weak_ptr<Sprite> weakSprite = sprite;
                 std::string eventName = "killSprite_" + std::to_string(reinterpret_cast<uintptr_t>(sprite.get()));
-                game.eventManager.addListener(eventName, [this, weakSprite, data](std::any) {
+                int eventKey = EventKeyRegistry::getEventKey(eventName);
+                game.eventManager.addListener(eventKey, [this, weakSprite, data](std::any) {
                     auto s = weakSprite.lock();
                     if (!s)
                         return;
@@ -375,11 +376,12 @@ void InGame::processTileObject(const TileObject& obj, uint8_t currentState, std:
             // TODO: set the open state in Tiled Data
             uint8_t openState = obj.properties.value("openState", 0);
 
-            std::string triggerKey = obj.properties.value("event", "");
+            std::string eventStr = obj.properties.value("event", "");
+            int eventKey = EventKeyRegistry::getEventKey(eventStr);
 
             bool isAlreadyOpen = false; // check if this door already opened from another event
             for (auto& ev : game.eventManager.peekEvents()) {
-                if (ev.first == triggerKey)
+                if (ev.first == eventKey)
                     isAlreadyOpen = true;
             }
 
@@ -388,11 +390,11 @@ void InGame::processTileObject(const TileObject& obj, uint8_t currentState, std:
                 bool locked = obj.properties.value("locked", false);
                 if (locked) {
                     sprite->currentFrame = 2;
-                    sprite->addBehavior(std::make_unique<OpenLockBehavior>(game, sprite, player, triggerKey));
+                    sprite->addBehavior(std::make_unique<OpenLockBehavior>(game, sprite, player, eventKey));
                 }
 
                 // external door trigger
-                game.eventManager.addListener(triggerKey, [&, this, sprite = sprite.get()](std::any) {
+                game.eventManager.addListener(eventKey, [&, this, sprite = sprite.get()](std::any) {
                     objectStates[obj.id].isOpened = true;
                     sprite->currentFrame = 1;
                     sprite->staticCollision = false;
@@ -421,7 +423,9 @@ void InGame::processTileObject(const TileObject& obj, uint8_t currentState, std:
                 sprite->currentFrame = 2;
             }
             else {
-                std::string eventKey = "chest_opened_" + std::to_string(obj.id);
+                // TODO: with event keys changed from strings to ints, do I even need this string concatenation?
+                std::string eventStr = "chest_opened_" + std::to_string(obj.id);
+                int eventKey = EventKeyRegistry::getEventKey(eventStr);
                 game.eventManager.removeListeners(eventKey);
                 game.eventManager.addListener(eventKey, [&](std::any data) {
                     uint32_t eventId = std::any_cast<uint32_t>(data);
@@ -433,7 +437,8 @@ void InGame::processTileObject(const TileObject& obj, uint8_t currentState, std:
             }
         }
         // add an event that changes the isDefeated field for this sprite
-        std::string eventKey = "defeated_" + std::to_string(obj.id);
+        std::string eventStr = "defeated_" + std::to_string(obj.id);
+        int eventKey = EventKeyRegistry::getEventKey(eventStr);
         game.eventManager.removeListeners(eventKey);
         game.eventManager.addListener(eventKey, [&](std::any data) {
             uint32_t eventId = std::any_cast<uint32_t>(data);
@@ -587,12 +592,14 @@ void InGame::update(float deltaTime) {
             sprite->removeAllBehaviors();
             sprite->addBehavior(std::make_unique<DeathBehavior>(game, sprite, 2.0f));
             // TODO: unify these two events
-            std::string eventName = "killSprite_" + std::to_string(reinterpret_cast<uintptr_t>(sprite.get()));
-            game.eventManager.pushDelayedEvent(eventName, 2.01f, nullptr, [this, sprite]() {
+            std::string eventStr = "killSprite_" + std::to_string(reinterpret_cast<uintptr_t>(sprite.get()));
+            int eventKey = EventKeyRegistry::getEventKey(eventStr);
+            game.eventManager.pushDelayedEvent(eventKey, 2.01f, nullptr, [this, sprite]() {
                 sprite->markForDeletion();
                 });
-            std::string eventKey = "defeated_" + std::to_string(sprite->tileMapID);
-            game.eventManager.pushEvent(eventKey, sprite->tileMapID);
+            std::string eventStr2 = "defeated_" + std::to_string(sprite->tileMapID);
+            int eventKey2 = EventKeyRegistry::getEventKey(eventStr2);
+            game.eventManager.pushEvent(eventKey2, sprite->tileMapID);
         }
     }
     // if a cutscene is active, it takes control over the player
@@ -639,10 +646,10 @@ void InGame::update(float deltaTime) {
 
                 // add an event listener that removes the sword
                 // the "killWeapon" event is dispatched by WeaponBehavior once it's finished
-                game.eventManager.addListener("killWeapon", [this, wpn](std::any) {
+                game.eventManager.addListener(KILL_WEAPON, [this, wpn](std::any) {
                     spriteMap.erase(*currentWeapon); // TODO: is this safe to do it here?
                     wpn->markForDeletion();
-                    game.eventManager.removeListeners("killWeapon");
+                    game.eventManager.removeListeners(KILL_WEAPON);
                     });
                 game.playSound("slash");
             }
@@ -652,22 +659,22 @@ void InGame::update(float deltaTime) {
             game.pauseScene(this->getName());
             game.startScene("InventoryUI");
             // TODO: make this a single-use event
-            game.eventManager.addListener("InventoryDone", [this](std::any) {
+            game.eventManager.addListener(INVENTORY_DONE, [this](std::any) {
                 // return to this scene
                 this->game.resumeScene(this->getName());
                 });
-            game.eventManager.pushEvent("setMusicVolume", 0.3f);
+            game.eventManager.pushEvent(SET_MUSIC_VOLUME, 0.3f);
         }
         if (game.buttonsPressed & CONTROL_CANCEL) {
             game.pauseScene(this->getName());
             game.sleepScene("HUD");
             game.startScene("SelectMenu");
-            game.eventManager.addListener("SelectMenuDone", [this](std::any) {
+            game.eventManager.addListener(SELECT_MENU_DONE, [this](std::any) {
                 // return to this scene
                 this->game.resumeScene(this->getName());
                 game.wakeScene("HUD");
                 });
-            game.eventManager.pushEvent("setMusicVolume", 0.3f);
+            game.eventManager.pushEvent(SET_MUSIC_VOLUME, 0.3f);
         }
         for (const auto& sprite : game.sprites) {
             if (sprite) {

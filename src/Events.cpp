@@ -31,9 +31,9 @@ void setupConditionalEvents(InGame& inGame) {
         [&]() {
             if (inGame.spriteMap.find("elfCompanion2") == inGame.spriteMap.end())
                 return;
-            game.eventManager.pushDelayedEvent("dungeon001HasSword", 0.1f, nullptr, [&]() {
+            game.eventManager.pushDelayedEvent(UNNAMED, 0.1f, nullptr, [&]() {
                 Sprite& npcRef = *inGame.spriteMap["elfCompanion2"];               
-                game.eventManager.pushEvent("hideHUD");
+                game.eventManager.pushEvent(HIDE_HUD);
                 game.cutsceneManager.queueCommand(new Command_Letterbox(float(game.gameScreenWidth), float(game.gameScreenHeight), 1.0f), false);
                 float npcX = 12.0f * static_cast<float>(inGame.tileSize);
                 float npcY = 8.0f * static_cast<float>(inGame.tileSize);
@@ -42,7 +42,7 @@ void setupConditionalEvents(InGame& inGame) {
                 game.cutsceneManager.queueCommand(new Command_Wait(0.5f));
                 game.cutsceneManager.queueCommand(new Command_Textbox(game, "Is that a sword? Great! I'll follow you, now we can fight our way out of here.", "powerUp4", true)); // TODO pass a key to a text in texts.json instead of the actual dialogue string... 
                 game.cutsceneManager.queueCommand(new Command_Callback([&]() {
-                    game.eventManager.pushEvent("showHUD");
+                    game.eventManager.pushEvent(SHOW_HUD);
                     game.currentDungeon->advanceRoomState();
                     if (!npcRef.persistent) {
                         npcRef.persistent = true;
@@ -68,17 +68,18 @@ void setupConditionalEvents(InGame& inGame) {
         },
         [&]() {
             TraceLog(LOG_INFO, "enemies defeated");
-            game.eventManager.pushDelayedEvent("defeatDialog", 0.1f, nullptr, [&]() {
-                game.eventManager.pushEvent("hideHUD");
+            game.eventManager.pushDelayedEvent(UNNAMED, 0.1f, nullptr, [&]() {
+                game.eventManager.pushEvent(HIDE_HUD);
                 game.cutsceneManager.queueCommand(new Command_CameraPan(game, 110.0f, 20.0f, 1.0f));
                 game.cutsceneManager.queueCommand(new Command_Wait(0.3f));
                 game.cutsceneManager.queueCommand(new Command_Callback([&]() {
-                    game.eventManager.pushEvent("door004open");
+                    int eventKey = EventKeyRegistry::getEventKey("door004open");
+                    game.eventManager.pushEvent(eventKey);
                     game.playSound("doorOpen_2");
                     }));
                 game.cutsceneManager.queueCommand(new Command_Wait(1.5f));
                 game.cutsceneManager.queueCommand(new Command_Callback([&]() {
-                    game.eventManager.pushEvent("showHUD");
+                    game.eventManager.pushEvent(SHOW_HUD);
                     game.cutsceneManager.setCameraControl(false);
                     game.currentDungeon->advanceRoomState();
                     }));
@@ -99,17 +100,18 @@ void setupConditionalEvents(InGame& inGame) {
         },
         [&]() {
             TraceLog(LOG_INFO, "enemies defeated");
-            game.eventManager.pushDelayedEvent("defeatDialog", 0.1f, nullptr, [&]() {
-                game.eventManager.pushEvent("hideHUD");
+            game.eventManager.pushDelayedEvent(UNNAMED, 0.1f, nullptr, [&]() {
+                game.eventManager.pushEvent(HIDE_HUD);
                 game.cutsceneManager.queueCommand(new Command_CameraPan(game, 110.0f, 20.0f, 1.0f));
                 game.cutsceneManager.queueCommand(new Command_Wait(0.3f));
                 game.cutsceneManager.queueCommand(new Command_Callback([&]() {
-                    game.eventManager.pushEvent("door006open");
+                    int eventKey = EventKeyRegistry::getEventKey("door006open");
+                    game.eventManager.pushEvent(eventKey);
                     game.playSound("doorOpen_2");
                     }));
                 game.cutsceneManager.queueCommand(new Command_Wait(1.5f));
                 game.cutsceneManager.queueCommand(new Command_Callback([&]() {
-                    game.eventManager.pushEvent("showHUD");
+                    game.eventManager.pushEvent(SHOW_HUD);
                     game.cutsceneManager.setCameraControl(false);
                     game.currentDungeon->advanceRoomState();
                     }));
@@ -126,7 +128,7 @@ void setupConditionalEvents(InGame& inGame) {
         [&]() {
             if (inGame.spriteMap.find("elfCompanion2") == inGame.spriteMap.end())
                 return;
-            game.eventManager.pushDelayedEvent("advanceCompanionDialogue", 0.1f, nullptr, [&]() {
+            game.eventManager.pushDelayedEvent(UNNAMED, 0.1f, nullptr, [&]() {
                 Sprite& npcRef = *inGame.spriteMap["elfCompanion2"];
                 npcRef.removeAllBehaviors();
                 npcRef.addBehavior(std::make_unique<ChaseBehavior>(game, inGame.spriteMap["elfCompanion2"], inGame.player, 1000.0f, 20.0f, 2000.0f));

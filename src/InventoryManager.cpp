@@ -16,7 +16,7 @@ InventoryManager::InventoryManager(Game& game) : game(game) {
 
         int repeats = player->maxHealth - player->health;
         isRefilling = true;
-        this->game.eventManager.pushRepeatedEvent("refill_health", 0.2f, {}, [=]() {
+        this->game.eventManager.pushRepeatedEvent(UNNAMED, 0.2f, {}, [=]() {
             player->health += 1;
             this->game.playSound("heart");
             }, repeats, [&]() {
@@ -33,7 +33,7 @@ InventoryManager::InventoryManager(Game& game) : game(game) {
         player->maxHealth += 2;
         int repeats = player->maxHealth - player->health;
         isRefilling = true;
-        this->game.eventManager.pushRepeatedEvent("refill_health", 0.2f, {}, [=]() {
+        this->game.eventManager.pushRepeatedEvent(UNNAMED, 0.2f, {}, [=]() {
             player->health += 1;
             this->game.playSound("heart");
             }, repeats, [&]() {
@@ -42,19 +42,19 @@ InventoryManager::InventoryManager(Game& game) : game(game) {
             return true;
         };
 
-    game.eventManager.addListener("addItem", [this](const std::any& data) {
+    game.eventManager.addListener(ADD_ITEM, [this](const std::any& data) {
         if (const auto* item = std::any_cast<std::pair<std::string, uint32_t>>(&data)) {
             addItem(item->first, item->second);
         }
         });
 
-    game.eventManager.addListener("removeItem", [this](const std::any& data) {
+    game.eventManager.addListener(REMOVE_ITEM, [this](const std::any& data) {
         if (const auto* item = std::any_cast<std::pair<std::string, uint32_t>>(&data)) {
             removeItem(item->first, item->second);
         }
         });
 
-    game.eventManager.addListener("consumeItem", [this](const std::any& data) {
+    game.eventManager.addListener(CONSUME_ITEM, [this](const std::any& data) {
         if (const auto* key = std::any_cast<std::string>(&data)) {
             for (auto it = items[CONSUMABLE].begin(); it != items[CONSUMABLE].end(); ++it) {
                 if (it->second.first->textureKey == *key && it->second.second > 0) {

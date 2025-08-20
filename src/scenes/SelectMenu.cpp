@@ -10,15 +10,15 @@ void SelectMenu::startup()
         {
             "Back to Game",
             [&]() {
-                game.eventManager.pushEvent("SelectMenuDone");
+                game.eventManager.pushEvent(SELECT_MENU_DONE);
                 game.stopScene(getName());
             }
         },
         {
             "Save Game",
             [&]() {
-                game.eventManager.pushEvent("saveGame");
-                game.eventManager.pushEvent("SelectMenuDone");
+                game.eventManager.pushEvent(SAVE_GAME);
+                game.eventManager.pushEvent(SELECT_MENU_DONE);
                 game.stopScene(getName());
             }
         },

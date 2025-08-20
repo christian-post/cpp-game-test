@@ -139,7 +139,7 @@ void Command_CameraPan::update(float deltaTime) {
         float t = std::min(elapsed / duration, 1.0f);
         float newX = startX + t * (targetX - startX);
         float newY = startY + t * (targetY - startY);
-        game.eventManager.pushEvent("moveCamera", std::make_any<std::pair<float, float>>(newX, newY));
+        game.eventManager.pushEvent(MOVE_CAMERA, std::make_any<std::pair<float, float>>(newX, newY));
         if (t >= 1.0f) {
             started = false;
             done = true;

@@ -4,7 +4,7 @@
 
 EventManager::EventManager() : events{}, listeners{}, delayedEvents{} {}
 
-void EventManager::pushEvent(const std::string& key, std::any value) {
+void EventManager::pushEvent(const int key, std::any value) {
     events[key] = value;
     // also call the listeners
     auto it = listeners.find(key);
@@ -15,25 +15,25 @@ void EventManager::pushEvent(const std::string& key, std::any value) {
     }
 }
 
-void EventManager::pushDelayedEvent(const std::string& key, float delay, std::any value, std::function<void()> callback) {
+void EventManager::pushDelayedEvent(const int key, float delay, std::any value, std::function<void()> callback) {
     delayedEvents.push_back({ key, delay, value, callback });
 }
 
-void EventManager::addListener(const std::string& key, std::function<void(std::any)> callback) {
-    TraceLog(LOG_INFO, "Adding a event listener for %s", key.c_str());
+void EventManager::addListener(const int key, std::function<void(std::any)> callback) {
+    TraceLog(LOG_INFO, "Adding a event listener for %d", key);
     listeners[key].push_back(callback);
-    TraceLog(LOG_INFO, "Listener count for %s: %zu", key.c_str(), listeners[key].size());
+    TraceLog(LOG_INFO, "Listener count for %d: %zu", key, listeners[key].size());
 }
 
 void EventManager::pushConditionalEvent(std::function<bool()> condition, std::function<void()> callback) {
     conditionalEvents.push_back({ condition, callback });
 }
 
-void EventManager::pushRepeatedEvent(const std::string& key, float interval, std::any value, std::function<void()> callback, int numRepeats, std::function<void()> onComplete) {
+void EventManager::pushRepeatedEvent(const int key, float interval, std::any value, std::function<void()> callback, int numRepeats, std::function<void()> onComplete) {
     repeatedEvents.push_back({ key, interval, interval, value, callback, numRepeats, onComplete });
 }
 
-void EventManager::cancelRepeatedEvent(const std::string& key) {
+void EventManager::cancelRepeatedEvent(const int key) {
     for (auto it = repeatedEvents.begin(); it != repeatedEvents.end(); ) {
         if (it->key == key) {
             it = repeatedEvents.erase(it);
@@ -44,7 +44,7 @@ void EventManager::cancelRepeatedEvent(const std::string& key) {
     }
 }
 
-void EventManager::removeListeners(const std::string& key) {
+void EventManager::removeListeners(const int key) {
     listeners.erase(key);
 }
 
