@@ -2,7 +2,7 @@
 #include <string>
 #include <unordered_map>
 
-
+// Event key aliases to make the code more maintainable
 // TODO: add a comment to each event describing what it does and where it's used
 
 enum EventName {
@@ -34,6 +34,7 @@ enum EventName {
 
 class EventKeyRegistry {
     // allows for event strings (from JSON data) to be registered as EventNames
+    // TODO: call it either "EventName" or "EventKey" consistently...
 public:
     static int getEventKey(const std::string& name) {
         auto& map = nameToId();

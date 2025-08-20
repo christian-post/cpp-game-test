@@ -13,6 +13,7 @@
 #include "Utils.h"
 #include <sstream>
 #include <fstream>
+#include <cassert>
 
 
 Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this) {
@@ -127,10 +128,9 @@ void Game::save()
     save.playerMaxHealth = getPlayer()->maxHealth;
     save.playerHealth = std::max(static_cast<uint32_t>(6), getPlayer()->health); // ensure the player always starts with at least 3 hearts
     InGame* inGame = dynamic_cast<InGame*>(getScene("InGame"));
-    if (inGame)
+    assert(inGame && "InGame scene not accessible");
+    if (inGame->currentWeapon)
         save.currentWeapon = *inGame->currentWeapon;
-    else
-        TraceLog(LOG_ERROR, "InGame scene not accessible");
 
     for (auto& sprite : sprites) {
         // check if a sprite follows the player.

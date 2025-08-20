@@ -511,13 +511,14 @@ ChestBehavior::ChestBehavior(Game& game, std::shared_ptr<Sprite> self, std::shar
 {}
 
 void ChestBehavior::update(float deltaTime) {
-    if (triggered) return;
     if (auto s = self.lock(), p = player.lock(); s && p) {
         interactionRect.x = s->rect.x;
         interactionRect.y = s->rect.y;
         interactionRect.width = s->rect.width;
         interactionRect.height = s->rect.height + 4.0f;
         if (CheckCollisionRecs(interactionRect, p->rect)) {
+            if (triggered) // check this down here because the check for the HIDE_HELP_TEXT event always needs to happen
+                return; 
             if (!collided) {
                 game.eventManager.pushEvent(SHOW_HELP_TEXT, std::make_any<std::tuple<std::string, char, int>>(std::tuple<std::string, char, int>{"OPEN", 'O', 9}));
                 collided = true;

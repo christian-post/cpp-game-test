@@ -30,6 +30,7 @@ void InGame::startup() {
             for (const auto& itemPair : saveData->items) {
                 this->game.eventManager.pushEvent(ADD_ITEM, std::make_any<std::pair<std::string, uint32_t>>(itemPair.first, itemPair.second));
             }
+            // equip the weapon
             this->game.eventManager.pushEvent(WEAPON_SET, saveData->currentWeapon);
             });
         game.currentDungeon = loadDungeon(*saveData, game);
@@ -111,7 +112,8 @@ void InGame::startup() {
     // event listener that changes the current weapon key
     game.eventManager.addListener(WEAPON_SET, [this](const std::any& data) {
         if (data.has_value()) {
-            currentWeapon = std::any_cast<std::string>(data);
+            std::string weapon = std::any_cast<std::string>(data);
+            currentWeapon = weapon.empty() ? std::nullopt : std::optional<std::string>{ weapon };
         }
         else {
             // event allows for removal of the weapon
@@ -134,7 +136,7 @@ void InGame::startup() {
         // give the player the sword for starters
         //game.eventManager.pushEvent(ADD_ITEM, std::make_any<std::pair<std::string, uint32_t>>("heart_1up", 99));
         //game.eventManager.pushEvent(ADD_ITEM, std::make_any<std::pair<std::string, uint32_t>>("key", 99));
-        //game.eventManager.pushEvent(ADD_ITEM, std::make_any<std::pair<std::string, uint32_t>>("weapon_hammer", 1));
+        game.eventManager.pushEvent(ADD_ITEM, std::make_any<std::pair<std::string, uint32_t>>("weapon_hammer", 1));
         //game.eventManager.pushEvent(WEAPON_SET, std::string("weapon_hammer"));
         });
 }
