@@ -3,6 +3,7 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include "json.hpp"
 
 class Game;
 class Sprite;
@@ -25,15 +26,18 @@ enum weaponType {
 
 struct shootingConfig {
     // a copy is passed to ShootBehavior's constructor
-    // // TODO: read these values from particles.json
-    // sprite
+    // sprite (main projectile)
     std::string projectileKey = "sprite_default";
     std::string sound = "powerUp1"; // just a default sound to indicate a missing override
     uint32_t damage = 0;
     float speed = 1.0f;
     float frameTime = 0.1f;
     float hitboxSize = 8.0f;
-    // emitter
+    float shootInterval = 1.0f; // seconds
+    // particle effect (in addition to the projectile
+    // TODO: read these values from particles.json?
+    bool hasEmitter = true;
+    // emitter 
     float spawnInterval = 1.0f;
     float lifetimeVariance = 0.0f;
     Vector2 velocityVariance = { 0.0f, 0.0f };
@@ -44,6 +48,8 @@ struct shootingConfig {
     float particleStartingAlpha = 1.0f;
     float particleEndSize = 0.1f;
 };
+
+
 
 class Behavior {
 public:
@@ -231,8 +237,7 @@ private:
     std::weak_ptr<Sprite> target;
     shootingConfig config;
     float timer = 0.0f;
-    // TODO change this in the constructor
-    float interval = 2.0f;
+    float interval = 0.0f;
 };
 
 

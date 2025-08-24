@@ -168,6 +168,7 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <ClCompile Include="src\scenes\InGame.cpp" />
     <ClCompile Include="src\InventoryManager.cpp" />
     <ClCompile Include="src\scenes\InventoryUI.cpp" />
+    <ClCompile Include="src\scenes\LoadSavegameMenu.cpp" />
     <ClCompile Include="src\scenes\MapUI.cpp" />
     <ClCompile Include="src\scenes\Preload.cpp" />
     <ClCompile Include="src\scenes\SelectMenu.cpp" />
@@ -175,6 +176,7 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <ClCompile Include="src\scenes\StartMenu.cpp" />
     <ClCompile Include="src\scenes\TitleScreen.cpp" />
     <ClCompile Include="src\Main.cpp" />
+    <ClCompile Include="src\scenes\WriteSavegameMenu.cpp" />
     <ClCompile Include="src\Sprite.cpp" />
     <ClCompile Include="src\TextBox.cpp" />
     <ClCompile Include="src\TileMap.cpp" />
@@ -204,12 +206,14 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <ClInclude Include="src\Scene.h" />
     <ClInclude Include="src\scenes\GameOver.h" />
     <ClInclude Include="src\scenes\InGame.h" />
+    <ClInclude Include="src\scenes\LoadSavegameMenu.h" />
     <ClInclude Include="src\scenes\MapUI.h" />
     <ClInclude Include="src\scenes\Preload.h" />
     <ClInclude Include="src\scenes\SelectMenu.h" />
     <ClInclude Include="src\scenes\SoundTest.h" />
     <ClInclude Include="src\scenes\StartMenu.h" />
     <ClInclude Include="src\scenes\TitleScreen.h" />
+    <ClInclude Include="src\scenes\WriteSavegameMenu.h" />
     <ClInclude Include="src\Sprite.h" />
     <ClInclude Include="src\TextBox.h" />
     <ClInclude Include="src\TileMap.h" />

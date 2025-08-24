@@ -17,7 +17,6 @@ void SoundTest::startup() {
         std::string substr = file.substr(pos);
         TraceLog(LOG_INFO, "%s", substr.c_str());
         menu.addItem({ substr, [this, file]() {
-            //if (!this->game.soundOn || !this->game.sfxOn) return;
             UnloadSound(currentSound);
             currentSound = LoadSound(file.c_str());
             PlaySound(currentSound);

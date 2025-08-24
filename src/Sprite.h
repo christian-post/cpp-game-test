@@ -28,16 +28,16 @@ enum AnimState {
 class Sprite {
 public:
     Game& game;
-    std::vector<std::vector<Texture2D>> frames;
+    std::vector<std::vector<Texture2D>> frames; // outer index refers to currentAnimState; inner index refers to currentFrame
     std::string spriteName; // used for general identification
-    uint32_t tileMapID = 0;
+    AnimState currentAnimState = IDLE;
     int currentFrame = 0;
+    uint32_t tileMapID = 0; // Unique identifier for Room creation (saving and loading the sprite data)
     bool doesAnimate = true;
     int drawLayer = 0;
     bool visible = true;
     bool persistent = false; // controls whether the sprite survives between map changes
     bool emitsLight = false; // in dark rooms, if the sprite gets a light cone
-    AnimState currentAnimState = IDLE;
 
     std::optional<ShaderState> activeShader = std::nullopt;
     direction lastDirection = RIGHT;

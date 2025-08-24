@@ -7,39 +7,45 @@
 StartMenu::StartMenu(Game& game, const std::string& name) 
     : Scene(game, name), menu(MenuSelect(game)) {
 
-    game.eventManager.addListener(LOADING_SAVEGAME_SUCCESS, [&](const std::any& data) {
-            game.startScene("InGame");
-            game.startScene("HUD");
-            game.stopScene(getName());
-        });
+    //game.eventManager.addListener(LOADING_SAVEGAME_SUCCESS, [&](const std::any& data) {
+    //        game.startScene("InGame");
+    //        game.startScene("HUD");
+    //        game.stopScene(getName());
+    //    });
 }
 
 void StartMenu::startup() {
-    menu.setItems({
-        { 
-            "New Game", 
+    menu.addItem({
+            "New Game",
             [&]() {
                 // starts a new game
                 game.startScene("InGame");
                 game.startScene("HUD");
                 game.stopScene(getName());
             }
-        },
-        { 
-            "Load Game", 
-            [&]() {
+        });
+
+    if (listFiles("./savegames").size()) {
+        menu.addItem({
+                "Load Game",
+                [&]() {
                 // TODO: Transition to another menu that lets you select a file
-                game.eventManager.pushEvent(LOAD_GAME);
+                game.startScene("LoadSavegameMenu");
+                game.stopScene(getName());
             }
-        },
-        {
+            });
+    }
+
+    menu.addItem({
             "Sound Test",
             [&]() {
                 game.startScene("SoundTest");
                 game.stopScene(getName());
             }
-        },
-        { "Quit", [&]() { game.end(); }}
+        });
+
+    menu.addItem({
+            "Quit", [&]() { game.end(); }
         });
 }
 

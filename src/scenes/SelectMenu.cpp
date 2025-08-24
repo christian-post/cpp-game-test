@@ -17,8 +17,7 @@ void SelectMenu::startup()
         {
             "Save Game",
             [&]() {
-                game.eventManager.pushEvent(SAVE_GAME);
-                game.eventManager.pushEvent(SELECT_MENU_DONE);
+                game.startScene("WriteSavegameMenu");
                 game.stopScene(getName());
             }
         },

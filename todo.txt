@@ -2,7 +2,6 @@
 
 Scenes
 - show a menu (load save, go to title, quit) at the end of GameOver
-- show a menu that displays all json files in savegames/ 
 - Scenes should know from which Scene they came from, so that I don't need to hard-code the scene they return to once finished
 
 - Dungeon
@@ -48,10 +47,12 @@ Scenes
 - check for hard-coded display texts in code and move them to texts.json
 - does Sprite.jump() work as intended?
 - give the Signpost some collision
+- add a light cone to items that come from chests (if in a dark room) (or maybe draw them over the darkness layer?)
+- add some info (last file access) to the savegame loading screen. maybe a screenshot?
 
 ### BUGS:
 - RandomWalkBehavior: choose new target after some time if the current target can't be reached
-
+- recovery hearts don't work any more
 
 
 RELEASE CHECKLIST

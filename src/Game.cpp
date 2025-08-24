@@ -5,6 +5,8 @@
 #include "StartMenu.h"
 #include "SoundTest.h"
 #include "SelectMenu.h"
+#include "LoadSavegameMenu.h"
+#include "WriteSavegameMenu.h"
 #include "InGame.h"
 #include "HUD.h"
 #include "InventoryUI.h"
@@ -41,6 +43,8 @@ Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this) {
     registerScene<Preload>("Preload", 0);
     registerScene<TitleScreen>("TitleScreen", 0);
     registerScene<StartMenu>("StartMenu", 0);
+    registerScene<LoadSavegameMenu>("LoadSavegameMenu", 0);
+    registerScene<WriteSavegameMenu>("WriteSavegameMenu", 1);
     registerScene<SoundTest>("SoundTest", 0);
     registerScene<SelectMenu>("SelectMenu", 0);
     registerScene<InGame>("InGame", 0);
@@ -120,7 +124,7 @@ void Game::processMarkedScenes() {
     }
 }
 
-void Game::save()
+void Game::save(std::string& filename)
 {
     // saves the game data to a JSON file
     SaveGame save; // create a new save game object
@@ -152,32 +156,21 @@ void Game::save()
     saveDungeon(save, *currentDungeon);
 
     auto j = writeDataToJSON(save);
-    // TODO: testing a single json file
-    // > add support for multiple files 
-    std::ofstream file("./savegames/save_0.json");
-    file << j.dump(2);
 
-    TraceLog(LOG_INFO, "The game was saved to save_0.");
+    std::ofstream file("./savegames/" + filename);
+    file << j.dump(2);
+    TraceLog(LOG_INFO, "The game was saved to %s.", filename.c_str());
 }
 
-void Game::load()
+void Game::load(std::string& filename)
 {
-    TraceLog(LOG_INFO, "Available Save Files:");
-    std::vector<std::string> files = listJSONFiles("./savegames");
-    for (auto& file : files)
-        TraceLog(LOG_INFO, file.c_str());
+    std::ifstream fileStream("./savegames/" + filename);
+    nlohmann::json jsonData;
+    fileStream >> jsonData;
 
-    if (!files.empty()) {
-        std::ifstream fileStream(files[0]);
-        nlohmann::json jsonData;
-        fileStream >> jsonData;
-        // TODO: print the data for debugging
-        TraceLog(LOG_INFO, jsonData.dump(2).c_str());
-
-        savegame = std::make_shared<SaveGame>(readSaveDataFromJSON(jsonData));
-        // unpacking the savegame object happens in InGame.cpp at startup
-        eventManager.pushEvent(LOADING_SAVEGAME_SUCCESS);
-    }
+    savegame = std::make_shared<SaveGame>(readSaveDataFromJSON(jsonData));
+    // unpacking the savegame object happens in InGame.cpp at startup
+    eventManager.pushEvent(LOADING_SAVEGAME_SUCCESS);
 }
 
 std::shared_ptr<SaveGame> Game::getSaveData()
@@ -416,14 +409,16 @@ void Game::run() {
     // start the first scene
     startScene("Preload");
     // enable saving the game state from any scene
-    eventManager.addListener(SAVE_GAME, [&](const std::any& data) {
-        save();
+    eventManager.addListener(SAVE_GAME, [&](std::any data) {
+        std::string filename = std::any_cast<std::string>(data);
+        save(filename);
         playSound("Rise02");
         });
     // loading a saved game
     // TODO: use data for the file index
-    eventManager.addListener(LOAD_GAME, [&](const std::any& data) {
-        load();
+    eventManager.addListener(LOAD_GAME, [&](std::any data) {
+        std::string str = std::any_cast<std::string>(data);
+        load(str);
         });
     
     while (running && !WindowShouldClose()) {

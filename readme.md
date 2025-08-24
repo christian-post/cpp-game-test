@@ -6,7 +6,7 @@
 
 ## Download
 
-A preview version for Windows x64 can be found under [Releases](https://github.com/christian-post/cpp-game-test/releases). Just download and unpack the .zip folder, and start "GameText.exe" found in "Releases".
+A preview version for Windows x64 can be found under [Releases](https://github.com/christian-post/cpp-game-test/releases). Just download and unpack the .zip folder, and start "GameText.exe" found in "Release".
 
 
 ## Building from source

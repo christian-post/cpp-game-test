@@ -6,7 +6,7 @@
 
 InventoryManager::InventoryManager(Game& game) : game(game) {
     itemData = createItemData();
-    // TODO: add callbacks in ItemData.cpp?
+    // TODO: add these callbacks in ItemData.cpp?
     itemData["red_potion"].onConsume = [this, isRefilling = false]() mutable {
         if (isRefilling) return false;
 

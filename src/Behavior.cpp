@@ -458,7 +458,9 @@ void ProjectileBehavior::update(float deltaTime) {
     }
 }
 
-ShootBehavior::ShootBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, shootingConfig config) : game{ game }, self{ self }, target{ target }, config{ config } {}
+ShootBehavior::ShootBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, shootingConfig config) : game{ game }, self{ self }, target{ target }, config{ config } {
+    interval = config.shootInterval;
+}
 
 void ShootBehavior::update(float deltaTime) {
     timer += deltaTime;
@@ -571,13 +573,19 @@ void ChestBehavior::update(float deltaTime) {
 }
 
 void ChestBehavior::draw() {
-    if (!showItem) return;
+    if (!showItem)
+        return;
     if (auto s = self.lock()) {
+        // draw the item that comes out of the chest
         int x = (int)s->position.x;
         int y = (int)s->position.y - 16;
         auto& itemData = game.inventory.getItemData();
         const ItemData& data = itemData.at(itemName);
         const auto& textures = game.loader.getTextures(data.textureKey);
+        // adjust x position to account for item texture width
+        int item_tex_width = textures[0].width;
+        int chest_tex_width = s->frames[s->currentAnimState][s->currentFrame].width;
+        x += (chest_tex_width - item_tex_width) / 2;
         DrawTexture(textures[0], x, y, WHITE);
     }
 }
@@ -616,13 +624,12 @@ void OpenLockBehavior::update(float deltaTime) {
                 game.eventManager.pushEvent(REMOVE_ITEM, std::make_any<std::pair<std::string, uint32_t>>("key", 1));
                 game.eventManager.pushDelayedEvent(UNNAMED, 0.1f, nullptr, [d, this]() {
                     this->game.playSound("bookPlace1");
-                    d->currentFrame = 0;
+                    d->currentFrame = 0; // remove the lock
                     this->game.eventManager.pushEvent(triggerKey); // triggers a change in the persistent room data
-                    // TODO: open the same door from the other side
                     });
                 game.eventManager.pushDelayedEvent(UNNAMED, 0.8f, nullptr, [d, this]() {
                     this->game.playSound("doorOpen_2");
-                    d->currentFrame = 1;
+                    d->currentFrame = 1; // show the open door
                     d->staticCollision = false;
                     this->done = true;
                     });

@@ -81,8 +81,8 @@ public:
         restartRequested = true; 
     }
     // saving and loading the game state
-    void save();
-    void load();
+    void save(std::string& filename);
+    void load(std::string& filename);
     std::shared_ptr<SaveGame> getSaveData();
 
     // input management
@@ -93,7 +93,7 @@ public:
     std::vector<std::unique_ptr<Rectangle>> walls; // everything with static collision
     std::vector<std::shared_ptr<Sprite>> sprites; // dynamic objects
     std::vector<Emitter> emitters; // particle emitters
-    std::shared_ptr<Sprite> createSprite(std::string spriteName, Rectangle& rect); // TODO: or return a reference to the sprite?
+    std::shared_ptr<Sprite> createSprite(std::string spriteName, Rectangle& rect); // TODO: return a shared pointer, or a reference to the sprite?
 
     // Dungeon management
     std::unique_ptr<Dungeon> currentDungeon = nullptr; 

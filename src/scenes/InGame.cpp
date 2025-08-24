@@ -51,13 +51,17 @@ void InGame::startup() {
             npc.visible = true;
             npc.id = 100; // TODO: make a getNextFreeID() function of TileMap
 
-            nlohmann::json props = nlohmann::json::array();
+            nlohmann::json props = nlohmann::json::object();
 
-            props.push_back({
+            /*props.push_back({
                 {"name", "spriteName"},
                 {"type", "string"},
-                {"value", sName}
-                });
+                {"value", sName},
+                });*/
+
+            //props.push_back({"roomState", 0});
+            props["spriteName"] = sName;
+            props["roomState"] = 0;
 
             npc.properties = props;
             
@@ -136,7 +140,7 @@ void InGame::startup() {
         // give the player the sword for starters
         //game.eventManager.pushEvent(ADD_ITEM, std::make_any<std::pair<std::string, uint32_t>>("heart_1up", 99));
         //game.eventManager.pushEvent(ADD_ITEM, std::make_any<std::pair<std::string, uint32_t>>("key", 99));
-        game.eventManager.pushEvent(ADD_ITEM, std::make_any<std::pair<std::string, uint32_t>>("weapon_hammer", 1));
+        //game.eventManager.pushEvent(ADD_ITEM, std::make_any<std::pair<std::string, uint32_t>>("weapon_hammer", 1));
         //game.eventManager.pushEvent(WEAPON_SET, std::string("weapon_hammer"));
         });
 }
@@ -193,6 +197,7 @@ void InGame::addBehaviorsToSprite(std::shared_ptr<Sprite> sprite, const std::vec
             conf.velocityVariance = { 1.0f, 1.0f };
             conf.spawnInterval = 0.1f;
             conf.lifetimeVariance = 0.2f;
+            conf.shootInterval = 2.0f;
             sprite->addBehavior(std::make_unique<ShootBehavior>(game, sprite, spriteMap[targetName], conf));
         }
         else if (key == "Emitter") {

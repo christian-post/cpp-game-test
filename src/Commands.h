@@ -8,6 +8,7 @@ class Game;
 class TextBox;
 
 class Command {
+    // base class for cutscene commands
 public:
     virtual ~Command() = default;
     virtual void update(float deltaTime) = 0;
@@ -23,6 +24,8 @@ protected:
 };
 
 class Command_Wait : public Command {
+    // does nothing for a given amount of time.
+    // blocks all following commands
 public:
     Command_Wait(float duration);
     void update(float deltaTime) override;
@@ -33,6 +36,9 @@ private:
 };
 
 class Command_MoveTo : public Command {
+    // > makes the target sprite walk to a given destination.
+    // > plays the RUN state animation while the timer is > 0.
+    // > Use duration = 0.0f to teleport a sprite instantly
 public:
     Command_MoveTo(Sprite& target, float posX, float posY, float duration);
     void update(float deltaTime) override;
@@ -43,6 +49,7 @@ private:
 };
 
 class Command_Look : public Command {
+    // target sprite looks in a fixed direction (LEFT or RIGHT)
 public:
     Command_Look(Sprite& target, direction dir);
     void update(float deltaTime) override;
@@ -53,6 +60,7 @@ private:
 };
 
 class Command_LookTowards : public Command {
+    // direction depends on the difference between two sprites' x positions
 public:
     Command_LookTowards(Sprite& target, Sprite& other);
     void update(float deltaTime) override;
@@ -63,6 +71,8 @@ private:
 };
 
 class Command_Textbox : public Command {
+    // displays some text
+    // the "pitch" argument controls whether the tone should be slightly shifted based on the length of each word
 public:
     Command_Textbox(Game& game, std::string text, std::string voice = "tone", bool pitch = false);
     ~Command_Textbox();
@@ -82,6 +92,7 @@ public:
 };
 
 class Command_Callback : public Command {
+    // executes arbitrary code during a cutscene
 public:
     Command_Callback(std::function<void()> callback);
     void update(float deltaTime) override;
@@ -91,6 +102,9 @@ private:
 };
 
 class Command_Letterbox : public Command {
+    // displays black bars on the top and bottom of the screen
+    // the "duration" argument controls how long it takes the bars to move to their final position
+    // TODO: make a function to fade out the letterbox
 public:
     Command_Letterbox(float screenWidth, float screenHeight, float duration);
     void update(float deltaTime) override;
@@ -101,6 +115,8 @@ private:
 };
 
 class Command_CameraPan : public Command {
+    // moves the camera towards a given position
+    // TODO: ease in/out
 public:
     Command_CameraPan(Game& game, float targetX, float targetY, float duration);
     void update(float deltaTime) override;
