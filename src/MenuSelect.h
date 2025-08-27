@@ -8,6 +8,12 @@
 Menu that lets the player select various items
 mostly used in dedicated menu scenes
 */
+enum class MenuPosition {
+    CENTER,
+    LEFT,
+    RIGHT
+};
+
 
 struct MenuItem {
     std::string displayName;
@@ -22,10 +28,15 @@ public:
     void addItem(MenuItem item);
     void update();
     void draw();
-    size_t getFontSize() const { return fontsize; };
-    void setFontSize(size_t size) { fontsize = size; };
-    size_t getMargin() const { return margin; };
-    void setMargin(size_t size) { margin = size; };
+    const size_t getCurrentIndex() const { return menuIndex; }
+    const MenuItem getCurrentItem() const { return menuItems[menuIndex]; }
+    size_t getFontSize() const { return fontsize; }
+    void setFontSize(size_t size) { fontsize = size; }
+    size_t getYMargin() const { return yMargin; }
+    void setYMargin(size_t size) { yMargin = size; }
+    size_t getXMargin() const { return xMargin; }
+    void setXMargin(size_t size) { xMargin = size; }
+    void setPosition(MenuPosition pos) { position = pos; }
     MenuSelect(Game& game);
 
 private:
@@ -33,5 +44,7 @@ private:
     std::vector<MenuItem> menuItems;
     size_t menuIndex = 0;
     size_t fontsize = 10;
-    size_t margin = 20;
+    size_t yMargin = 20;
+    size_t xMargin = 40; // only used when aliged LEFT or RIGHT
+    MenuPosition position = MenuPosition::CENTER;
 };

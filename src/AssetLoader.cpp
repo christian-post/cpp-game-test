@@ -87,7 +87,7 @@ void AssetLoader::loadTextures(const std::unordered_map<std::string, std::vector
         for (const std::string& filename : pair.second) {
             // TODO: maybe raylib does check this internally?
             if (fs::exists(filename)) {
-                textureGroups[key].push_back(LoadTexture(filename.c_str()));
+                textureGroups[key].emplace_back(LoadTexture(filename.c_str()));
             }
             else {
                 TraceLog(LOG_ERROR, "ERROR: File not found:  %s", filename.c_str());
@@ -111,7 +111,7 @@ void AssetLoader::loadSpritesheet(const std::string& filename, int frameWidth, i
             Image subImage = LoadImageFromTexture(sheet);
             Rectangle src = { (float)(x * frameWidth), (float)(y * frameHeight), (float)frameWidth, (float)frameHeight };
             ImageCrop(&subImage, src);
-            textureGroups[id].push_back(LoadTextureFromImage(subImage));
+            textureGroups[id].emplace_back(LoadTextureFromImage(subImage));
             UnloadImage(subImage);
         }
     }
@@ -135,7 +135,7 @@ void AssetLoader::Loadtileset(const std::string& filename, int tileSize) {
         for (int x = 0; x < tilesX; x++) {
             Rectangle tileRect = { float(x * tileSize), float(y * tileSize), float(tileSize), float(tileSize) };
             Image tileImg = ImageFromImage(tilesetImg, tileRect);
-            tiles.push_back(LoadTextureFromImage(tileImg));
+            tiles.emplace_back(LoadTextureFromImage(tileImg));
             UnloadImage(tileImg);
         }
     }
@@ -330,6 +330,18 @@ void AssetLoader::LoadSoundFile(const std::string& filename, const float volume,
     SetSoundVolume(sound, volume);
     std::string id = key.empty() ? std::filesystem::path(filename).stem().string() : key;
     sounds[id] = sound;
+}
+
+void AssetLoader::LoadSavegameThumbnails(const std::string& filepath)
+{
+    for (auto& entry : fs::directory_iterator(filepath)) {
+        if (entry.path().extension() == ".png") {
+            // TODO create a seperate map to avoid single-element vectors?
+            std::string key = entry.path().stem().string();
+            Texture2D tex = LoadTexture(entry.path().string().c_str());
+            textureGroups[key].emplace_back(tex);
+        }
+    }
 }
 
 Sound& AssetLoader::getSound(const std::string& key) {

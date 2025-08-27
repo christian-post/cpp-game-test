@@ -9,8 +9,8 @@ public:
     void startup() override;
     void update(float deltaTime) override;
     void draw() override;
-    void end() override;
 
 private:
     MenuSelect menu;
+    std::vector<std::string> fileInfo;
 };

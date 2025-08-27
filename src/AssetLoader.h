@@ -26,6 +26,7 @@ private:
     
 public:
     ~AssetLoader();
+    // TODO change inconsistent Capital letters!
     void loadTexturesFromDirectory(const std::string& directory);
     void loadTextures(const std::unordered_map<std::string, std::vector<std::string>>& textureMap);
     void loadSpritesheet(const std::string& filename, int frameWidth, int frameHeight, const std::string& key = "");
@@ -40,6 +41,7 @@ public:
     void loadtextData(const std::string& filename);
     void LoadMusicFile(const std::string& filename, const float volume = 1.0f, const std::string& key = "");
     void LoadSoundFile(const std::string& filename, const float volume = 1.0f, const std::string& key = "");
+    void LoadSavegameThumbnails(const std::string& filepath);
 
     const std::vector<Texture2D>& getTextures(const std::string& key);
     const TileMap& getTilemap(const std::string& key);

@@ -157,14 +157,29 @@ void Game::save(std::string& filename)
 
     auto j = writeDataToJSON(save);
 
-    std::ofstream file("./savegames/" + filename);
+    std::ofstream file("./savegames/" + filename + ".json");
     file << j.dump(2);
     TraceLog(LOG_INFO, "The game was saved to %s.", filename.c_str());
+
+    // save a screenshot as a thumbnail
+    // TODO: delayed so that it captures the InGame scene
+    // --> maybe save the last texture surface of InGame in memory?
+    eventManager.pushDelayedEvent(UNNAMED, 0.1f, nullptr, [this, filename] {
+        Image img = LoadImageFromTexture(this->target.texture);
+        ImageFlipVertical(&img);
+        // TODO: image looks blurry
+        int w = static_cast<int>(gameScreenWidth / 2);
+        int h = static_cast<int>(gameScreenHeight / 2);
+        ImageResize(&img, w, h);
+        std::string path = "savegames/thumbs/" + filename + ".png";
+        ExportImage(img, path.c_str());
+        UnloadImage(img);
+    });
 }
 
 void Game::load(std::string& filename)
 {
-    std::ifstream fileStream("./savegames/" + filename);
+    std::ifstream fileStream("./savegames/" + filename + ".json");
     nlohmann::json jsonData;
     fileStream >> jsonData;
 

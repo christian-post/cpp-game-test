@@ -18,4 +18,5 @@ x64/
 ipch/
 .vs/
 
-savegames/*
+savegames/*.json
+savegames/thumbs/*.png

@@ -5,10 +5,12 @@
 
 LoadSavegameMenu::LoadSavegameMenu(Game& game, const std::string& name)
     : Scene(game, name), menu(MenuSelect(game)) {
-
+    // menu config
     menu.setFontSize(8);
-    menu.setMargin(6);
-
+    menu.setYMargin(6);
+    menu.setXMargin(30);
+    menu.setPosition(MenuPosition::LEFT);
+    // event that transitions to the InGame scene once this scene is done
     game.eventManager.addListener(LOADING_SAVEGAME_SUCCESS, [&](const std::any& data) {
         game.startScene("InGame");
         game.startScene("HUD");
@@ -26,17 +28,20 @@ void LoadSavegameMenu::startup()
             });
         return;
     }
-    for (const auto& file : files) {
-        // extract the basename to display as the menu item
-        // TODO: strip the ".json" also
-        size_t pos = file.find("savegames") + 10;
-        std::string substr = file.substr(pos);
-        TraceLog(LOG_INFO, "%s", substr.c_str());
-        menu.addItem({ substr, [this, substr]() {
-            game.eventManager.pushEvent(LOAD_GAME, std::any(substr));
-            }
-            });
+
+    for (auto& entry : fs::directory_iterator("./savegames")) {
+        if (entry.path().extension() == ".json") {
+            // extract the basename to display as the menu item
+            std::string substr = entry.path().stem().string();
+            menu.addItem({ substr, [this, substr]() {
+                game.eventManager.pushEvent(LOAD_GAME, std::any(substr));
+                }
+                });
+            // get information about the file (helps with identifying the save)
+            fileInfo.emplace_back(GetLastWriteTime(entry.path().string()));
+        }
     }
+
     // go back to the start menu
     menu.addItem({ "Back", [&]() {
         game.startScene("StartMenu");
@@ -52,8 +57,15 @@ void LoadSavegameMenu::update(float deltaTime)
 void LoadSavegameMenu::draw()
 {
     menu.draw();
-}
 
-void LoadSavegameMenu::end()
-{
+    size_t idx = menu.getCurrentIndex();
+    if (idx < fileInfo.size()) {
+        std::string& infoStr = fileInfo[idx];
+        // TODO place text depending on the size of the string
+        int x = static_cast<int>(game.gameScreenWidth * 0.4);
+        DrawText(infoStr.c_str(), x, 20, 8, LIGHTGRAY);
+        // draw the thumbnail (0th element)
+        auto& thumbnail = game.loader.getTextures(menu.getCurrentItem().displayName);
+        DrawTexture(thumbnail[0], x, 40, WHITE);
+    }
 }

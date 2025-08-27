@@ -256,6 +256,10 @@ void Preload::startup() {
         l.LoadSoundFile("./resources/sound/sfx/tone.wav");
         });
 
+    loadQueue.emplace("Loading thumbnails", [&]() {
+        l.LoadSavegameThumbnails("./savegames/thumbs");
+        });
+
     totalLoadSteps = loadQueue.size();
 }
 

@@ -6,7 +6,7 @@
 
 SoundTest::SoundTest(Game& game, const std::string& name) : Scene(game, name), menu(MenuSelect(game)) {
     menu.setFontSize(6);
-    menu.setMargin(4);
+    menu.setYMargin(4);
 }
 
 void SoundTest::startup() {

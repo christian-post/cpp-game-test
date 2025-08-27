@@ -6,6 +6,8 @@
 #include <cmath>
 #include <sstream>
 #include <cstdlib>
+#include <chrono>
+#include <ctime>
 
 Vector2 GetRectCenter(Rectangle rect) {
     return { rect.x + rect.width / 2.0f, rect.y + rect.height / 2.0f };
@@ -103,4 +105,23 @@ std::vector<std::string> listFiles(const std::string& path) {
         }
     }
     return files;
+}
+
+std::string GetBaseName(const std::string& path) {
+    // returns the filename without parents and extension
+    std::filesystem::path p(path);
+    return p.stem().string();  
+}
+
+std::string GetLastWriteTime(const std::string& path) {
+    auto ftime = std::filesystem::last_write_time(path);
+    auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
+        ftime - decltype(ftime)::clock::now() + std::chrono::system_clock::now()
+    );
+    std::time_t cftime = std::chrono::system_clock::to_time_t(sctp);
+    std::tm timeinfo;
+    localtime_s(&timeinfo, &cftime);
+    char buf[26];
+    asctime_s(buf, sizeof(buf), &timeinfo);
+    return std::string(buf);
 }

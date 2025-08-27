@@ -220,6 +220,7 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <ClInclude Include="src\Utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="savegames\thumbs\readme.txt" />
     <Text Include="todo.txt" />
   </ItemGroup>
   <ItemGroup>
