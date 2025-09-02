@@ -19,6 +19,9 @@ void mergeJson(nlohmann::json& base, const nlohmann::json & override);
 std::vector<std::string> listFiles(const std::string& path);
 std::string GetBaseName(const std::string& path);
 std::string GetLastWriteTime(const std::string& path);
+void resolveAxisX(const std::shared_ptr<Sprite>& sprite, const Rectangle& obstacle);
+void resolveAxisY(const std::shared_ptr<Sprite>& sprite, const Rectangle& obstacle);
+
 
 struct CameraShake {
     float duration = 0.0f;

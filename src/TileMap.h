@@ -5,6 +5,12 @@
 #include <stdexcept>
 #include <filesystem>
 #include "json.hpp"
+#include "raylib.h"
+//#include "Game.h"
+
+class Game;
+struct ObjectState;
+class Dungeon;
 
 struct Tileset {
     // used to store the data from *.tsj files
@@ -88,3 +94,6 @@ private:
     std::string music;
     bool dark = false;
 };
+
+
+void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, std::unordered_map<uint32_t, ObjectState>& objectStates, const nlohmann::json& spriteData); // helper function that turns Tiled data into sprites etc

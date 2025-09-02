@@ -51,6 +51,10 @@ struct shootingConfig {
 
 
 
+void addBehaviorsToSprite(Game& game, std::shared_ptr<Sprite> sprite, const std::vector<std::string>& behaviors, const nlohmann::json& behaviorData);
+
+
+
 class Behavior {
 public:
     virtual ~Behavior() = default;

@@ -55,11 +55,12 @@ InventoryManager::InventoryManager(Game& game) : game(game) {
         });
 
     game.eventManager.addListener(CONSUME_ITEM, [this](const std::any& data) {
+        // execute the callback for the specified item
         if (const auto* key = std::any_cast<std::string>(&data)) {
             for (auto it = items[CONSUMABLE].begin(); it != items[CONSUMABLE].end(); ++it) {
                 if (it->second.first->textureKey == *key && it->second.second > 0) {
-                    if (!it->second.first->onConsume || !it->second.first->onConsume()) break;
-
+                    if (!it->second.first->onConsume || !it->second.first->onConsume()) 
+                        break;
                     it->second.second--;
                     if (it->second.second == 0) {
                         items[CONSUMABLE].erase(it);
@@ -79,11 +80,16 @@ void InventoryManager::addItem(const std::string& key, uint32_t amount) {
     }
 
     const ItemData* data = &it->second;
-    auto& bucket = items[static_cast<size_t>(data->type)];
-
-    auto& item = bucket[key];
-    if (!item.first) item.first = data;
-    item.second += amount;
+    if (data->type == IMMEDIATE) {
+        // don't add the item and execute the callback once
+        data->onConsume();
+    }
+    else {
+        auto& bucket = items[static_cast<size_t>(data->type)];
+        auto& item = bucket[key];
+        if (!item.first) item.first = data;
+        item.second += amount;
+    }
 }
 
 void InventoryManager::removeItem(const std::string& key, uint32_t amount) {

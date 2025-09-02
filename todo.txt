@@ -48,11 +48,12 @@ Scenes
 - does Sprite.jump() work as intended?
 - give the Signpost some collision
 - add a light cone to items that come from chests (if in a dark room) (or maybe draw them over the darkness layer?)
-- add some info (last file access) to the savegame loading screen. maybe a screenshot?
+- make Game.getPlayer() obsolete
+
 
 ### BUGS:
 - RandomWalkBehavior: choose new target after some time if the current target can't be reached
-- recovery hearts don't work any more
+- Cutscene trigger in Room001 after you get the sword isn't working any more.
 
 
 RELEASE CHECKLIST

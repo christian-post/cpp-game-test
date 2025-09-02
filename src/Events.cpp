@@ -14,7 +14,8 @@ void setupConditionalEvents(InGame& inGame) {
         [&]() {
             // this event advances the room state after the player got the sword from the chest
             // TODO: stateful Tiled Map objects (like chests, enemies etc) should probably have the ability to advance the Room state directly, like doors already do
-            if (!inGame.tileMap) return false;
+            if (!inGame.tileMap) 
+                return false;
             return (inGame.tileMap->getName() == "dungeon005" && game.inventory.getItemQuantity("weapon_sword") > 0);
         },
         [&]() {
@@ -25,14 +26,15 @@ void setupConditionalEvents(InGame& inGame) {
     game.eventManager.pushConditionalEvent(
         [&]() {
             // this happens in the first room after the player obtained the sword from the other room
-            if (!inGame.tileMap) return false;
+            if (!inGame.tileMap) 
+                return false;
             return (inGame.tileMap->getName() == "dungeon001" && game.inventory.getItemQuantity("weapon_sword") > 0);
             },
         [&]() {
-            if (inGame.spriteMap.find("elfCompanion2") == inGame.spriteMap.end())
+            if (game.spriteMap.find("elfCompanion2") == game.spriteMap.end())
                 return;
             game.eventManager.pushDelayedEvent(UNNAMED, 0.1f, nullptr, [&]() {
-                Sprite& npcRef = *inGame.spriteMap["elfCompanion2"];               
+                Sprite& npcRef = *game.spriteMap["elfCompanion2"];               
                 game.eventManager.pushEvent(HIDE_HUD);
                 game.cutsceneManager.queueCommand(new Command_Letterbox(float(game.gameScreenWidth), float(game.gameScreenHeight), 1.0f), false);
                 float npcX = 12.0f * static_cast<float>(inGame.tileSize);
@@ -48,7 +50,7 @@ void setupConditionalEvents(InGame& inGame) {
                         npcRef.persistent = true;
                         npcRef.followsPlayer = true;
                         npcRef.speed = 16;
-                        npcRef.addBehavior(std::make_unique<ChaseBehavior>(game, inGame.spriteMap["elfCompanion2"], inGame.player, 1000.0f, 20.0f, 2000.0f));
+                        npcRef.addBehavior(std::make_unique<ChaseBehavior>(game, game.spriteMap["elfCompanion2"], game.spriteMap["player"], 1000.0f, 20.0f, 2000.0f));
                     }
                     }));
                 });
@@ -58,7 +60,8 @@ void setupConditionalEvents(InGame& inGame) {
     game.eventManager.pushConditionalEvent(
         // the player has defeated all the enemies in the room left of the entrance
         [&]() {
-            if (!inGame.tileMap) return false;
+            if (!inGame.tileMap) 
+                return false;
             return inGame.tileMap->getName() == "dungeon004" &&
                 game.currentDungeon->getCurrentRoomState() < 2 &&
                 std::none_of(game.sprites.begin(), game.sprites.end(),
@@ -90,7 +93,8 @@ void setupConditionalEvents(InGame& inGame) {
     game.eventManager.pushConditionalEvent(
         // the player has defeated the demon in room 006
         [&]() {
-            if (!inGame.tileMap) return false;
+            if (!inGame.tileMap) 
+                return false;
             return inGame.tileMap->getName() == "dungeon006" &&
                 game.currentDungeon->getCurrentRoomState() < 2 &&
                 std::none_of(game.sprites.begin(), game.sprites.end(),
@@ -122,19 +126,20 @@ void setupConditionalEvents(InGame& inGame) {
     game.eventManager.pushConditionalEvent(
         [&]() {
             // give your companion a different dialogue after the last room
-            if (!inGame.tileMap) return false;
+            if (!inGame.tileMap) 
+                return false;
             return (inGame.tileMap->getName() == "dungeon_shop");
         },
         [&]() {
-            if (inGame.spriteMap.find("elfCompanion2") == inGame.spriteMap.end())
+            if (game.spriteMap.find("elfCompanion2") == game.spriteMap.end())
                 return;
             game.eventManager.pushDelayedEvent(UNNAMED, 0.1f, nullptr, [&]() {
-                Sprite& npcRef = *inGame.spriteMap["elfCompanion2"];
+                Sprite& npcRef = *game.spriteMap["elfCompanion2"];
                 npcRef.removeAllBehaviors();
-                npcRef.addBehavior(std::make_unique<ChaseBehavior>(game, inGame.spriteMap["elfCompanion2"], inGame.player, 1000.0f, 20.0f, 2000.0f));
+                npcRef.addBehavior(std::make_unique<ChaseBehavior>(game, game.spriteMap["elfCompanion2"], game.spriteMap["player"], 1000.0f, 20.0f, 2000.0f));
                 std::string textKey = "elfDialogue3";
                 std::vector<std::string> texts = game.loader.getText(textKey);
-                npcRef.addBehavior(std::make_unique<DialogueBehavior>(game, inGame.spriteMap["elfCompanion2"], inGame.player, texts, "powerUp4"));
+                npcRef.addBehavior(std::make_unique<DialogueBehavior>(game, game.spriteMap["elfCompanion2"], game.spriteMap["player"], texts, "powerUp4"));
                 });
         }
     );

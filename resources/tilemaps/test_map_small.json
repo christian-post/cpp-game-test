@@ -43,102 +43,212 @@
          "name":"sprites",
          "objects":[
                 {
-                 "height":24,
-                 "id":15,
-                 "name":"door",
-                 "polygon":[
-                        {
-                         "x":0,
-                         "y":0
-                        }, 
-                        {
-                         "x":32,
-                         "y":0
-                        }, 
-                        {
-                         "x":32,
-                         "y":24
-                        }, 
-                        {
-                         "x":0,
-                         "y":24
-                        }],
+                 "height":16,
+                 "id":17,
+                 "name":"enemy",
                  "properties":[
                         {
-                         "name":"event",
-                         "type":"string",
-                         "value":"door001open"
-                        }, 
-                        {
-                         "name":"locked",
-                         "type":"bool",
-                         "value":true
-                        }, 
-                        {
-                         "name":"openState",
+                         "name":"roomState",
                          "type":"int",
-                         "value":16
+                         "value":1
                         }, 
                         {
                          "name":"spriteName",
                          "type":"string",
-                         "value":"dungeon_door"
+                         "value":"skelet"
                         }],
                  "rotation":0,
                  "type":"sprite",
                  "visible":true,
-                 "width":32,
-                 "x":192,
-                 "y":168
+                 "width":16,
+                 "x":152,
+                 "y":240
                 }, 
                 {
-                 "height":24,
-                 "id":16,
-                 "name":"door",
-                 "polygon":[
-                        {
-                         "x":0,
-                         "y":0
-                        }, 
-                        {
-                         "x":32,
-                         "y":0
-                        }, 
-                        {
-                         "x":32,
-                         "y":24
-                        }, 
-                        {
-                         "x":0,
-                         "y":24
-                        }],
+                 "height":16,
+                 "id":18,
+                 "name":"enemy",
                  "properties":[
                         {
-                         "name":"event",
-                         "type":"string",
-                         "value":"door001open"
-                        }, 
-                        {
-                         "name":"locked",
-                         "type":"bool",
-                         "value":true
-                        }, 
-                        {
-                         "name":"openState",
+                         "name":"roomState",
                          "type":"int",
-                         "value":16
+                         "value":1
                         }, 
                         {
                          "name":"spriteName",
                          "type":"string",
-                         "value":"dungeon_door"
+                         "value":"skelet"
                         }],
                  "rotation":0,
                  "type":"sprite",
                  "visible":true,
-                 "width":32,
-                 "x":64,
-                 "y":168
+                 "width":16,
+                 "x":200,
+                 "y":260
+                }, 
+                {
+                 "height":16,
+                 "id":19,
+                 "name":"enemy",
+                 "properties":[
+                        {
+                         "name":"roomState",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"spriteName",
+                         "type":"string",
+                         "value":"skelet"
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":16,
+                 "x":248,
+                 "y":228
+                }, 
+                {
+                 "height":16,
+                 "id":20,
+                 "name":"enemy",
+                 "properties":[
+                        {
+                         "name":"roomState",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"spriteName",
+                         "type":"string",
+                         "value":"skelet"
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":16,
+                 "x":276,
+                 "y":280
+                }, 
+                {
+                 "height":16,
+                 "id":21,
+                 "name":"enemy",
+                 "properties":[
+                        {
+                         "name":"roomState",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"spriteName",
+                         "type":"string",
+                         "value":"skelet"
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":16,
+                 "x":96,
+                 "y":276
+                }, 
+                {
+                 "height":16,
+                 "id":22,
+                 "name":"enemy",
+                 "properties":[
+                        {
+                         "name":"roomState",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"spriteName",
+                         "type":"string",
+                         "value":"skelet"
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":16,
+                 "x":48,
+                 "y":244
+                }, 
+                {
+                 "height":16,
+                 "id":23,
+                 "name":"enemy",
+                 "properties":[
+                        {
+                         "name":"roomState",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"spriteName",
+                         "type":"string",
+                         "value":"skelet"
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":16,
+                 "x":148,
+                 "y":300
+                }, 
+                {
+                 "height":16,
+                 "id":24,
+                 "name":"enemy",
+                 "properties":[
+                        {
+                         "name":"roomState",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"spriteName",
+                         "type":"string",
+                         "value":"skelet"
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":16,
+                 "x":104,
+                 "y":224
+                }, 
+                {
+                 "height":16,
+                 "id":25,
+                 "name":"chest",
+                 "properties":[
+                        {
+                         "name":"amount",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"item",
+                         "type":"string",
+                         "value":"weapon_double_axe"
+                        }, 
+                        {
+                         "name":"roomState",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"spriteName",
+                         "type":"string",
+                         "value":"chest"
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":16,
+                 "x":128,
+                 "y":64
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -217,7 +327,7 @@
          "y":0
         }],
  "nextlayerid":5,
- "nextobjectid":17,
+ "nextobjectid":26,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.11.2",

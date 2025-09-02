@@ -19,8 +19,6 @@
 #define LIGHTBURGUNDY { 40, 0, 16, 255 }
 
 
-// Debug flags
-//#define TEST_ROOM
 
 
 class Command;
@@ -92,6 +90,7 @@ public:
     // game objects
     std::vector<std::unique_ptr<Rectangle>> walls; // everything with static collision
     std::vector<std::shared_ptr<Sprite>> sprites; // dynamic objects
+    std::unordered_map<std::string, std::shared_ptr<Sprite>> spriteMap; // keep named references to certain sprites
     std::vector<Emitter> emitters; // particle emitters
     std::shared_ptr<Sprite> createSprite(std::string spriteName, Rectangle& rect); // TODO: return a shared pointer, or a reference to the sprite?
 

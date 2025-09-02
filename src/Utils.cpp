@@ -125,3 +125,35 @@ std::string GetLastWriteTime(const std::string& path) {
     asctime_s(buf, sizeof(buf), &timeinfo);
     return std::string(buf);
 }
+
+void resolveAxisX(const std::shared_ptr<Sprite>& sprite, const Rectangle& obstacle) {
+    if (!sprite->isColliding || !CheckCollisionRecs(sprite->rect, obstacle))
+        return;
+
+    float spriteCenterX = sprite->rect.x + sprite->rect.width * 0.5f;
+    float obstacleCenterX = obstacle.x + obstacle.width * 0.5f;
+    if (spriteCenterX < obstacleCenterX) {
+        sprite->position.x = obstacle.x - sprite->rect.width;
+    }
+    else {
+        sprite->position.x = obstacle.x + obstacle.width;
+    }
+    sprite->vel.x = 0.0f;
+    sprite->rect.x = sprite->position.x + sprite->hitboxOffset.x;
+}
+
+void resolveAxisY(const std::shared_ptr<Sprite>& sprite, const Rectangle& obstacle) {
+    if (!sprite->isColliding || !CheckCollisionRecs(sprite->rect, obstacle))
+        return;
+
+    float spriteCenterY = sprite->rect.y + sprite->rect.height * 0.5f;
+    float obstacleCenterY = obstacle.y + obstacle.height * 0.5f;
+    if (spriteCenterY < obstacleCenterY) {
+        sprite->position.y = obstacle.y - sprite->rect.height;
+    }
+    else {
+        sprite->position.y = obstacle.y + obstacle.height + 0.1f;
+    }
+    sprite->vel.y = 0.0f;
+    sprite->rect.y = sprite->position.y + sprite->hitboxOffset.y;
+}

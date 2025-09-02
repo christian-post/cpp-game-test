@@ -19,37 +19,33 @@ void InventoryUI::startup() {
 }
 
 void InventoryUI::update(float deltaTime) {
+    // state machine
     switch (state) {
     case OPENING:
-        if (y > topY) {
+        if (y > topY)
             y = std::max(topY, y - deltaTime * speed);
-        }
-        else {
+        else
             state = OPENED;
-        }
         break;
     case CLOSING:
-        if (y < game.gameScreenHeight) {
+        if (y < game.gameScreenHeight)
             y = std::min(static_cast<float>(game.gameScreenHeight), y + deltaTime * speed);
-        }
         else {
             game.eventManager.pushEvent(INVENTORY_DONE);
             game.stopScene("InventoryUI");
         }
         break;
     case SLIDING_LEFT:
-        if (x > static_cast<float>(width) * -1.0f) {
+        if (x > static_cast<float>(width) * -1.0f)
             x = std::max(static_cast<float>(width) * -1.0f, x - deltaTime * speed);
-        }
         else {
             game.pauseScene("InventoryUI");
             state = SLIDING_RIGHT;
         }
         break;
     case SLIDING_RIGHT:
-        if (x < 0.0f) {
+        if (x < 0.0f)
             x = std::min(0.0f, x + deltaTime * speed);
-        }
         else {
             game.pauseScene("MapUI");
             state = OPENED;
@@ -68,15 +64,18 @@ void InventoryUI::update(float deltaTime) {
         // cursor movement (only when there are weapons)
         auto& items = game.inventory.getItems();
         std::vector<const InventoryItem*> flatItems;
-        for (const auto& [key, item] : items[WEAPON]) flatItems.push_back(&item);
-        for (const auto& [key, item] : items[CONSUMABLE]) flatItems.push_back(&item);
+        for (const auto& [key, item] : items[WEAPON]) 
+            flatItems.push_back(&item);
+        for (const auto& [key, item] : items[CONSUMABLE]) 
+            flatItems.push_back(&item);
 
         size_t totalItems = flatItems.size();
         if (totalItems == 0) {
             index = 0;
             break;
         }
-        if (index >= totalItems) index = 0;
+        if (index >= totalItems) 
+            index = 0;
 
         if (game.buttonsPressed & CONTROL_RIGHT) {
             index = (index + 1) % totalItems;
@@ -115,16 +114,14 @@ void InventoryUI::update(float deltaTime) {
                 }
                 else {
                     // Weapons span two rows
-                    if (col < secondRowLen) {
+                    if (col < secondRowLen)
                         index = cols + col;
-                    }
-                    else {
+                    else
                         index = weaponCount - 1;
-                    }
                 }
             }
             else if (index >= cols) {
-                // In second weapon row → move to first
+                // In second weapon row; move to first item
                 index -= cols;
             }
             game.playSound("menuCursor");
@@ -166,10 +163,36 @@ void InventoryUI::draw() {
     DrawRectangleRounded(r3, 0.2f, 0, LIGHTBURGUNDY);
 
     std::vector<const InventoryItem*> flatItems;
-    for (const auto& [key, item] : items[WEAPON]) flatItems.push_back(&item);
-    for (const auto& [key, item] : items[CONSUMABLE]) flatItems.push_back(&item);
-    for (const auto& [key, item] : items[PASSIVE]) flatItems.push_back(&item);
-    for (const auto& [key, item] : items[KEY]) flatItems.push_back(&item);
+    for (const auto& [key, item] : items[WEAPON])
+        flatItems.push_back(&item);
+    for (const auto& [key, item] : items[CONSUMABLE])
+        flatItems.push_back(&item);
+    for (const auto& [key, item] : items[PASSIVE])
+        flatItems.push_back(&item);
+    for (const auto& [key, item] : items[KEY])
+        flatItems.push_back(&item);
+
+    uint32_t itemsStartY = (weaponsRows + 1) * spacing;
+    // draw the cursor
+    if (index < totalItems) {
+        size_t cursorRow, cursorCol;
+        int cursorBaseY;
+        if (index < weaponsSize) {
+            cursorRow = index / cols;
+            cursorCol = index % cols;
+            cursorBaseY = int(y + marginTop);
+        }
+        else {
+            size_t consumableIndex = index - weaponsSize;
+            cursorRow = consumableIndex / cols;
+            cursorCol = consumableIndex % cols;
+            cursorBaseY = int(y + itemsStartY);
+        }
+        const auto& cursorTex = game.loader.getTextures("inventory_cursor")[0];
+        int cursorX = int(x + marginLeft + spacing * cursorCol - cursorTex.width / 2);
+        int cursorY = cursorBaseY + spacing * (int)cursorRow - cursorTex.height / 2;
+        DrawTexture(cursorTex, cursorX, cursorY, WHITE);
+    }
 
     // selectable weapons
     for (size_t i = 0; i < weaponsSize; ++i) {
@@ -182,7 +205,6 @@ void InventoryUI::draw() {
     }
 
     // consumables
-    uint32_t itemsStartY = (weaponsRows + 1) * spacing;
     for (size_t i = weaponsSize; i < weaponsSize + consumablesSize; ++i) {
         size_t row = (i - weaponsSize) / cols;
         size_t col = (i - weaponsSize) % cols;
@@ -209,26 +231,7 @@ void InventoryUI::draw() {
         DrawText(qtyText.c_str(), centerX + 8, centerY + 8, 10, LIGHTGRAY);
     }
 
-    // draw the cursor
-    if (index < totalItems) {
-        size_t cursorRow, cursorCol;
-        int cursorBaseY;
-        if (index < weaponsSize) {
-            cursorRow = index / cols;
-            cursorCol = index % cols;
-            cursorBaseY = int(y + marginTop);
-        }
-        else {
-            size_t consumableIndex = index - weaponsSize;
-            cursorRow = consumableIndex / cols;
-            cursorCol = consumableIndex % cols;
-            cursorBaseY = int(y + itemsStartY);
-        }
-        const auto& cursorTex = game.loader.getTextures("inventory_cursor")[0];
-        int cursorX = int(x + marginLeft + spacing * cursorCol - cursorTex.width / 2);
-        int cursorY = cursorBaseY + spacing * (int)cursorRow - cursorTex.height / 2;
-        DrawTexture(cursorTex, cursorX, cursorY, WHITE);
-    }
+    
 
     // display selected item name
     int fontSize = 8;
@@ -253,7 +256,7 @@ void InventoryUI::draw() {
         const char* textLeft = nullptr;
         const char* textRight = nullptr;
         if (WasGamepadUsedLast()) {
-            helpText = "Equip/use with [A]"; // TODO draw a sprite that shows the buttons
+            helpText = "Equip/use with [A]"; // TODO draw a sprite that shows the gamepad buttons
             textLeft = "<< LB";
             textRight = "RB >>";
         }

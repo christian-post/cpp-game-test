@@ -18,6 +18,11 @@
 #include <cassert>
 
 
+
+// Debug flags (comment in/out)
+//#define TEST_ROOM
+
+
 Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this) {
     loader.loadSettings("./resources/settings.json");
     settings = &loader.getSettings();
@@ -290,8 +295,8 @@ void Game::processMarkedSprites() {
 Sprite* Game::getPlayer() {
     InGame* inGame = dynamic_cast<InGame*>(getScene("InGame"));
     if (!inGame) return nullptr;
-    auto it = inGame->spriteMap.find("player");
-    if (it != inGame->spriteMap.end()) return it->second.get();
+    auto it = spriteMap.find("player");
+    if (it != spriteMap.end()) return it->second.get();
     return nullptr;
 }
 

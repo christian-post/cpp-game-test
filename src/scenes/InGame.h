@@ -16,20 +16,15 @@ public:
     void draw() override;
     void end() override;
 
-    void processTileObject(const TileObject& obj, uint8_t currentState, std::unordered_map<uint32_t, ObjectState>& objectStates, const nlohmann::json& spriteData); // helper function that turns Tiled data into sprites etc
+    //void processTileObject(const TileObject& obj, uint8_t currentState, std::unordered_map<uint32_t, ObjectState>& objectStates, const nlohmann::json& spriteData); // helper function that turns Tiled data into sprites etc
     void loadTilemap(); // function that handles room transitions
     void drawTilemapChunks(int layerIndex);
     Sprite* getSprite(const std::string& name);
-    void addBehaviorsToSprite(std::shared_ptr<Sprite> sprite, const std::vector<std::string>& behaviors, const nlohmann::json& behaviorData);
-    // methods for collision handling
-    void resolveAxisX(const std::shared_ptr<Sprite>& sprite, const Rectangle& obstacle);
-    void resolveAxisY(const std::shared_ptr<Sprite>& sprite, const Rectangle& obstacle);
 
     const TileMap* tileMap;
     size_t tileSize = 0; // value is read from Tiled data 
     Camera2D camera = {};
     CameraShake cameraShake;
-    std::unordered_map<std::string, std::shared_ptr<Sprite>> spriteMap; // keep named references to certain sprites
     std::shared_ptr<Sprite> player;  // keep a player variable for direct frequent access
     std::optional<std::string> currentWeapon = std::nullopt;
     // light effects

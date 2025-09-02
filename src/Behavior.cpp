@@ -276,9 +276,10 @@ void CollectItemBehavior::update(float deltaTime) {
             {
                 // check collision and collect the item
                 if (CheckCollisionRecs(s->rect, o->rect)) {
-                    // add the item
+                    // add the item to the inventory if it isn't used immediately
+                    // (the IMMEDIATE) case is handled within the ADD_ITEM listener because that's when the type is exposed
                     game.eventManager.pushEvent(ADD_ITEM, std::make_any<std::pair<std::string, uint32_t>>(name, amount));
-                    game.playSound("rupee");
+                    game.playSound("rupee"); // TODO get sound key from data
                     game.eventManager.pushEvent(ITEM_ADDED, name);
                     state++;
                 }
@@ -640,6 +641,74 @@ void OpenLockBehavior::update(float deltaTime) {
                 game.eventManager.pushEvent(HIDE_HELP_TEXT);
                 collided = false;
             }
+        }
+    }
+}
+
+
+void addBehaviorsToSprite(Game& game, std::shared_ptr<Sprite> sprite, const std::vector<std::string>& behaviors, const nlohmann::json& behaviorData) {
+    for (const auto& key : behaviors) {
+        if (key == "RandomWalk") {
+            sprite->addBehavior(std::make_unique<RandomWalkBehavior>(sprite));
+        }
+        else if (key == "Watch") {
+            std::string targetName = behaviorData.value("watchTarget", "");
+            if (game.spriteMap.find(targetName) != game.spriteMap.end()) {
+                sprite->addBehavior(std::make_unique<WatchBehavior>(sprite, game.spriteMap[targetName]));
+            }
+            else {
+                TraceLog(LOG_WARNING, "Target \"%s\" not found in spriteMap. Skipping WatchBehavior for %s.", targetName.c_str(), sprite->spriteName.c_str());
+            }
+        }
+        else if (key == "Chase") {
+            // TODO get distance values from file
+            std::string targetName = behaviorData.value("chaseTarget", "");
+            if (game.spriteMap.find(targetName) != game.spriteMap.end()) {
+                sprite->addBehavior(std::make_unique<ChaseBehavior>(game, sprite, game.spriteMap[targetName], 48.0f, 2.0f, 64.0f));
+            }
+            else {
+                TraceLog(LOG_WARNING, "Target \"%s\" not found in spriteMap. Skipping ChaseBehavior for %s.", targetName.c_str(), sprite->spriteName.c_str());
+            }
+        }
+        else if (key == "Dialogue") {
+            std::string textKey = behaviorData.value("dialogue", "");
+            if (textKey.length()) {
+                std::vector<std::string> texts = game.loader.getText(textKey);
+                std::string voice = behaviorData.value("voice", "tone");
+                sprite->addBehavior(std::make_unique<DialogueBehavior>(game, sprite, game.spriteMap["player"], texts, voice)); 
+            }
+        }
+        else if (key == "Shoot") {
+            std::string targetName = behaviorData.value("shootTarget", "");
+            shootingConfig conf;
+            conf.projectileKey = behaviorData.value("shootProjectile", conf.projectileKey); // use the default as a fallback
+            conf.sound = behaviorData.value("shootSound", conf.sound);
+            conf.damage = behaviorData.value("shootDamage", conf.damage);
+            // TODO get these values also from json data
+            conf.speed = 20.0f;
+            conf.amount = 10;
+            conf.velocityVariance = { 1.0f, 1.0f };
+            conf.spawnInterval = 0.1f;
+            conf.lifetimeVariance = 0.2f;
+            conf.shootInterval = 2.0f;
+            sprite->addBehavior(std::make_unique<ShootBehavior>(game, sprite, game.spriteMap[targetName], conf));
+        }
+        else if (key == "Emitter") {
+            // TODO: make the emitter and particle more customizable
+            std::unique_ptr<Emitter> emitter = std::make_unique<Emitter>(20);
+            emitter->spawnInterval = 0.2f;
+            emitter->lifetimeVariance = 0.05f;
+            emitter->velocityVariance = { 20.0f, 20.0f };
+
+            std::unique_ptr<Particle> proto = std::make_unique<Particle>();
+            proto->velocity = { 0.0f, 0.0f };
+            proto->lifetime = 1.6f;
+            proto->startAlpha = 0.5f;
+            proto->endSize = 0.2f;
+            proto->setAnimationFrames(game.loader.getTextures(behaviorData.value("particle", "")));
+
+            emitter->prototype = *proto;
+            sprite->addBehavior(std::make_unique<EmitterBehavior>(game, sprite, std::move(emitter), std::move(proto)));
         }
     }
 }
