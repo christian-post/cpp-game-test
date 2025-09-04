@@ -287,8 +287,8 @@ void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, 
                         objectStates[obj.id].isOpened = true;
                     }
                     });
-                // TODO why is this hardcoded here?
-                sprite->addBehavior(std::make_unique<ChestBehavior>(game, sprite, game.spriteMap["player"], static_cast<std::string>(obj.properties.value("item", "coin")), static_cast<uint32_t>(obj.properties.value("amount", 999))));
+                // give 10 coins as the fallback value in case there is no item in the data
+                sprite->addBehavior(std::make_unique<ChestBehavior>(game, sprite, game.spriteMap["player"], static_cast<std::string>(obj.properties.value("item", "coin")), static_cast<uint32_t>(obj.properties.value("amount", 10))));
             }
         }
         // add an event that changes the isDefeated field for this sprite

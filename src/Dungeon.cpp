@@ -1,6 +1,7 @@
 #include "Dungeon.h"
 #include <raylib.h>
 #include "Game.h"
+#include "WorldGraph.h"
 
 Dungeon::Dungeon(Game& game, size_t roomsW, size_t roomsH) : game{ game }, roomsW { roomsW }, roomsH{ roomsH }
 {
@@ -12,12 +13,18 @@ std::vector<std::optional<Room>>& Dungeon::getRooms()
     return rooms;
 }
 
-void Dungeon::setStartingRoomIndex(size_t idx)
+Room* Dungeon::getRoomAt(size_t index) {
+    if (index < 0 || index >= rooms.size() || !rooms[index])
+        return nullptr;
+    return &*rooms[index];
+}
+
+void Dungeon::setStartingRoomIndex(size_t index)
 {
-    startingRoomIndex = idx;
+    startingRoomIndex = index;
     if (!playerHasBeenPlaced) {
         playerHasBeenPlaced = true;
-        currentRoomIndex = idx;
+        currentRoomIndex = index;
     }
 }
 
@@ -219,4 +226,138 @@ void Dungeon::makeMinimapTextures()
 
         minimapTextures.push_back(mini);
     }
+}
+
+WorldGraph Dungeon::buildGraphFromDungeon(const std::string& start, const std::vector<std::tuple<std::string, std::string, std::vector<std::string>>>& edges, const std::unordered_set<std::string>& itemNodes)
+{
+    WorldGraph graph;
+
+
+    // turn each room into a node
+    for (size_t i = 0; i < roomsW * roomsH; i++) {
+        if (rooms[i]) {
+            std::string key = rooms[i]->tilemap.getName();
+            bool canHaveItem = itemNodes.count(key) > 0;
+            graph.add_node(key, i, canHaveItem);
+        }
+    }
+    graph.set_start(start);
+
+    // add edges (connections between rooms)
+    auto get_requirements = [&](const std::string& from, const std::string& to) {
+        std::unordered_set<std::string> reqs;
+        for (const auto& [f, t, items] : edges) {
+            if (f == from && t == to) {
+                reqs.insert(items.begin(), items.end());
+                break;
+            }
+        }
+        return reqs;
+        };
+
+    for (size_t i = 0; i < roomsW * roomsH; i++) {
+        if (rooms[i]) {
+            std::string key = rooms[i]->tilemap.getName();
+            // check the room's doors
+            // RIGHT
+            if (((rooms[i]->doors >> 3) & 1) && (i % roomsW != roomsW - 1)) {
+                if (Room* right = getRoomAt(i + 1)) {
+                    auto& to = right->tilemap.getName();
+                    graph.add_edge(key, to, get_requirements(key, to));
+                }
+            }
+            // UP
+            if (((rooms[i]->doors >> 2) & 1) && (i >= roomsW)) {
+                if (Room* up = getRoomAt(i - roomsW)) {
+                    auto& to = up->tilemap.getName();
+                    graph.add_edge(key, to, get_requirements(key, to));
+                }
+            }
+            // LEFT
+            if (((rooms[i]->doors >> 1) & 1) && (i % roomsW != 0)) {
+                if (Room* left = getRoomAt(i - 1)) {
+                    auto& to = left->tilemap.getName();
+                    graph.add_edge(key, to, get_requirements(key, to));
+                }
+            }
+            // DOWN
+            if ((rooms[i]->doors & 1) && (i + roomsW < rooms.size())) {
+                if (Room* down = getRoomAt(i + roomsW)) {
+                    auto& to = down->tilemap.getName();
+                    graph.add_edge(key, to, get_requirements(key, to));
+                }
+            }
+        }
+    }
+
+    return graph;
+}
+
+void Dungeon::generate()
+{
+    // TODO: I'm hardcoding this here for now
+
+    /*
+    ## test dungeon ##
+      0    1    2    3
+    0 x    shop x    x
+    1 x    006  x    x
+    2 007  003  002  x
+    3 x    004  001  005
+    */
+    // coordinates are row, column
+    // second argument is the directions of the doors, starting at the right and going counter clockwise
+
+#ifdef TEST_ROOM
+    currentDungeon->insertRoom(0, 0, Room{ loader.getTilemap("test_map_small"), 0b0000 }); // test dungeon
+#else
+    insertRoom(3, 2, Room{ game.loader.getTilemap("dungeon001"), 0b1111 });
+    insertRoom(2, 2, Room{ game.loader.getTilemap("dungeon002"), 0b0011 });
+    insertRoom(2, 1, Room{ game.loader.getTilemap("dungeon003"), 0b1111 });
+    insertRoom(3, 1, Room{ game.loader.getTilemap("dungeon004"), 0b1100 });
+    insertRoom(3, 3, Room{ game.loader.getTilemap("dungeon005"), 0b0010 });
+    insertRoom(1, 1, Room{ game.loader.getTilemap("dungeon006"), 0b0101 });
+    insertRoom(2, 0, Room{ game.loader.getTilemap("dungeon007"), 0b1000 });
+    insertRoom(0, 1, Room{ game.loader.getTilemap("dungeon_shop"), 0b0001 });
+
+#endif // TEST_ROOM
+
+#ifdef TEST_ROOM
+    setStartingRoomIndex(0); // TODO: testing
+#else 
+    setStartingRoomIndex(14); // start in R1
+#endif // TEST_ROOM
+
+    // TODO: testing some items
+    std::vector<std::tuple<std::string, std::string, std::vector<std::string>>> edges = {
+        { "dungeon001", "dungeon002", { "key" }},
+        { "dungeon002", "dungeon001", { "key" }},
+        { "dungeon003", "dungeon006", { "key" }},
+        { "dungeon004", "dungeon003", { "weapon_sword" }},
+        { "dungeon006", "dungeon_shop", { "weapon_sword" }}
+    };
+    std::unordered_set<std::string> itemNodes = { "dungeon002", "dungeon005", "dungeon007" };
+
+    WorldGraph G = buildGraphFromDungeon("dungeon001", edges, itemNodes);
+    G.initialize_items({ "key", "key", "weapon_sword" });
+    G.forward_fill();
+
+    // put the items into the Tiled data
+    for (const auto& [name, node] : G.nodes) {
+        if (node->item.has_value()) {
+            TraceLog(LOG_INFO, "[%s] item: %s", name.c_str(), node->item->c_str());
+            TileMap& roomData = rooms[node->id]->tilemap;
+            std::vector<TileObject>& objects = roomData.getObjects();
+            for (auto& obj : objects) {
+                if (obj.name == "chest") {
+                    // put the item here
+                    obj.properties["item"] = node->item.value();
+                    obj.properties["amount"] = 1;
+                    break;  // break in case there are multiple chests (which shouldn't happen but whatever)
+                }
+            }
+        }
+    }
+
+    G.log_debug();
 }

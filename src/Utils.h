@@ -6,6 +6,7 @@
 #include <cstdarg>
 #include <filesystem>
 #include "json.hpp"
+#include <unordered_set>
 
 class Sprite;
 
@@ -21,7 +22,7 @@ std::string GetBaseName(const std::string& path);
 std::string GetLastWriteTime(const std::string& path);
 void resolveAxisX(const std::shared_ptr<Sprite>& sprite, const Rectangle& obstacle);
 void resolveAxisY(const std::shared_ptr<Sprite>& sprite, const Rectangle& obstacle);
-
+bool isSubset(const std::unordered_set<std::string>& subset, const std::unordered_set<std::string>& superset);
 
 struct CameraShake {
     float duration = 0.0f;

@@ -104,7 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)src/scenes;$(ProjectDir)include;$(ProjectDir)include/raylib-5.5_win64_msvc16\include;$(ProjectDir)libs\raylib-5.5_win64_msvc16\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)src/tests;$(ProjectDir)src/scenes;$(ProjectDir)include;$(ProjectDir)include/raylib-5.5_win64_msvc16\include;$(ProjectDir)libs\raylib-5.5_win64_msvc16\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -181,6 +181,7 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <ClCompile Include="src\TextBox.cpp" />
     <ClCompile Include="src\TileMap.cpp" />
     <ClCompile Include="src\Utils.cpp" />
+    <ClCompile Include="src\WorldGraph.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
@@ -215,9 +216,11 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <ClInclude Include="src\scenes\TitleScreen.h" />
     <ClInclude Include="src\scenes\WriteSavegameMenu.h" />
     <ClInclude Include="src\Sprite.h" />
+    <ClInclude Include="src\tests\TestWorldGraph.h" />
     <ClInclude Include="src\TextBox.h" />
     <ClInclude Include="src\TileMap.h" />
     <ClInclude Include="src\Utils.h" />
+    <ClInclude Include="src\WorldGraph.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="savegames\thumbs\readme.txt" />

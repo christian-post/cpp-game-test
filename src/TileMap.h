@@ -78,6 +78,7 @@ public:
     TileMap(const nlohmann::json& jsonMap, std::string mapName);
     const TileLayer& getLayer(size_t index) const;
     const std::vector<TileObject>& getObjects() const { return objects; }
+    std::vector<TileObject>& getObjects() { return objects; } // non-const overload for modifications
     const std::string& getName() const { return mapName; }
     const std::string& getTilesetName() const { return tilesetName; }
     const std::string& getMusicKey() const { return music; }

@@ -3,11 +3,13 @@
 #include <vector>
 #include <optional>
 #include <unordered_map>
+#include <unordered_set>
 #include "TileMap.h"
 #include <raylib.h>
 #include "json.hpp"
 
 class Game;
+class WorldGraph;
 
 struct ObjectState {
     // used to store object state between room visits
@@ -45,7 +47,7 @@ public:
     Room(TileMap tilemap, uint8_t doors = 0b0000)
         : doors(doors), tilemap(std::move(tilemap)) 
     {
-        dark = tilemap.isDark();
+        dark = tilemap.isDark(); // TODO
     }
 };
 
@@ -62,8 +64,9 @@ private:
 public:
     Dungeon(Game& game, size_t roomsW, size_t roomsH);
     std::vector<std::optional<Room>>& getRooms();
-    void setStartingRoomIndex(size_t idx); // defines in which room the player starts;
-    void setCurrentRoomIndex(size_t idx) { currentRoomIndex = idx; } // defines which room (on the grid) the player is currently in
+    Room* getRoomAt(size_t index);
+    void setStartingRoomIndex(size_t index); // defines in which room the player starts;
+    void setCurrentRoomIndex(size_t index) { currentRoomIndex = index; } // defines which room (on the grid) the player is currently in
     size_t getCurrentRoomIndex() const { return currentRoomIndex; }
     size_t getStartingRoomIndex() const { return startingRoomIndex; }
     void advanceRoomState(); // advances the current room's state
@@ -82,4 +85,10 @@ public:
     void setVisited(size_t index);
     void makeMinimapTextures();
     std::vector<RenderTexture2D> minimapTextures;
+    WorldGraph buildGraphFromDungeon(
+        const std::string& start,
+        const std::vector<std::tuple<std::string, std::string, std::vector<std::string>>>& edges,
+        const std::unordered_set<std::string>& itemNodes
+    ); // TODO strings should be changed to indices later
+    void generate(); // TODO testing 
 };

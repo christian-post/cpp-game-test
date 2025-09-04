@@ -157,3 +157,13 @@ void resolveAxisY(const std::shared_ptr<Sprite>& sprite, const Rectangle& obstac
     sprite->vel.y = 0.0f;
     sprite->rect.y = sprite->position.y + sprite->hitboxOffset.y;
 }
+
+
+bool isSubset(const std::unordered_set<std::string>& subset, const std::unordered_set<std::string>& superset) {
+    for (const auto& item : subset) {
+        if (superset.find(item) == superset.end()) {
+            return false;
+        }
+    }
+    return true;
+}
