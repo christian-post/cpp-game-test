@@ -506,12 +506,18 @@
  "nextlayerid":7,
  "nextobjectid":34,
  "orientation":"orthogonal",
- "properties":[
-        {
-         "name":"music",
-         "type":"string",
-         "value":"dungeon01"
-        }],
+  "properties": [
+    {
+      "name": "music",
+      "type": "string",
+      "value": "dungeon01"
+    },
+      {
+        "name": "dark",
+        "type": "bool",
+        "value": false
+      }
+  ],
  "renderorder":"right-down",
  "tiledversion":"1.11.2",
  "tileheight":16,

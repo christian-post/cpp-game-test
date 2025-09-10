@@ -45,10 +45,8 @@ public:
     std::unordered_map<uint32_t, ObjectState> objectStates; // makes object states (dead etc) persistent
 
     Room(TileMap tilemap, uint8_t doors = 0b0000)
-        : doors(doors), tilemap(std::move(tilemap)) 
-    {
-        dark = tilemap.isDark(); // TODO
-    }
+        : doors(doors), tilemap(std::move(tilemap)), dark(this->tilemap.isDark())
+    {}
 };
 
 class Dungeon {

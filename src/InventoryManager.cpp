@@ -42,6 +42,15 @@ InventoryManager::InventoryManager(Game& game) : game(game) {
             return true;
         };
 
+    itemData["heart_drop"].onConsume = [this]() mutable {
+        // refills 1 heart
+        auto* player = this->game.getPlayer();
+        player->health = std::min(player->health + 2, player->maxHealth);
+        this->game.playSound("heart");
+        return true;
+        };
+
+
     game.eventManager.addListener(ADD_ITEM, [this](const std::any& data) {
         if (const auto* item = std::any_cast<std::pair<std::string, uint32_t>>(&data)) {
             addItem(item->first, item->second);

@@ -3,6 +3,10 @@
 #include "Game.h"
 #include "WorldGraph.h"
 
+// Debug flags (comment in/out)
+//#define TEST_ROOM
+
+
 Dungeon::Dungeon(Game& game, size_t roomsW, size_t roomsH) : game{ game }, roomsW { roomsW }, roomsH{ roomsH }
 {
     rooms.resize(roomsW * roomsH);
@@ -232,7 +236,6 @@ WorldGraph Dungeon::buildGraphFromDungeon(const std::string& start, const std::v
 {
     WorldGraph graph;
 
-
     // turn each room into a node
     for (size_t i = 0; i < roomsW * roomsH; i++) {
         if (rooms[i]) {
@@ -299,53 +302,64 @@ void Dungeon::generate()
 
     /*
     ## test dungeon ##
-      0    1    2    3
-    0 x    shop x    x
-    1 x    006  x    x
-    2 007  003  002  x
-    3 x    004  001  005
+      0    1    2    3    4
+    0 x    0    x    x    X
+    1 x    0    x    x    X
+    2 0    0    0    x    x
+    3 x    0    0    0    0
+    4 x    x    x    x    x
     */
     // coordinates are row, column
     // second argument is the directions of the doors, starting at the right and going counter clockwise
 
 #ifdef TEST_ROOM
-    currentDungeon->insertRoom(0, 0, Room{ loader.getTilemap("test_map_small"), 0b0000 }); // test dungeon
+    insertRoom(0, 0, Room{ game.loader.getTilemap("test_map_small"), 0b0000 }); // test dungeon
 #else
     insertRoom(3, 2, Room{ game.loader.getTilemap("dungeon001"), 0b1111 });
     insertRoom(2, 2, Room{ game.loader.getTilemap("dungeon002"), 0b0011 });
     insertRoom(2, 1, Room{ game.loader.getTilemap("dungeon003"), 0b1111 });
     insertRoom(3, 1, Room{ game.loader.getTilemap("dungeon004"), 0b1100 });
-    insertRoom(3, 3, Room{ game.loader.getTilemap("dungeon005"), 0b0010 });
+    insertRoom(3, 4, Room{ game.loader.getTilemap("dungeon005"), 0b0010 });
     insertRoom(1, 1, Room{ game.loader.getTilemap("dungeon006"), 0b0101 });
     insertRoom(2, 0, Room{ game.loader.getTilemap("dungeon007"), 0b1000 });
     insertRoom(0, 1, Room{ game.loader.getTilemap("dungeon_shop"), 0b0001 });
+    insertRoom(3, 3, Room{ game.loader.getTilemap("dungeon_2skelets_1010"), 0b1010 });
 
 #endif // TEST_ROOM
 
 #ifdef TEST_ROOM
     setStartingRoomIndex(0); // TODO: testing
 #else 
-    setStartingRoomIndex(14); // start in R1
-#endif // TEST_ROOM
-
-    // TODO: testing some items
+    setStartingRoomIndex(17); // start in R1
+    // TODO: testing item requirements
     std::vector<std::tuple<std::string, std::string, std::vector<std::string>>> edges = {
-        { "dungeon001", "dungeon002", { "key" }},
+        { "dungeon001", "dungeon002", { "__impossible__" }}, // should only be opened from the top
         { "dungeon002", "dungeon001", { "key" }},
         { "dungeon003", "dungeon006", { "key" }},
         { "dungeon004", "dungeon003", { "weapon_sword" }},
+        //{ "dungeon003", "dungeon007", { "lamp" }}, // TODO 
         { "dungeon006", "dungeon_shop", { "weapon_sword" }}
     };
     std::unordered_set<std::string> itemNodes = { "dungeon002", "dungeon005", "dungeon007" };
 
     WorldGraph G = buildGraphFromDungeon("dungeon001", edges, itemNodes);
-    G.initialize_items({ "key", "key", "weapon_sword" });
-    G.forward_fill();
+    int attempts = 0;
+    const int max_attempts = 100;
+
+    do {
+        G.initialize_items({ "key", "key", "weapon_sword" });
+        G.forward_fill();
+        attempts++;
+    } while (!G.item_pool.empty() && attempts < max_attempts);
+
+    if (!G.item_pool.empty()) {
+        throw std::runtime_error("Failed to place all items after 100 attempts");
+    }
 
     // put the items into the Tiled data
     for (const auto& [name, node] : G.nodes) {
         if (node->item.has_value()) {
-            TraceLog(LOG_INFO, "[%s] item: %s", name.c_str(), node->item->c_str());
+            TraceLog(LOG_INFO, "[%s] placed item: %s", name.c_str(), node->item->c_str());
             TileMap& roomData = rooms[node->id]->tilemap;
             std::vector<TileObject>& objects = roomData.getObjects();
             for (auto& obj : objects) {
@@ -358,6 +372,6 @@ void Dungeon::generate()
             }
         }
     }
-
     G.log_debug();
+#endif // TEST_ROOM
 }

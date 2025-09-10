@@ -199,6 +199,10 @@ void Preload::startup() {
         l.LoadtileMapFromTiled("./resources/tilemaps/dungeon006.json");
         l.LoadtileMapFromTiled("./resources/tilemaps/dungeon007.json");
         l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_shop.json");
+        l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_shop.json");
+        l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_shop.json");
+        l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_shop.json");
+        l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_2skelets_1010.json");
         });
     // load the font
     loadQueue.emplace("Loading fonts", [&]() {

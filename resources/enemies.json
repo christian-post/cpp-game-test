@@ -14,7 +14,7 @@
       "chaseTarget": "player"
     },
     "itemDrops": [
-      [ "coin", 0.3 ],
+      [ "coin", 0.4 ],
       [ "heart_drop", 0.2 ]
     ]
   },

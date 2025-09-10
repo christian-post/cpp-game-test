@@ -46,8 +46,7 @@ TileMap::TileMap(const nlohmann::json& jsonMap, std::string mapName)
                 if (prop["name"] == "music")
                     music = prop["value"];
                 else if (prop["name"] == "dark")
-                    dark = true;
-                //break;
+                    dark = prop["value"];
             }
         }
     }

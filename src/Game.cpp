@@ -18,11 +18,6 @@
 #include <cassert>
 
 
-
-// Debug flags (comment in/out)
-//#define TEST_ROOM
-
-
 Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this) {
     loader.loadSettings("./resources/settings.json");
     settings = &loader.getSettings();

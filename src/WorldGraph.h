@@ -32,7 +32,7 @@ class Node {
     // "item" corresponds to a key in ItemData. I might expand this to event triggers as well.
 public:
     std::string name;
-    size_t id; // corresponds to Room index
+    size_t id = 999; // corresponds to Room index
     bool isStart = false;
     bool isBoss = false;
     bool canHaveItem = false;

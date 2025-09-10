@@ -54,13 +54,6 @@ void InGame::startup() {
 
             nlohmann::json props = nlohmann::json::object();
 
-            /*props.push_back({
-                {"name", "spriteName"},
-                {"type", "string"},
-                {"value", sName},
-                });*/
-
-            //props.push_back({"roomState", 0});
             props["spriteName"] = sName;
             props["roomState"] = 0;
 
@@ -71,8 +64,8 @@ void InGame::startup() {
 
     }
     else {
-        // create a fresh dungeon
-        game.createDungeon(4, 4);
+        // generate a fresh dungeon
+        game.createDungeon(5, 4);
     }
     // retrieve the tilemap
     // and set the player's position in the first room

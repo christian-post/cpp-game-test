@@ -134,13 +134,15 @@ void HUD::draw() {
         auto& itemData = game.inventory.getItemData();
         auto& invItems = game.inventory.getItems();
         const ItemData& data = itemData.at(collectedItem);
-        const Texture2D& itemTex = game.loader.getTextures(data.textureKey)[0];
-        int itemX = weaponX + 24;
-        DrawTexture(itemTex, itemX, collectedItemY, WHITE);
         ItemType type = data.type;
-        uint32_t qty = invItems[type].at(collectedItem).second;
-        std::string qtyText = "x" + std::to_string(qty);
-        DrawText(qtyText.c_str(), itemX + 8, collectedItemY, 10, LIGHTGRAY);
+        if (data.type != IMMEDIATE) {
+            const Texture2D& itemTex = game.loader.getTextures(data.textureKey)[0];
+            int itemX = weaponX + 24;
+            DrawTexture(itemTex, itemX, collectedItemY, WHITE);
+            uint32_t qty = invItems[type].at(collectedItem).second;
+            std::string qtyText = "x" + std::to_string(qty);
+            DrawText(qtyText.c_str(), itemX + 8, collectedItemY, 10, LIGHTGRAY);
+        }
     }
     if (showCoinAmount) {
         // TODO get rid of repeated code

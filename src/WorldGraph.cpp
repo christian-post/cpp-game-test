@@ -22,10 +22,11 @@ std::shared_ptr<Node> WorldGraph::add_node(const std::string& name, const size_t
 	return node;
 }
 
-void WorldGraph::add_edge(const std::string& from,
+void WorldGraph::add_edge(
+    const std::string& from,
     const std::string& to,
-    const std::unordered_set<std::string>& requirements)
-{
+    const std::unordered_set<std::string>& requirements
+){
     auto from_it = nodes.find(from);
     auto to_it = nodes.find(to);
 
@@ -47,6 +48,9 @@ void WorldGraph::set_start(const std::string& name)
 
 void WorldGraph::initialize_items(const std::vector<std::string>& items)
 {
+    for (auto& [_, node] : nodes) {
+        node->item.reset();
+    }
     item_pool = items;
     std::shuffle(std::begin(item_pool), std::end(item_pool), rng);
     owned_items.clear();
@@ -149,17 +153,18 @@ std::unordered_set<std::shared_ptr<Node>> WorldGraph::getReachableNodes()
         const std::shared_ptr<Node>& node = queue.front();
 
         for (const auto& edge : node->edges) {
-            if (std::all_of(edge.requirements.begin(), edge.requirements.end(),
-                [&](const std::string& req) {
-                    return owned_items.count(req) > 0;
-                })) {
-                if (!visited.count(edge.target)) {
-                    queue.push_back(edge.target);
-                    visited.insert(edge.target);
+            bool all_requirements_met = true;
+            for (const auto& req : edge.requirements) {
+                if (owned_items.count(req) == 0) {
+                    all_requirements_met = false;
+                    break;
                 }
             }
+            if (all_requirements_met && visited.count(edge.target) == 0) {
+                queue.push_back(edge.target);
+                visited.insert(edge.target);
+            }
         }
-
         queue.pop_front();
     }
 
