@@ -28,6 +28,12 @@ Scenes
 
 
 ### refactor
+
+IMPORTANT:
+- load weapons.json data into weaponData structs in Preload
+- define item and weapon callbacks in ItemData.cpp
+
+NOT SO IMPORTANT:
 - add a "persistent" property to event listeners (non-persistent listeners are removed after one event)
 - Too much coupling between Game and Sprite?
 - should Game.walls be a vector of Wall objects? add a "collides" property?
@@ -35,7 +41,6 @@ Scenes
 - does it make sense for Behaviors to have a draw method, or can this be solved differently?
 - don't check event listeners for delayed events with callbacks
 - add a "unique" property to addListener that removes old listeners if they exist
-- posOffsetX and posOffsetY in weapons data currently unused
 - Weapon hurtbox should appear only a fraction of the weapon's lifetime
 - repeated events that go infinite
 - Error check for a wrong emitter texture key
@@ -45,16 +50,14 @@ Scenes
 - don't show the "<<" and ">>" help texts in the menu if there is no next screen to that side
 - add xbox button textures to the menu when using a gamepad
 - check for hard-coded display texts in code and move them to texts.json
-- does Sprite.jump() work as intended?
 - give the Signpost some collision
 - add a light cone to items that come from chests (if in a dark room) (or maybe draw them over the darkness layer?)
 - make Game.getPlayer() obsolete
 
-
 ### BUGS:
 - RandomWalkBehavior: choose new target after some time if the current target can't be reached
-- Cutscene trigger in Room001 after you get the sword isn't working any more.
-
+- Eqipping a different item when you hold a HOLD item crashes the game
+- Room transitions wrong on the y axis
 
 RELEASE CHECKLIST
 - turn on sounds and music

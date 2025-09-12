@@ -53,5 +53,16 @@
     "damage": 4,
     "lifetime": 0.6,
     "type": 3
+  },
+  "item_lamp": {
+    "posOffsetX": 8.0,
+    "posOffsetY": 0.0,
+    "HurtboxOffsetX": 0.0,
+    "HurtboxOffsetY": 0.0,
+    "HurtboxWidth": 1.0,
+    "HurtboxHeight": 1.0,
+    "damage": 0,
+    "lifetime": -1.0,
+    "type": 4
   }
 }

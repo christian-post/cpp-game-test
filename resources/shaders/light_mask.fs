@@ -16,7 +16,7 @@ void main() {
 
     for (int i = 0; i < u_lightCount; i++) {
         float dist = distance(fragCoord, u_centers[i]);
-        float falloff = max(u_radii[i] * 0.75, 1.0);
+        float falloff = max(u_radii[i] * 0.9, 1.0);
         float fade = smoothstep(u_radii[i], u_radii[i] - falloff, dist);
         alpha *= 1.0 - fade;
     }

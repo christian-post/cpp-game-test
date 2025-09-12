@@ -148,6 +148,65 @@ Sprite* InGame::getSprite(const std::string& name) {
     return nullptr;
 }
 
+void InGame::spawnWeapon()
+{
+    std::string weaponKey = *currentWeapon;
+    const auto& weaponJSON = game.loader.getSpriteData();
+
+    const auto& data = weaponJSON.contains(weaponKey)
+        ? weaponJSON.at(weaponKey)
+        : weaponJSON.at("weapon_default");
+
+    if (!weaponJSON.contains(weaponKey)) {
+        TraceLog(LOG_WARNING, "Missing weapon data for %s, falling back to weapon_default", weaponKey.c_str());
+    }
+
+    float offsetX = data.at("HurtboxOffsetX");
+    float offsetY = data.at("HurtboxOffsetY");
+
+    auto wpn = std::make_shared<Sprite>(
+        game, 0.0f, 0.0f, 16.0f, 16.0f, weaponKey
+    );
+
+    game.spriteMap[*currentWeapon] = wpn;
+    game.sprites.emplace_back(wpn);
+
+    wpn->setTextures({ weaponKey });
+    wpn->setHurtbox(-1.0f, -1.0f, data.at("HurtboxWidth"), data.at("HurtboxHeight"));
+    wpn->hurtboxOffset = { offsetX, offsetY };
+    wpn->doesAnimate = false;
+    wpn->isColliding = false;
+    wpn->damage = data.at("damage");
+
+    // TODO: create the weaponData in Preload once
+    weaponData wpnData = {};
+    wpnData.type = static_cast<weaponType>(data.at("type"));
+    wpnData.lifetime = data.at("lifetime");
+    wpnData.damage = data.at("damage");
+    wpnData.posOffsetX = data.at("posOffsetX");
+    wpnData.posOffsetY = data.at("posOffsetY");
+    wpnData.HurtboxOffsetX = data.at("HurtboxOffsetX");
+    wpnData.HurtboxOffsetY = data.at("HurtboxOffsetY");
+    wpnData.HurtboxWidth = data.at("HurtboxWidth");
+    wpnData.HurtboxHeight = data.at("HurtboxHeight");
+    wpnData.onCreate = [&]() {
+        lampIsOn = true;
+        };
+    wpnData.onDestroy = [&]() {
+        lampIsOn = false;
+        };
+
+    wpn->addBehavior(std::make_unique<WeaponBehavior>(game, wpn, player, wpnData));
+
+    game.eventManager.addListener(KILL_WEAPON, [this, wpn](std::any) {
+        game.spriteMap.erase(*currentWeapon);
+        wpn->markForDeletion();
+        game.eventManager.removeListeners(KILL_WEAPON);
+        });
+
+    game.playSound("slash");
+}
+
 void InGame::loadTilemap() {
     tileMap = game.currentDungeon->loadCurrentTileMap();
     // remove static and dynamic (non-persistent) sprites
@@ -268,55 +327,17 @@ void InGame::update(float deltaTime) {
     game.cutsceneManager.update(deltaTime);
     if (!game.cutsceneManager.isActive()) {
         player->getControls();
-        // testing a weapon
-        // TODO: needs to be in its own function
-        if (game.buttonsDown & CONTROL_ACTION2) {
+
+        // spawn a weapon if the action button is pressed
+        if ((game.buttonsPressed & CONTROL_ACTION2) && currentWeapon && !getSprite(*currentWeapon)) {
             // spawn the weapon next to the player if not already there
-            // TODO write a wrapper for this, or get weapon data from JSON file
-            // and bind the Keys to events maybe?
-            if (currentWeapon && !getSprite(*currentWeapon)) {
-                std::string weaponKey = *currentWeapon;
-                const auto& weaponData = game.loader.getSpriteData();
-
-                const auto& data = weaponData.contains(weaponKey)
-                    ? weaponData.at(weaponKey)
-                    : weaponData.at("weapon_default");
-
-                if (!weaponData.contains(weaponKey)) {
-                    TraceLog(LOG_WARNING, "Missing weapon data for %s, falling back to weapon_default", weaponKey.c_str());
-                }
-
-                float offsetX = data.at("HurtboxOffsetX");
-                float offsetY = data.at("HurtboxOffsetY");
-
-                auto wpn = std::make_shared<Sprite>(
-                    game, 0.0f, 0.0f, 16.0f, 16.0f, weaponKey
-                ); // hitbox doesn't really matter
-
-                game.spriteMap[*currentWeapon] = wpn;
-                game.sprites.emplace_back(wpn);
-
-                wpn->setTextures({ weaponKey });
-                wpn->setHurtbox(-1.0f, -1.0f, data.at("HurtboxWidth"), data.at("HurtboxHeight"));
-                wpn->hurtboxOffset = { offsetX, offsetY };
-                wpn->doesAnimate = false;
-                wpn->isColliding = false;
-                wpn->damage = data.at("damage");
-                weaponType type = static_cast<weaponType>(data.at("type"));
-                wpn->addBehavior(std::make_unique<WeaponBehavior>(game, wpn, player, data.at("lifetime"), type));
-
-                // add an event listener that removes the sword
-                // the "killWeapon" event is dispatched by WeaponBehavior once it's finished
-                game.eventManager.addListener(KILL_WEAPON, [this, wpn](std::any) {
-                    game.spriteMap.erase(*currentWeapon); // TODO: is this safe to do it here?
-                    wpn->markForDeletion();
-                    game.eventManager.removeListeners(KILL_WEAPON);
-                    });
-                game.playSound("slash");
-            }
+            // TODO: it needs to be inside of a delayed event because of the quirks of the button polling...
+            game.eventManager.pushDelayedEvent(UNNAMED, 0.0f, nullptr, [&]() {
+                spawnWeapon();
+                });
         }
+        // go to the inventory menu
         if (game.buttonsPressed & CONTROL_CONFIRM) {
-            // TODO: bind events to all the button functionality
             game.pauseScene(this->getName());
             game.startScene("InventoryUI");
             // TODO: make this a single-use event
@@ -326,6 +347,7 @@ void InGame::update(float deltaTime) {
                 });
             game.eventManager.pushEvent(SET_MUSIC_VOLUME, 0.3f);
         }
+        // "select" menu
         if (game.buttonsPressed & CONTROL_CANCEL) {
             game.pauseScene(this->getName());
             game.sleepScene("HUD");
@@ -347,7 +369,9 @@ void InGame::update(float deltaTime) {
     // animate always, regardless of cutscene
     // also handle lights
     size_t currentLightIndex = 0;
-    float lightRadius = 24.0f;
+    // draw a much bigger radius if the lamp is equipped
+    // TODO: put these in the config
+    const float lightRadius = (lampIsOn) ? 180.0f : 24.0f;
 
     for (int i = 0; i < MAX_LIGHTS; i++) {
         lights[i].active = false;

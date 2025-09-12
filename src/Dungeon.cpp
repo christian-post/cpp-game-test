@@ -4,7 +4,7 @@
 #include "WorldGraph.h"
 
 // Debug flags (comment in/out)
-//#define TEST_ROOM
+#define TEST_ROOM
 
 
 Dungeon::Dungeon(Game& game, size_t roomsW, size_t roomsH) : game{ game }, roomsW { roomsW }, roomsH{ roomsH }
@@ -303,11 +303,10 @@ void Dungeon::generate()
     /*
     ## test dungeon ##
       0    1    2    3    4
-    0 x    0    x    x    X
-    1 x    0    x    x    X
-    2 0    0    0    x    x
-    3 x    0    0    0    0
-    4 x    x    x    x    x
+    0 .    0    .    .    .
+    1 .    0    .    .    .
+    2 0    0    0    .    .
+    3 .    0    0    0    0
     */
     // coordinates are row, column
     // second argument is the directions of the doors, starting at the right and going counter clockwise
@@ -337,17 +336,17 @@ void Dungeon::generate()
         { "dungeon002", "dungeon001", { "key" }},
         { "dungeon003", "dungeon006", { "key" }},
         { "dungeon004", "dungeon003", { "weapon_sword" }},
-        //{ "dungeon003", "dungeon007", { "lamp" }}, // TODO 
+        { "dungeon003", "dungeon007", { "lamp" }}, // TODO 
         { "dungeon006", "dungeon_shop", { "weapon_sword" }}
     };
-    std::unordered_set<std::string> itemNodes = { "dungeon002", "dungeon005", "dungeon007" };
+    std::unordered_set<std::string> itemNodes = { "dungeon002", "dungeon005", "dungeon007", "dungeon_shop"};
 
     WorldGraph G = buildGraphFromDungeon("dungeon001", edges, itemNodes);
     int attempts = 0;
     const int max_attempts = 100;
 
     do {
-        G.initialize_items({ "key", "key", "weapon_sword" });
+        G.initialize_items({ "key", "key", "weapon_sword", "lamp"});
         G.forward_fill();
         attempts++;
     } while (!G.item_pool.empty() && attempts < max_attempts);

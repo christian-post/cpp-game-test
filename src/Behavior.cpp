@@ -12,6 +12,7 @@
 #include <cmath>
 #include <array>
 #include <vector>
+#include <limits>
 
 WatchBehavior::WatchBehavior(std::shared_ptr<Sprite> sprite, std::shared_ptr<Sprite> targetSprite)
     : self{ sprite }, target{ targetSprite } {
@@ -151,8 +152,14 @@ void ChaseBehavior::update(float deltaTime) {
     }
 }
 
-WeaponBehavior::WeaponBehavior(Game& game, std::shared_ptr<Sprite> sprite, std::shared_ptr<Sprite> ownerSprite, float lifetime, weaponType type)
-    : game{ game }, self{ sprite }, owner{ ownerSprite }, lifetime{ lifetime }, originalLifetime{ lifetime }, type{ type } {
+WeaponBehavior::WeaponBehavior(Game& game, std::shared_ptr<Sprite> sprite, std::shared_ptr<Sprite> ownerSprite, weaponData data)
+    : game{ game }, self{ sprite }, owner{ ownerSprite }, data{ data }, lifetime{ data.lifetime }, originalLifetime {
+    data.lifetime
+} {
+    // weaponds with lifetime == -1.0f stay indefinitely
+    if (lifetime == -1.0f)
+        lifetime = std::numeric_limits<float>::infinity();
+
     if (auto s = self.lock(), o = owner.lock(); s && o) {
         s->lastDirection = o->lastDirection;
         s->hurtboxOffset.x *= (s->lastDirection == LEFT) ? -1.0f : 1.0f;
@@ -168,12 +175,15 @@ void WeaponBehavior::update(float deltaTime) {
         if (lifetime < originalLifetime * -0.2f && !done) {
             s->game.eventManager.pushEvent(KILL_WEAPON, nullptr);
             done = true;
+            if (data.onDestroy)
+                data.onDestroy();
         }
-        s->position.x = o->position.x;
-        s->position.y = o->position.y - 8.0f + o->z; // factor in the z position
+        s->position.x = o->position.x + (data.posOffsetX * ((o->lastDirection == RIGHT) ? 1.0f : -1.0f));
+        s->position.y = o->position.y - 8.0f + o->z + data.posOffsetY; // factor in the z position
         float progress = 1.0f - (lifetime / originalLifetime);
-        if (lifetime < 0.0f) return;
-        switch (type) {
+        if (lifetime < 0.0f) 
+            return;
+        switch (data.type) {
             case SWING:
                 s->rotationAngle = (s->lastDirection == RIGHT) ? 180.0f * progress : -180.0f * progress;
                 break;
@@ -194,7 +204,7 @@ void WeaponBehavior::update(float deltaTime) {
             case POKE:
             {
                 float offset = std::sin(progress * 3.14159f) * 10.0f;
-                if (s->lastDirection == RIGHT) {
+                if (o->lastDirection == RIGHT) {
                     s->position.x += offset;
                     s->rotationAngle = 90;
                 }
@@ -204,6 +214,18 @@ void WeaponBehavior::update(float deltaTime) {
                 }
                 break;
             }
+            case HOLD:
+                // weapon disappears when the button is pressed again
+                if (game.buttonsPressed & CONTROL_ACTION2) {
+                    lifetime = 0.0f;
+                }
+                if (!switchedOn) {
+                    // execute callback once
+                    if (data.onCreate)
+                        data.onCreate();
+                    switchedOn = true;
+                }
+                break;
             default:
                 break;
         }

@@ -394,6 +394,23 @@
                  "width":16,
                  "x":208,
                  "y":176
+                }, 
+                {
+                 "height":16,
+                 "id":23,
+                 "name":"chest",
+                 "properties":[
+                        {
+                         "name":"spriteName",
+                         "type":"string",
+                         "value":"chest"
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":16,
+                 "x":176,
+                 "y":176
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -402,7 +419,7 @@
          "y":0
         }],
  "nextlayerid":7,
- "nextobjectid":23,
+ "nextobjectid":24,
  "orientation":"orthogonal",
  "properties":[
         {

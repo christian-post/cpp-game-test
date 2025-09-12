@@ -12,6 +12,7 @@ std::map<std::string, ItemData> createItemData() {
     data["weapon_mace"] = ItemData{ WEAPON, "Mace", "weapon_mace" };
     data["weapon_spear"] = ItemData{ WEAPON, "Spear", "weapon_spear" };
     data["weapon_baton_with_spikes"] = ItemData{ WEAPON, "Spiked Baton", "weapon_baton_with_spikes" };
+    data["lamp"] = ItemData{ WEAPON, "Lamp", "item_lamp" },
     data["red_potion"] = ItemData{ CONSUMABLE, "Red Potion", "flask_big_red" };
     data["green_potion"] = ItemData{ CONSUMABLE, "Green Potion", "flask_big_green" };
     data["blue_potion"] = ItemData{ CONSUMABLE, "Blue Potion", "flask_big_blue" };

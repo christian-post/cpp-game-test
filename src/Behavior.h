@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 #include "json.hpp"
+#include <functional>
 
 class Game;
 class Sprite;
@@ -21,7 +22,24 @@ enum weaponType {
     SWING = 0,
     POKE = 1,
     SHOOT = 2,
-    WHACK = 3
+    WHACK = 3,
+    HOLD = 4
+};
+
+struct weaponData {
+    // encapsulates the data from weapons.json
+    weaponType type;
+    uint32_t damage;
+    float posOffsetX;
+    float posOffsetY;
+    float HurtboxOffsetX;
+    float HurtboxOffsetY;
+    float HurtboxWidth;
+    float HurtboxHeight;
+    float lifetime;
+    // optional callbacks
+    std::function<void()> onCreate;
+    std::function<void()> onDestroy;
 };
 
 struct shootingConfig {
@@ -102,17 +120,18 @@ private:
 
 class WeaponBehavior : public Behavior {
 public:
-    WeaponBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> owner, float lifetime, weaponType type);
+    WeaponBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> owner, weaponData data);
     void update(float deltaTime) override;
 
 private:
     Game& game;
     std::weak_ptr<Sprite> self;
     std::weak_ptr<Sprite> owner;
+    weaponData data;
     float lifetime;
     float originalLifetime;
-    weaponType type;
-    bool shaken = false;
+    bool switchedOn = false; // for weapons that can be turned on/off
+    bool shaken = false; // for weapons that cause a screen shake
 };
 
 class DeathBehavior : public Behavior {

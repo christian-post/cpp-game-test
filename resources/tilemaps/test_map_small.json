@@ -231,7 +231,7 @@
                         {
                          "name":"item",
                          "type":"string",
-                         "value":"weapon_double_axe"
+                         "value":"lamp"
                         }, 
                         {
                          "name":"roomState",
@@ -248,6 +248,38 @@
                  "visible":true,
                  "width":16,
                  "x":128,
+                 "y":64
+                }, 
+                {
+                 "height":16,
+                 "id":26,
+                 "name":"chest",
+                 "properties":[
+                        {
+                         "name":"amount",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"item",
+                         "type":"string",
+                         "value":"weapon_sword"
+                        }, 
+                        {
+                         "name":"roomState",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"spriteName",
+                         "type":"string",
+                         "value":"chest"
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":16,
+                 "x":96,
                  "y":64
                 }],
          "opacity":1,
@@ -327,8 +359,14 @@
          "y":0
         }],
  "nextlayerid":5,
- "nextobjectid":26,
+ "nextobjectid":27,
  "orientation":"orthogonal",
+ "properties":[
+        {
+         "name":"dark",
+         "type":"bool",
+         "value":true
+        }],
  "renderorder":"right-down",
  "tiledversion":"1.11.2",
  "tileheight":16,

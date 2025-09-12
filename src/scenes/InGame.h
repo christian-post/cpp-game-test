@@ -44,7 +44,11 @@ public:
     };
     static const int lightCount = MAX_LIGHTS;
 
+    bool lampIsOn = false; // dark rooms become lit up when the player equips the lamp
+
 private:
+    void spawnWeapon();
+
     size_t worldWidth;
     size_t worldHeight;
     size_t tileChunkSize = 256; // limit the size of the textures that hold the tilemap layers
