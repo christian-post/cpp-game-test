@@ -129,8 +129,6 @@ void InventoryUI::update(float deltaTime) {
 
         if (game.buttonsPressed & CONTROL_ACTION1) {
             // choose the appropriate action for the selected item
-
-            // TODO don't use the texture key?
             const auto* selected = flatItems[index];
             if (selected->first->type == WEAPON) {
                 game.eventManager.pushEvent(WEAPON_SET, std::pair<std::string, size_t>(selected->first->textureKey, 0));

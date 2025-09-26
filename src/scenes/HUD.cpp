@@ -25,6 +25,10 @@ HUD::HUD(Game& game, const std::string& name) : Scene(game, name), heartImages{}
     game.eventManager.addListener(WEAPON_SET, [this](std::any data) {
         auto [weapon, idx] = std::any_cast<std::pair<std::string, size_t>>(data);
         equippedWeapons[idx] = weapon;
+        // unequip if the same weapon happens to be in the other slot
+        if (equippedWeapons[(idx + 1) % 2] == weapon) {
+            equippedWeapons[(idx + 1) % 2] = "";
+        }
         TraceLog(LOG_INFO, "player equipped the %s in slot %d", weapon.c_str(), idx);
         });
 
@@ -113,7 +117,6 @@ void HUD::draw() {
             DrawTexture(wpnTex, weaponX - wpnTex.width / 2, weaponY - wpnTex.height / 2, WHITE);
         }
     }
-
 
     // draw the mini map
     auto [cols, rows] = game.currentDungeon->getSize();

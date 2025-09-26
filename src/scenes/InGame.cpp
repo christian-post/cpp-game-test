@@ -115,6 +115,10 @@ void InGame::startup() {
             auto [weapon, index] = std::any_cast<std::pair<std::string, size_t>>(data);
             if (index < currentWeapon.size()) {
                 currentWeapon[index] = weapon.empty() ? std::nullopt : std::optional<std::string>{ weapon };
+                // unequip if the same weapon happens to be in the other slot
+                if (currentWeapon[(index + 1) % 2] == weapon) {
+                    currentWeapon[(index + 1) % 2] = std::nullopt;
+                }
             }
         }
         else {
