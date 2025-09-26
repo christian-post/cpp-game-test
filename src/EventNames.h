@@ -27,6 +27,8 @@ enum EventName {
     INVENTORY_DONE,
     SELECT_MENU_DONE,
     LOADING_SAVEGAME_SUCCESS,
+    LAMP_ON,
+    LAMP_OFF,
     UNNAMED, // used whenever no name is needed (delayed or repeated events that have no listeners)
     STATIC_EVENT_COUNT // needs to be at the last position
 };
@@ -35,6 +37,7 @@ enum EventName {
 class EventKeyRegistry {
     // allows for event strings (from JSON data) to be registered as EventNames
     // TODO: call it either "EventName" or "EventKey" consistently...
+    // TODO: idk if I can avoid using strings altogether...
 public:
     static int getEventKey(const std::string& name) {
         auto& map = nameToId();
@@ -47,6 +50,21 @@ public:
         return id;
     }
 
+    static int getIndexedEventKey(EventName base, int index) {
+        std::string key = std::to_string(base) + "_" + std::to_string(index);
+        auto& map = nameToId();
+        auto it = map.find(key);
+        if (it != map.end())
+            return it->second;
+
+        int id = nextId++;
+        map[key] = id;
+        return id;
+    }
+
+    static int getNewKey() {
+        return nextId++;
+    }
 private:
     static std::unordered_map<std::string, int>& nameToId() {
         static std::unordered_map<std::string, int> map;

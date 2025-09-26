@@ -152,10 +152,10 @@ void ChaseBehavior::update(float deltaTime) {
     }
 }
 
-WeaponBehavior::WeaponBehavior(Game& game, std::shared_ptr<Sprite> sprite, std::shared_ptr<Sprite> ownerSprite, weaponData data)
+WeaponBehavior::WeaponBehavior(Game& game, std::shared_ptr<Sprite> sprite, std::shared_ptr<Sprite> ownerSprite, weaponData data, size_t slot)
     : game{ game }, self{ sprite }, owner{ ownerSprite }, data{ data }, lifetime{ data.lifetime }, originalLifetime {
-    data.lifetime
-} {
+    data.lifetime }, slot{ slot } 
+{
     // weaponds with lifetime == -1.0f stay indefinitely
     if (lifetime == -1.0f)
         lifetime = std::numeric_limits<float>::infinity();
@@ -168,15 +168,19 @@ WeaponBehavior::WeaponBehavior(Game& game, std::shared_ptr<Sprite> sprite, std::
     }
 }
 
+// define the keys to activate the weapon slots
+const int WeaponBehavior::controlBindings[2] = { CONTROL_ACTION2, CONTROL_ACTION4 };
+
 void WeaponBehavior::update(float deltaTime) {
     if (auto s = self.lock(), o = owner.lock(); s && o) {
         lifetime -= deltaTime;
         // show the weapon sprite for a split second longer than the lifetime
         if (lifetime < originalLifetime * -0.2f && !done) {
-            s->game.eventManager.pushEvent(KILL_WEAPON, nullptr);
+            int eventKey = EventKeyRegistry::getIndexedEventKey(KILL_WEAPON, slot);
+            s->game.eventManager.pushEvent(eventKey);
             done = true;
             if (data.onDestroy)
-                data.onDestroy();
+                data.onDestroy(); // callback when weapon is done
         }
         s->position.x = o->position.x + (data.posOffsetX * ((o->lastDirection == RIGHT) ? 1.0f : -1.0f));
         s->position.y = o->position.y - 8.0f + o->z + data.posOffsetY; // factor in the z position
@@ -216,9 +220,10 @@ void WeaponBehavior::update(float deltaTime) {
             }
             case HOLD:
                 // weapon disappears when the button is pressed again
-                if (game.buttonsPressed & CONTROL_ACTION2) {
+                if (game.buttonsPressed & controlBindings[slot]) {
                     lifetime = 0.0f;
                 }
+
                 if (!switchedOn) {
                     // execute callback once
                     if (data.onCreate)
@@ -301,7 +306,7 @@ void CollectItemBehavior::update(float deltaTime) {
                     // add the item to the inventory if it isn't used immediately
                     // (the IMMEDIATE) case is handled within the ADD_ITEM listener because that's when the type is exposed
                     game.eventManager.pushEvent(ADD_ITEM, std::make_any<std::pair<std::string, uint32_t>>(name, amount));
-                    game.playSound("rupee"); // TODO get sound key from data
+                    game.playSound("rupee"); // TODO get the correct sound key from data
                     game.eventManager.pushEvent(ITEM_ADDED, name);
                     state++;
                 }

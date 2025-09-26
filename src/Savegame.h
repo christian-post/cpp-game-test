@@ -21,7 +21,7 @@ struct SaveGame {
     // all the data that should be saved between games
     uint32_t playerHealth = 3;
     uint32_t playerMaxHealth = 3;
-    std::string currentWeapon;
+    std::array<std::string, 2> currentWeapons;
     std::vector<std::string> spritesFollowingPlayer; // save keys for sprites that follow the player (might be more than one idk)
     std::vector<std::pair<std::string, uint32_t>> items; // <key, amount>; strings correspond to keys in ItemData.cpp
     // TODO: create a data structure that allows for multiple dungeons

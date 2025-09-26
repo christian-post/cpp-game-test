@@ -23,9 +23,9 @@ HUD::HUD(Game& game, const std::string& name) : Scene(game, name), heartImages{}
         });
 
     game.eventManager.addListener(WEAPON_SET, [this](std::any data) {
-        std::string weapon = std::any_cast<std::string>(data);
-        equippedWeapon = std::any_cast<std::string>(data);
-        TraceLog(LOG_INFO, "player equipped the %s", equippedWeapon.c_str());
+        auto [weapon, idx] = std::any_cast<std::pair<std::string, size_t>>(data);
+        equippedWeapons[idx] = weapon;
+        TraceLog(LOG_INFO, "player equipped the %s in slot %d", weapon.c_str(), idx);
         });
 
     game.eventManager.addListener(ITEM_ADDED, [this](std::any data) {
@@ -97,20 +97,27 @@ void HUD::draw() {
             hp -= 2;
         }
     }
-    // draw the currently equipped weapon on a background texture frame
-    int weaponX = int(x) + int(game.gameScreenWidth * 2 / 3);
-    int weaponY = int(y) + 16;
+    // draw the currently equipped weapons on a background texture frame
     const auto& frameTex = game.loader.getTextures("inventory_item_frame")[0];
-    DrawTexture(frameTex, weaponX - frameTex.width / 2, weaponY - frameTex.height / 2, WHITE);
-    auto& textures = game.loader.getTextures(equippedWeapon);
-    if (!textures.empty()) {
-        const auto& wpnTex = textures[0];
-        DrawTexture(wpnTex, weaponX - wpnTex.width / 2, weaponY - wpnTex.height / 2, WHITE);        
+    const size_t weaponSlotMargin = static_cast<size_t>(frameTex.width) + 8;
+    int weaponX = int(x) + int(static_cast<float>(game.gameScreenWidth) * 0.6); // TODO calculate this once instead of every frame
+    const int weaponY = int(y) + 16;
+    for (size_t slot = 0; slot < 2; slot++) {
+        // draw background
+        weaponX += int(slot * weaponSlotMargin);
+        DrawTexture(frameTex, weaponX - frameTex.width / 2, weaponY - frameTex.height / 2, WHITE);
+        // draw weapon
+        auto& textures = game.loader.getTextures(equippedWeapons[slot]);
+        if (!textures.empty()) {
+            const auto& wpnTex = textures[0];
+            DrawTexture(wpnTex, weaponX - wpnTex.width / 2, weaponY - wpnTex.height / 2, WHITE);
+        }
     }
+
 
     // draw the mini map
     auto [cols, rows] = game.currentDungeon->getSize();
-    size_t currentRoomIndex = game.currentDungeon->getCurrentRoomIndex();
+    const size_t currentRoomIndex = game.currentDungeon->getCurrentRoomIndex();
     const int spacing = 1;
     const int cellWidth = 6;
     const int cellHeight = 4;
@@ -129,7 +136,6 @@ void HUD::draw() {
     }
 
     // whenever a collectable item is picked up
-    // TODO this break when it's not a coin
     if (showCollectedItem) {
         auto& itemData = game.inventory.getItemData();
         auto& invItems = game.inventory.getItems();

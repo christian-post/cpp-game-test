@@ -26,7 +26,7 @@ public:
     Camera2D camera = {};
     CameraShake cameraShake;
     std::shared_ptr<Sprite> player;  // keep a player variable for direct frequent access
-    std::optional<std::string> currentWeapon = std::nullopt;
+    std::array<std::optional<std::string>, 2> currentWeapon = { std::nullopt, std::nullopt };
     // light effects
     // TODO: these need to be dynamic and shouldn't be hard-coded here.
     // > use a vector instead
@@ -47,7 +47,7 @@ public:
     bool lampIsOn = false; // dark rooms become lit up when the player equips the lamp
 
 private:
-    void spawnWeapon();
+    void spawnWeapon(size_t index);
 
     size_t worldWidth;
     size_t worldHeight;

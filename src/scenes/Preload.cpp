@@ -300,6 +300,10 @@ void Preload::draw() {
 
 void Preload::end() {
     game.loader.postprocessSpriteData(); // for the JSON sprite data
+
+    // process item data
+    game.inventory.initialize();
+
     // wait a split second, just in case
     WaitTime(0.25f);
 }

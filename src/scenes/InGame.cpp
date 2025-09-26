@@ -31,8 +31,9 @@ void InGame::startup() {
             for (const auto& itemPair : saveData->items) {
                 this->game.eventManager.pushEvent(ADD_ITEM, std::make_any<std::pair<std::string, uint32_t>>(itemPair.first, itemPair.second));
             }
-            // equip the weapon
-            this->game.eventManager.pushEvent(WEAPON_SET, saveData->currentWeapon);
+            // equip the weapons
+            this->game.eventManager.pushEvent(WEAPON_SET, std::make_pair(saveData->currentWeapons[0], 0));
+            this->game.eventManager.pushEvent(WEAPON_SET, std::make_pair(saveData->currentWeapons[1], 1));
             });
         game.currentDungeon = loadDungeon(*saveData, game);
 
@@ -111,14 +112,26 @@ void InGame::startup() {
     // event listener that changes the current weapon key
     game.eventManager.addListener(WEAPON_SET, [this](const std::any& data) {
         if (data.has_value()) {
-            std::string weapon = std::any_cast<std::string>(data);
-            currentWeapon = weapon.empty() ? std::nullopt : std::optional<std::string>{ weapon };
+            auto [weapon, index] = std::any_cast<std::pair<std::string, size_t>>(data);
+            if (index < currentWeapon.size()) {
+                currentWeapon[index] = weapon.empty() ? std::nullopt : std::optional<std::string>{ weapon };
+            }
         }
         else {
-            // event allows for removal of the weapon
-            currentWeapon = std::nullopt;
+            // Removal of weapon
+            for (auto& w : currentWeapon) w = std::nullopt;
         }
         });
+
+    // handles switching the lamp on/off
+    game.eventManager.addListener(LAMP_ON, [this](const std::any& data) {
+        lampIsOn = true;
+        });
+
+    game.eventManager.addListener(LAMP_OFF, [this](const std::any& data) {
+        lampIsOn = false;
+        });
+
 
     game.eventManager.addListener(SCREEN_SHAKE, [this](std::any value) {
         if (value.has_value() && value.type() == typeid(std::tuple<float, float, float>)) {
@@ -129,15 +142,6 @@ void InGame::startup() {
 
     // ##### Events that progress the game ####
     setupConditionalEvents(*this);
-
-    // TODO: adding some items for testing
-    game.eventManager.pushDelayedEvent(UNNAMED, 0.1f, nullptr, [this]() {
-        // give the player the sword for starters
-        //game.eventManager.pushEvent(ADD_ITEM, std::make_any<std::pair<std::string, uint32_t>>("heart_1up", 99));
-        //game.eventManager.pushEvent(ADD_ITEM, std::make_any<std::pair<std::string, uint32_t>>("key", 99));
-        //game.eventManager.pushEvent(ADD_ITEM, std::make_any<std::pair<std::string, uint32_t>>("weapon_hammer", 1));
-        //game.eventManager.pushEvent(WEAPON_SET, std::string("weapon_hammer"));
-        });
 }
 
 Sprite* InGame::getSprite(const std::string& name) {
@@ -148,60 +152,47 @@ Sprite* InGame::getSprite(const std::string& name) {
     return nullptr;
 }
 
-void InGame::spawnWeapon()
+void InGame::spawnWeapon(size_t index)
 {
-    std::string weaponKey = *currentWeapon;
-    const auto& weaponJSON = game.loader.getSpriteData();
-
-    const auto& data = weaponJSON.contains(weaponKey)
-        ? weaponJSON.at(weaponKey)
-        : weaponJSON.at("weapon_default");
-
-    if (!weaponJSON.contains(weaponKey)) {
-        TraceLog(LOG_WARNING, "Missing weapon data for %s, falling back to weapon_default", weaponKey.c_str());
+    if (index >= currentWeapon.size() || !currentWeapon[index]) {
+        TraceLog(LOG_WARNING, "No weapon equipped in slot %zu", index);
+        return;
     }
 
-    float offsetX = data.at("HurtboxOffsetX");
-    float offsetY = data.at("HurtboxOffsetY");
+    std::string weaponKey = *currentWeapon[index];
 
+    // Get pre-built item data
+    auto& itemData = game.inventory.getItemData();
+    auto it = itemData.find(weaponKey);
+    if (it == itemData.end() || !it->second.weaponBehavior.has_value()) {
+        TraceLog(LOG_WARNING, "Invalid weapon in slot %zu: %s", index, weaponKey.c_str());
+        return;
+    }
+
+    const weaponData& wpnData = *it->second.weaponBehavior;
+
+    // Create sprite with pre-computed data
     auto wpn = std::make_shared<Sprite>(
         game, 0.0f, 0.0f, 16.0f, 16.0f, weaponKey
     );
-
-    game.spriteMap[*currentWeapon] = wpn;
+    game.spriteMap[weaponKey] = wpn;
     game.sprites.emplace_back(wpn);
 
     wpn->setTextures({ weaponKey });
-    wpn->setHurtbox(-1.0f, -1.0f, data.at("HurtboxWidth"), data.at("HurtboxHeight"));
-    wpn->hurtboxOffset = { offsetX, offsetY };
+    wpn->setHurtbox(-1.0f, -1.0f, wpnData.HurtboxWidth, wpnData.HurtboxHeight);
+    wpn->hurtboxOffset = { wpnData.HurtboxOffsetX, wpnData.HurtboxOffsetY };
     wpn->doesAnimate = false;
     wpn->isColliding = false;
-    wpn->damage = data.at("damage");
+    wpn->damage = wpnData.damage;
 
-    // TODO: create the weaponData in Preload once
-    weaponData wpnData = {};
-    wpnData.type = static_cast<weaponType>(data.at("type"));
-    wpnData.lifetime = data.at("lifetime");
-    wpnData.damage = data.at("damage");
-    wpnData.posOffsetX = data.at("posOffsetX");
-    wpnData.posOffsetY = data.at("posOffsetY");
-    wpnData.HurtboxOffsetX = data.at("HurtboxOffsetX");
-    wpnData.HurtboxOffsetY = data.at("HurtboxOffsetY");
-    wpnData.HurtboxWidth = data.at("HurtboxWidth");
-    wpnData.HurtboxHeight = data.at("HurtboxHeight");
-    wpnData.onCreate = [&]() {
-        lampIsOn = true;
-        };
-    wpnData.onDestroy = [&]() {
-        lampIsOn = false;
-        };
+    wpn->addBehavior(std::make_unique<WeaponBehavior>(game, wpn, player, wpnData, index));
 
-    wpn->addBehavior(std::make_unique<WeaponBehavior>(game, wpn, player, wpnData));
-
-    game.eventManager.addListener(KILL_WEAPON, [this, wpn](std::any) {
-        game.spriteMap.erase(*currentWeapon);
+    // create a listener for when the weapon is finished
+    int eventKey = EventKeyRegistry::getIndexedEventKey(KILL_WEAPON, index);
+    game.eventManager.addListener(eventKey, [this, wpn, index, eventKey](std::any data) {
+        game.spriteMap.erase(*currentWeapon[index]);
         wpn->markForDeletion();
-        game.eventManager.removeListeners(KILL_WEAPON);
+        game.eventManager.removeListeners(eventKey);
         });
 
     game.playSound("slash");
@@ -329,13 +320,21 @@ void InGame::update(float deltaTime) {
         player->getControls();
 
         // spawn a weapon if the action button is pressed
-        if ((game.buttonsPressed & CONTROL_ACTION2) && currentWeapon && !getSprite(*currentWeapon)) {
+        // primary weapon
+        if ((game.buttonsPressed & CONTROL_ACTION2) && currentWeapon[0] && !getSprite(*currentWeapon[0])) {
             // spawn the weapon next to the player if not already there
             // TODO: it needs to be inside of a delayed event because of the quirks of the button polling...
             game.eventManager.pushDelayedEvent(UNNAMED, 0.0f, nullptr, [&]() {
-                spawnWeapon();
+                spawnWeapon(0);
                 });
         }
+        // secondary weapon
+        if ((game.buttonsPressed & CONTROL_ACTION4) && currentWeapon[1] && !getSprite(*currentWeapon[1])) {
+            game.eventManager.pushDelayedEvent(UNNAMED, 0.0f, nullptr, [&]() {
+                spawnWeapon(1);
+                });
+        }
+
         // go to the inventory menu
         if (game.buttonsPressed & CONTROL_CONFIRM) {
             game.pauseScene(this->getName());
@@ -434,14 +433,16 @@ void InGame::update(float deltaTime) {
 
         // weapon damage
         // everything that can hurt the player can also be damaged
-        if (sprite->isEnemy && currentWeapon.has_value()) {
-            Sprite* weapon = getSprite(*currentWeapon);
-            if (weapon && sprite->iFrameTimer < 0.001f && sprite->health > 0 &&
-                CheckCollisionRecs(weapon->hurtbox, sprite->rect)) {
-                sprite->health = (weapon->damage > sprite->health) ? 0 : sprite->health - weapon->damage;
-                sprite->iFrameTimer = 0.5f;
-                applyKnockback(*weapon, *sprite, 8.0f);
-                game.playSound("creature_hurt_02");
+        for (size_t wpnIdx = 0; wpnIdx < 2; wpnIdx++) {
+            if (sprite->isEnemy && currentWeapon[wpnIdx].has_value()) {
+                Sprite* weapon = getSprite(*currentWeapon[wpnIdx]);
+                if (weapon && sprite->iFrameTimer < 0.001f && sprite->health > 0 &&
+                    CheckCollisionRecs(weapon->hurtbox, sprite->rect)) {
+                    sprite->health = (weapon->damage > sprite->health) ? 0 : sprite->health - weapon->damage;
+                    sprite->iFrameTimer = 0.5f;
+                    applyKnockback(*weapon, *sprite, 8.0f);
+                    game.playSound("creature_hurt_02");
+                }
             }
         }
     }
@@ -477,7 +478,7 @@ void InGame::update(float deltaTime) {
     // check player out of map bounds
     // TODO: make a function for this
     int8_t offset = 0;
-    auto [_, cols] = game.currentDungeon->getSize();
+    auto [cols, _] = game.currentDungeon->getSize();
     if (player->rect.x < 0.0f) {
         offset = -1;
         player->moveTo(worldWidth - player->rect.width * 1.5f, player->position.y);
@@ -495,6 +496,7 @@ void InGame::update(float deltaTime) {
         player->moveTo(player->position.x, player->rect.height * 0.5f);
     }
     if (offset != 0) {
+        // load the new room
         size_t newIndex = (uint8_t)game.currentDungeon->getCurrentRoomIndex() + offset;
         game.currentDungeon->setCurrentRoomIndex(newIndex);
         loadTilemap();

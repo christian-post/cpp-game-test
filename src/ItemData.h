@@ -2,6 +2,10 @@
 #include <string>
 #include <map>
 #include <functional>
+#include <optional>
+#include "Behavior.h"
+
+class Game;
 
 enum ItemType {
     CONSUMABLE,
@@ -13,11 +17,12 @@ enum ItemType {
 };
 
 struct ItemData {
-    //std::string key;
     ItemType type;
     std::string displayName;
     std::string textureKey;
     std::function<bool()> onConsume = nullptr;
+    // Weapon-specific data (optional - only used for weapons)
+    std::optional<weaponData> weaponBehavior = std::nullopt;
 };
 
-std::map<std::string, ItemData> createItemData();
+std::map<std::string, ItemData> createItemData(Game& game);

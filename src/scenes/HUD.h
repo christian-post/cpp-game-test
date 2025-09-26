@@ -1,9 +1,10 @@
 #pragma once
-
 #include "Scene.h"
 #include <iostream>
 #include "raylib.h"
 #include <vector>
+#include <array>
+
 
 class HUD : public Scene {
 public:
@@ -22,7 +23,7 @@ private:
     float height = 0.0f; // get from game settings
     float width = 0.0f;
 
-    std::string equippedWeapon;
+    std::array<std::string, 2> equippedWeapons;
     // feature that display a collected item briefly
     bool showCollectedItem = false;
     int collectedItemY = 0;

@@ -133,8 +133,10 @@ void Game::save(std::string& filename)
     save.playerHealth = std::max(static_cast<uint32_t>(6), getPlayer()->health); // ensure the player always starts with at least 3 hearts
     InGame* inGame = dynamic_cast<InGame*>(getScene("InGame"));
     assert(inGame && "InGame scene not accessible");
-    if (inGame->currentWeapon)
-        save.currentWeapon = *inGame->currentWeapon;
+    if (inGame->currentWeapon[0])
+        save.currentWeapons[0] = *inGame->currentWeapon[0];
+    if (inGame->currentWeapon[1])
+        save.currentWeapons[1] = *inGame->currentWeapon[1];
 
     for (auto& sprite : sprites) {
         // check if a sprite follows the player.

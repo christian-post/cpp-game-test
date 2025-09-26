@@ -6,7 +6,7 @@ nlohmann::json writeDataToJSON(const SaveGame& saveGame)
     nlohmann::json jsonOutput;
     jsonOutput["playerMaxHealth"] = saveGame.playerMaxHealth;
     jsonOutput["playerHealth"] = saveGame.playerHealth;
-    jsonOutput["currentWeapon"] = saveGame.currentWeapon;
+    jsonOutput["currentWeapons"] = saveGame.currentWeapons;
     jsonOutput["spritesFollowingPlayer"] = saveGame.spritesFollowingPlayer;
 
     for (const auto& itemPair : saveGame.items) {
@@ -48,7 +48,7 @@ SaveGame readSaveDataFromJSON(const nlohmann::json& jsonInput)
     SaveGame saveGame;
     saveGame.playerMaxHealth = jsonInput.at("playerMaxHealth").get<uint32_t>();
     saveGame.playerHealth = jsonInput.at("playerHealth").get<uint32_t>();
-    saveGame.currentWeapon = jsonInput.at("currentWeapon").get<std::string>();
+    saveGame.currentWeapons = jsonInput.at("currentWeapons").get<std::array<std::string, 2>>();
     if (jsonInput.contains("spritesFollowingPlayer")) {
         for (const auto& spriteName : jsonInput.at("spritesFollowingPlayer").get<std::vector<std::string>>()) {
             saveGame.spritesFollowingPlayer.emplace_back(spriteName);

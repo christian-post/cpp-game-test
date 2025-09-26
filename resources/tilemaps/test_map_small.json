@@ -231,7 +231,7 @@
                         {
                          "name":"item",
                          "type":"string",
-                         "value":"lamp"
+                         "value":"item_lamp"
                         }, 
                         {
                          "name":"roomState",

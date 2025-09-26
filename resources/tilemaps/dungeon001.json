@@ -312,6 +312,33 @@
                  "width":16,
                  "x":32,
                  "y":64
+                }, 
+                {
+                 "height":16,
+                 "id":34,
+                 "name":"chest",
+                 "properties":[
+                        {
+                         "name":"amount",
+                         "type":"int",
+                         "value":99
+                        }, 
+                        {
+                         "name":"item",
+                         "type":"string",
+                         "value":"key"
+                        }, 
+                        {
+                         "name":"spriteName",
+                         "type":"string",
+                         "value":"chest"
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":16,
+                 "x":80,
+                 "y":176
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -504,20 +531,19 @@
          "y":0
         }],
  "nextlayerid":7,
- "nextobjectid":34,
+ "nextobjectid":35,
  "orientation":"orthogonal",
-  "properties": [
-    {
-      "name": "music",
-      "type": "string",
-      "value": "dungeon01"
-    },
-      {
-        "name": "dark",
-        "type": "bool",
-        "value": false
-      }
-  ],
+ "properties":[
+        {
+         "name":"dark",
+         "type":"bool",
+         "value":false
+        }, 
+        {
+         "name":"music",
+         "type":"string",
+         "value":"dungeon01"
+        }],
  "renderorder":"right-down",
  "tiledversion":"1.11.2",
  "tileheight":16,

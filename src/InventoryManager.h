@@ -14,6 +14,8 @@ using InventoryItem = std::pair<const ItemData*, uint32_t>; // second item of pa
 class InventoryManager {
 public:
     InventoryManager(Game& game);
+    void initialize();
+
     const std::array<std::map<std::string, InventoryItem>, NUM_ITEM_TYPES>& getItems() const {
         return items;
     }

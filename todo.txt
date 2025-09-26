@@ -57,7 +57,7 @@ NOT SO IMPORTANT:
 ### BUGS:
 - RandomWalkBehavior: choose new target after some time if the current target can't be reached
 - Eqipping a different item when you hold a HOLD item crashes the game
-- Room transitions wrong on the y axis
+- chest contain coins after loading a save
 
 RELEASE CHECKLIST
 - turn on sounds and music

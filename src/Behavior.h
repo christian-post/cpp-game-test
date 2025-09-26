@@ -120,13 +120,15 @@ private:
 
 class WeaponBehavior : public Behavior {
 public:
-    WeaponBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> owner, weaponData data);
+    WeaponBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> owner, weaponData data, size_t slot);
     void update(float deltaTime) override;
 
 private:
     Game& game;
     std::weak_ptr<Sprite> self;
     std::weak_ptr<Sprite> owner;
+    size_t slot;
+    static const int controlBindings[2];
     weaponData data;
     float lifetime;
     float originalLifetime;

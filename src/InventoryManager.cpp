@@ -4,52 +4,11 @@
 #include "raylib.h"
 
 
-InventoryManager::InventoryManager(Game& game) : game(game) {
-    itemData = createItemData();
-    // TODO: add these callbacks in ItemData.cpp?
-    itemData["red_potion"].onConsume = [this, isRefilling = false]() mutable {
-        if (isRefilling) return false;
+InventoryManager::InventoryManager(Game& game) : game(game) {}
 
-        auto* player = this->game.getPlayer();
-        if (player->health == player->maxHealth)
-            return false;
-
-        int repeats = player->maxHealth - player->health;
-        isRefilling = true;
-        this->game.eventManager.pushRepeatedEvent(UNNAMED, 0.2f, {}, [=]() {
-            player->health += 1;
-            this->game.playSound("heart");
-            }, repeats, [&]() {
-                isRefilling = false;
-                });
-            return true;
-        };
-
-    itemData["heart_1up"].onConsume = [this, isRefilling = false]() mutable {
-        // adds 1 extra heart
-        if (isRefilling) return false;
-
-        auto* player = this->game.getPlayer();
-        player->maxHealth += 2;
-        int repeats = player->maxHealth - player->health;
-        isRefilling = true;
-        this->game.eventManager.pushRepeatedEvent(UNNAMED, 0.2f, {}, [=]() {
-            player->health += 1;
-            this->game.playSound("heart");
-            }, repeats, [&]() {
-                isRefilling = false;
-                });
-            return true;
-        };
-
-    itemData["heart_drop"].onConsume = [this]() mutable {
-        // refills 1 heart
-        auto* player = this->game.getPlayer();
-        player->health = std::min(player->health + 2, player->maxHealth);
-        this->game.playSound("heart");
-        return true;
-        };
-
+void InventoryManager::initialize()
+{
+    itemData = createItemData(game);
 
     game.eventManager.addListener(ADD_ITEM, [this](const std::any& data) {
         if (const auto* item = std::any_cast<std::pair<std::string, uint32_t>>(&data)) {
@@ -68,7 +27,7 @@ InventoryManager::InventoryManager(Game& game) : game(game) {
         if (const auto* key = std::any_cast<std::string>(&data)) {
             for (auto it = items[CONSUMABLE].begin(); it != items[CONSUMABLE].end(); ++it) {
                 if (it->second.first->textureKey == *key && it->second.second > 0) {
-                    if (!it->second.first->onConsume || !it->second.first->onConsume()) 
+                    if (!it->second.first->onConsume || !it->second.first->onConsume())
                         break;
                     it->second.second--;
                     if (it->second.second == 0) {

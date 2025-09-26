@@ -314,15 +314,15 @@ void Dungeon::generate()
 #ifdef TEST_ROOM
     insertRoom(0, 0, Room{ game.loader.getTilemap("test_map_small"), 0b0000 }); // test dungeon
 #else
-    insertRoom(3, 2, Room{ game.loader.getTilemap("dungeon001"), 0b1111 });
-    insertRoom(2, 2, Room{ game.loader.getTilemap("dungeon002"), 0b0011 });
-    insertRoom(2, 1, Room{ game.loader.getTilemap("dungeon003"), 0b1111 });
     insertRoom(3, 1, Room{ game.loader.getTilemap("dungeon004"), 0b1100 });
-    insertRoom(3, 4, Room{ game.loader.getTilemap("dungeon005"), 0b0010 });
-    insertRoom(1, 1, Room{ game.loader.getTilemap("dungeon006"), 0b0101 });
-    insertRoom(2, 0, Room{ game.loader.getTilemap("dungeon007"), 0b1000 });
-    insertRoom(0, 1, Room{ game.loader.getTilemap("dungeon_shop"), 0b0001 });
+    insertRoom(3, 2, Room{ game.loader.getTilemap("dungeon001"), 0b1111 });
     insertRoom(3, 3, Room{ game.loader.getTilemap("dungeon_2skelets_1010"), 0b1010 });
+    insertRoom(3, 4, Room{ game.loader.getTilemap("dungeon005"), 0b0010 });
+    insertRoom(2, 0, Room{ game.loader.getTilemap("dungeon007"), 0b1000 });
+    insertRoom(2, 1, Room{ game.loader.getTilemap("dungeon003"), 0b1111 });
+    insertRoom(2, 2, Room{ game.loader.getTilemap("dungeon002"), 0b0011 });
+    insertRoom(1, 1, Room{ game.loader.getTilemap("dungeon006"), 0b0101 });
+    insertRoom(0, 1, Room{ game.loader.getTilemap("dungeon_shop"), 0b0001 });
 
 #endif // TEST_ROOM
 
