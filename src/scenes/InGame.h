@@ -5,20 +5,19 @@
 #include "Dungeon.h"
 #include "Utils.h"
 #include "CircleOverlay.h"
+#include "TilemapRenderer.h"
 #include <memory>
 #include "json.hpp"
 
 class InGame : public Scene {
 public:
-    InGame(Game& game, const std::string& name) : Scene(game, name), tileMap(nullptr), worldHeight(0), worldWidth(0) {}
+    InGame(Game& game, const std::string& name);
     void startup() override;
     void update(float deltaTime) override;
     void draw() override;
     void end() override;
 
-    //void processTileObject(const TileObject& obj, uint8_t currentState, std::unordered_map<uint32_t, ObjectState>& objectStates, const nlohmann::json& spriteData); // helper function that turns Tiled data into sprites etc
     void loadTilemap(); // function that handles room transitions
-    void drawTilemapChunks(int layerIndex);
     Sprite* getSprite(const std::string& name);
 
     const TileMap* tileMap;
@@ -48,11 +47,5 @@ public:
 
 private:
     void spawnWeapon(size_t index);
-
-    size_t worldWidth;
-    size_t worldHeight;
-    size_t tileChunkSize = 256; // limit the size of the textures that hold the tilemap layers
-    size_t numChunksX = 0;
-    size_t numChunksY = 0;
-    std::vector<std::vector<RenderTexture2D>> tilemapChunks; // stores chunks of eachs of the layers of a map
+    TilemapRenderer tilemapRenderer;
 };

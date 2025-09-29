@@ -4,7 +4,7 @@
 #include "WorldGraph.h"
 
 // Debug flags (comment in/out)
-#define TEST_ROOM
+//#define TEST_ROOM
 
 
 Dungeon::Dungeon(Game& game, size_t roomsW, size_t roomsH) : game{ game }, roomsW { roomsW }, roomsH{ roomsH }

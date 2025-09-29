@@ -7,6 +7,8 @@
 #include "TileMap.h"
 
 
+InGame::InGame(Game& game, const std::string& name) : Scene(game, name), tileMap(nullptr), tilemapRenderer(game) {}
+
 void InGame::startup() {
     // create the player sprite
     // the "spriteName" argument has to match the texture keys (the part before the "_")
@@ -71,7 +73,7 @@ void InGame::startup() {
     // retrieve the tilemap
     // and set the player's position in the first room
     loadTilemap();
-    player->moveTo(7.5f * float(tileSize), float(8 * tileSize));
+    player->moveTo(7.5f * float(tilemapRenderer.getTileSize()), 8.0f * float(tilemapRenderer.getTileSize()));
 
     // setup the camera
     camera.target = Vector2{ player->rect.x, player->rect.y };
@@ -88,10 +90,9 @@ void InGame::startup() {
         // TODO: take into account whether the HUD is visible or not
         float HudHeight = game.getSetting("HudHeight");
         float minX = game.gameScreenWidth / 2.0f;
-        //float minY = game.gameScreenHeight / 2.0f - HudHeight;
         float minY = game.gameScreenHeight / 2.0f;
-        float maxX = worldWidth - game.gameScreenWidth / 2.0f;
-        float maxY = worldHeight - game.gameScreenHeight / 2.0f;
+        float maxX = tilemapRenderer.getWorldWidth() * tilemapRenderer.getTileSize() - game.gameScreenWidth / 2.0f;
+        float maxY = tilemapRenderer.getWorldHeight() * tilemapRenderer.getTileSize() - game.gameScreenHeight / 2.0f;
         //targetY -= HudHeight * 0.5f;
         targetX = Clamp(targetX, minX, maxX);
         targetY = Clamp(targetY, minY, maxY);
@@ -210,6 +211,9 @@ void InGame::loadTilemap() {
     // check if there even is a valid tile map
     if (!tileMap)
         return;
+
+    tilemapRenderer.loadTilemap(tileMap);
+
     // the room state controls how objects are spawned
     // room states start with 1
     uint8_t currentState = game.currentDungeon->getCurrentRoomState();
@@ -227,60 +231,6 @@ void InGame::loadTilemap() {
         processTileObject(game, obj, currentState, objectStates, spriteData);
     }
 
-    // calculate the map dimensions (to be used by the camera)
-    tileSize = tileMap->tileWidth;
-    worldWidth = tileMap->width * tileSize;
-    worldHeight = tileMap->height * tileSize;
-    // Tile map calculations, used for rendering
-    const Tileset& tileset = game.loader.getTileset(tileMap->getTilesetName());
-    const Texture2D& texture = game.loader.getTextures(tileset.name)[0];
-    const size_t tilesPerRow = tileset.columns;
-    tileChunkSize = game.getSetting("tileChunkSize").get<size_t>();
-    const size_t tilesPerChunkX = tileChunkSize / tileSize;
-    const size_t tilesPerChunkY = tileChunkSize / tileSize;
-    numChunksX = (worldWidth + tileChunkSize - 1) / tileChunkSize;
-    numChunksY = (worldHeight + tileChunkSize - 1) / tileChunkSize;
-    // prepare the Tilemap texture chunks
-    // TODO: draw chunks dynamically instead of storing them all beforehand?
-    size_t totalLayers = tileMap->layers.size();
-    tilemapChunks.resize(totalLayers);
-    for (size_t layerIndex = 0; layerIndex < totalLayers; ++layerIndex) {
-        const auto& layer = tileMap->getLayer(layerIndex);
-        if (!layer.visible) 
-            continue;
-        tilemapChunks[layerIndex].resize(numChunksX * numChunksY);
-        for (size_t cy = 0; cy < numChunksY; ++cy) {
-            for (size_t cx = 0; cx < numChunksX; ++cx) {
-                size_t idx = cy * numChunksX + cx;
-                RenderTexture2D chunk = LoadRenderTexture(static_cast<int>(tileChunkSize), static_cast<int>(tileChunkSize));
-                BeginTextureMode(chunk);
-                ClearBackground(BLANK);
-                size_t startTileX = cx * tilesPerChunkX;
-                size_t startTileY = cy * tilesPerChunkY;
-                for (size_t y = 0; y < tilesPerChunkY; ++y) {
-                    for (size_t x = 0; x < tilesPerChunkX; ++x) {
-                        size_t mapX = startTileX + x;
-                        size_t mapY = startTileY + y;
-                        if (mapX >= tileMap->width || mapY >= tileMap->height) continue;
-
-                        if (!layer.data[mapY][mapX]) continue; // 0 == transparent
-                        int tileIndex = layer.data[mapY][mapX] - 1;
-
-                        size_t tileX = ((size_t)tileIndex % tilesPerRow) * tileSize;
-                        size_t tileY = ((size_t)tileIndex / tilesPerRow) * tileSize;
-                        float srcX = std::clamp(static_cast<float>(tileX), 0.0f, static_cast<float>(texture.width - tileSize));
-                        float srcY = std::clamp(static_cast<float>(tileY), 0.0f, static_cast<float>(texture.height - tileSize));
-                        Rectangle src = { srcX, srcY, static_cast<float>(tileSize), static_cast<float>(tileSize) };
-
-                        Vector2 pos = { static_cast<float>(x * tileSize), static_cast<float>(y * tileSize) };
-                        DrawTextureRec(texture, src, pos, WHITE);
-                    }
-                }
-                EndTextureMode();
-                tilemapChunks[layerIndex][idx] = chunk;
-            }
-        }
-    }
     // check if a different music track should be played
     const std::string musicKey = tileMap->getMusicKey();
     if (!musicKey.empty() && musicKey != currentMusicKey) {
@@ -465,8 +415,8 @@ void InGame::update(float deltaTime) {
     float HudHeight = game.getSetting("HudHeight");
     float minX = game.gameScreenWidth / 2.0f;
     float minY = game.gameScreenHeight / 2.0f - HudHeight;
-    float maxX = worldWidth - game.gameScreenWidth / 2.0f;
-    float maxY = worldHeight - game.gameScreenHeight / 2.0f;
+    float maxX = tilemapRenderer.getWorldWidth() * tilemapRenderer.getTileSize() - game.gameScreenWidth / 2.0f;
+    float maxY = tilemapRenderer.getWorldHeight() * tilemapRenderer.getTileSize() - game.gameScreenHeight / 2.0f;
     target.y -= HudHeight * 0.5f; // TODO: is this really correct?
     target.x = Clamp(target.x, minX, maxX);
     target.y = Clamp(target.y, minY, maxY);
@@ -485,17 +435,17 @@ void InGame::update(float deltaTime) {
     auto [cols, _] = game.currentDungeon->getSize();
     if (player->rect.x < 0.0f) {
         offset = -1;
-        player->moveTo(worldWidth - player->rect.width * 1.5f, player->position.y);
+        player->moveTo(tilemapRenderer.getWorldWidth() * tilemapRenderer.getTileSize() - player->rect.width * 1.5f, player->position.y);
     }
-    else if (player->rect.x + player->rect.width > worldWidth) {
+    else if (player->rect.x + player->rect.width > tilemapRenderer.getWorldWidth() * tilemapRenderer.getTileSize()) {
         offset = 1;
         player->moveTo(player->rect.width * 0.5f, player->position.y);
     }
     else if (player->rect.y < 0.0f) {
         offset = int8_t(cols) * -1;
-        player->moveTo(player->position.x, worldHeight - player->rect.height * 1.5f);
+        player->moveTo(player->position.x, tilemapRenderer.getWorldHeight() * tilemapRenderer.getTileSize() - player->rect.height * 1.5f);
     }
-    else if (player->rect.y + player->rect.height > worldHeight) {
+    else if (player->rect.y + player->rect.height > tilemapRenderer.getWorldHeight() * tilemapRenderer.getTileSize()) {
         offset = int8_t(cols);
         player->moveTo(player->position.x, player->rect.height * 0.5f);
     }
@@ -525,48 +475,13 @@ void InGame::update(float deltaTime) {
     }
 }
 
-void InGame::drawTilemapChunks(int layerIndex) {
-    float viewX = camera.target.x - (camera.offset.x / camera.zoom);
-    float viewY = camera.target.y - (camera.offset.y / camera.zoom);
-
-    for (size_t cy = 0; cy < numChunksY; ++cy) {
-        for (size_t cx = 0; cx < numChunksX; ++cx) {
-            size_t chunkWorldX = cx * tileChunkSize;
-            size_t chunkWorldY = cy * tileChunkSize;
-
-            // chunk is outside the camera fov
-            if (chunkWorldX + tileChunkSize < viewX || chunkWorldX > viewX + game.gameScreenWidth / camera.zoom ||
-                chunkWorldY + tileChunkSize < viewY || chunkWorldY > viewY + game.gameScreenHeight / camera.zoom)
-                continue;
-
-            size_t idx = cy * numChunksX + cx;
-            Vector2 drawPos = { static_cast<float>(chunkWorldX), static_cast<float>(chunkWorldY) };
-
-            // chunks are flipped, so the src rect has to be flipped to draw the chunk correctly
-            Rectangle src = { 0, 0, static_cast<float>(tileChunkSize), -1.0f * static_cast<float>(tileChunkSize) };
-            Rectangle dst = { drawPos.x, drawPos.y, static_cast<float>(tileChunkSize), static_cast<float>(tileChunkSize) };
-            Vector2 origin = { 0, 0 };
-            DrawTexturePro(tilemapChunks[layerIndex][idx].texture, src, dst, origin, 0.0f, WHITE);
-            if (game.debug) {
-                DrawRectangleLines(static_cast<int>(drawPos.x), static_cast<int>(drawPos.y), static_cast<int>(tileChunkSize), static_cast<int>(tileChunkSize), RED);
-            }
-        }
-    }
-}
-
 void InGame::draw() {
     ClearBackground(BLACK);
 
     BeginMode2D(camera); // draw the textures that are affected by the camera
     // draw each tilemap layer except the top one
-    int lastLayer = 0;
     if (tileMap) {
-        int totalLayers = static_cast<int>(tileMap->layers.size());
-        lastLayer = (totalLayers > 1) ? totalLayers - 1 : -1;
-        for (int layerIndex = 0; layerIndex < totalLayers; ++layerIndex) {
-            if (layerIndex == lastLayer || !tileMap->layers[layerIndex].visible) continue;
-            drawTilemapChunks(layerIndex);
-        }
+        tilemapRenderer.drawAllLayersExceptTop(camera);
     }
     // Draw the sprites after sorting them by their bottom y position, also respect the drawing layer of each sprite (fixed)
     // TODO add a flag to sprite that makes an exception from this sorting
@@ -588,11 +503,10 @@ void InGame::draw() {
     for (auto& emitter : game.emitters) {
         emitter.draw();
     }
+
+    // now draw the top layer above the sprites
     if (tileMap) {
-        // now draw the top layer above the sprites
-        if (lastLayer >= 0 && tileMap->layers[lastLayer].visible) {
-            drawTilemapChunks(lastLayer);
-        }
+        tilemapRenderer.drawTopLayer(camera);
     }
 
     if (game.debug) {

@@ -180,6 +180,7 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <ClCompile Include="src\Sprite.cpp" />
     <ClCompile Include="src\TextBox.cpp" />
     <ClCompile Include="src\TileMap.cpp" />
+    <ClCompile Include="src\TilemapRenderer.cpp" />
     <ClCompile Include="src\Utils.cpp" />
     <ClCompile Include="src\WorldGraph.cpp" />
   </ItemGroup>
@@ -219,6 +220,7 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <ClInclude Include="src\tests\TestWorldGraph.h" />
     <ClInclude Include="src\TextBox.h" />
     <ClInclude Include="src\TileMap.h" />
+    <ClInclude Include="src\TilemapRenderer.h" />
     <ClInclude Include="src\Utils.h" />
     <ClInclude Include="src\WorldGraph.h" />
   </ItemGroup>
