@@ -10,6 +10,8 @@
 #include <memory>
 #include "json.hpp"
 
+struct SaveGame;
+
 class InGame : public Scene {
 public:
     InGame(Game& game, const std::string& name);
@@ -49,4 +51,17 @@ public:
 private:
     void spawnWeapon(size_t index);
     int8_t checkPlayerOutOfBounds();
+    void setupEventListeners();
+    void handleDeadSprites();
+    void loadWorldFromSave(std::shared_ptr<SaveGame> save);
+    // input handling
+    std::unordered_map<uint32_t, std::function<void()>> buttonCallbacks;
+    void setupInputCallbacks();
+    // Callback functions
+    void onActionButton2();
+    void onActionButton4();
+    void onInventoryButton();
+    void onMenuButton();
+    void onDebugButton1();
+    void handlePlayerInput(float deltaTime);
 };

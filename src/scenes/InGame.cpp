@@ -5,6 +5,7 @@
 #include "Events.h"
 #include "Utils.h"
 #include "TileMap.h"
+#include "Savegame.h"
 
 
 InGame::InGame(Game& game, const std::string& name) : Scene(game, name), tileMap(nullptr), tilemapRenderer(game), cameraController(game) {}
@@ -26,45 +27,7 @@ void InGame::startup() {
     // TODO put this in seperate function for less spaghetti
     auto saveData = game.getSaveData();
     if (saveData) {
-        player->maxHealth = saveData->playerMaxHealth;
-        player->health = std::max(static_cast<uint32_t>(6), saveData->playerHealth);
-        // add the items once the scenes have fully started
-        game.eventManager.pushDelayedEvent(UNNAMED, 0.1f, nullptr, [this, saveData]() {
-            for (const auto& itemPair : saveData->items) {
-                this->game.eventManager.pushEvent(ADD_ITEM, std::make_any<std::pair<std::string, uint32_t>>(itemPair.first, itemPair.second));
-            }
-            // equip the weapons
-            this->game.eventManager.pushEvent(WEAPON_SET, std::make_pair(saveData->currentWeapons[0], 0));
-            this->game.eventManager.pushEvent(WEAPON_SET, std::make_pair(saveData->currentWeapons[1], 1));
-            });
-        game.currentDungeon = loadDungeon(*saveData, game);
-
-        // add NPCs that follow the player to the current room's data
-        // TODO: is it worth it to give the TileMap a mutable member?
-        tileMap = game.currentDungeon->loadCurrentTileMap();
-
-        for (auto& sName : saveData->spritesFollowingPlayer) {
-            TileObject npc = TileObject();
-            npc.name = "npc";
-            npc.type = "sprite";
-            npc.x = player->position.x;
-            npc.y = player->position.y;
-            // TODO: are width and height even important?
-            npc.width = 16.0;
-            npc.height = 16.0;
-            npc.visible = true;
-            npc.id = 100; // TODO: make a getNextFreeID() function of TileMap
-
-            nlohmann::json props = nlohmann::json::object();
-
-            props["spriteName"] = sName;
-            props["roomState"] = 0;
-
-            npc.properties = props;
-            
-            tileMap->dynamicObjects.emplace_back(npc);
-        }
-
+        loadWorldFromSave(saveData);
     }
     else {
         // generate a fresh dungeon
@@ -81,33 +44,35 @@ void InGame::startup() {
         static_cast<float>(game.gameScreenHeight)
     );
     cameraController.setTarget(player.get());
-     
-    // ##### Event listeners for the InGame scene #####
 
-    // music volume can be set from anywhere
+    // assign button functions
+    setupInputCallbacks();
+     
+    // Event listeners specific to the InGame scene
+    setupEventListeners();
+    setupConditionalEvents(*this);
+}
+
+void InGame::setupEventListeners() {
     game.eventManager.addListener(SET_MUSIC_VOLUME, [this](std::any data) {
-            if (music) SetMusicVolume(*music, std::any_cast<float>(data));
+        if (music) SetMusicVolume(*music, std::any_cast<float>(data));
         });
 
-    // event listener that changes the current weapon key
     game.eventManager.addListener(WEAPON_SET, [this](const std::any& data) {
         if (data.has_value()) {
             auto [weapon, index] = std::any_cast<std::pair<std::string, size_t>>(data);
             if (index < currentWeapon.size()) {
                 currentWeapon[index] = weapon.empty() ? std::nullopt : std::optional<std::string>{ weapon };
-                // unequip if the same weapon happens to be in the other slot
                 if (currentWeapon[(index + 1) % 2] == weapon) {
                     currentWeapon[(index + 1) % 2] = std::nullopt;
                 }
             }
         }
         else {
-            // Removal of weapon
             for (auto& w : currentWeapon) w = std::nullopt;
         }
         });
 
-    // handles switching the lamp on/off
     game.eventManager.addListener(LAMP_ON, [this](const std::any& data) {
         lampIsOn = true;
         });
@@ -115,9 +80,157 @@ void InGame::startup() {
     game.eventManager.addListener(LAMP_OFF, [this](const std::any& data) {
         lampIsOn = false;
         });
+}
 
-    // ##### Events that progress the game #####
-    setupConditionalEvents(*this);
+void InGame::handleDeadSprites()
+{
+    // process sprites that are dead (from last frame)
+    for (const auto& sprite : game.sprites) {
+        if (sprite && sprite->health < 1 && !sprite->dying) {
+            sprite->dying = true;
+            sprite->removeAllBehaviors();
+            sprite->addBehavior(std::make_unique<DeathBehavior>(game, sprite, 2.0f));
+            // TODO: unify these two events
+            std::string eventStr = "killSprite_" + std::to_string(reinterpret_cast<uintptr_t>(sprite.get()));
+            int eventKey = EventKeyRegistry::getEventKey(eventStr);
+            game.eventManager.pushDelayedEvent(eventKey, 2.01f, nullptr, [this, sprite]() {
+                sprite->markForDeletion();
+                });
+            std::string eventStr2 = "defeated_" + std::to_string(sprite->tileMapID);
+            int eventKey2 = EventKeyRegistry::getEventKey(eventStr2);
+            game.eventManager.pushEvent(eventKey2, sprite->tileMapID);
+        }
+    }
+}
+
+void InGame::setupInputCallbacks() {
+    // Assign callbacks to specific buttons
+    buttonCallbacks[CONTROL_ACTION2] = [this]() { onActionButton2(); };
+    buttonCallbacks[CONTROL_ACTION4] = [this]() { onActionButton4(); };
+    buttonCallbacks[CONTROL_CONFIRM] = [this]() { onInventoryButton(); };
+    buttonCallbacks[CONTROL_CANCEL] = [this]() { onMenuButton(); };
+
+    if (game.debug) {
+        buttonCallbacks[CONTROL_DEBUG_K1] = [this]() { onDebugButton1(); };
+    }
+}
+
+void InGame::onActionButton2()
+{
+    // primary weapon
+    if (currentWeapon[0] && !getSprite(*currentWeapon[0])) {
+        // spawn the weapon next to the player if not already there
+        // This needs to be inside of a delayed event because of the quirks of the button polling...
+        game.eventManager.pushDelayedEvent(UNNAMED, 0.0f, nullptr, [&]() {
+            spawnWeapon(0);
+            });
+    }
+}
+
+void InGame::onActionButton4()
+{
+    // secondary weapon
+    if (currentWeapon[1] && !getSprite(*currentWeapon[1])) {
+        game.eventManager.pushDelayedEvent(UNNAMED, 0.0f, nullptr, [&]() {
+            spawnWeapon(1);
+            });
+    }
+}
+
+void InGame::onInventoryButton()
+{
+    game.pauseScene(this->getName());
+    game.startScene("InventoryUI");
+    // TODO: make this a single-use event
+    game.eventManager.addListener(INVENTORY_DONE, [this](std::any) {
+        // return to this scene
+        this->game.resumeScene(this->getName());
+        });
+    game.eventManager.pushEvent(SET_MUSIC_VOLUME, 0.3f);
+}
+
+void InGame::onMenuButton()
+{
+    game.pauseScene(this->getName());
+    game.sleepScene("HUD");
+    game.startScene("SelectMenu");
+    game.eventManager.addListener(SELECT_MENU_DONE, [this](std::any) {
+        // return to this scene
+        this->game.resumeScene(this->getName());
+        game.wakeScene("HUD");
+        });
+    game.eventManager.pushEvent(SET_MUSIC_VOLUME, 0.3f);
+}
+
+void InGame::onDebugButton1()
+{
+    if (!game.debug)
+        return;
+    // advance room the index and immediately change the room 
+    size_t maxIndex = game.currentDungeon->getSize().first * game.currentDungeon->getSize().second;
+    size_t newIndex = (game.currentDungeon->getCurrentRoomIndex() + 1) % maxIndex;
+    game.currentDungeon->setCurrentRoomIndex(newIndex);
+    game.eventManager.pushDelayedEvent(UNNAMED, 0.0f, nullptr, [&]() {
+        loadTilemap();
+        });
+}
+
+void InGame::handlePlayerInput(float deltaTime)
+{
+    if (game.cutsceneManager.isActive()) {
+        return;
+    }
+    for (const auto& [button, callback] : buttonCallbacks) {
+        if (game.buttonsPressed & button) {
+            callback();
+        }
+    }
+    // direct player sprite steering
+    player->getControls();
+}
+
+void InGame::loadWorldFromSave(std::shared_ptr<SaveGame> save)
+{
+    player->maxHealth = save->playerMaxHealth;
+    player->health = std::max(static_cast<uint32_t>(6), save->playerHealth);
+
+    // Capture the shared_ptr to keep the SaveGame alive
+    game.eventManager.pushDelayedEvent(UNNAMED, 0.1f, nullptr, [this, save]() {
+        for (const auto& itemPair : save->items) {
+            this->game.eventManager.pushEvent(ADD_ITEM,
+                std::make_any<std::pair<std::string, uint32_t>>(itemPair.first, itemPair.second));
+        }
+        this->game.eventManager.pushEvent(WEAPON_SET, std::make_pair(save->currentWeapons[0], 0));
+        this->game.eventManager.pushEvent(WEAPON_SET, std::make_pair(save->currentWeapons[1], 1));
+        });
+
+    game.currentDungeon = loadDungeon(*save, game);
+
+    // add NPCs that follow the player to the current room's data
+    // TODO: is it worth it to give the TileMap a mutable member?
+    tileMap = game.currentDungeon->loadCurrentTileMap();
+
+    for (auto& sName : save->spritesFollowingPlayer) {
+        TileObject npc = TileObject();
+        npc.name = "npc";
+        npc.type = "sprite";
+        npc.x = player->position.x;
+        npc.y = player->position.y;
+        // TODO: are width and height even important?
+        npc.width = 16.0;
+        npc.height = 16.0;
+        npc.visible = true;
+        npc.id = 100; // TODO: make a getNextFreeID() function of TileMap
+
+        nlohmann::json props = nlohmann::json::object();
+
+        props["spriteName"] = sName;
+        props["roomState"] = 0;
+
+        npc.properties = props;
+
+        tileMap->dynamicObjects.emplace_back(npc);
+    }
 }
 
 Sprite* InGame::getSprite(const std::string& name) {
@@ -245,78 +358,22 @@ void InGame::loadTilemap() {
 
 void InGame::update(float deltaTime) {
     // control the sprites and apply physics
-
-    // handle sprites that are dead (from last frame)
-    for (const auto& sprite : game.sprites) {
-        if (sprite && sprite->health < 1 && !sprite->dying) {
-            sprite->dying = true;
-            sprite->removeAllBehaviors();
-            sprite->addBehavior(std::make_unique<DeathBehavior>(game, sprite, 2.0f));
-            // TODO: unify these two events
-            std::string eventStr = "killSprite_" + std::to_string(reinterpret_cast<uintptr_t>(sprite.get()));
-            int eventKey = EventKeyRegistry::getEventKey(eventStr);
-            game.eventManager.pushDelayedEvent(eventKey, 2.01f, nullptr, [this, sprite]() {
-                sprite->markForDeletion();
-                });
-            std::string eventStr2 = "defeated_" + std::to_string(sprite->tileMapID);
-            int eventKey2 = EventKeyRegistry::getEventKey(eventStr2);
-            game.eventManager.pushEvent(eventKey2, sprite->tileMapID);
-        }
-    }
+    handleDeadSprites();
     // if a cutscene is active, it takes control over the player
     // otherwise, the player is controled by input
-    game.cutsceneManager.update(deltaTime);
-    if (!game.cutsceneManager.isActive()) {
-        player->getControls();
+    game.cutsceneManager.update(deltaTime); // checks if a cutscene should be played
+    handlePlayerInput(deltaTime);
 
-        // spawn a weapon if the action button is pressed
-        // primary weapon
-        if ((game.buttonsPressed & CONTROL_ACTION2) && currentWeapon[0] && !getSprite(*currentWeapon[0])) {
-            // spawn the weapon next to the player if not already there
-            // TODO: it needs to be inside of a delayed event because of the quirks of the button polling...
-            game.eventManager.pushDelayedEvent(UNNAMED, 0.0f, nullptr, [&]() {
-                spawnWeapon(0);
-                });
-        }
-        // secondary weapon
-        if ((game.buttonsPressed & CONTROL_ACTION4) && currentWeapon[1] && !getSprite(*currentWeapon[1])) {
-            game.eventManager.pushDelayedEvent(UNNAMED, 0.0f, nullptr, [&]() {
-                spawnWeapon(1);
-                });
-        }
-
-        // go to the inventory menu
-        if (game.buttonsPressed & CONTROL_CONFIRM) {
-            game.pauseScene(this->getName());
-            game.startScene("InventoryUI");
-            // TODO: make this a single-use event
-            game.eventManager.addListener(INVENTORY_DONE, [this](std::any) {
-                // return to this scene
-                this->game.resumeScene(this->getName());
-                });
-            game.eventManager.pushEvent(SET_MUSIC_VOLUME, 0.3f);
-        }
-        // "select" menu
-        if (game.buttonsPressed & CONTROL_CANCEL) {
-            game.pauseScene(this->getName());
-            game.sleepScene("HUD");
-            game.startScene("SelectMenu");
-            game.eventManager.addListener(SELECT_MENU_DONE, [this](std::any) {
-                // return to this scene
-                this->game.resumeScene(this->getName());
-                game.wakeScene("HUD");
-                });
-            game.eventManager.pushEvent(SET_MUSIC_VOLUME, 0.3f);
-        }
-        for (const auto& sprite : game.sprites) {
-            if (sprite) {
-                sprite->executeBehavior(deltaTime);
-                sprite->update(deltaTime);
-            }
+    // update the sprites
+    for (const auto& sprite : game.sprites) {
+        if (sprite) {
+            sprite->executeBehavior(deltaTime);
+            sprite->update(deltaTime);
         }
     }
-    // animate always, regardless of cutscene
-    // also handle lights
+
+    // light overlay
+    // TODO make this more modular
     size_t currentLightIndex = 0;
     // draw a much bigger radius if the lamp is equipped
     // TODO: put these in the config
@@ -326,6 +383,7 @@ void InGame::update(float deltaTime) {
         lights[i].active = false;
     }
 
+    // animate always, regardless of cutscene
     for (const auto& sprite : game.sprites) {
         // progress the animation index and change the textures if necessary
         sprite->animate(deltaTime);
@@ -427,16 +485,6 @@ void InGame::update(float deltaTime) {
         game.stopScene("HUD");
         game.startScene("GameOver");
     }
-
-    // debug functions
-    if (game.debug) {
-        if (game.buttonsPressed & CONTROL_DEBUG_K1) {
-            size_t maxIndex = game.currentDungeon->getSize().first * game.currentDungeon->getSize().second;
-            size_t newIndex = (game.currentDungeon->getCurrentRoomIndex() + 1) % maxIndex;
-            game.currentDungeon->setCurrentRoomIndex(newIndex);
-            loadTilemap();
-        }
-    }
 }
 
 void InGame::draw() {
@@ -464,7 +512,7 @@ void InGame::draw() {
         sprite->draw();
         sprite->drawBehavior();
     }
-    // particles
+    // draw particles
     for (auto& emitter : game.emitters) {
         emitter.draw();
     }
