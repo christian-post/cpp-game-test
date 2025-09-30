@@ -6,6 +6,7 @@
 #include "Utils.h"
 #include "CircleOverlay.h"
 #include "TilemapRenderer.h"
+#include "CameraController.h"
 #include <memory>
 #include "json.hpp"
 
@@ -21,9 +22,9 @@ public:
     Sprite* getSprite(const std::string& name);
 
     const TileMap* tileMap;
-    size_t tileSize = 0; // value is read from Tiled data 
-    Camera2D camera = {};
-    CameraShake cameraShake;
+    TilemapRenderer tilemapRenderer;
+    CameraController cameraController;
+
     std::shared_ptr<Sprite> player;  // keep a player variable for direct frequent access
     std::array<std::optional<std::string>, 2> currentWeapon = { std::nullopt, std::nullopt };
     // light effects
@@ -47,5 +48,5 @@ public:
 
 private:
     void spawnWeapon(size_t index);
-    TilemapRenderer tilemapRenderer;
+    int8_t checkPlayerOutOfBounds();
 };

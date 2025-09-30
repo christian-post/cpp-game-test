@@ -37,8 +37,8 @@ void setupConditionalEvents(InGame& inGame) {
                 Sprite& npcRef = *game.spriteMap["elfCompanion2"];               
                 game.eventManager.pushEvent(HIDE_HUD);
                 game.cutsceneManager.queueCommand(new Command_Letterbox(float(game.gameScreenWidth), float(game.gameScreenHeight), 1.0f), false);
-                float npcX = 12.0f * static_cast<float>(inGame.tileSize);
-                float npcY = 8.0f * static_cast<float>(inGame.tileSize);
+                float npcX = 12.0f * static_cast<float>(inGame.tilemapRenderer.getTileSize());
+                float npcY = 8.0f * static_cast<float>(inGame.tilemapRenderer.getTileSize());
                 game.cutsceneManager.queueCommand(new Command_Wait(1.0f));
                 game.cutsceneManager.queueCommand(new Command_MoveTo(npcRef, npcX, npcY, 2.0f));
                 game.cutsceneManager.queueCommand(new Command_Wait(0.5f));

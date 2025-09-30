@@ -7,7 +7,7 @@
 #include "TileMap.h"
 
 
-InGame::InGame(Game& game, const std::string& name) : Scene(game, name), tileMap(nullptr), tilemapRenderer(game) {}
+InGame::InGame(Game& game, const std::string& name) : Scene(game, name), tileMap(nullptr), tilemapRenderer(game), cameraController(game) {}
 
 void InGame::startup() {
     // create the player sprite
@@ -76,36 +76,15 @@ void InGame::startup() {
     player->moveTo(7.5f * float(tilemapRenderer.getTileSize()), 8.0f * float(tilemapRenderer.getTileSize()));
 
     // setup the camera
-    camera.target = Vector2{ player->rect.x, player->rect.y };
-    camera.offset = Vector2{ game.gameScreenWidth / 2.0f, game.gameScreenHeight / 2.0f };
-    camera.rotation = 0.0f;
-    camera.zoom = 1.0f;
+    cameraController.initialize(
+        static_cast<float>(game.gameScreenWidth),
+        static_cast<float>(game.gameScreenHeight)
+    );
+    cameraController.setTarget(player.get());
+     
+    // ##### Event listeners for the InGame scene #####
 
-    // event listeners for the InGame scene
-
-    game.eventManager.addListener(MOVE_CAMERA, [&](std::any data) {
-        auto [targetX, targetY] = std::any_cast<std::pair<float, float>>(data);
-        // clamp to world boundaries
-        // TODO: make this a function
-        // TODO: take into account whether the HUD is visible or not
-        float HudHeight = game.getSetting("HudHeight");
-        float minX = game.gameScreenWidth / 2.0f;
-        float minY = game.gameScreenHeight / 2.0f;
-        float maxX = tilemapRenderer.getWorldWidth() * tilemapRenderer.getTileSize() - game.gameScreenWidth / 2.0f;
-        float maxY = tilemapRenderer.getWorldHeight() * tilemapRenderer.getTileSize() - game.gameScreenHeight / 2.0f;
-        //targetY -= HudHeight * 0.5f;
-        targetX = Clamp(targetX, minX, maxX);
-        targetY = Clamp(targetY, minY, maxY);
-        camera.target = Vector2{ targetX, targetY };
-        });
-
-    // TODO: this might be needed in the future
-    /*game.eventManager.addListener(TELEPORT, [this](std::any data) {
-        const auto& teleportData = std::any_cast<const TeleportEvent&>(data);
-        loadTilemap(teleportData.targetMap);
-        player->moveTo(teleportData.targetPos.x * tileSize, teleportData.targetPos.y * tileSize);
-        });*/
-
+    // music volume can be set from anywhere
     game.eventManager.addListener(SET_MUSIC_VOLUME, [this](std::any data) {
             if (music) SetMusicVolume(*music, std::any_cast<float>(data));
         });
@@ -137,15 +116,7 @@ void InGame::startup() {
         lampIsOn = false;
         });
 
-
-    game.eventManager.addListener(SCREEN_SHAKE, [this](std::any value) {
-        if (value.has_value() && value.type() == typeid(std::tuple<float, float, float>)) {
-            auto [duration, xMag, yMag] = std::any_cast<std::tuple<float, float, float>>(value);
-            cameraShake.start(duration, xMag, yMag);
-        }
-        });
-
-    // ##### Events that progress the game ####
+    // ##### Events that progress the game #####
     setupConditionalEvents(*this);
 }
 
@@ -201,6 +172,31 @@ void InGame::spawnWeapon(size_t index)
         });
 
     game.playSound("slash");
+}
+
+int8_t InGame::checkPlayerOutOfBounds()
+{
+    // tests if the player rect is outside of the world bounds
+    // returns an offset which can be used to displace the map index
+    int8_t offset = 0;
+    auto [cols, _] = game.currentDungeon->getSize();
+    if (player->rect.x < 0.0f) {
+        offset = -1;
+        player->moveTo(tilemapRenderer.getWorldWidth() * tilemapRenderer.getTileSize() - player->rect.width * 1.5f, player->position.y);
+    }
+    else if (player->rect.x + player->rect.width > tilemapRenderer.getWorldWidth() * tilemapRenderer.getTileSize()) {
+        offset = 1;
+        player->moveTo(player->rect.width * 0.5f, player->position.y);
+    }
+    else if (player->rect.y < 0.0f) {
+        offset = int8_t(cols) * -1;
+        player->moveTo(player->position.x, tilemapRenderer.getWorldHeight() * tilemapRenderer.getTileSize() - player->rect.height * 1.5f);
+    }
+    else if (player->rect.y + player->rect.height > tilemapRenderer.getWorldHeight() * tilemapRenderer.getTileSize()) {
+        offset = int8_t(cols);
+        player->moveTo(player->position.x, player->rect.height * 0.5f);
+    }
+    return offset;
 }
 
 void InGame::loadTilemap() {
@@ -336,7 +332,7 @@ void InGame::update(float deltaTime) {
         // check if the sprite emits light in dark rooms
         // and give it a light cone
         if (game.currentDungeon->isRoomDark() && sprite->emitsLight && currentLightIndex < MAX_LIGHTS) {
-            lights[currentLightIndex].center = GetWorldToScreen2D(GetRectCenter(sprite->rect), camera);
+            lights[currentLightIndex].center = GetWorldToScreen2D(GetRectCenter(sprite->rect), cameraController.getCamera());
             lights[currentLightIndex].center.y += sprite->z; // apply jump height
             lights[currentLightIndex].radius = lightRadius; // TODO
             lights[currentLightIndex].active = true;
@@ -401,60 +397,28 @@ void InGame::update(float deltaTime) {
         }
     }
 
-    // particles
+    // handle the particle effects
     for (auto& emitter : game.emitters) {
         emitter.update(deltaTime);
     }
 
-    // Camera follows the player (center)
-    Vector2 target = {
-        player->rect.x + player->rect.width / 2,
-        player->rect.y + player->rect.height / 2
-    };
-
-    float HudHeight = game.getSetting("HudHeight");
-    float minX = game.gameScreenWidth / 2.0f;
-    float minY = game.gameScreenHeight / 2.0f - HudHeight;
-    float maxX = tilemapRenderer.getWorldWidth() * tilemapRenderer.getTileSize() - game.gameScreenWidth / 2.0f;
-    float maxY = tilemapRenderer.getWorldHeight() * tilemapRenderer.getTileSize() - game.gameScreenHeight / 2.0f;
-    target.y -= HudHeight * 0.5f; // TODO: is this really correct?
-    target.x = Clamp(target.x, minX, maxX);
-    target.y = Clamp(target.y, minY, maxY);
-    // apply a screen shake effect if the event was called
-    if (cameraShake.isActive()) {
-        cameraShake.update(deltaTime);
-        target = cameraShake.apply(target);
-    }
-    if (!game.cutsceneManager.hasCameraControl()) {
-        camera.target = target;
-    }
-
-    // check player out of map bounds
-    // TODO: make a function for this
-    int8_t offset = 0;
-    auto [cols, _] = game.currentDungeon->getSize();
-    if (player->rect.x < 0.0f) {
-        offset = -1;
-        player->moveTo(tilemapRenderer.getWorldWidth() * tilemapRenderer.getTileSize() - player->rect.width * 1.5f, player->position.y);
-    }
-    else if (player->rect.x + player->rect.width > tilemapRenderer.getWorldWidth() * tilemapRenderer.getTileSize()) {
-        offset = 1;
-        player->moveTo(player->rect.width * 0.5f, player->position.y);
-    }
-    else if (player->rect.y < 0.0f) {
-        offset = int8_t(cols) * -1;
-        player->moveTo(player->position.x, tilemapRenderer.getWorldHeight() * tilemapRenderer.getTileSize() - player->rect.height * 1.5f);
-    }
-    else if (player->rect.y + player->rect.height > tilemapRenderer.getWorldHeight() * tilemapRenderer.getTileSize()) {
-        offset = int8_t(cols);
-        player->moveTo(player->position.x, player->rect.height * 0.5f);
-    }
+    // check if the player is outside of the map bounds
+    int8_t offset = checkPlayerOutOfBounds();
     if (offset != 0) {
-        // load the new room
-        size_t newIndex = (uint8_t)game.currentDungeon->getCurrentRoomIndex() + offset;
+        // load the new room, also make sure that the new index is not negative
+        size_t newIndex = std::max(0, static_cast<int8_t>(game.currentDungeon->getCurrentRoomIndex()) + offset);
         game.currentDungeon->setCurrentRoomIndex(newIndex);
-        loadTilemap();
+        game.eventManager.pushDelayedEvent(UNNAMED, 0.0f, nullptr, [&]() {
+            loadTilemap();
+            });
     }
+
+    // update the camera controller to follow the player
+    cameraController.setWorldBounds(
+        tilemapRenderer.getWorldWidth() * tilemapRenderer.getTileSize(),
+        tilemapRenderer.getWorldHeight() * tilemapRenderer.getTileSize()
+    );
+    cameraController.update(deltaTime);
 
     // player dies, GameOver scene starts
     if (player->health < 1) {
@@ -477,11 +441,12 @@ void InGame::update(float deltaTime) {
 
 void InGame::draw() {
     ClearBackground(BLACK);
-
-    BeginMode2D(camera); // draw the textures that are affected by the camera
+ 
+    // draw the textures that are affected by the camera
+    BeginMode2D(cameraController.getCamera());
     // draw each tilemap layer except the top one
     if (tileMap) {
-        tilemapRenderer.drawAllLayersExceptTop(camera);
+        tilemapRenderer.drawAllLayersExceptTop(cameraController.getCamera());
     }
     // Draw the sprites after sorting them by their bottom y position, also respect the drawing layer of each sprite (fixed)
     // TODO add a flag to sprite that makes an exception from this sorting
@@ -506,9 +471,10 @@ void InGame::draw() {
 
     // now draw the top layer above the sprites
     if (tileMap) {
-        tilemapRenderer.drawTopLayer(camera);
+        tilemapRenderer.drawTopLayer(cameraController.getCamera());
     }
 
+    // debug information that is affected by the camera (hitboxes etc)
     if (game.debug) {
         for (const auto& wall : game.walls) {
             DrawRectangleLines((int)wall->x, (int)wall->y, (int)wall->width, (int)wall->height, BLUE);
