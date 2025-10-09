@@ -10,6 +10,7 @@
   "HudHeight": 32.0,
   "textDelay": 0.02,
   "soundOn": false,
+  "globalMusicVolume": 0.0,
   "keyBindings": {
     "W": "CONTROL_UP",
     "S": "CONTROL_DOWN",

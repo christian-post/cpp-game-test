@@ -43,7 +43,8 @@ void Sprite::setTextures(std::vector<std::string> keys) {
 
 
 void Sprite::animate(float deltaTime) {
-    if (!doesAnimate) return;
+    if (!doesAnimate) 
+        return;
 
     elapsedtime += deltaTime;
     if (elapsedtime >= frameTime && !frames[currentAnimState].empty()) {
@@ -66,10 +67,14 @@ void Sprite::animate(float deltaTime) {
 }
 
 void Sprite::setHurtbox(float x, float y, float width, float height, bool center) {
-    if (x != -1.0f) hurtbox.x = x;
-    if (y != -1.0f) hurtbox.y = y;
-    if (width != -1.0f) hurtbox.width = width;
-    if (height != -1.0f) hurtbox.height = height;
+    if (x != -1.0f) 
+        hurtbox.x = x;
+    if (y != -1.0f) 
+        hurtbox.y = y;
+    if (width != -1.0f) 
+        hurtbox.width = width;
+    if (height != -1.0f) 
+        hurtbox.height = height;
     // center on hitbox
     if (center) {
         float w = (width != -1.0f) ? width : hurtbox.width;
@@ -89,16 +94,28 @@ void Sprite::getControls() {
 }
 
 void Sprite::executeBehavior(float deltaTime) {
+    // If sprite has a state machine, let it control behaviors
+    if (stateMachine) {
+        stateMachine->update(deltaTime);
+        return;
+    }
+    // Otherwise, use the old behavior system
     // runs update() on the behaviors in the order that they were given
-    // TODO: behavior priority system?
-    if (behaviors.empty()) return;
+    if (behaviors.empty()) 
+        return;
     for (auto& behavior : behaviors) {
         behavior->update(deltaTime);
     }
 }
 
 void Sprite::drawBehavior() {
-    if (behaviors.empty()) return;
+    if (stateMachine) {
+        stateMachine->draw();
+        return;
+    }
+
+    if (behaviors.empty()) 
+        return;
     for (auto& behavior : behaviors) {
         behavior->draw();
     }
@@ -128,15 +145,15 @@ void Sprite::update(float deltaTime) {
     // or a Behavior
 
     // prevent faster diagonal movement by capping the length to 1
-    if (Vector2Length(acc) > 0.0f) acc = Vector2Normalize(acc);
+    if (Vector2Length(acc) > 0.0f) 
+        acc = Vector2Normalize(acc);
 
     vel = Vector2Add(vel, Vector2Scale(acc, speed * deltaTime));
     vel = Vector2Scale(vel, friction);
 
     // stop if vel is below a threshold to prevent jitter
-    if (vel.x * vel.x + vel.y * vel.y < 2.5e-3f) {
+    if (vel.x * vel.x + vel.y * vel.y < 2.5e-3f)
         vel = { 0.0f, 0.0f };
-    }
 
     // Vertical motion (Z axis)
     // Apply vertical impulse
@@ -176,7 +193,8 @@ void Sprite::update(float deltaTime) {
 }
 
 void Sprite::draw() {
-    if (!visible || markedForDeletion) return;
+    if (!visible || markedForDeletion) 
+        return;
     auto& textures = frames[currentAnimState];
     if (currentFrame >= textures.size()) {
         // show that something went wrong

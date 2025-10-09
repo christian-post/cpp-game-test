@@ -31,7 +31,8 @@ void InGame::startup() {
     }
     else {
         // generate a fresh dungeon
-        game.createDungeon(5, 4);
+        // TODO get the size from data or dungeon generation manager
+        game.createDungeon(6, 5);
     }
     // retrieve the tilemap
     // and set the player's position in the first room
@@ -55,7 +56,8 @@ void InGame::startup() {
 
 void InGame::setupEventListeners() {
     game.eventManager.addListener(SET_MUSIC_VOLUME, [this](std::any data) {
-        if (music) SetMusicVolume(*music, std::any_cast<float>(data));
+        if (music) 
+            SetMusicVolume(*music, std::any_cast<float>(data));
         });
 
     game.eventManager.addListener(WEAPON_SET, [this](const std::any& data) {
@@ -63,13 +65,15 @@ void InGame::setupEventListeners() {
             auto [weapon, index] = std::any_cast<std::pair<std::string, size_t>>(data);
             if (index < currentWeapon.size()) {
                 currentWeapon[index] = weapon.empty() ? std::nullopt : std::optional<std::string>{ weapon };
-                if (currentWeapon[(index + 1) % 2] == weapon) {
-                    currentWeapon[(index + 1) % 2] = std::nullopt;
+                size_t otherIdx = (index + 1) % 2;
+                if (currentWeapon[otherIdx] == weapon) {
+                    currentWeapon[otherIdx] = std::nullopt;
                 }
             }
         }
         else {
-            for (auto& w : currentWeapon) w = std::nullopt;
+            for (auto& w : currentWeapon) 
+                w = std::nullopt;
         }
         });
 
@@ -109,10 +113,8 @@ void InGame::setupInputCallbacks() {
     buttonCallbacks[CONTROL_ACTION4] = [this]() { onActionButton4(); };
     buttonCallbacks[CONTROL_CONFIRM] = [this]() { onInventoryButton(); };
     buttonCallbacks[CONTROL_CANCEL] = [this]() { onMenuButton(); };
-
-    if (game.debug) {
-        buttonCallbacks[CONTROL_DEBUG_K1] = [this]() { onDebugButton1(); };
-    }
+    // debug stuff
+    buttonCallbacks[CONTROL_DEBUG_K1] = [this]() { onDebugButton1(); };
 }
 
 void InGame::onActionButton2()
@@ -284,10 +286,10 @@ void InGame::spawnWeapon(size_t index)
         game.eventManager.removeListeners(eventKey);
         });
 
-    game.playSound("slash");
+    game.playSound(wpnData.soundKey); // TODO put this in WeaponBehavior
 }
 
-int8_t InGame::checkPlayerOutOfBounds()
+void InGame::checkRoomTransition()
 {
     // tests if the player rect is outside of the world bounds
     // returns an offset which can be used to displace the map index
@@ -309,7 +311,15 @@ int8_t InGame::checkPlayerOutOfBounds()
         offset = int8_t(cols);
         player->moveTo(player->position.x, player->rect.height * 0.5f);
     }
-    return offset;
+    // change the room if the offset is some value
+    if (offset != 0) {
+        // load the new room, also make sure that the new index is not negative
+        size_t newIndex = std::max(0, static_cast<int8_t>(game.currentDungeon->getCurrentRoomIndex()) + offset);
+        game.currentDungeon->setCurrentRoomIndex(newIndex);
+        game.eventManager.pushDelayedEvent(UNNAMED, 0.0f, nullptr, [&]() {
+            loadTilemap();
+            });
+    }
 }
 
 void InGame::loadTilemap() {
@@ -322,6 +332,11 @@ void InGame::loadTilemap() {
         return;
 
     tilemapRenderer.loadTilemap(tileMap);
+
+    game.setWorldBounds(
+        tilemapRenderer.getWorldWidth() * tilemapRenderer.getTileSize(),
+        tilemapRenderer.getWorldHeight() * tilemapRenderer.getTileSize()
+    );
 
     // the room state controls how objects are spawned
     // room states start with 1
@@ -404,7 +419,7 @@ void InGame::update(float deltaTime) {
     for (const auto& sprite : game.sprites) {
         sprite->rect.x = sprite->position.x;
         for (const auto& wall : game.walls) {
-            resolveAxisX(sprite, *wall);
+            resolveAxisX(sprite, wall->getRect());
         }
         for (const auto& other : game.sprites) {
             if (other != sprite && other->staticCollision) {
@@ -414,7 +429,7 @@ void InGame::update(float deltaTime) {
 
         sprite->rect.y = sprite->position.y;
         for (const auto& wall : game.walls) {
-            resolveAxisY(sprite, *wall);
+            resolveAxisY(sprite, wall->getRect());
         }
         for (const auto& other : game.sprites) {
             if (other != sprite && other->staticCollision) {
@@ -449,6 +464,9 @@ void InGame::update(float deltaTime) {
                     sprite->health = (weapon->damage > sprite->health) ? 0 : sprite->health - weapon->damage;
                     sprite->iFrameTimer = 0.5f;
                     applyKnockback(*weapon, *sprite, 8.0f);
+                    // screen shake
+                    // TODO: get shake intensity from data
+                    game.eventManager.pushEvent(SCREEN_SHAKE, std::make_tuple(0.2f, 2.0f, 0.0f));
                     game.playSound("creature_hurt_02");
                 }
             }
@@ -461,15 +479,7 @@ void InGame::update(float deltaTime) {
     }
 
     // check if the player is outside of the map bounds
-    int8_t offset = checkPlayerOutOfBounds();
-    if (offset != 0) {
-        // load the new room, also make sure that the new index is not negative
-        size_t newIndex = std::max(0, static_cast<int8_t>(game.currentDungeon->getCurrentRoomIndex()) + offset);
-        game.currentDungeon->setCurrentRoomIndex(newIndex);
-        game.eventManager.pushDelayedEvent(UNNAMED, 0.0f, nullptr, [&]() {
-            loadTilemap();
-            });
-    }
+    checkRoomTransition();
 
     // update the camera controller to follow the player
     cameraController.setWorldBounds(
@@ -533,7 +543,6 @@ void InGame::draw() {
         for (const auto& sprite : game.sprites) {
             DrawRectangleLines((int)sprite->hurtbox.x, (int)sprite->hurtbox.y, (int)sprite->hurtbox.width, (int)sprite->hurtbox.height, RED);
         }
-        DrawCircle((int)player->position.x, (int)player->position.y, 2, BLUE);
     }
     EndMode2D();
 
@@ -549,7 +558,8 @@ void InGame::draw() {
 void InGame::end() {
     // wait for a split second
     WaitTime(0.25);
-
-    if (music) StopMusicStream(*music);
+    // stop the ingame music track
+    if (music) 
+        StopMusicStream(*music);
     music = nullptr;
 }

@@ -50,7 +50,7 @@ public:
 
 private:
     void spawnWeapon(size_t index);
-    int8_t checkPlayerOutOfBounds();
+    void checkRoomTransition();
     void setupEventListeners();
     void handleDeadSprites();
     void loadWorldFromSave(std::shared_ptr<SaveGame> save);

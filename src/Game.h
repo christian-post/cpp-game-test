@@ -19,9 +19,8 @@
 #define LIGHTBURGUNDY { 40, 0, 16, 255 }
 
 
-
-
 class Command;
+struct CollisionObject;
 
 class Game {
 private:
@@ -88,7 +87,7 @@ public:
     uint32_t buttonsDown;
 
     // game objects
-    std::vector<std::unique_ptr<Rectangle>> walls; // everything with static collision
+    std::vector<std::unique_ptr<CollisionObject>> walls; // everything with static collision
     std::vector<std::shared_ptr<Sprite>> sprites; // dynamic objects
     std::unordered_map<std::string, std::shared_ptr<Sprite>> spriteMap; // keep named references to certain sprites
     std::vector<Emitter> emitters; // particle emitters
@@ -98,6 +97,28 @@ public:
     std::unique_ptr<Dungeon> currentDungeon = nullptr; 
     void createDungeon(size_t roomsW, size_t roomsH);
 
+    // World bounds (set by InGame when loading tilemap)
+    float worldWidth = 0.0f;
+    float worldHeight = 0.0f;
+
+    void setWorldBounds(float width, float height) {
+        worldWidth = width;
+        worldHeight = height;
+    }
+
+    bool isInWorldBounds(const Vector2& pos) const {
+        return pos.x >= 0.0f && pos.x < worldWidth &&
+            pos.y >= 0.0f && pos.y < worldHeight;
+    }
+
+    bool isInWorldBounds(const Rectangle& rect) const {
+        return rect.x >= 0.0f &&
+            rect.y >= 0.0f &&
+            rect.x + rect.width <= worldWidth &&
+            rect.y + rect.height <= worldHeight;
+    }
+
+    // sprite management
     void killSprite(const std::shared_ptr<Sprite>& sprite);
     void clearSprites(bool clearPersistent = false);
     void processMarkedSprites();

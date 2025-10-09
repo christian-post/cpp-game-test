@@ -42,7 +42,9 @@ void setupConditionalEvents(InGame& inGame) {
                 game.cutsceneManager.queueCommand(new Command_Wait(1.0f));
                 game.cutsceneManager.queueCommand(new Command_MoveTo(npcRef, npcX, npcY, 2.0f));
                 game.cutsceneManager.queueCommand(new Command_Wait(0.5f));
-                game.cutsceneManager.queueCommand(new Command_Textbox(game, "Is that a sword? Great! I'll follow you, now we can fight our way out of here.", "powerUp4", true)); // TODO pass a key to a text in texts.json instead of the actual dialogue string... 
+                std::string textKey = "elfCutscene1";
+                std::vector<std::string> texts = game.loader.getText(textKey);
+                game.cutsceneManager.queueCommand(new Command_Textbox(game, texts[0], "powerUp4", true)); // TODO pass the key to texts.json directly instead of the actual dialogue string... 
                 game.cutsceneManager.queueCommand(new Command_Callback([&]() {
                     game.eventManager.pushEvent(SHOW_HUD);
                     game.currentDungeon->advanceRoomState();
@@ -50,7 +52,7 @@ void setupConditionalEvents(InGame& inGame) {
                         npcRef.persistent = true;
                         npcRef.followsPlayer = true;
                         npcRef.speed = 16;
-                        npcRef.addBehavior(std::make_unique<ChaseBehavior>(game, game.spriteMap["elfCompanion2"], game.spriteMap["player"], 1000.0f, 20.0f, 2000.0f));
+                        npcRef.addBehavior(std::make_unique<ChaseBehavior>(game, game.spriteMap["elfCompanion2"], game.spriteMap["player"], 1000.0f, 20.0f, 2000.0f)); // TODO create a "follow" behavior because chasing works different now? Or give the npc a state machine as well
                     }
                     }));
                 });

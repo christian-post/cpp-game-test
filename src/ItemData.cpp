@@ -24,6 +24,7 @@ static weaponData createWeaponDataFromJSON(const nlohmann::json& weaponJSON, con
     wpnData.HurtboxOffsetY = data.at("HurtboxOffsetY");
     wpnData.HurtboxWidth = data.at("HurtboxWidth");
     wpnData.HurtboxHeight = data.at("HurtboxHeight");
+    wpnData.soundKey = data.at("sound");
 
     return wpnData;
 }

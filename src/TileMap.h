@@ -73,6 +73,13 @@ struct TileObject {
     }
 };
 
+struct CollisionObject {
+    // just a raylib Rectangle with an additional layer property that allows for finer collision handling
+    int layer = 0;
+    float x, y, width, height;
+    Rectangle getRect() { return Rectangle{ x, y, width, height }; }
+};
+
 class TileMap {
 public:
     TileMap(const nlohmann::json& jsonMap, std::string mapName);

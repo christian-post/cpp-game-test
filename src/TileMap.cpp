@@ -94,8 +94,13 @@ void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, 
         return;
     // object type-specific code
     if (obj.type == "wall") {
-        game.walls.push_back(std::make_unique<Rectangle>(
-            Rectangle{ obj.x, obj.y, obj.width, obj.height })
+        game.walls.push_back(std::make_unique<CollisionObject>(
+            CollisionObject{ 0, obj.x, obj.y, obj.width, obj.height })
+        );
+    }
+    if (obj.type == "hole") {
+        game.walls.push_back(std::make_unique<CollisionObject>(
+            CollisionObject{ -1, obj.x, obj.y, obj.width, obj.height })
         );
     }
     else if (obj.type == "sprite") {
@@ -301,9 +306,20 @@ void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, 
                 currentRoomObjectStates[obj.id].isDefeated = true;
             }
             });
-        if (data.contains("behaviors")) {
-            addBehaviorsToSprite(game, sprite, data.at("behaviors"), data.at("behaviorData"));
+
+        // Check if sprite has a state machine definition
+        if (data.contains("stateMachine")) {
+            auto stateMachine = StateMachine::createFromJSON(
+                game, sprite, data["stateMachine"]);
+            sprite->setStateMachine(std::move(stateMachine));
         }
+        else if (data.contains("behaviors")) {
+            // Use old behavior system as fallback
+            addBehaviorsToSprite(game, sprite,
+                data.at("behaviors"),
+                data.at("behaviorData"));
+        }
+
         game.sprites.emplace_back(sprite);
     }
 }

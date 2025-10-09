@@ -119,6 +119,7 @@ std::pair<size_t, size_t> Dungeon::getSize() const
 
 std::pair<size_t, size_t> Dungeon::getRoomSize(size_t index) const
 {
+    // TODO check if index exists
     size_t w = rooms[index]->tilemap.width;
     size_t h = rooms[index]->tilemap.height;
     size_t ts = rooms[index]->tilemap.tileWidth;
@@ -127,7 +128,8 @@ std::pair<size_t, size_t> Dungeon::getRoomSize(size_t index) const
 
 bool Dungeon::hasVisited(size_t index) const
 {
-    if (!rooms[index] || index > rooms.size()) return false;
+    if (!rooms[index] || index > rooms.size()) 
+        return false;
     return rooms[index]->visited;
 }
 
@@ -302,26 +304,30 @@ void Dungeon::generate()
 
     /*
     ## test dungeon ##
-      0    1    2    3    4
-    0 .    0    .    .    .
-    1 .    0    .    .    .
-    2 0    0    0    .    .
-    3 .    0    0    0    0
+      0    1    2    3    4    5
+    0 .    0    .    x    .    .
+    1 .    x    x    x    .    .
+    2 .    0    .    .    .    .
+    3 0    0    0    .    .    .
+    4 .    0    0    0    0    .
     */
+    // 0 = room exists, x = TODO
     // coordinates are row, column
     // second argument is the directions of the doors, starting at the right and going counter clockwise
 
 #ifdef TEST_ROOM
     insertRoom(0, 0, Room{ game.loader.getTilemap("test_map_small"), 0b0000 }); // test dungeon
 #else
-    insertRoom(3, 1, Room{ game.loader.getTilemap("dungeon004"), 0b1100 });
-    insertRoom(3, 2, Room{ game.loader.getTilemap("dungeon001"), 0b1111 });
-    insertRoom(3, 3, Room{ game.loader.getTilemap("dungeon_2skelets_1010"), 0b1010 });
-    insertRoom(3, 4, Room{ game.loader.getTilemap("dungeon005"), 0b0010 });
-    insertRoom(2, 0, Room{ game.loader.getTilemap("dungeon007"), 0b1000 });
-    insertRoom(2, 1, Room{ game.loader.getTilemap("dungeon003"), 0b1111 });
-    insertRoom(2, 2, Room{ game.loader.getTilemap("dungeon002"), 0b0011 });
-    insertRoom(1, 1, Room{ game.loader.getTilemap("dungeon006"), 0b0101 });
+    insertRoom(4, 1, Room{ game.loader.getTilemap("dungeon004"), 0b1100 });
+    insertRoom(4, 2, Room{ game.loader.getTilemap("dungeon001"), 0b1111 }); // starting room
+    insertRoom(4, 3, Room{ game.loader.getTilemap("dungeon_2skelets_1010"), 0b1010 });
+    insertRoom(4, 4, Room{ game.loader.getTilemap("dungeon005"), 0b0010 });
+    insertRoom(3, 0, Room{ game.loader.getTilemap("dungeon007"), 0b1000 });
+    insertRoom(3, 1, Room{ game.loader.getTilemap("dungeon003"), 0b1111 });
+    insertRoom(3, 2, Room{ game.loader.getTilemap("dungeon002"), 0b0011 });
+    insertRoom(2, 1, Room{ game.loader.getTilemap("dungeon006"), 0b0101 });
+    insertRoom(1, 1, Room{ game.loader.getTilemap("dungeon_empty_1101"), 0b1101 });
+    insertRoom(1, 2, Room{ game.loader.getTilemap("dungeon_turrets_1010"), 0b1010 });
     insertRoom(0, 1, Room{ game.loader.getTilemap("dungeon_shop"), 0b0001 });
 
 #endif // TEST_ROOM
@@ -329,14 +335,14 @@ void Dungeon::generate()
 #ifdef TEST_ROOM
     setStartingRoomIndex(0); // TODO: testing
 #else 
-    setStartingRoomIndex(17); // start in R1
+    setStartingRoomIndex(26); // start in R1
     // TODO: testing item requirements
     std::vector<std::tuple<std::string, std::string, std::vector<std::string>>> edges = {
         { "dungeon001", "dungeon002", { "__impossible__" }}, // should only be opened from the top
         { "dungeon002", "dungeon001", { "key" }},
         { "dungeon003", "dungeon006", { "key" }},
         { "dungeon004", "dungeon003", { "weapon_sword" }},
-        { "dungeon003", "dungeon007", { "lamp" }}, // TODO 
+        { "dungeon003", "dungeon007", { "item_lamp" }}, // TODO 
         { "dungeon006", "dungeon_shop", { "weapon_sword" }}
     };
     std::unordered_set<std::string> itemNodes = { "dungeon002", "dungeon005", "dungeon007", "dungeon_shop"};
@@ -346,7 +352,7 @@ void Dungeon::generate()
     const int max_attempts = 100;
 
     do {
-        G.initialize_items({ "key", "key", "weapon_sword", "lamp"});
+        G.initialize_items({ "key", "key", "weapon_sword", "item_lamp"});
         G.forward_fill();
         attempts++;
     } while (!G.item_pool.empty() && attempts < max_attempts);

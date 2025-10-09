@@ -8,7 +8,8 @@
     "HurtboxHeight": 16.0,
     "damage": 1,
     "lifetime": 0.4,
-    "type": 0
+    "type": 0,
+    "sound": "slash"
   },
   "weapon_sword": {
     "posOffsetX": 0.0,
@@ -19,7 +20,8 @@
     "HurtboxHeight": 24.0,
     "damage": 2,
     "lifetime": 0.4,
-    "type": 0
+    "type": 0,
+    "sound": "slash"
   },
   "weapon_double_axe": {
     "posOffsetX": 0.0,
@@ -30,7 +32,8 @@
     "HurtboxHeight": 40.0,
     "damage": 5,
     "lifetime": 0.5,
-    "type": 0
+    "type": 0,
+    "sound": "slash"
   },
   "weapon_spear": {
     "posOffsetX": 0.0,
@@ -41,7 +44,8 @@
     "HurtboxHeight": 8.0,
     "damage": 2,
     "lifetime": 0.4,
-    "type": 1
+    "type": 1,
+    "sound": "slash"
   },
   "weapon_hammer": {
     "posOffsetX": 0.0,
@@ -52,7 +56,8 @@
     "HurtboxHeight": 12.0,
     "damage": 4,
     "lifetime": 0.6,
-    "type": 3
+    "type": 3,
+    "sound": "hammer"
   },
   "item_lamp": {
     "posOffsetX": 8.0,
@@ -63,6 +68,7 @@
     "HurtboxHeight": 1.0,
     "damage": 0,
     "lifetime": -1.0,
-    "type": 4
+    "type": 4,
+    "sound": "slash"
   }
 }

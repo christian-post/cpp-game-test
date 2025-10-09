@@ -179,6 +179,7 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\scenes\WriteSavegameMenu.cpp" />
     <ClCompile Include="src\Sprite.cpp" />
+    <ClCompile Include="src\StateMachine.cpp" />
     <ClCompile Include="src\TextBox.cpp" />
     <ClCompile Include="src\TileMap.cpp" />
     <ClCompile Include="src\TilemapRenderer.cpp" />
@@ -219,6 +220,7 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <ClInclude Include="src\scenes\TitleScreen.h" />
     <ClInclude Include="src\scenes\WriteSavegameMenu.h" />
     <ClInclude Include="src\Sprite.h" />
+    <ClInclude Include="src\StateMachine.h" />
     <ClInclude Include="src\tests\TestWorldGraph.h" />
     <ClInclude Include="src\TextBox.h" />
     <ClInclude Include="src\TileMap.h" />

@@ -9,12 +9,14 @@
 #include <unordered_set>
 
 class Sprite;
+struct CollisionObject;
 
 Vector2 GetRectCenter(Rectangle rect);
-bool isPathClear(const Rectangle& currentRect, Vector2 targetPos, const std::vector<std::unique_ptr<Rectangle>>& walls);
+bool isPathClear(const Rectangle& currentRect, Vector2 targetPos, const std::vector<std::unique_ptr<CollisionObject>>& walls);
 void applyKnockback(Sprite& sourceSprite, Sprite& targetSprite, float strength);
 std::vector<std::string> splitCSV(const std::string& input);
 float getRandomFloat(float min, float max);
+void TraceLogLong(int logLevel, const std::string& message);
 std::vector<std::string> listJSONFiles(const std::string& path);
 void mergeJson(nlohmann::json& base, const nlohmann::json & override);
 std::vector<std::string> listFiles(const std::string& path);

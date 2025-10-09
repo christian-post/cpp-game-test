@@ -9,7 +9,8 @@ Command_Wait::Command_Wait(float duration) : duration(duration) {
 
 void Command_Wait::update(float deltaTime) {
     timer += deltaTime;
-    if (timer >= duration) done = true;
+    if (timer >= duration) 
+        done = true;
 }
 
 Command_MoveTo::Command_MoveTo(Sprite& target, float posX, float posY, float duration)
@@ -19,21 +20,24 @@ Command_MoveTo::Command_MoveTo(Sprite& target, float posX, float posY, float dur
 
 void Command_MoveTo::update(float deltaTime) {
     if (!started) {
-        startX = target.position.x; startY = target.position.y;
+        startX = target.position.x; 
+        startY = target.position.y;
         started = true;
     }
     timer += deltaTime;
     if (timer >= duration) {
-        target.position.x = finalPosX; target.position.y = finalPosY;
-        target.vel = { 0.0f, 0.0f }; done = true; return;
+        target.position.x = finalPosX; 
+        target.position.y = finalPosY;
+        target.vel = { 0.0f, 0.0f }; 
+        done = true; 
+        return;
     }
     float tPct = timer / duration;
+    // TODO: does this set the animation correctly?
     float newX = startX + (finalPosX - startX) * tPct;
     float newY = startY + (finalPosY - startY) * tPct;
-    target.vel.x = (newX - target.position.x) / deltaTime;
-    target.vel.y = (newY - target.position.y) / deltaTime;
-    target.position.x = newX; target.position.y = newY;
-    target.rect.x = newX; target.rect.y = newY;
+    target.vel.x = (newX - target.position.x) / target.friction;
+    target.vel.y = (newY - target.position.y) / target.friction;
 }
 
 Command_Look::Command_Look(Sprite& target, direction dir) : target(target), dir(dir) {
@@ -41,7 +45,11 @@ Command_Look::Command_Look(Sprite& target, direction dir) : target(target), dir(
 }
 
 void Command_Look::update(float deltaTime) {
-    if (!started) { target.lastDirection = dir; started = true; done = true; }
+    if (!started) { 
+        target.lastDirection = dir; 
+        started = true; 
+        done = true; 
+    }
 }
 
 Command_LookTowards::Command_LookTowards(Sprite& target, Sprite& other)

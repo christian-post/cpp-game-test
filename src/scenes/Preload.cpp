@@ -132,6 +132,12 @@ void Preload::startup() {
                 }
             },
             {
+                "turret_idle", {
+                    "./resources/textures/sprites/turret_right_f0.png",
+                    "./resources/textures/sprites/turret_right_f1.png",
+                }
+            },
+            {
                 "signpost", {
                     "./resources/textures/sprites/signpost.png"
                 }
@@ -204,6 +210,8 @@ void Preload::startup() {
         l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_shop.json");
         l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_shop.json");
         l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_2skelets_1010.json");
+        l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_empty_1101.json");
+        l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_turrets_1010.json");
         });
     // load the font
     loadQueue.emplace("Loading fonts", [&]() {
@@ -259,6 +267,8 @@ void Preload::startup() {
         l.LoadSoundFile("./resources/sound/sfx/Rise02.wav");
         l.LoadSoundFile("./resources/sound/sfx/Rise03.wav");
         l.LoadSoundFile("./resources/sound/sfx/tone.wav");
+        l.LoadSoundFile("./resources/sound/sfx/spring.wav");
+        l.LoadSoundFile("./resources/sound/sfx/magic1.wav");
         });
 
     loadQueue.emplace("Loading thumbnails", [&]() {

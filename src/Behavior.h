@@ -37,6 +37,7 @@ struct weaponData {
     float HurtboxWidth;
     float HurtboxHeight;
     float lifetime;
+    std::string soundKey;
     // optional callbacks
     std::function<void()> onCreate;
     std::function<void()> onDestroy;
@@ -107,6 +108,7 @@ class ChaseBehavior : public Behavior {
 public:
     ChaseBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> other, float aggroDist, float minDist, float deAggroDist);
     void update(float deltaTime) override;
+    void draw() override;
     
 private:
     Game& game;

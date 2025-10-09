@@ -1,5 +1,6 @@
 #include "Utils.h"
 #include "Sprite.h"
+#include "Tilemap.h"
 #include "raylib.h"
 #include "raymath.h"
 #include <algorithm>
@@ -13,7 +14,7 @@ Vector2 GetRectCenter(Rectangle rect) {
     return { rect.x + rect.width / 2.0f, rect.y + rect.height / 2.0f };
 }
 
-bool isPathClear(const Rectangle& currentRect, Vector2 targetPos, const std::vector<std::unique_ptr<Rectangle>>& walls) {
+bool isPathClear(const Rectangle& currentRect, Vector2 targetPos, const std::vector<std::unique_ptr<CollisionObject>>& walls) {
     Rectangle sweptRect = {
         std::min(currentRect.x, targetPos.x),
         std::min(currentRect.y, targetPos.y),
@@ -21,7 +22,9 @@ bool isPathClear(const Rectangle& currentRect, Vector2 targetPos, const std::vec
         fabsf(targetPos.y - currentRect.y) + currentRect.height
     };
     for (const auto& wall : walls) {
-        if (CheckCollisionRecs(sweptRect, *wall)) return false;
+        // TODO check if wall and sprite are on similar collision layers
+        if (wall->layer == 0 && CheckCollisionRecs(sweptRect, wall->getRect()))
+            return false;
     }
     return true;
 }
@@ -43,6 +46,24 @@ std::vector<std::string> splitCSV(const std::string& input) {
 
 float getRandomFloat(float min, float max) {
     return min + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (max - min)));
+}
+
+void TraceLogLong(int logLevel, const std::string& message)
+{
+    // circumvents the size limitation of raylib's logging 
+    const size_t chunkSize = 500;
+
+    if (message.length() <= chunkSize)
+    {
+        TraceLog(logLevel, message.c_str());
+        return;
+    }
+
+    for (size_t i = 0; i < message.length(); i += chunkSize)
+    {
+        std::string chunk = message.substr(i, chunkSize);
+        TraceLog(logLevel, chunk.c_str());
+    }
 }
 
 void CameraShake::start(float dur, float xMag, float yMag) {

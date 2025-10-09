@@ -1,13 +1,13 @@
 #pragma once
-
 #include "raylib.h"
 #include <unordered_map>
 #include <string>
 #include <vector>
 #include <memory>
 #include <optional>
-#include "Behavior.h"
 #include <cstdint>
+#include "Behavior.h"
+#include "StateMachine.h"
 
 class Game;
 
@@ -99,7 +99,19 @@ public:
         behaviors.clear();
     }
     void executeBehavior(float deltaTime);
-    void drawBehavior(); // TODO: good or bad design?
+    void drawBehavior();
+
+    // State machine functions
+    std::unique_ptr<StateMachine> stateMachine = nullptr;
+
+    // Add method to set up state machine
+    void setStateMachine(std::unique_ptr<StateMachine> sm) {
+        stateMachine = std::move(sm);
+    }
+
+    bool hasStateMachine() const {
+        return stateMachine != nullptr;
+    }
 
 private:
     std::vector<std::unique_ptr<Behavior>> behaviors;

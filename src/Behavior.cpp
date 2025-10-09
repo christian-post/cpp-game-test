@@ -59,19 +59,33 @@ void RandomWalkBehavior::update(float deltaTime) {
         }
 
         if (!hasWalkTarget) {
-            int tries = 10;
+            int tries = 20;
             while (tries-- > 0) {
-                direction dir = static_cast<direction>(GetRandomValue(LEFT, DOWN));
-                int tiles = GetRandomValue(1, 4);
+                direction dir = static_cast<direction>(GetRandomValue(RIGHT, DOWN));
+                int tiles = GetRandomValue(1, 4); // walk between 1 and 4 tiles at once
                 float offset = tiles * 16.0f;
                 Vector2 candidate = s->position;
                 switch (dir) {
-                case UP: candidate.y -= offset; break;
-                case LEFT: candidate.x -= offset; break;
-                case DOWN: candidate.y += offset; break;
-                case RIGHT: candidate.x += offset; break;
+                case UP: 
+                    candidate.y -= offset; 
+                    break;
+                case LEFT: 
+                    candidate.x -= offset; 
+                    break;
+                case DOWN: 
+                    candidate.y += offset; 
+                    break;
+                case RIGHT: 
+                    candidate.x += offset; 
+                    break;
                 }
-                if (isPathClear(s->rect, candidate, s->game.walls)) {
+                // check if target candidate is within map bounds
+                Rectangle testRect = s->rect;
+                testRect.x = candidate.x;
+                testRect.y = candidate.y;
+
+                if (s->game.isInWorldBounds(testRect) &&
+                    isPathClear(s->rect, candidate, s->game.walls)) {
                     walkTarget = candidate;
                     hasWalkTarget = true;
                     waitTimer = float(rand() % 5 + 1);
@@ -92,8 +106,19 @@ void ChaseBehavior::update(float deltaTime) {
         Vector2 otherCenter = GetRectCenter(o->rect);
         float dx = otherCenter.x - selfCenter.x;
         float dy = otherCenter.y - selfCenter.y;
-        float distSq = dx * dx + dy * dy;
+        float dist = sqrtf(dx * dx + dy * dy);
+        if (dist <= minDist) {
+            s->acc = { 0.0f, 0.0f };
+            s->vel = { 0.0f, 0.0f };
+        }
+        else {
+            s->acc.x = dx / dist;
+            s->acc.y = dy / dist;
+        }
 
+        // TODO: don't calculate the distance if the state transition
+        // is controlled by the state machine
+        /*float distSq = dx * dx + dy * dy;
         if (!isChasing) {
             if (distSq < aggroDist * aggroDist) {
                 isChasing = true;
@@ -110,12 +135,13 @@ void ChaseBehavior::update(float deltaTime) {
                 s->acc = { 0.0f, 0.0f };
                 s->vel = { 0.0f, 0.0f };
             }
-        }
+        }*/
     }
     // seperation behavior between enemies
-    // TODO: does this scale well with deltaTime?
+    // TODO: does this scale correctly with deltaTime?
     for (auto& sprite : game.sprites) {
-        if (!sprite->isEnemy) continue;
+        if (!sprite->isEnemy) 
+            continue;
 
         Vector2 sum = { 0, 0 };
         int count = 0;
@@ -148,6 +174,17 @@ void ChaseBehavior::update(float deltaTime) {
 
             sprite->acc.x += (sum.x - sprite->acc.x);
             sprite->acc.y += (sum.y - sprite->acc.y);
+        }
+    }
+}
+
+void ChaseBehavior::draw() {
+    if (game.debug) {
+        // draw the radius
+        if (auto s = self.lock()) {
+            Vector2 selfCenter = GetRectCenter(s->rect);
+            DrawCircleLines(static_cast<int>(selfCenter.x), static_cast<int>(selfCenter.y), deAggroDist, WHITE);
+            DrawCircleLines(static_cast<int>(selfCenter.x), static_cast<int>(selfCenter.y), aggroDist, RED);
         }
     }
 }
@@ -460,7 +497,7 @@ void ProjectileBehavior::update(float deltaTime) {
     if (auto s = self.lock(), t = target.lock(); s && t) {
         // check if the projectile hit a wall
         for (const auto& wall : game.walls) {
-            if (CheckCollisionRecs(s->rect, *wall)) {
+            if (wall->layer == 0 && CheckCollisionRecs(s->rect, wall->getRect())) {
                 s->markForDeletion();
                 return;
             }

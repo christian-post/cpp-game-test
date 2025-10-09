@@ -9,9 +9,54 @@
     "damage": 1,
     "knockback": 10.0,
     "speed": 12.0,
-    "behaviors": [ "RandomWalk", "Chase" ],
-    "behaviorData": {
-      "chaseTarget": "player"
+    "stateMachine": {
+      "initialState": "patrol",
+      "states": [
+        {
+          "name": "patrol",
+          "behaviors": [ "RandomWalk" ],
+          "behaviorData": {},
+          "transitions": [
+            {
+              "to": "chase",
+              "requiresAll": true,
+              "conditions": [
+                {
+                  "type": "playerInRange",
+                  "distance": 64.0
+                },
+                {
+                  "type": "hasLineOfSight"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "chase",
+          "behaviors": [ "Chase" ],
+          "behaviorData": {
+            "aggroDist": 64.0,
+            "minDist": 2.0,
+            "deAggroDist": 96.0
+          },
+          "transitions": [
+            {
+              "to": "patrol",
+              "requiresAll": false,
+              "conditions": [
+                {
+                  "type": "playerOutOfRange",
+                  "distance": 96.0
+                },
+                {
+                  "type": "lostLineOfSight"
+                }
+              ]
+            }
+          ]
+        }
+      ]
     },
     "itemDrops": [
       [ "coin", 0.4 ],
@@ -52,5 +97,67 @@
     "behaviors": [ "RandomWalk", "Chase" ],
     "behaviorData": { "chaseTarget": "player" },
     "itemDrops": [ [ "coin", 0.75 ] ]
+  },
+  "turret": {
+    "inherits": "sprite_default",
+    "textures": [
+      "turret_idle"
+    ],
+    "health": 10,
+    "damage": 0,
+    "knockback": 0.0,
+    "speed": 0.0,
+    "stateMachine": {
+      "initialState": "watch",
+      "states": [
+        {
+          "name": "watch",
+          "behaviors": [ "Watch" ],
+          "behaviorData": { "watchTarget":  "player" },
+          "transitions": [
+            {
+              "to": "shoot",
+              "requiresAll": true,
+              "conditions": [
+                {
+                  "type": "playerInRange",
+                  "distance": 96.0
+                },
+                {
+                  "type": "hasLineOfSight"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "shoot",
+          "behaviors": [ "Shoot", "Watch" ],
+          "behaviorData": {
+            "watchTarget": "player",
+            "shootTarget": "player",
+            "shootProjectile": "magic_ball",
+            "shootDamage": 2,
+            "shootInterval": 3.0,
+            "shootSound": "magic1"
+          },
+          "transitions": [
+            {
+              "to": "watch",
+              "requiresAll": false,
+              "conditions": [
+                {
+                  "type": "playerOutOfRange",
+                  "distance": 112.0
+                },
+                {
+                  "type": "lostLineOfSight"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
   }
 }
