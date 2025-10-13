@@ -20,14 +20,16 @@ public:
     void draw() override;
     void end() override;
 
-    void loadTilemap(); // function that handles room transitions
+    // Function that handles room transitions
+    void loadTilemap();
     Sprite* getSprite(const std::string& name);
 
     const TileMap* tileMap;
     TilemapRenderer tilemapRenderer;
     CameraController cameraController;
 
-    std::shared_ptr<Sprite> player;  // keep a player variable for direct frequent access
+    // keep a player variable for direct frequent access
+    std::shared_ptr<Sprite> player;
     std::array<std::optional<std::string>, 2> currentWeapon = { std::nullopt, std::nullopt };
     // light effects
     // TODO: these need to be dynamic and shouldn't be hard-coded here.

@@ -31,6 +31,9 @@ void StateMachine::update(float deltaTime) {
     if (!currentState)
         return;
 
+    // advance the state's timer
+    currentState->timer += deltaTime;
+
     auto sprite = owner.lock();
     if (!sprite)
         return;
@@ -100,12 +103,14 @@ void StateMachine::enterState(State* state) {
     if (!sprite)
         return;
 
-    // Simply activate the behaviors for this state
+    // Activate the behaviors for this state
     activateBehaviors(state->activeBehaviorKeys);
 
     // Call onEnter callback
     if (state->onEnter)
         state->onEnter(*sprite);
+
+    state->timer = 0.0f; // reset the timer
 }
 
 void StateMachine::exitState(State* state) {
@@ -143,7 +148,7 @@ std::unique_ptr<StateMachine> StateMachine::createFromJSON(
 
     if (!data.contains("states"))
     {
-        TraceLog(LOG_ERROR, "State machine data missing 'states' field");
+        TraceLog(LOG_ERROR, "State machine data is missing 'states' field");
         return stateMachine;
     }
 
@@ -177,15 +182,13 @@ std::unique_ptr<StateMachine> StateMachine::createFromJSON(
                 else if (behaviorKeyStr == "Chase")
                 {
                     std::string targetName = behaviorData.value("chaseTarget", "player");
-                    float aggroDist = behaviorData.value("aggroDist", 48.0f);
-                    float minDist = behaviorData.value("minDist", 2.0f);
-                    float deAggroDist = behaviorData.value("deAggroDist", 64.0f);
+                    float minDist = behaviorData.value("minDist", 20.0f);
 
                     if (game.spriteMap.find(targetName) != game.spriteMap.end())
                     {
                         behavior = std::make_unique<ChaseBehavior>(
                             game, owner, game.spriteMap[targetName],
-                            aggroDist, minDist, deAggroDist);
+                            minDist);
                     }
                 }
                 else if (behaviorKeyStr == "Shoot")

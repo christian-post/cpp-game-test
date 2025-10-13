@@ -56,7 +56,9 @@ void Sprite::animate(float deltaTime) {
         currentAnimState = IDLE;
     }
     else {
-        currentAnimState = RUN;
+        if (frames.size() > 1)
+            // only set to RUN if sprite has more than just idle frames
+            currentAnimState = RUN;
         if (vel.x > 0.0f) {
             lastDirection = RIGHT; // right
         }
@@ -132,13 +134,14 @@ void Sprite::moveTo(float x, float y) {
     hurtbox.y = rect.y + (rect.height - hurtbox.height) / 2 + hurtboxOffset.y;
 }
 
-void Sprite::jump()
+void Sprite::jump(uint32_t force)
 {
+    jumpForce = force;
     az = -1.0f;
 }
 
 void Sprite::update(float deltaTime) {
-    if (markedForDeletion) 
+    if (markedForDeletion)
         return;
     // applies laws of motion according to the acceleration that was
     // set prior to this step (either by player input, Cutscene commands,
@@ -157,7 +160,6 @@ void Sprite::update(float deltaTime) {
 
     // Vertical motion (Z axis)
     // Apply vertical impulse
-    // TODO: set jumpForce as a member
     vz += az * jumpForce * deltaTime;
 
     // Apply gravity
@@ -195,6 +197,7 @@ void Sprite::update(float deltaTime) {
 void Sprite::draw() {
     if (!visible || markedForDeletion) 
         return;
+    // look for textures that belong the current anim state
     auto& textures = frames[currentAnimState];
     if (currentFrame >= textures.size()) {
         // show that something went wrong

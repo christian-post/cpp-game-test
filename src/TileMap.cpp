@@ -134,6 +134,7 @@ void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, 
         sprite->damage = data.contains("damage") ? data.at("damage").get<int>() : defaultData.at("damage").get<int>();
         sprite->speed = data.contains("speed") ? data.at("speed").get<float>() : defaultData.at("speed").get<float>();
         sprite->knockback = data.contains("knockback") ? data.at("knockback").get<float>() : defaultData.at("knockback").get<float>();
+        sprite->weight = data.contains("weight") ? data.at("weight").get<float>() : defaultData.at("weight").get<int>();
         sprite->hitboxOffset = data.contains("hitboxOffset") ?
             Vector2{ data.at("hitboxOffset")[0].get<float>(), data.at("hitboxOffset")[1].get<float>() } :
             Vector2{ 0.0f, 0.0f };

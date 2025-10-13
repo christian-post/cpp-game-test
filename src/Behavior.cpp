@@ -96,8 +96,8 @@ void RandomWalkBehavior::update(float deltaTime) {
     }
 }
 
-ChaseBehavior::ChaseBehavior(Game& game, std::shared_ptr<Sprite> sprite, std::shared_ptr<Sprite> targetSprite, float aggroDist, float minDist, float deAggroDist)
-    : game{ game }, self{ sprite }, other{ targetSprite }, aggroDist{ aggroDist }, minDist{ minDist }, deAggroDist{ deAggroDist } {
+ChaseBehavior::ChaseBehavior(Game& game, std::shared_ptr<Sprite> sprite, std::shared_ptr<Sprite> targetSprite, float minDist)
+    : game{ game }, self{ sprite }, other{ targetSprite }, minDist{ minDist } {
 }
 
 void ChaseBehavior::update(float deltaTime) {
@@ -115,27 +115,6 @@ void ChaseBehavior::update(float deltaTime) {
             s->acc.x = dx / dist;
             s->acc.y = dy / dist;
         }
-
-        // TODO: don't calculate the distance if the state transition
-        // is controlled by the state machine
-        /*float distSq = dx * dx + dy * dy;
-        if (!isChasing) {
-            if (distSq < aggroDist * aggroDist) {
-                isChasing = true;
-            }
-        }
-        else {
-            float dist = sqrtf(distSq);
-            s->acc.x = dx / dist;
-            s->acc.y = dy / dist;
-            if (dist > deAggroDist) {
-                isChasing = false;
-            }
-            else if (dist <= minDist) {
-                s->acc = { 0.0f, 0.0f };
-                s->vel = { 0.0f, 0.0f };
-            }
-        }*/
     }
     // seperation behavior between enemies
     // TODO: does this scale correctly with deltaTime?
@@ -174,17 +153,6 @@ void ChaseBehavior::update(float deltaTime) {
 
             sprite->acc.x += (sum.x - sprite->acc.x);
             sprite->acc.y += (sum.y - sprite->acc.y);
-        }
-    }
-}
-
-void ChaseBehavior::draw() {
-    if (game.debug) {
-        // draw the radius
-        if (auto s = self.lock()) {
-            Vector2 selfCenter = GetRectCenter(s->rect);
-            DrawCircleLines(static_cast<int>(selfCenter.x), static_cast<int>(selfCenter.y), deAggroDist, WHITE);
-            DrawCircleLines(static_cast<int>(selfCenter.x), static_cast<int>(selfCenter.y), aggroDist, RED);
         }
     }
 }
@@ -591,6 +559,7 @@ void ChestBehavior::update(float deltaTime) {
                 collided = true;
             }
             if (game.buttonsDown & CONTROL_ACTION1) {
+                // opens the chest
                 triggered = true;
                 auto& itemData = game.inventory.getItemData();
                 const ItemData& data = itemData.at(itemName);
@@ -647,6 +616,10 @@ void ChestBehavior::draw() {
         auto& itemData = game.inventory.getItemData();
         const ItemData& data = itemData.at(itemName);
         const auto& textures = game.loader.getTextures(data.textureKey);
+        if (textures.size() == 0) {
+            TraceLog(LOG_ERROR, "No texture found for %s", data.textureKey.c_str());
+            return;
+        }
         // adjust x position to account for item texture width
         int item_tex_width = textures[0].width;
         int chest_tex_width = s->frames[s->currentAnimState][s->currentFrame].width;
@@ -725,10 +698,10 @@ void addBehaviorsToSprite(Game& game, std::shared_ptr<Sprite> sprite, const std:
             }
         }
         else if (key == "Chase") {
-            // TODO get distance values from file
+            // TODO get min distance value from file
             std::string targetName = behaviorData.value("chaseTarget", "");
             if (game.spriteMap.find(targetName) != game.spriteMap.end()) {
-                sprite->addBehavior(std::make_unique<ChaseBehavior>(game, sprite, game.spriteMap[targetName], 48.0f, 2.0f, 64.0f));
+                sprite->addBehavior(std::make_unique<ChaseBehavior>(game, sprite, game.spriteMap[targetName], 20.0f));
             }
             else {
                 TraceLog(LOG_WARNING, "Target \"%s\" not found in spriteMap. Skipping ChaseBehavior for %s.", targetName.c_str(), sprite->spriteName.c_str());

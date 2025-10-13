@@ -52,7 +52,7 @@ void setupConditionalEvents(InGame& inGame) {
                         npcRef.persistent = true;
                         npcRef.followsPlayer = true;
                         npcRef.speed = 16;
-                        npcRef.addBehavior(std::make_unique<ChaseBehavior>(game, game.spriteMap["elfCompanion2"], game.spriteMap["player"], 1000.0f, 20.0f, 2000.0f)); // TODO create a "follow" behavior because chasing works different now? Or give the npc a state machine as well
+                        npcRef.addBehavior(std::make_unique<ChaseBehavior>(game, game.spriteMap["elfCompanion2"], game.spriteMap["player"], 20.0f));
                     }
                     }));
                 });
@@ -138,7 +138,7 @@ void setupConditionalEvents(InGame& inGame) {
             game.eventManager.pushDelayedEvent(UNNAMED, 0.1f, nullptr, [&]() {
                 Sprite& npcRef = *game.spriteMap["elfCompanion2"];
                 npcRef.removeAllBehaviors();
-                npcRef.addBehavior(std::make_unique<ChaseBehavior>(game, game.spriteMap["elfCompanion2"], game.spriteMap["player"], 1000.0f, 20.0f, 2000.0f));
+                npcRef.addBehavior(std::make_unique<ChaseBehavior>(game, game.spriteMap["elfCompanion2"], game.spriteMap["player"], 20.0f));
                 std::string textKey = "elfDialogue3";
                 std::vector<std::string> texts = game.loader.getText(textKey);
                 npcRef.addBehavior(std::make_unique<DialogueBehavior>(game, game.spriteMap["elfCompanion2"], game.spriteMap["player"], texts, "powerUp4"));

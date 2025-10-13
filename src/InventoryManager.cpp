@@ -55,7 +55,8 @@ void InventoryManager::addItem(const std::string& key, uint32_t amount) {
     else {
         auto& bucket = items[static_cast<size_t>(data->type)];
         auto& item = bucket[key];
-        if (!item.first) item.first = data;
+        if (!item.first) 
+            item.first = data;
         item.second += amount;
     }
 }

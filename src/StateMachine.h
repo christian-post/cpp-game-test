@@ -47,8 +47,9 @@ struct StateTransition {
 // Represents a single state in the state machine
 struct State {
     std::string name;
-    std::vector<std::string> activeBehaviorKeys; // Which behaviors should be active in this state
+    std::vector<std::string> activeBehaviorKeys; // Behaviors that should be active in this state
     std::vector<StateTransition> transitions;
+    float timer = 0.0f; // keeps the time spent in this state
 
     // Optional callbacks
     std::function<void(Sprite&)> onEnter;
@@ -142,7 +143,7 @@ namespace TransitionConditions {
     TransitionCondition HasLineOfSightToPlayer();
     TransitionCondition LostLineOfSightToPlayer();
 
-    // Timer-based
+    // Timer-based (TODO)
     TransitionCondition TimeInStateExceeds(float seconds);
 
     // Custom condition

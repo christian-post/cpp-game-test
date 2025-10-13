@@ -64,7 +64,7 @@ public:
     float z = 0.0f;
     float vz = 0.0f;
     float az = 0.0f;
-    void jump();
+    void jump(uint32_t force = 600);
 
     // gameplay variables
     uint32_t health; // current health
@@ -75,7 +75,8 @@ public:
     bool followsPlayer = false;
     bool isEnemy = false;
     uint32_t damage = 0;
-    float knockback = 10.0f;
+    float knockback = 10.0f; // knockback that the sprite inflicts to others
+    int weight = 1; // influences the knockback that the sprite iselfs experiences
     bool dying = false; // flag for the death animation
     
     Sprite(Game& game, float x, float y, float w, float h, const std::string& spriteName);

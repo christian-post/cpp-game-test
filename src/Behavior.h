@@ -106,17 +106,14 @@ private:
 
 class ChaseBehavior : public Behavior {
 public:
-    ChaseBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> other, float aggroDist, float minDist, float deAggroDist);
+    ChaseBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> other, float minDist);
     void update(float deltaTime) override;
-    void draw() override;
     
 private:
     Game& game;
     std::weak_ptr<Sprite> self;
     std::weak_ptr<Sprite> other;
-    float aggroDist;
     float minDist;
-    float deAggroDist;
     bool isChasing = false;
 };
 

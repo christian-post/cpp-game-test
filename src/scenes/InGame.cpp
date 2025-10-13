@@ -92,8 +92,19 @@ void InGame::handleDeadSprites()
     for (const auto& sprite : game.sprites) {
         if (sprite && sprite->health < 1 && !sprite->dying) {
             sprite->dying = true;
-            sprite->removeAllBehaviors();
-            sprite->addBehavior(std::make_unique<DeathBehavior>(game, sprite, 2.0f));
+            // a sprite with a state machine is handled differently
+            if (sprite->stateMachine) {
+                sprite->stateMachine->addBehavior("death", std::make_unique<DeathBehavior>(game, sprite, 2.0f));
+                auto state = std::make_unique<State>("dying");
+                state->activeBehaviorKeys.push_back("death");
+                sprite->stateMachine->addState(std::move(state));
+                sprite->stateMachine->transitionTo("dying");
+            }
+            else {
+                sprite->removeAllBehaviors();
+                sprite->addBehavior(std::make_unique<DeathBehavior>(game, sprite, 2.0f));
+            }
+
             // TODO: unify these two events
             std::string eventStr = "killSprite_" + std::to_string(reinterpret_cast<uintptr_t>(sprite.get()));
             int eventKey = EventKeyRegistry::getEventKey(eventStr);
@@ -196,14 +207,14 @@ void InGame::loadWorldFromSave(std::shared_ptr<SaveGame> save)
     player->maxHealth = save->playerMaxHealth;
     player->health = std::max(static_cast<uint32_t>(6), save->playerHealth);
 
-    // Capture the shared_ptr to keep the SaveGame alive
+    // Delayed event that adds the items and equips the weapons
     game.eventManager.pushDelayedEvent(UNNAMED, 0.1f, nullptr, [this, save]() {
         for (const auto& itemPair : save->items) {
             this->game.eventManager.pushEvent(ADD_ITEM,
                 std::make_any<std::pair<std::string, uint32_t>>(itemPair.first, itemPair.second));
         }
-        this->game.eventManager.pushEvent(WEAPON_SET, std::make_pair(save->currentWeapons[0], 0));
-        this->game.eventManager.pushEvent(WEAPON_SET, std::make_pair(save->currentWeapons[1], 1));
+        this->game.eventManager.pushEvent(WEAPON_SET, std::pair<std::string, size_t>(save->currentWeapons[0], 0));
+        this->game.eventManager.pushEvent(WEAPON_SET, std::pair<std::string, size_t>(save->currentWeapons[1], 1));
         });
 
     game.currentDungeon = loadDungeon(*save, game);
@@ -382,7 +393,8 @@ void InGame::update(float deltaTime) {
     // update the sprites
     for (const auto& sprite : game.sprites) {
         if (sprite) {
-            sprite->executeBehavior(deltaTime);
+            if (!game.cutsceneManager.isActive())
+                sprite->executeBehavior(deltaTime);
             sprite->update(deltaTime);
         }
     }
@@ -463,7 +475,11 @@ void InGame::update(float deltaTime) {
                     CheckCollisionRecs(weapon->hurtbox, sprite->rect)) {
                     sprite->health = (weapon->damage > sprite->health) ? 0 : sprite->health - weapon->damage;
                     sprite->iFrameTimer = 0.5f;
-                    applyKnockback(*weapon, *sprite, 8.0f);
+
+                    // calculate the knockback
+                    if (sprite->weight > 0)
+                        applyKnockback(*weapon, *sprite, 8.0f / sprite->weight); // TODO get knockback from weapon data?
+                    
                     // screen shake
                     // TODO: get shake intensity from data
                     game.eventManager.pushEvent(SCREEN_SHAKE, std::make_tuple(0.2f, 2.0f, 0.0f));

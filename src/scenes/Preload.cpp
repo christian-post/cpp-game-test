@@ -166,7 +166,7 @@ void Preload::startup() {
             { "flask_big_blue", { "./resources/textures/sprites/flask_big_blue.png" }},
             { "itemDropHeart", { "./resources/textures/sprites/item_drop_heart.png" } },
             { "itemDropCoin", { "./resources/textures/sprites/item_drop_coin.png" } },
-            { "itemDropHeart1Up", { "./resources/textures/sprites/item_drop_heart1up.png" } },
+            { "heart_1up", { "./resources/textures/sprites/item_drop_heart1up.png" } },
             { "bomb", { "./resources/textures/sprites/bomb_f0.png" } },
             { "item_key", { "./resources/textures/sprites/item_key.png" } },
             { "item_lamp", { "./resources/textures/sprites/item_lamp_0.png" } },

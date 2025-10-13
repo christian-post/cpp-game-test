@@ -390,7 +390,6 @@ void Game::run() {
         playSound("Rise02");
         });
     // loading a saved game
-    // TODO: use data for the file index
     eventManager.addListener(LOAD_GAME, [&](std::any data) {
         std::string str = std::any_cast<std::string>(data);
         load(str);
