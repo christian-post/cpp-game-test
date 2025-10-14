@@ -1,15 +1,17 @@
 #pragma once
 #include "raylib.h"
 #include <string>
-#include <memory>
 #include <vector>
 #include "json.hpp"
 #include <functional>
+#include <memory>
+
 
 class Game;
 class Sprite;
 struct Emitter;
 struct Particle;
+class Behavior;
 
 enum direction {
     RIGHT,
@@ -69,7 +71,16 @@ struct shootingConfig {
 };
 
 
+// Factory function to create behaviors from JSON data
+std::unique_ptr<Behavior> createBehaviorFromJSON(
+    Game& game,
+    std::shared_ptr<Sprite> sprite,
+    const std::string& behaviorKey,
+    const nlohmann::json& behaviorData
+);
 
+// puts all behaviors into the Sprite instance
+// TODO: not a "true" entity component system... might refactor at some point, but right now there aren't hundreds of sprites instanciated at the same time, so it's fine
 void addBehaviorsToSprite(Game& game, std::shared_ptr<Sprite> sprite, const std::vector<std::string>& behaviors, const nlohmann::json& behaviorData);
 
 

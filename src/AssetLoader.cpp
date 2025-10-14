@@ -233,6 +233,16 @@ void AssetLoader::loadSpriteData(const std::string& filename) {
     }
 }
 
+void AssetLoader::loadParticleData(const std::string& filename)
+{
+    std::ifstream file(filename);
+    if (!file) {
+        TraceLog(LOG_ERROR, "Failed to open particle data file %s", filename.c_str());
+        return;
+    }
+    file >> particleData;
+}
+
 void AssetLoader::postprocessSpriteData()
 {
     // resolves inherited fields for all sprites in spriteData
@@ -273,6 +283,11 @@ void AssetLoader::loadtextData(const std::string& filename)
 
 const nlohmann::json& AssetLoader::getSpriteData() {
     return spriteData;
+}
+
+const nlohmann::json& AssetLoader::getParticleData()
+{
+    return particleData;
 }
 
 const std::vector<std::string>& AssetLoader::getText(std::string& key)

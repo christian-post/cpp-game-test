@@ -2,6 +2,7 @@
   "defaultEmitter": {
     "type": "emitter",
     "particleKey": "defaultParticle",
+    "maxParticles": 20,
     "spawnInterval": 1.0,
     "emitterLifetime": -1.0,
     "spawnRadius": 0.0,
@@ -9,7 +10,10 @@
     "velocityVarianceX": 0.0,
     "velocityVarianceY": 0.0,
     "lifetimeVariance": 0.0,
-    "alphaVariance": 0.0
+    "alphaVariance": 0.0,
+    "radialVelocity": false,
+    "speed": 100.0,
+    "speedVariance": 0.0
   },
   "defaultParticle": {
     "type": "particle",
@@ -22,6 +26,63 @@
     "lifetime": 1.0,
     "startSize": 1.0,
     "endSize": 1.0,
+    "animationSpeed": 0.1
+  },
+  "smoke": {
+    "type": "emitter",
+    "particleKey": "smokeParticle",
+    "maxParticles": 20,
+    "spawnInterval": 0.2,
+    "emitterLifetime": -1.0,
+    "spawnRadius": 0.0,
+    "spawnRadiusVariance": 0.0,
+    "velocityVarianceX": 20.0,
+    "velocityVarianceY": 20.0,
+    "lifetimeVariance": 0.05,
+    "alphaVariance": 0.0,
+    "radialVelocity": false,
+    "speed": 100.0,
+    "speedVariance": 0.0
+  },
+  "smokeParticle": {
+    "type": "particle",
+    "textureKey": "smoke",
+    "velocityX": 0.0,
+    "velocityY": 0.0,
+    "startAlpha": 0.5,
+    "endAlpha": 0.0,
+    "tint": [ 255, 255, 255, 255 ],
+    "lifetime": 1.6,
+    "startSize": 1.0,
+    "endSize": 0.2,
+    "animationSpeed": 0.1
+  },
+  "energyCharge": {
+    "type": "emitter",
+    "particleKey": "energyParticle",
+    "maxParticles": 12,
+    "spawnInterval": 0.05,
+    "emitterLifetime": -1.0,
+    "spawnRadius": 16.0,
+    "spawnRadiusVariance": 2.0,
+    "velocityVarianceX": 0.0,
+    "velocityVarianceY": 0.0,
+    "lifetimeVariance": 0.0,
+    "alphaVariance": 0.0,
+    "radialVelocity": true,
+    "speed": 40.0,
+    "speedVariance": 10.0
+  },
+  "energyParticle": {
+    "type": "particle",
+    "textureKey": "magic_ball",
+    "velocityX": 0.0,
+    "velocityY": 0.0,
+    "startAlpha": 0.0,
+    "endAlpha": 1.0,
+    "lifetime": 0.4,
+    "startSize": 1.0,
+    "endSize": 0.2,
     "animationSpeed": 0.1
   }
 }

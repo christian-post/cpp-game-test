@@ -14,6 +14,7 @@
 #include <vector>
 #include <limits>
 
+
 WatchBehavior::WatchBehavior(std::shared_ptr<Sprite> sprite, std::shared_ptr<Sprite> targetSprite)
     : self{ sprite }, target{ targetSprite } {
 }
@@ -501,7 +502,8 @@ void ShootBehavior::update(float deltaTime) {
         timer = 0.0f;
         if (auto s = self.lock(), t = target.lock(); s && t) {
             game.playSound(config.sound);
-            Rectangle sRect = { s->position.x, s->position.y, config.hitboxSize, config.hitboxSize };
+            Vector2 sCenter = GetRectCenter(s->rect);
+            Rectangle sRect = { sCenter.x - config.hitboxSize / 2.0f, sCenter.y - config.hitboxSize / 2.0f, config.hitboxSize, config.hitboxSize }; // center on sprite
             auto projectile = game.createSprite(config.projectileKey, sRect);
             projectile->setTextures({ config.projectileKey, config.projectileKey }); // IDLE and RUN sprites are the same
             projectile->addBehavior(std::make_unique<ProjectileBehavior>(game, projectile, t, false));
@@ -511,7 +513,7 @@ void ShootBehavior::update(float deltaTime) {
             projectile->frameTime = config.frameTime;
             // add a Particle effect that imitates the sprite, but slowly fades
             std::unique_ptr<Emitter> emitter = std::make_unique<Emitter>(config.amount);
-            emitter->location = s->position;
+            emitter->location = GetRectCenter(s->rect);
             emitter->spawnInterval = config.spawnInterval;
             emitter->lifetimeVariance = config.lifetimeVariance;
             emitter->velocityVariance = config.velocityVariance;
@@ -683,69 +685,158 @@ void OpenLockBehavior::update(float deltaTime) {
 }
 
 
+std::unique_ptr<Behavior> createBehaviorFromJSON(Game& game, std::shared_ptr<Sprite> sprite, const std::string& behaviorKey, const nlohmann::json& behaviorData)
+{
+    if (behaviorKey == "RandomWalk") {
+        return std::make_unique<RandomWalkBehavior>(sprite);
+    }
+    else if (behaviorKey == "Watch") {
+        std::string targetName = behaviorData.value("watchTarget", "");
+        if (game.spriteMap.find(targetName) != game.spriteMap.end()) {
+            return std::make_unique<WatchBehavior>(sprite, game.spriteMap[targetName]);
+        }
+        else {
+            TraceLog(LOG_WARNING, "Target \"%s\" not found in spriteMap. Skipping WatchBehavior.", targetName.c_str());
+            return nullptr;
+        }
+    }
+    else if (behaviorKey == "Chase") {
+        std::string targetName = behaviorData.value("chaseTarget", "player");
+        float minDist = behaviorData.value("minDist", 20.0f);
+
+        if (game.spriteMap.find(targetName) != game.spriteMap.end()) {
+            return std::make_unique<ChaseBehavior>(game, sprite, game.spriteMap[targetName], minDist);
+        }
+        else {
+            TraceLog(LOG_WARNING, "Target \"%s\" not found in spriteMap. Skipping ChaseBehavior.", targetName.c_str());
+            return nullptr;
+        }
+    }
+    else if (behaviorKey == "Dialogue") {
+        std::string textKey = behaviorData.value("dialogue", "");
+        if (textKey.length()) {
+            std::vector<std::string> texts = game.loader.getText(textKey);
+            std::string voice = behaviorData.value("voice", "tone");
+            return std::make_unique<DialogueBehavior>(game, sprite, game.spriteMap["player"], texts, voice);
+        }
+        return nullptr;
+    }
+    else if (behaviorKey == "Shoot") {
+        std::string targetName = behaviorData.value("shootTarget", "player");
+        shootingConfig conf;
+        conf.projectileKey = behaviorData.value("shootProjectile", conf.projectileKey);
+        conf.sound = behaviorData.value("shootSound", conf.sound);
+        conf.damage = behaviorData.value("shootDamage", conf.damage);
+        conf.shootInterval = behaviorData.value("shootInterval", 2.0f);
+        conf.speed = behaviorData.value("shootSpeed", 20.0f);
+        conf.amount = 10;
+        conf.velocityVariance = { 1.0f, 1.0f };
+        conf.spawnInterval = 0.1f;
+        conf.lifetimeVariance = 0.2f;
+
+        if (game.spriteMap.find(targetName) != game.spriteMap.end()) {
+            return std::make_unique<ShootBehavior>(game, sprite, game.spriteMap[targetName], conf);
+        }
+        else {
+            TraceLog(LOG_WARNING, "Target \"%s\" not found in spriteMap. Skipping ShootBehavior.", targetName.c_str());
+            return nullptr;
+        }
+    }
+    else if (behaviorKey == "Emitter") {
+        // Get the emitter key from behavior data
+        std::string emitterKey = behaviorData.value("emitter", behaviorData.value("particle", ""));
+        if (emitterKey.empty()) {
+            TraceLog(LOG_WARNING, "No emitter/particle key specified for Emitter behavior");
+            return nullptr;
+        }
+
+        // Load particles.json data
+        const auto& particlesData = game.loader.getParticleData(); // TODO: change to getParticleData() when implemented
+
+        // Get the default emitter and particle for fallback values
+        if (particlesData.find("defaultEmitter") == particlesData.end() ||
+            particlesData.find("defaultParticle") == particlesData.end()) {
+            TraceLog(LOG_ERROR, "Missing 'defaultEmitter' or 'defaultParticle' in particles.json");
+            return nullptr;
+        }
+
+        const auto& defaultEmitterData = particlesData.at("defaultEmitter");
+        const auto& defaultParticleData = particlesData.at("defaultParticle");
+
+        // Get specific emitter data
+        if (particlesData.find(emitterKey) == particlesData.end()) {
+            TraceLog(LOG_WARNING, "Emitter key \"%s\" not found in particles.json", emitterKey.c_str());
+            return nullptr;
+        }
+
+        const auto& emitterData = particlesData.at(emitterKey);
+
+        // Get particle prototype key
+        std::string particleKey = emitterData.value("particleKey", defaultEmitterData.value("particleKey", "defaultParticle"));
+        if (particlesData.find(particleKey) == particlesData.end()) {
+            TraceLog(LOG_WARNING, "Particle key \"%s\" not found in particles.json", particleKey.c_str());
+            return nullptr;
+        }
+
+        const auto& particleData = particlesData.at(particleKey);
+
+        // Create emitter with settings from JSON (with defaults as fallback)
+        size_t maxParticles = emitterData.value("maxParticles", defaultEmitterData.value("maxParticles", 20));
+        std::unique_ptr<Emitter> emitter = std::make_unique<Emitter>(maxParticles);
+
+        emitter->spawnInterval = emitterData.value("spawnInterval", defaultEmitterData.value("spawnInterval", 1.0f));
+        emitter->emitterLifetime = emitterData.value("emitterLifetime", defaultEmitterData.value("emitterLifetime", -1.0f));
+        emitter->spawnRadius = emitterData.value("spawnRadius", defaultEmitterData.value("spawnRadius", 0.0f));
+        emitter->spawnRadiusVariance = emitterData.value("spawnRadiusVariance", defaultEmitterData.value("spawnRadiusVariance", 0.0f));
+        emitter->velocityVariance.x = emitterData.value("velocityVarianceX", defaultEmitterData.value("velocityVarianceX", 0.0f));
+        emitter->velocityVariance.y = emitterData.value("velocityVarianceY", defaultEmitterData.value("velocityVarianceY", 0.0f));
+        emitter->lifetimeVariance = emitterData.value("lifetimeVariance", defaultEmitterData.value("lifetimeVariance", 0.0f));
+        emitter->alphaVariance = emitterData.value("alphaVariance", defaultEmitterData.value("alphaVariance", 0.0f));
+        emitter->radialVelocity = emitterData.value("radialVelocity", defaultEmitterData.value("radialVelocity", false));
+        emitter->speed = emitterData.value("speed", defaultEmitterData.value("speed", 1.0f));
+        emitter->speedVariance = emitterData.value("speedVariance", defaultEmitterData.value("speedVariance", 0.0f));
+
+        // Create particle prototype from JSON (with defaults as fallback)
+        std::unique_ptr<Particle> proto = std::make_unique<Particle>();
+
+        proto->velocity.x = particleData.value("velocityX", defaultParticleData.value("velocityX", 0.0f));
+        proto->velocity.y = particleData.value("velocityY", defaultParticleData.value("velocityY", 0.0f));
+        proto->startAlpha = particleData.value("startAlpha", defaultParticleData.value("startAlpha", 1.0f));
+        proto->endAlpha = particleData.value("endAlpha", defaultParticleData.value("endAlpha", 0.0f));
+        proto->lifetime = particleData.value("lifetime", defaultParticleData.value("lifetime", 1.0f));
+        proto->startSize = particleData.value("startSize", defaultParticleData.value("startSize", 1.0f));
+        proto->endSize = particleData.value("endSize", defaultParticleData.value("endSize", 1.0f));
+        proto->animationSpeed = particleData.value("animationSpeed", defaultParticleData.value("animationSpeed", 0.1f));
+
+        // Handle tint color (with default fallback)
+        if (particleData.contains("tint") || defaultParticleData.contains("tint")) {
+            auto tintArray = particleData.contains("tint") ? particleData.at("tint") : defaultParticleData.at("tint");
+            proto->tint = Color{
+                static_cast<unsigned char>(tintArray[0].get<int>()),
+                static_cast<unsigned char>(tintArray[1].get<int>()),
+                static_cast<unsigned char>(tintArray[2].get<int>()),
+                static_cast<unsigned char>(tintArray[3].get<int>())
+            };
+        }
+
+        // Set animation frames from texture key (with default fallback)
+        std::string textureKey = particleData.value("textureKey", defaultParticleData.value("textureKey", "sprite_default"));
+        proto->setAnimationFrames(game.loader.getTextures(textureKey));
+
+        emitter->prototype = *proto;
+        return std::make_unique<EmitterBehavior>(game, sprite, std::move(emitter), std::move(proto));
+    }
+    else {
+        TraceLog(LOG_WARNING, "Unknown behavior type: %s", behaviorKey.c_str());
+        return nullptr;
+    }
+}
+
+
 void addBehaviorsToSprite(Game& game, std::shared_ptr<Sprite> sprite, const std::vector<std::string>& behaviors, const nlohmann::json& behaviorData) {
     for (const auto& key : behaviors) {
-        if (key == "RandomWalk") {
-            sprite->addBehavior(std::make_unique<RandomWalkBehavior>(sprite));
-        }
-        else if (key == "Watch") {
-            std::string targetName = behaviorData.value("watchTarget", "");
-            if (game.spriteMap.find(targetName) != game.spriteMap.end()) {
-                sprite->addBehavior(std::make_unique<WatchBehavior>(sprite, game.spriteMap[targetName]));
-            }
-            else {
-                TraceLog(LOG_WARNING, "Target \"%s\" not found in spriteMap. Skipping WatchBehavior for %s.", targetName.c_str(), sprite->spriteName.c_str());
-            }
-        }
-        else if (key == "Chase") {
-            // TODO get min distance value from file
-            std::string targetName = behaviorData.value("chaseTarget", "");
-            if (game.spriteMap.find(targetName) != game.spriteMap.end()) {
-                sprite->addBehavior(std::make_unique<ChaseBehavior>(game, sprite, game.spriteMap[targetName], 20.0f));
-            }
-            else {
-                TraceLog(LOG_WARNING, "Target \"%s\" not found in spriteMap. Skipping ChaseBehavior for %s.", targetName.c_str(), sprite->spriteName.c_str());
-            }
-        }
-        else if (key == "Dialogue") {
-            std::string textKey = behaviorData.value("dialogue", "");
-            if (textKey.length()) {
-                std::vector<std::string> texts = game.loader.getText(textKey);
-                std::string voice = behaviorData.value("voice", "tone");
-                sprite->addBehavior(std::make_unique<DialogueBehavior>(game, sprite, game.spriteMap["player"], texts, voice)); 
-            }
-        }
-        else if (key == "Shoot") {
-            std::string targetName = behaviorData.value("shootTarget", "");
-            shootingConfig conf;
-            conf.projectileKey = behaviorData.value("shootProjectile", conf.projectileKey); // use the default as a fallback
-            conf.sound = behaviorData.value("shootSound", conf.sound);
-            conf.damage = behaviorData.value("shootDamage", conf.damage);
-            // TODO get these values also from json data
-            conf.speed = 20.0f;
-            conf.amount = 10;
-            conf.velocityVariance = { 1.0f, 1.0f };
-            conf.spawnInterval = 0.1f;
-            conf.lifetimeVariance = 0.2f;
-            conf.shootInterval = 2.0f;
-            sprite->addBehavior(std::make_unique<ShootBehavior>(game, sprite, game.spriteMap[targetName], conf));
-        }
-        else if (key == "Emitter") {
-            // TODO: make the emitter and particle more customizable
-            std::unique_ptr<Emitter> emitter = std::make_unique<Emitter>(20);
-            emitter->spawnInterval = 0.2f;
-            emitter->lifetimeVariance = 0.05f;
-            emitter->velocityVariance = { 20.0f, 20.0f };
-
-            std::unique_ptr<Particle> proto = std::make_unique<Particle>();
-            proto->velocity = { 0.0f, 0.0f };
-            proto->lifetime = 1.6f;
-            proto->startAlpha = 0.5f;
-            proto->endSize = 0.2f;
-            proto->setAnimationFrames(game.loader.getTextures(behaviorData.value("particle", "")));
-
-            emitter->prototype = *proto;
-            sprite->addBehavior(std::make_unique<EmitterBehavior>(game, sprite, std::move(emitter), std::move(proto)));
-        }
+        auto behavior = createBehaviorFromJSON(game, sprite, key, behaviorData);
+        if (behavior)
+            sprite->addBehavior(std::move(behavior));
     }
 }

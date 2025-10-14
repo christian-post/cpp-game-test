@@ -144,17 +144,13 @@ std::unique_ptr<StateMachine> StateMachine::createFromJSON(
 {
     auto stateMachine = std::make_unique<StateMachine>(game, owner);
 
-    //TraceLogLong(LOG_INFO, data.dump(2).c_str());
-
-    if (!data.contains("states"))
-    {
+    if (!data.contains("states")) {
         TraceLog(LOG_ERROR, "State machine data is missing 'states' field");
         return stateMachine;
     }
 
     // Create states and their behaviors
-    for (const auto& stateData : data["states"])
-    {
+    for (const auto& stateData : data["states"]) {
         std::string stateName = stateData["name"];
         auto state = std::make_unique<State>(stateName);
 
@@ -162,59 +158,14 @@ std::unique_ptr<StateMachine> StateMachine::createFromJSON(
         nlohmann::json behaviorData = stateData.value("behaviorData", nlohmann::json::object());
 
         // Create behaviors for this specific state
-        if (stateData.contains("behaviors"))
-        {
-            for (const auto& behaviorKey : stateData["behaviors"])
-            {
+        if (stateData.contains("behaviors")) {
+            for (const auto& behaviorKey : stateData["behaviors"]) {
                 std::string behaviorKeyStr = behaviorKey.get<std::string>();
-                std::unique_ptr<Behavior> behavior = nullptr;
 
-                if (behaviorKeyStr == "RandomWalk")
-                {
-                    behavior = std::make_unique<RandomWalkBehavior>(owner);
-                }
-                else if (behaviorKeyStr == "Watch")
-                {
-                    std::string targetName = behaviorData.value("watchTarget", "player");
-                    if (game.spriteMap.find(targetName) != game.spriteMap.end())
-                        behavior = std::make_unique<WatchBehavior>(owner, game.spriteMap[targetName]);
-                }
-                else if (behaviorKeyStr == "Chase")
-                {
-                    std::string targetName = behaviorData.value("chaseTarget", "player");
-                    float minDist = behaviorData.value("minDist", 20.0f);
+                // Use the creation function from Behavior.h
+                auto behavior = createBehaviorFromJSON(game, owner, behaviorKeyStr, behaviorData);
 
-                    if (game.spriteMap.find(targetName) != game.spriteMap.end())
-                    {
-                        behavior = std::make_unique<ChaseBehavior>(
-                            game, owner, game.spriteMap[targetName],
-                            minDist);
-                    }
-                }
-                else if (behaviorKeyStr == "Shoot")
-                {
-                    std::string targetName = behaviorData.value("shootTarget", "player");
-                    shootingConfig conf;
-                    conf.projectileKey = behaviorData.value("shootProjectile", "magic_ball");
-                    conf.sound = behaviorData.value("shootSound", "fireball");
-                    conf.damage = behaviorData.value("shootDamage", 1);
-                    conf.shootInterval = behaviorData.value("shootInterval", 2.0f);
-                    conf.speed = behaviorData.value("shootSpeed", 20.0f);
-                    // TODO particle configuration
-
-                    if (game.spriteMap.find(targetName) != game.spriteMap.end())
-                    {
-                        behavior = std::make_unique<ShootBehavior>(
-                            game, owner, game.spriteMap[targetName], conf);
-                    }
-                }
-                else
-                {
-                    TraceLog(LOG_WARNING, "Unknown behavior type: %s", behaviorKeyStr.c_str());
-                }
-
-                if (behavior)
-                {
+                if (behavior) {
                     // Create unique key: "stateName_behaviorType"
                     std::string uniqueKey = stateName + "_" + behaviorKeyStr;
                     stateMachine->addBehavior(uniqueKey, std::move(behavior));
@@ -226,63 +177,46 @@ std::unique_ptr<StateMachine> StateMachine::createFromJSON(
         stateMachine->addState(std::move(state));
     }
 
-    // Add transitions (after all states exist)
-    for (const auto& stateData : data["states"])
-    {
+    // Add transitions (unchanged)
+    for (const auto& stateData : data["states"]) {
         std::string stateName = stateData["name"];
         State* state = stateMachine->states[stateName].get();
 
         if (!stateData.contains("transitions"))
             continue;
 
-        for (const auto& transData : stateData["transitions"])
-        {
+        for (const auto& transData : stateData["transitions"]) {
             StateTransition transition;
             transition.targetState = transData["to"];
             transition.requiresAll = transData.value("requiresAll", true);
 
-            if (transData.contains("conditions"))
-            {
-                for (const auto& condData : transData["conditions"])
-                {
+            if (transData.contains("conditions")) {
+                for (const auto& condData : transData["conditions"]) {
                     std::string type = condData["type"];
 
-                    if (type == "playerInRange")
-                    {
+                    if (type == "playerInRange") {
                         float distance = condData["distance"];
-                        transition.conditions.push_back(
-                            TransitionConditions::PlayerInRange(distance));
+                        transition.conditions.push_back(TransitionConditions::PlayerInRange(distance));
                     }
-                    else if (type == "playerOutOfRange")
-                    {
+                    else if (type == "playerOutOfRange") {
                         float distance = condData["distance"];
-                        transition.conditions.push_back(
-                            TransitionConditions::PlayerOutOfRange(distance));
+                        transition.conditions.push_back(TransitionConditions::PlayerOutOfRange(distance));
                     }
-                    else if (type == "healthBelow")
-                    {
+                    else if (type == "healthBelow") {
                         uint32_t threshold = condData["threshold"];
-                        transition.conditions.push_back(
-                            TransitionConditions::HealthBelow(threshold));
+                        transition.conditions.push_back(TransitionConditions::HealthBelow(threshold));
                     }
-                    else if (type == "healthBelowPercent")
-                    {
+                    else if (type == "healthBelowPercent") {
                         float percent = condData["percent"];
-                        transition.conditions.push_back(
-                            TransitionConditions::HealthBelowPercent(percent));
+                        transition.conditions.push_back(TransitionConditions::HealthBelowPercent(percent));
                     }
-                    else if (type == "hasLineOfSight")
-                    {
-                        transition.conditions.push_back(
-                            TransitionConditions::HasLineOfSightToPlayer());
+                    else if (type == "hasLineOfSight") {
+                        transition.conditions.push_back(TransitionConditions::HasLineOfSightToPlayer());
                     }
-                    else if (type == "lostLineOfSight")
-                    {
-                        transition.conditions.push_back(
-                            TransitionConditions::LostLineOfSightToPlayer());
+                    else if (type == "lostLineOfSight") {
+                        transition.conditions.push_back(TransitionConditions::LostLineOfSightToPlayer());
                     }
-                    else
-                    {
+                    else {
                         TraceLog(LOG_WARNING, "Unknown condition type: %s", type.c_str());
                     }
                 }

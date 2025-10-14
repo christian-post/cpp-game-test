@@ -78,7 +78,7 @@
       "shootProjectile": "fireball",
       "shootDamage": 2,
       "shootSound": "fireball",
-      "particle": "smoke"
+      "emitter": "smoke"
     },
     "itemDrops": [ [ "heart_1up", 1.0 ] ]
   },
@@ -176,14 +176,15 @@
         },
         {
           "name": "shoot",
-          "behaviors": [ "Shoot", "Watch" ],
+          "behaviors": [ "Shoot", "Watch", "Emitter" ],
           "behaviorData": {
             "watchTarget": "player",
             "shootTarget": "player",
             "shootProjectile": "magic_ball",
             "shootDamage": 2,
             "shootInterval": 3.0,
-            "shootSound": "magic1"
+            "shootSound": "magic1",
+            "emitter": "energyCharge"
           },
           "transitions": [
             {

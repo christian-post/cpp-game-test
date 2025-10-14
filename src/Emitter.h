@@ -1,9 +1,10 @@
 #pragma once
-
 #include <vector>
 #include <random>
+#include "raylib.h"
 #include "raymath.h"
 #include "Particle.h"
+
 
 struct Emitter {
     // emits a certain type of Particle
@@ -22,6 +23,11 @@ struct Emitter {
     Vector2 velocityVariance = { 0.0f, 0.0f };
     float lifetimeVariance = 0.0f;
     float alphaVariance = 0.0f;
+
+    // Radial velocity mode (for inward/outward particle movement)
+    bool radialVelocity = false;
+    float speed = 100.0f;
+    float speedVariance = 0.0f;
 
     std::vector<Particle> particles;
     size_t maxParticles;

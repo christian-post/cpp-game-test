@@ -25,7 +25,7 @@ Scenes
 -- Inventory select item --> different sound
 
 
-### refactor
+### Fix/refactor
 
 IMPORTANT:
 - load weapons.json data into weaponData structs in Preload
@@ -53,8 +53,8 @@ NOT SO IMPORTANT:
 
 ### BUGS:
 - RandomWalkBehavior: choose new target after some time if the current target can't be reached
-- Eqipping a different item when you hold a HOLD item crashes the game
 - chest contain coins after loading a save
+- Particles should not just disappear when a state switches from EmitterBehavior
 
 RELEASE CHECKLIST
 - turn on sounds and music

@@ -157,6 +157,7 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <ClCompile Include="src\Controls.cpp" />
     <ClCompile Include="src\CutsceneManager.cpp" />
     <ClCompile Include="src\Dungeon.cpp" />
+    <ClCompile Include="src\Emitter.cpp" />
     <ClCompile Include="src\EventManager.cpp" />
     <ClCompile Include="src\Events.cpp" />
     <ClCompile Include="src\Game.cpp" />

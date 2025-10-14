@@ -228,6 +228,7 @@ void Preload::startup() {
         l.loadSpriteData("./resources/npcs.json");
         l.loadSpriteData("./resources/weapons.json");
         l.loadtextData("./resources/texts.json");
+        l.loadParticleData("./resources/particles.json");
         });
     // music and sfx
     // second argument is for adjusting the volume
