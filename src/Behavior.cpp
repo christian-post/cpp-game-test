@@ -494,6 +494,7 @@ void ProjectileBehavior::update(float deltaTime) {
 
 ShootBehavior::ShootBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, shootingConfig config) : game{ game }, self{ self }, target{ target }, config{ config } {
     interval = config.shootInterval;
+    timer = 1000.0f; // start shooting immediately
 }
 
 void ShootBehavior::update(float deltaTime) {

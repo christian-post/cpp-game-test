@@ -87,6 +87,11 @@ public:
         return currentState ? currentState->name : emptyString;
     }
 
+    // get the time spent in current state
+    float getCurrentStateTimer() const {
+        return currentState ? currentState->timer : 0.0f;
+    }
+
     // Check if in a specific state
     bool isInState(const std::string& stateName) const {
         return currentState && currentState->name == stateName;

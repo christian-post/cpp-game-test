@@ -157,15 +157,15 @@
         {
           "name": "watch",
           "behaviors": [ "Watch" ],
-          "behaviorData": { "watchTarget":  "player" },
+          "behaviorData": { "watchTarget": "player" },
           "transitions": [
             {
-              "to": "shoot",
+              "to": "charge",
               "requiresAll": true,
               "conditions": [
                 {
                   "type": "playerInRange",
-                  "distance": 96.0
+                  "distance": 120.0
                 },
                 {
                   "type": "hasLineOfSight"
@@ -175,18 +175,59 @@
           ]
         },
         {
+          "name": "charge",
+          "behaviors": [ "Emitter", "Watch" ],
+          "behaviorData": {
+            "emitter": "energyCharge"
+          },
+          "transitions": [
+            {
+              "to": "shoot",
+              "requiresAll": false,
+              "conditions": [
+                {
+                  "type": "timeInStateExceeds",
+                  "seconds": 2.0
+                }
+              ]
+            },
+            {
+              "to": "watch",
+              "requiresAll": false,
+              "conditions": [
+                {
+                  "type": "playerOutOfRange",
+                  "distance": 140.0
+                },
+                {
+                  "type": "lostLineOfSight"
+                }
+              ]
+            }
+          ]
+        },
+        {
           "name": "shoot",
-          "behaviors": [ "Shoot", "Watch", "Emitter" ],
+          "behaviors": [ "Shoot", "Watch" ],
           "behaviorData": {
             "watchTarget": "player",
             "shootTarget": "player",
             "shootProjectile": "magic_ball",
             "shootDamage": 2,
-            "shootInterval": 3.0,
-            "shootSound": "magic1",
-            "emitter": "energyCharge"
+            "shootInterval": 1.0,
+            "shootSound": "magic1"
           },
           "transitions": [
+            {
+              "to": "charge",
+              "requiresAll": false,
+              "conditions": [
+                {
+                  "type": "timeInStateExceeds",
+                  "seconds": 1.0
+                }
+              ]
+            },
             {
               "to": "watch",
               "requiresAll": false,

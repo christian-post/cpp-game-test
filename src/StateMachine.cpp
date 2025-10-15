@@ -216,6 +216,10 @@ std::unique_ptr<StateMachine> StateMachine::createFromJSON(
                     else if (type == "lostLineOfSight") {
                         transition.conditions.push_back(TransitionConditions::LostLineOfSightToPlayer());
                     }
+                    else if (type == "timeInStateExceeds") {
+                        float seconds = condData["seconds"];
+                        transition.conditions.push_back(TransitionConditions::TimeInStateExceeds(seconds));
+                    }
                     else {
                         TraceLog(LOG_WARNING, "Unknown condition type: %s", type.c_str());
                     }
@@ -337,11 +341,12 @@ namespace TransitionConditions {
     }
 
     TransitionCondition TimeInStateExceeds(float seconds) {
-        // This requires storing time in state - would need StateMachine refactor
+        // Transition after time spent in state exceeds "seconds"
         return TransitionCondition{
             [seconds](Sprite& sprite) {
-                // TODO: Implement time tracking in StateMachine
-                return false;
+                if (!sprite.stateMachine)
+                    return false;
+                return sprite.stateMachine->getCurrentStateTimer() >= seconds;
             },
             "TimeInStateExceeds(" + std::to_string(seconds) + ")"
         };

@@ -60,7 +60,7 @@
   "energyCharge": {
     "type": "emitter",
     "particleKey": "energyParticle",
-    "maxParticles": 12,
+    "maxParticles": 8,
     "spawnInterval": 0.05,
     "emitterLifetime": -1.0,
     "spawnRadius": 16.0,
@@ -81,8 +81,8 @@
     "startAlpha": 0.0,
     "endAlpha": 1.0,
     "lifetime": 0.4,
-    "startSize": 1.0,
-    "endSize": 0.2,
+    "startSize": 0.6,
+    "endSize": 0.1,
     "animationSpeed": 0.1
   }
 }
