@@ -40,10 +40,12 @@ RandomWalkBehavior::RandomWalkBehavior(std::shared_ptr<Sprite> sprite)
 
 void RandomWalkBehavior::update(float deltaTime) {
     if (auto s = self.lock()) {
-        if (waitTimer > 0.0f) {
-            waitTimer -= deltaTime;
-            return;
+        timer += deltaTime; // Use base class timer
+
+        if (timer < waitTime) {
+            return; // Still waiting
         }
+
         float dx = walkTarget.x - s->position.x;
         float dy = walkTarget.y - s->position.y;
         float distSq = dx * dx + dy * dy;
@@ -67,17 +69,17 @@ void RandomWalkBehavior::update(float deltaTime) {
                 float offset = tiles * 16.0f;
                 Vector2 candidate = s->position;
                 switch (dir) {
-                case UP: 
-                    candidate.y -= offset; 
+                case UP:
+                    candidate.y -= offset;
                     break;
-                case LEFT: 
-                    candidate.x -= offset; 
+                case LEFT:
+                    candidate.x -= offset;
                     break;
-                case DOWN: 
-                    candidate.y += offset; 
+                case DOWN:
+                    candidate.y += offset;
                     break;
-                case RIGHT: 
-                    candidate.x += offset; 
+                case RIGHT:
+                    candidate.x += offset;
                     break;
                 }
                 // check if target candidate is within map bounds
@@ -89,11 +91,21 @@ void RandomWalkBehavior::update(float deltaTime) {
                     isPathClear(s->rect, candidate, s->game.walls)) {
                     walkTarget = candidate;
                     hasWalkTarget = true;
-                    waitTimer = float(rand() % 5 + 1);
+                    waitTime = float(rand() % 5 + 1);
+                    timer = 0.0f; // Reset timer for next wait period
                     break;
                 }
             }
         }
+    }
+}
+
+void RandomWalkBehavior::reset() {
+    Behavior::reset(); // Call parent reset
+    waitTime = 0.0f;
+    hasWalkTarget = false;
+    if (auto s = self.lock()) {
+        walkTarget = s->position;
     }
 }
 
@@ -120,7 +132,7 @@ void ChaseBehavior::update(float deltaTime) {
     // seperation behavior between enemies
     // TODO: does this scale correctly with deltaTime?
     for (auto& sprite : game.sprites) {
-        if (!sprite->isEnemy) 
+        if (!sprite->isEnemy)
             continue;
 
         Vector2 sum = { 0, 0 };
@@ -159,8 +171,8 @@ void ChaseBehavior::update(float deltaTime) {
 }
 
 WeaponBehavior::WeaponBehavior(Game& game, std::shared_ptr<Sprite> sprite, std::shared_ptr<Sprite> ownerSprite, weaponData data, size_t slot)
-    : game{ game }, self{ sprite }, owner{ ownerSprite }, data{ data }, lifetime{ data.lifetime }, originalLifetime {
-    data.lifetime }, slot{ slot } 
+    : game{ game }, self{ sprite }, owner{ ownerSprite }, data{ data }, lifetime{ data.lifetime }, originalLifetime{
+    data.lifetime }, slot{ slot }
 {
     // weaponds with lifetime == -1.0f stay indefinitely
     if (lifetime == -1.0f)
@@ -191,60 +203,69 @@ void WeaponBehavior::update(float deltaTime) {
         s->position.x = o->position.x + (data.posOffsetX * ((o->lastDirection == RIGHT) ? 1.0f : -1.0f));
         s->position.y = o->position.y - 8.0f + o->z + data.posOffsetY; // factor in the z position
         float progress = 1.0f - (lifetime / originalLifetime);
-        if (lifetime < 0.0f) 
+        if (lifetime < 0.0f)
             return;
         switch (data.type) {
-            case SWING:
-                s->rotationAngle = (s->lastDirection == RIGHT) ? 180.0f * progress : -180.0f * progress;
-                break;
-            case WHACK:
-                {
-                    float angle = std::sin(progress * 3.14159f);
-                    s->rotationAngle = (s->lastDirection == RIGHT) ? 90.0f * angle : -90.0f * angle;
+        case SWING:
+            s->rotationAngle = (s->lastDirection == RIGHT) ? 180.0f * progress : -180.0f * progress;
+            break;
+        case WHACK:
+        {
+            float angle = std::sin(progress * 3.14159f);
+            s->rotationAngle = (s->lastDirection == RIGHT) ? 90.0f * angle : -90.0f * angle;
 
-                    if (!shaken && progress > 0.5f) {
-                        s->game.eventManager.pushEvent(SCREEN_SHAKE, std::make_tuple(0.1f, 0.0f, 10.0f));
-                        s->game.playSound("hammer");
-                        // player jumps
-                        o->jump();
-                        shaken = true;
-                    }
-                }
-                break;
-            case POKE:
-            {
-                float offset = std::sin(progress * 3.14159f) * 10.0f;
-                if (o->lastDirection == RIGHT) {
-                    s->position.x += offset;
-                    s->rotationAngle = 90;
-                }
-                else {
-                    s->position.x -= offset;
-                    s->rotationAngle = -90;
-                }
-                break;
+            if (!shaken && progress > 0.5f) {
+                s->game.eventManager.pushEvent(SCREEN_SHAKE, std::make_tuple(0.1f, 0.0f, 10.0f));
+                s->game.playSound("hammer");
+                // player jumps
+                o->jump();
+                shaken = true;
             }
-            case HOLD:
-                // weapon disappears when the button is pressed again
-                if (game.buttonsPressed & controlBindings[slot]) {
-                    lifetime = 0.0f;
-                }
+        }
+        break;
+        case POKE:
+        {
+            float offset = std::sin(progress * 3.14159f) * 10.0f;
+            if (o->lastDirection == RIGHT) {
+                s->position.x += offset;
+                s->rotationAngle = 90;
+            }
+            else {
+                s->position.x -= offset;
+                s->rotationAngle = -90;
+            }
+            break;
+        }
+        case HOLD:
+            // weapon disappears when the button is pressed again
+            if (game.buttonsPressed & controlBindings[slot]) {
+                lifetime = 0.0f;
+            }
 
-                if (!switchedOn) {
-                    // execute callback once
-                    if (data.onCreate)
-                        data.onCreate();
-                    switchedOn = true;
-                }
-                break;
-            default:
-                break;
+            if (!switchedOn) {
+                // execute callback once
+                if (data.onCreate)
+                    data.onCreate();
+                switchedOn = true;
+            }
+            break;
+        default:
+            break;
         }
     }
 }
 
+void WeaponBehavior::reset() {
+    Behavior::reset(); // Call parent reset
+    lifetime = originalLifetime;
+    if (lifetime == -1.0f)
+        lifetime = std::numeric_limits<float>::infinity();
+    switchedOn = false;
+    shaken = false;
+}
+
 DeathBehavior::DeathBehavior(Game& game, std::shared_ptr<Sprite> sprite, float lifetime)
-    : game{ game }, self {sprite}, lifetime{ lifetime }, maxLifetime{ lifetime } {
+    : game{ game }, self{ sprite }, lifetime{ lifetime }, maxLifetime{ lifetime } {
     if (auto s = self.lock()) {
         shader = &s->game.loader.getShader("crumble");
         game.playSound("creature_die_01");
@@ -263,6 +284,11 @@ void DeathBehavior::update(float deltaTime) {
     }
 }
 
+void DeathBehavior::reset() {
+    Behavior::reset(); // Call parent reset
+    lifetime = maxLifetime;
+}
+
 TeleportBehavior::TeleportBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> other, const std::string& targetMap, Vector2 targetPos)
     : game{ game }, self{ self }, other{ other }, targetMap{ targetMap }, targetPos{ targetPos } {
 }
@@ -279,8 +305,8 @@ void TeleportBehavior::update(float deltaTime) {
     }
 }
 
-HealBehavior::HealBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> other, uint32_t amount) 
-    : game{ game }, self{ self }, other{ other }, amount{ amount }{ 
+HealBehavior::HealBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> other, uint32_t amount)
+    : game{ game }, self{ self }, other{ other }, amount{ amount } {
 }
 
 void HealBehavior::update(float deltaTime) {
@@ -298,46 +324,52 @@ void HealBehavior::update(float deltaTime) {
 }
 
 CollectItemBehavior::CollectItemBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> other, const std::string& name, uint32_t amount)
-    : game{ game }, self{ self }, other{ other }, name{ name }, amount {
-    amount
-} {}
+    : game{ game }, self{ self }, other{ other }, name{ name }, amount{ amount } {
+}
 
 void CollectItemBehavior::update(float deltaTime) {
     if (auto s = self.lock(), o = other.lock(); s && o && !done) {
         switch (state) {
-            case 0:
-            {
-                // check collision and collect the item
-                if (CheckCollisionRecs(s->rect, o->rect)) {
-                    // add the item to the inventory if it isn't used immediately
-                    // (the IMMEDIATE) case is handled within the ADD_ITEM listener because that's when the type is exposed
-                    game.eventManager.pushEvent(ADD_ITEM, std::make_any<std::pair<std::string, uint32_t>>(name, amount));
-                    game.playSound("rupee"); // TODO get the correct sound key from data
-                    game.eventManager.pushEvent(ITEM_ADDED, name);
-                    state++;
-                }
-                break;
+        case 0:
+        {
+            // check collision and collect the item
+            if (CheckCollisionRecs(s->rect, o->rect)) {
+                // add the item to the inventory if it isn't used immediately
+                // (the IMMEDIATE) case is handled within the ADD_ITEM listener because that's when the type is exposed
+                game.eventManager.pushEvent(ADD_ITEM, std::make_any<std::pair<std::string, uint32_t>>(name, amount));
+                game.playSound("rupee"); // TODO get the correct sound key from data
+                game.eventManager.pushEvent(ITEM_ADDED, name);
+                timer = 0.0f; // Reset timer for display phase
+                state++;
             }
-            case 1: {
-                // display the item above the player
-                s->position.x = o->position.x + (o->rect.width - s->rect.width) / 2.0f;
-                // oscillate the y position slightly
-                float offset = std::sin((maxLifetime - lifetime) * 10.0f) * 4.0f;
-                s->position.y = o->position.y - 20.0f + offset;
-                lifetime -= deltaTime;
-                if (lifetime < 0.0f) {
-                    state++;
-                }
-                break;
+            break;
+        }
+        case 1: {
+            // display the item above the player
+            timer += deltaTime; // Use base class timer
+            s->position.x = o->position.x + (o->rect.width - s->rect.width) / 2.0f;
+            // oscillate the y position slightly
+            float offset = std::sin(timer * 10.0f) * 4.0f;
+            s->position.y = o->position.y - 20.0f + offset;
+
+            if (timer >= displayDuration) {
+                state++;
             }
-            default:
-            {
-                // delete the item sprite
-                done = true;
-                s->markForDeletion();
-            }
+            break;
+        }
+        default:
+        {
+            // delete the item sprite
+            done = true;
+            s->markForDeletion();
+        }
         }
     }
+}
+
+void CollectItemBehavior::reset() {
+    Behavior::reset(); // Call parent reset
+    state = 0;
 }
 
 DialogueBehavior::DialogueBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> player, std::vector<std::string> dialogTexts, std::string voice)
@@ -345,7 +377,7 @@ DialogueBehavior::DialogueBehavior(Game& game, std::shared_ptr<Sprite> self, std
 }
 
 void DialogueBehavior::update(float deltaTime) {
-    if (triggered) 
+    if (triggered)
         return;
     if (auto s = self.lock(), p = player.lock(); s && p) {
         if (CheckCollisionRecs(s->rect, p->rect)) {
@@ -379,12 +411,19 @@ void DialogueBehavior::update(float deltaTime) {
     }
 }
 
-TradeItemBehavior::TradeItemBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> player, std::string name, uint32_t price) 
+void DialogueBehavior::reset() {
+    Behavior::reset(); // Call parent reset
+    triggered = false;
+    collided = false;
+    currentTextIndex = 0;
+}
+
+TradeItemBehavior::TradeItemBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> player, std::string name, uint32_t price)
     : game{ game }, self{ self }, player{ player }, name{ name }, price{ price } {
 }
 
 void TradeItemBehavior::update(float deltaTime) {
-    if (triggered) 
+    if (triggered)
         return;
     if (auto s = self.lock(), p = player.lock(); s && p) {
         if (CheckCollisionRecs(s->rect, p->rect)) {
@@ -431,6 +470,12 @@ void TradeItemBehavior::update(float deltaTime) {
             }
         }
     }
+}
+
+void TradeItemBehavior::reset() {
+    Behavior::reset(); // Call parent reset
+    triggered = false;
+    collided = false;
 }
 
 void TradeItemBehavior::draw() {
@@ -503,13 +548,14 @@ void ProjectileBehavior::update(float deltaTime) {
     }
 }
 
-ShootBehavior::ShootBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, shootingConfig config) : game{ game }, self{ self }, target{ target }, config{ config } {
+ShootBehavior::ShootBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, shootingConfig config)
+    : game{ game }, self{ self }, target{ target }, config{ config } {
     interval = config.shootInterval;
-    timer = 1000.0f; // start shooting immediately
+    // Note: timer starts at 0.0f (from base class), will shoot immediately when timer >= interval
 }
 
 void ShootBehavior::update(float deltaTime) {
-    timer += deltaTime;
+    timer += deltaTime; // Use base class timer
     if (timer >= interval) {
         timer = 0.0f;
         if (auto s = self.lock(), t = target.lock(); s && t) {
@@ -540,11 +586,10 @@ void ShootBehavior::update(float deltaTime) {
         }
     }
 }
-
-
+// ShootBehavior doesn't need reset() override - uses base class timer only
 
 ShootBurstBehavior::ShootBurstBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, shootingConfig config, uint32_t burstCount, float burstDelay)
-    : game{ game }, self{ self }, target{ target }, config{ config }, burstCount{ burstCount }, shotsFired{ 0 }, burstDelay{ burstDelay }, timer{ 0.0f } {
+    : game{ game }, self{ self }, target{ target }, config{ config }, burstCount{ burstCount }, shotsFired{ 0 }, burstDelay{ burstDelay } {
 }
 
 void ShootBurstBehavior::update(float deltaTime) {
@@ -553,7 +598,7 @@ void ShootBurstBehavior::update(float deltaTime) {
         return;
     }
 
-    timer += deltaTime;
+    timer += deltaTime; // Use base class timer
     if (timer >= burstDelay) {
         timer = 0.0f;
 
@@ -586,6 +631,11 @@ void ShootBurstBehavior::update(float deltaTime) {
             shotsFired++;
         }
     }
+}
+
+void ShootBurstBehavior::reset() {
+    Behavior::reset(); // Call parent reset
+    shotsFired = 0;
 }
 
 ShootSpreadBehavior::ShootSpreadBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, shootingConfig config, uint32_t projectileCount, float spreadAngle)
@@ -640,6 +690,11 @@ void ShootSpreadBehavior::update(float deltaTime) {
 
         hasFired = true;
     }
+}
+
+void ShootSpreadBehavior::reset() {
+    Behavior::reset(); // Call parent reset
+    hasFired = false;
 }
 
 KiteBehavior::KiteBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, float orbitDistance, float moveSpeed)
@@ -722,6 +777,12 @@ void LungeBehavior::update(float deltaTime) {
     }
 }
 
+void LungeBehavior::reset() {
+    Behavior::reset(); // Call parent reset
+    hasLunged = false;
+    lungeDirection = { 0.0f, 0.0f };
+}
+
 EmitterBehavior::EmitterBehavior(Game& game, std::shared_ptr<Sprite> self, std::unique_ptr<Emitter> emitter, std::unique_ptr<Particle> prototype) : game{ game }, self{ self }, emitter{ std::move(emitter) }, prototype{ std::move(prototype) }
 {
 }
@@ -738,7 +799,8 @@ void EmitterBehavior::draw() {
 }
 
 ChestBehavior::ChestBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> player, const std::string& itemName, uint32_t itemAmount) : game{ game }, self{ self }, player{ player }, itemName{ itemName }, itemAmount{ itemAmount }
-{}
+{
+}
 
 void ChestBehavior::update(float deltaTime) {
     if (auto s = self.lock(), p = player.lock(); s && p) {
@@ -748,7 +810,7 @@ void ChestBehavior::update(float deltaTime) {
         interactionRect.height = s->rect.height + 4.0f;
         if (CheckCollisionRecs(interactionRect, p->rect)) {
             if (triggered) // check this down here because the check for the HIDE_HELP_TEXT event always needs to happen
-                return; 
+                return;
             if (!collided) {
                 game.eventManager.pushEvent(SHOW_HELP_TEXT, std::make_any<std::tuple<std::string, char, int>>(std::tuple<std::string, char, int>{"OPEN", 'O', 9}));
                 collided = true;
@@ -791,7 +853,7 @@ void ChestBehavior::update(float deltaTime) {
                 int eventKey = EventKeyRegistry::getEventKey(eventStr);
                 game.eventManager.pushEvent(eventKey, s->tileMapID);
             }
-        } 
+        }
         else {
             if (collided) {
                 game.eventManager.pushEvent(HIDE_HELP_TEXT);
@@ -823,6 +885,13 @@ void ChestBehavior::draw() {
     }
 }
 
+void ChestBehavior::reset() {
+    Behavior::reset(); // Call parent reset
+    triggered = false;
+    collided = false;
+    showItem = false;
+}
+
 OpenLockBehavior::OpenLockBehavior(Game& game, std::shared_ptr<Sprite> door, std::shared_ptr<Sprite> player, const int triggerKey)
     : game{ game }, door{ door }, player{ player }, triggerKey{ triggerKey } {
 }
@@ -832,7 +901,7 @@ void OpenLockBehavior::update(float deltaTime) {
     if (auto d = door.lock(), p = player.lock(); d && p) {
         const float padding = 2.0f; // the interaction rect is inflated by a few pixels 
         interactionRect.x = d->rect.x - padding;
-        interactionRect.y = d->rect.y - padding; 
+        interactionRect.y = d->rect.y - padding;
         interactionRect.width = d->rect.width + 2.0f * padding;
         interactionRect.height = d->rect.height + 2.0f * padding;
         if (CheckCollisionRecs(interactionRect, p->rect)) {
@@ -875,6 +944,12 @@ void OpenLockBehavior::update(float deltaTime) {
             }
         }
     }
+}
+
+void OpenLockBehavior::reset() {
+    Behavior::reset(); // Call parent reset
+    triggered = false;
+    collided = true; // Note: starts as true in original code
 }
 
 

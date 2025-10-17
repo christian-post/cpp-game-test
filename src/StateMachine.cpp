@@ -148,14 +148,25 @@ void StateMachine::exitState(State* state) {
 }
 
 void StateMachine::activateBehaviors(const std::vector<std::string>& keys) {
-    // Just swap which behaviors are active - no creation/destruction!
-    activeBehaviorKeys.clear();
-    for (const auto& key : keys) {
-        if (behaviors.find(key) != behaviors.end())
-            activeBehaviorKeys.insert(key);
-        else
-            TraceLog(LOG_WARNING, "Behavior not found: %s", key.c_str());
+    // Identify newly activated behaviors
+    std::unordered_set<std::string> newKeys(keys.begin(), keys.end());
+
+    // Reset behaviors that are being newly activated (weren't active before)
+    for (const auto& key : newKeys) {
+        if (activeBehaviorKeys.find(key) == activeBehaviorKeys.end()) {
+            // This behavior is being activated for the first time or after being inactive
+            auto it = behaviors.find(key);
+            if (it != behaviors.end()) {
+                it->second->reset(); // Reset the behavior to initial state
+            }
+            else {
+                TraceLog(LOG_WARNING, "Behavior not found: %s", key.c_str());
+            }
+        }
     }
+
+    // Swap to new active set
+    activeBehaviorKeys = std::move(newKeys);
 }
 
 std::unique_ptr<StateMachine> StateMachine::createFromJSON(

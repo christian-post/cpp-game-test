@@ -91,7 +91,18 @@ public:
     virtual ~Behavior() = default;
     virtual void update(float deltaTime) = 0;
     virtual void draw() {};
+
+    // Reset the behavior to its initial state
+    // Override this in child classes that need to reset additional state beyond timer
+    virtual void reset() {
+        done = false;
+        timer = 0.0f;
+    }
+
     bool done = false;
+
+protected:
+    float timer = 0.0f; // Base timer that counts UP - tracks elapsed time since behavior started/reset
 };
 
 class WatchBehavior : public Behavior {
@@ -108,10 +119,11 @@ class RandomWalkBehavior : public Behavior {
 public:
     RandomWalkBehavior(std::shared_ptr<Sprite> self);
     void update(float deltaTime) override;
+    void reset() override;
 
 private:
     std::weak_ptr<Sprite> self;
-    float waitTimer = 0.0f;
+    float waitTime = 0.0f; // How long to wait before choosing new target
     Vector2 walkTarget = { 0.0f, 0.0f };
     bool hasWalkTarget = false;
 };
@@ -120,7 +132,7 @@ class ChaseBehavior : public Behavior {
 public:
     ChaseBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> other, float minDist);
     void update(float deltaTime) override;
-    
+
 private:
     Game& game;
     std::weak_ptr<Sprite> self;
@@ -133,6 +145,7 @@ class WeaponBehavior : public Behavior {
 public:
     WeaponBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> owner, weaponData data, size_t slot);
     void update(float deltaTime) override;
+    void reset() override;
 
 private:
     Game& game;
@@ -141,7 +154,7 @@ private:
     size_t slot;
     static const int controlBindings[2];
     weaponData data;
-    float lifetime;
+    float lifetime; // Counts DOWN - remaining time for weapon
     float originalLifetime;
     bool switchedOn = false; // for weapons that can be turned on/off
     bool shaken = false; // for weapons that cause a screen shake
@@ -151,11 +164,12 @@ class DeathBehavior : public Behavior {
 public:
     DeathBehavior(Game& game, std::shared_ptr<Sprite> self, float lifetime);
     void update(float deltaTime) override;
+    void reset() override;
 
 private:
     Game& game;
     std::weak_ptr<Sprite> self;
-    float lifetime;
+    float lifetime; // Counts DOWN - remaining time before death animation completes
     float maxLifetime;
     const Shader* shader = nullptr;
 };
@@ -205,6 +219,7 @@ public:
         const std::string& name, uint32_t amount
     );
     void update(float deltaTime) override;
+    void reset() override;
 
 private:
     Game& game;
@@ -213,14 +228,14 @@ private:
     std::string name;
     uint32_t amount;
     uint32_t state = 0;
-    float maxLifetime = 2.0f; 
-    float lifetime = maxLifetime;
+    float displayDuration = 2.0f; // How long to display item above player
 };
 
 class DialogueBehavior : public Behavior {
 public:
     DialogueBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> player, std::vector<std::string> dialogTexts, std::string voice);
     void update(float deltaTime) override;
+    void reset() override;
 
 private:
     Game& game;
@@ -238,6 +253,7 @@ public:
     TradeItemBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> player, std::string name, uint32_t price);
     void update(float deltaTime) override;
     void draw() override;
+    void reset() override;
 
 private:
     Game& game;
@@ -262,18 +278,18 @@ private:
     Vector2 direction = { 0.0f, 0.0f };
 };
 
-// shoots a single projectile
+// shoots a single projectile at intervals
 class ShootBehavior : public Behavior {
 public:
     ShootBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, shootingConfig config);
     void update(float deltaTime) override;
+    // Uses base class timer, no need to override reset()
 
 private:
     Game& game;
     std::weak_ptr<Sprite> self;
     std::weak_ptr<Sprite> target;
     shootingConfig config;
-    float timer = 0.0f;
     float interval = 0.0f;
 };
 
@@ -282,6 +298,7 @@ class ShootBurstBehavior : public Behavior {
 public:
     ShootBurstBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, shootingConfig config, uint32_t burstCount, float burstDelay);
     void update(float deltaTime) override;
+    void reset() override;
 
 private:
     Game& game;
@@ -291,7 +308,6 @@ private:
     uint32_t burstCount;
     uint32_t shotsFired;
     float burstDelay;
-    float timer;
 };
 
 // shoots multiple projectiles at the same time
@@ -299,6 +315,7 @@ class ShootSpreadBehavior : public Behavior {
 public:
     ShootSpreadBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, shootingConfig config, uint32_t projectileCount, float spreadAngle);
     void update(float deltaTime) override;
+    void reset() override;
 
 private:
     Game& game;
@@ -330,6 +347,7 @@ class LungeBehavior : public Behavior {
 public:
     LungeBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, float lungeSpeed, uint32_t jumpForce);
     void update(float deltaTime) override;
+    void reset() override;
 
 private:
     Game& game;
@@ -359,12 +377,13 @@ public:
     ChestBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> player, const std::string& itemName, uint32_t itemAmount);
     void update(float deltaTime) override;
     void draw() override;
+    void reset() override;
 
 private:
     Game& game;
     std::weak_ptr<Sprite> self;
     std::weak_ptr<Sprite> player;
-    std::string itemName; 
+    std::string itemName;
     uint32_t itemAmount;
     bool triggered = false;
     bool collided = false;
@@ -376,6 +395,7 @@ class OpenLockBehavior : public Behavior {
 public:
     OpenLockBehavior(Game& game, std::shared_ptr<Sprite> door, std::shared_ptr<Sprite> player, const int triggerKey);
     void update(float deltaTime) override;
+    void reset() override;
 
 private:
     Game& game;
