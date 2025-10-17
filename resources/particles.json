@@ -73,9 +73,37 @@
     "speed": 40.0,
     "speedVariance": 10.0
   },
+  "fireballCharge": {
+    "type": "emitter",
+    "particleKey": "fireParticle",
+    "maxParticles": 8,
+    "spawnInterval": 0.05,
+    "emitterLifetime": -1.0,
+    "spawnRadius": 16.0,
+    "spawnRadiusVariance": 2.0,
+    "velocityVarianceX": 0.0,
+    "velocityVarianceY": 0.0,
+    "lifetimeVariance": 0.0,
+    "alphaVariance": 0.0,
+    "radialVelocity": true,
+    "speed": 40.0,
+    "speedVariance": 10.0
+  },
   "energyParticle": {
     "type": "particle",
     "textureKey": "magic_ball",
+    "velocityX": 0.0,
+    "velocityY": 0.0,
+    "startAlpha": 0.0,
+    "endAlpha": 1.0,
+    "lifetime": 0.4,
+    "startSize": 0.6,
+    "endSize": 0.1,
+    "animationSpeed": 0.1
+  },
+  "fireParticle": {
+    "type": "particle",
+    "textureKey": "fireball",
     "velocityX": 0.0,
     "velocityY": 0.0,
     "startAlpha": 0.0,

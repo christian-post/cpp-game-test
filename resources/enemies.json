@@ -1,4 +1,26 @@
 {
+  "enemy_test": {
+    "inherits": "sprite_default",
+    "textures": [
+      "skelet_idle",
+      "skelet_run"
+    ],
+    "speed":  12.0,
+    "stateMachine": {
+      "initialState": "kite",
+      "states": [
+        {
+        "name": "kite",
+          "behaviors": [ "Kite" ],
+          "behaviorData": {
+            "kiteTarget": "player",
+            "orbitDistance": 40.0,
+            "moveSpeed": 1.5
+          }
+        }
+      ]
+    }
+  },
   "skelet": {
     "inherits": "sprite_default",
     "textures": [
@@ -80,7 +102,10 @@
       "shootSound": "fireball",
       "emitter": "smoke"
     },
-    "itemDrops": [ [ "heart_1up", 1.0 ] ]
+    "itemDrops": [
+      [ "coin", 0.1 ],
+      [ "heart_drop", 0.3 ]
+    ]
   },
   "goblin": {
     "inherits": "sprite_default",
@@ -245,5 +270,260 @@
         }
       ]
     }
+  },
+  "big_demon_boss": {
+    "inherits": "sprite_default",
+    "textures": [
+      "big_demon_idle",
+      "big_demon_run"
+    ],
+    "health": 20,
+    "damage": 1,
+    "knockback": 6.0,
+    "speed": 16.0,
+    "stateMachine": {
+      "initialState": "kite",
+      "states": [
+        {
+          "name": "kite",
+          "behaviors": [ "Kite", "Watch", "Emitter" ],
+          "behaviorData": {
+            "kiteTarget": "player",
+            "orbitDistance": 80.0,
+            "moveSpeed": 1.0,
+            "watchTarget": "player",
+            "emitter": "smoke"
+          },
+          "transitions": [
+            {
+              "to": "preparing_burst",
+              "weight": 0.5,
+              "requiresAll": true,
+              "conditions": [
+                {
+                  "type": "timeInStateExceeds",
+                  "seconds": 3.5
+                },
+                {
+                  "type": "healthAbovePercent",
+                  "percent": 0.5
+                }
+              ]
+            },
+            {
+              "to": "preparing_spread",
+              "weight": 0.5,
+              "requiresAll": true,
+              "conditions": [
+                {
+                  "type": "timeInStateExceeds",
+                  "seconds": 3.5
+                },
+                {
+                  "type": "healthAbovePercent",
+                  "percent": 0.5
+                }
+              ]
+            },
+            {
+              "to": "preparing_lunge",
+              "weight": 0.33,
+              "requiresAll": true,
+              "conditions": [
+                {
+                  "type": "timeInStateExceeds",
+                  "seconds": 3.5
+                },
+                {
+                  "type": "healthBelowPercent",
+                  "percent": 0.5
+                }
+              ]
+            },
+            {
+              "to": "preparing_burst",
+              "weight": 0.33,
+              "requiresAll": true,
+              "conditions": [
+                {
+                  "type": "timeInStateExceeds",
+                  "seconds": 3.5
+                },
+                {
+                  "type": "healthBelowPercent",
+                  "percent": 0.5
+                }
+              ]
+            },
+            {
+              "to": "preparing_spread",
+              "weight": 0.33,
+              "requiresAll": true,
+              "conditions": [
+                {
+                  "type": "timeInStateExceeds",
+                  "seconds": 3.5
+                },
+                {
+                  "type": "healthBelowPercent",
+                  "percent": 0.5
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "preparing_burst",
+          "behaviors": [ "Watch", "Emitter" ],
+          "behaviorData": {
+            "watchTarget": "player",
+            "emitter": "fireballCharge"
+          },
+          "transitions": [
+            {
+              "to": "shoot_burst",
+              "requiresAll": false,
+              "conditions": [
+                {
+                  "type": "timeInStateExceeds",
+                  "seconds": 0.6
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "shoot_burst",
+          "behaviors": [ "ShootBurst", "Watch" ],
+          "behaviorData": {
+            "shootTarget": "player",
+            "shootProjectile": "fireball",
+            "shootDamage": 0,
+            "shootSpeed": 60.0,
+            "shootSound": "fireball",
+            "burstCount": 3,
+            "burstDelay": 0.25
+          },
+          "transitions": [
+            {
+              "to": "kite",
+              "requiresAll": false,
+              "conditions": [
+                {
+                  "type": "timeInStateExceeds",
+                  "seconds": 1.0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "preparing_spread",
+          "behaviors": [ "Watch", "Emitter" ],
+          "behaviorData": {
+            "watchTarget": "player",
+            "emitter": "fireballCharge"
+          },
+          "transitions": [
+            {
+              "to": "shoot_spread",
+              "requiresAll": false,
+              "conditions": [
+                {
+                  "type": "timeInStateExceeds",
+                  "seconds": 0.8
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "shoot_spread",
+          "behaviors": [ "ShootSpread", "Watch" ],
+          "behaviorData": {
+            "shootTarget": "player",
+            "shootProjectile": "fireball",
+            "shootDamage": 0,
+            "shootSpeed": 50.0,
+            "shootSound": "fireball",
+            "projectileCount": 5,
+            "spreadAngle": 1.2
+          },
+          "transitions": [
+            {
+              "to": "kite",
+              "requiresAll": false,
+              "conditions": [
+                {
+                  "type": "timeInStateExceeds",
+                  "seconds": 0.5
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "preparing_lunge",
+          "behaviors": [ "Watch" ],
+          "behaviorData": {
+            "watchTarget": "player"
+          },
+          "transitions": [
+            {
+              "to": "lunge",
+              "requiresAll": false,
+              "conditions": [
+                {
+                  "type": "timeInStateExceeds",
+                  "seconds": 1.0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "lunge",
+          "behaviors": [ "Lunge", "Watch" ],
+          "behaviorData": {
+            "lungeTarget": "player",
+            "lungeSpeed": 3.0,
+            "jumpForce": 800,
+            "watchTarget": "player"
+          },
+          "transitions": [
+            {
+              "to": "vulnerable",
+              "requiresAll": false,
+              "conditions": [
+                {
+                  "type": "timeInStateExceeds",
+                  "seconds": 0.8
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "vulnerable",
+          "behaviors": [],
+          "behaviorData": {},
+          "transitions": [
+            {
+              "to": "kite",
+              "requiresAll": false,
+              "conditions": [
+                {
+                  "type": "timeInStateExceeds",
+                  "seconds": 1.5
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "itemDrops": [
+      [ "heart_1up", 1.0 ]
+    ]
   }
 }

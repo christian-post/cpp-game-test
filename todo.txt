@@ -29,7 +29,7 @@ Scenes
 
 IMPORTANT:
 - load weapons.json data into weaponData structs in Preload
-- can I use Behavior::AddBehaviorsToSprite in StateMachine.cpp? Otherwise there is too much duplicate code
+- States/Behaviors need a reset() method
 
 NOT SO IMPORTANT:
 - add a "persistent" property to event listeners (non-persistent listeners are removed after one event)

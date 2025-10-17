@@ -21,6 +21,7 @@ struct TransitionCondition {
 struct StateTransition {
     std::string targetState;
     std::vector<TransitionCondition> conditions;
+    float weight = 1.0f;
     bool requiresAll = true; // If true, ALL conditions must be met; if false, ANY condition
 
     bool canTransition(Sprite& sprite) const {
@@ -143,6 +144,7 @@ namespace TransitionConditions {
     TransitionCondition HealthBelow(uint32_t threshold);
     TransitionCondition HealthAbove(uint32_t threshold);
     TransitionCondition HealthBelowPercent(float percent);
+    TransitionCondition HealthAbovePercent(float percent);
 
     // Line of sight
     TransitionCondition HasLineOfSightToPlayer();

@@ -5,6 +5,7 @@
 #include "json.hpp"
 #include <functional>
 #include <memory>
+#include <optional>
 
 
 class Game;
@@ -250,7 +251,7 @@ private:
 
 class ProjectileBehavior : public Behavior {
 public:
-    ProjectileBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, bool steer = false);
+    ProjectileBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, bool steer = false, std::optional<Vector2> customDirection = std::nullopt);
     void update(float deltaTime) override;
 
 private:
@@ -261,6 +262,7 @@ private:
     Vector2 direction = { 0.0f, 0.0f };
 };
 
+// shoots a single projectile
 class ShootBehavior : public Behavior {
 public:
     ShootBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, shootingConfig config);
@@ -275,6 +277,69 @@ private:
     float interval = 0.0f;
 };
 
+// shoots a defined amount of projectiles in quick succession
+class ShootBurstBehavior : public Behavior {
+public:
+    ShootBurstBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, shootingConfig config, uint32_t burstCount, float burstDelay);
+    void update(float deltaTime) override;
+
+private:
+    Game& game;
+    std::weak_ptr<Sprite> self;
+    std::weak_ptr<Sprite> target;
+    shootingConfig config;
+    uint32_t burstCount;
+    uint32_t shotsFired;
+    float burstDelay;
+    float timer;
+};
+
+// shoots multiple projectiles at the same time
+class ShootSpreadBehavior : public Behavior {
+public:
+    ShootSpreadBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, shootingConfig config, uint32_t projectileCount, float spreadAngle);
+    void update(float deltaTime) override;
+
+private:
+    Game& game;
+    std::weak_ptr<Sprite> self;
+    std::weak_ptr<Sprite> target;
+    shootingConfig config;
+    uint32_t projectileCount;
+    float spreadAngle;
+    bool hasFired;
+};
+
+class KiteBehavior : public Behavior {
+public:
+    KiteBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, float orbitDistance, float moveSpeed);
+    void update(float deltaTime) override;
+    void draw() override;
+
+private:
+    Game& game;
+    std::weak_ptr<Sprite> self;
+    std::weak_ptr<Sprite> target;
+    Vector2 desiredPos = { 0.0f, 0.0f };
+    float orbitDistance;
+    float moveSpeed;
+    float orbitAngle;
+};
+
+class LungeBehavior : public Behavior {
+public:
+    LungeBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, float lungeSpeed, uint32_t jumpForce);
+    void update(float deltaTime) override;
+
+private:
+    Game& game;
+    std::weak_ptr<Sprite> self;
+    std::weak_ptr<Sprite> target;
+    float lungeSpeed;
+    uint32_t jumpForce;
+    Vector2 lungeDirection;
+    bool hasLunged;
+};
 
 class EmitterBehavior : public Behavior {
 public:

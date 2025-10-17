@@ -38,12 +38,33 @@ void StateMachine::update(float deltaTime) {
     if (!sprite)
         return;
 
-    // Check for transitions
+    // Collect all valid transitions with their weights
+    std::vector<const StateTransition*> validTransitions;
+    float totalWeight = 0.0f;
+
     for (const auto& transition : currentState->transitions) {
         if (transition.canTransition(*sprite)) {
-            transitionTo(transition.targetState);
-            return; // Only one transition per frame
+            validTransitions.push_back(&transition);
+            totalWeight += transition.weight;
         }
+    }
+
+    // If we have valid transitions, use weighted random selection
+    if (!validTransitions.empty()) {
+        float randomValue = static_cast<float>(GetRandomValue(0, 10000)) / 10000.0f * totalWeight;
+        float cumulative = 0.0f;
+
+        for (const auto* transition : validTransitions) {
+            cumulative += transition->weight;
+            if (randomValue <= cumulative) {
+                transitionTo(transition->targetState);
+                return; // Only one transition per frame
+            }
+        }
+
+        // Fallback (shouldn't happen, but just in case of floating point errors)
+        transitionTo(validTransitions.back()->targetState);
+        return;
     }
 
     // Update only the ACTIVE behaviors
@@ -220,6 +241,14 @@ std::unique_ptr<StateMachine> StateMachine::createFromJSON(
                         float seconds = condData["seconds"];
                         transition.conditions.push_back(TransitionConditions::TimeInStateExceeds(seconds));
                     }
+                    else if (type == "healthAbove") {
+                        uint32_t threshold = condData["threshold"];
+                        transition.conditions.push_back(TransitionConditions::HealthAbove(threshold));
+                    }
+                    else if (type == "healthAbovePercent") {
+                        float percent = condData["percent"];
+                        transition.conditions.push_back(TransitionConditions::HealthAbovePercent(percent));
+                    }
                     else {
                         TraceLog(LOG_WARNING, "Unknown condition type: %s", type.c_str());
                     }
@@ -307,6 +336,20 @@ namespace TransitionConditions {
                 return healthPercent < percent;
             },
             "HealthBelowPercent(" + std::to_string(percent) + ")"
+        };
+    }
+
+    TransitionCondition HealthAbovePercent(float percent) {
+        return TransitionCondition{
+            [percent](Sprite& sprite) {
+                if (sprite.maxHealth == 0)
+                    return false;
+
+                float healthPercent = static_cast<float>(sprite.health) /
+                                     static_cast<float>(sprite.maxHealth);
+                return healthPercent >= percent;
+            },
+            "HealthAbovePercent(" + std::to_string(percent) + ")"
         };
     }
 

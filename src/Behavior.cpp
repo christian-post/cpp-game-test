@@ -449,9 +449,20 @@ void TradeItemBehavior::draw() {
     }
 }
 
-ProjectileBehavior::ProjectileBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, bool steer): game{ game }, self{ self }, target{ target }, steer{ steer }
+ProjectileBehavior::ProjectileBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, bool steer, std::optional<Vector2> customDirection)
+    : game{ game }, self{ self }, target{ target }, steer{ steer }
 {
-    if (!steer && self && target) {
+    if (customDirection.has_value()) {
+        // Use the provided direction
+        direction = customDirection.value();
+        float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+        if (length > 0.0f) {
+            direction.x /= length;
+            direction.y /= length;
+        }
+    }
+    else if (!steer && self && target) {
+        // Calculate direction from self to target
         Vector2 selfCenter = GetRectCenter(self->rect);
         Vector2 targetCenter = GetRectCenter(target->rect);
         float dx = targetCenter.x - selfCenter.x;
@@ -526,6 +537,187 @@ void ShootBehavior::update(float deltaTime) {
             proto->setAnimationFrames(game.loader.getTextures(config.projectileKey));
             emitter->prototype = *proto;
             projectile->addBehavior(std::make_unique<EmitterBehavior>(game, projectile, std::move(emitter), std::move(proto)));
+        }
+    }
+}
+
+
+
+ShootBurstBehavior::ShootBurstBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, shootingConfig config, uint32_t burstCount, float burstDelay)
+    : game{ game }, self{ self }, target{ target }, config{ config }, burstCount{ burstCount }, shotsFired{ 0 }, burstDelay{ burstDelay }, timer{ 0.0f } {
+}
+
+void ShootBurstBehavior::update(float deltaTime) {
+    if (shotsFired >= burstCount) {
+        done = true;
+        return;
+    }
+
+    timer += deltaTime;
+    if (timer >= burstDelay) {
+        timer = 0.0f;
+
+        if (auto s = self.lock(), t = target.lock(); s && t) {
+            game.playSound(config.sound);
+            Vector2 sCenter = GetRectCenter(s->rect);
+            Rectangle sRect = { sCenter.x - config.hitboxSize / 2.0f, sCenter.y - config.hitboxSize / 2.0f, config.hitboxSize, config.hitboxSize };
+            auto projectile = game.createSprite(config.projectileKey, sRect);
+            projectile->setTextures({ config.projectileKey, config.projectileKey });
+            projectile->addBehavior(std::make_unique<ProjectileBehavior>(game, projectile, t, false));
+            projectile->canHurtPlayer = true;
+            projectile->damage = config.damage;
+            projectile->speed = config.speed;
+            projectile->frameTime = config.frameTime;
+
+            std::unique_ptr<Emitter> emitter = std::make_unique<Emitter>(config.amount);
+            emitter->location = GetRectCenter(s->rect);
+            emitter->spawnInterval = config.spawnInterval;
+            emitter->lifetimeVariance = config.lifetimeVariance;
+            emitter->velocityVariance = config.velocityVariance;
+            std::unique_ptr<Particle> proto = std::make_unique<Particle>();
+            proto->velocity = config.particleVelocity;
+            proto->lifetime = config.particleLifetime;
+            proto->alpha = config.particleStartingAlpha;
+            proto->endSize = config.particleEndSize;
+            proto->setAnimationFrames(game.loader.getTextures(config.projectileKey));
+            emitter->prototype = *proto;
+            projectile->addBehavior(std::make_unique<EmitterBehavior>(game, projectile, std::move(emitter), std::move(proto)));
+
+            shotsFired++;
+        }
+    }
+}
+
+ShootSpreadBehavior::ShootSpreadBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, shootingConfig config, uint32_t projectileCount, float spreadAngle)
+    : game{ game }, self{ self }, target{ target }, config{ config }, projectileCount{ projectileCount }, spreadAngle{ spreadAngle }, hasFired{ false } {
+}
+
+void ShootSpreadBehavior::update(float deltaTime) {
+    if (hasFired) {
+        done = true;
+        return;
+    }
+
+    if (auto s = self.lock(), t = target.lock(); s && t) {
+        game.playSound(config.sound);
+        Vector2 sCenter = GetRectCenter(s->rect);
+        Vector2 tCenter = GetRectCenter(t->rect);
+
+        float baseAngle = std::atan2(tCenter.y - sCenter.y, tCenter.x - sCenter.x);
+        float startAngle = baseAngle - spreadAngle / 2.0f;
+        float angleStep = (projectileCount > 1) ? spreadAngle / (projectileCount - 1) : 0.0f;
+
+        for (uint32_t i = 0; i < projectileCount; i++) {
+            float currentAngle = startAngle + angleStep * i;
+
+            Rectangle sRect = { sCenter.x - config.hitboxSize / 2.0f, sCenter.y - config.hitboxSize / 2.0f, config.hitboxSize, config.hitboxSize };
+            auto projectile = game.createSprite(config.projectileKey, sRect);
+            projectile->setTextures({ config.projectileKey, config.projectileKey });
+            projectile->canHurtPlayer = true;
+            projectile->damage = config.damage;
+            projectile->speed = config.speed;
+            projectile->frameTime = config.frameTime;
+            projectile->isColliding = false;
+
+            Vector2 direction = { std::cos(currentAngle), std::sin(currentAngle) };
+            projectile->acc = direction;
+            projectile->addBehavior(std::make_unique<ProjectileBehavior>(game, projectile, t, false, direction));
+
+            std::unique_ptr<Emitter> emitter = std::make_unique<Emitter>(config.amount);
+            emitter->location = sCenter;
+            emitter->spawnInterval = config.spawnInterval;
+            emitter->lifetimeVariance = config.lifetimeVariance;
+            emitter->velocityVariance = config.velocityVariance;
+            std::unique_ptr<Particle> proto = std::make_unique<Particle>();
+            proto->velocity = config.particleVelocity;
+            proto->lifetime = config.particleLifetime;
+            proto->alpha = config.particleStartingAlpha;
+            proto->endSize = config.particleEndSize;
+            proto->setAnimationFrames(game.loader.getTextures(config.projectileKey));
+            emitter->prototype = *proto;
+            projectile->addBehavior(std::make_unique<EmitterBehavior>(game, projectile, std::move(emitter), std::move(proto)));
+        }
+
+        hasFired = true;
+    }
+}
+
+KiteBehavior::KiteBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, float orbitDistance, float moveSpeed)
+    : game{ game }, self{ self }, target{ target }, orbitDistance{ orbitDistance }, moveSpeed{ moveSpeed }, orbitAngle{ 0.0f } {
+    orbitAngle = static_cast<float>(GetRandomValue(0, 628)) / 100.0f;
+}
+
+void KiteBehavior::update(float deltaTime) {
+    if (auto s = self.lock(), t = target.lock(); s && t) {
+        Vector2 targetCenter = GetRectCenter(t->rect);
+
+        orbitAngle += moveSpeed * deltaTime;
+        if (orbitAngle > 2.0f * PI)
+            orbitAngle -= 2.0f * PI;
+
+        desiredPos.x = targetCenter.x + std::cos(orbitAngle) * orbitDistance;
+        desiredPos.y = targetCenter.y + std::sin(orbitAngle) * orbitDistance;
+
+        Vector2 selfCenter = GetRectCenter(s->rect);
+        float dx = desiredPos.x - selfCenter.x;
+        float dy = desiredPos.y - selfCenter.y;
+        float dist = std::sqrt(dx * dx + dy * dy);
+
+        if (dist > 2.0f) {
+            s->acc.x = dx / dist;
+            s->acc.y = dy / dist;
+        }
+        else {
+            s->acc = { 0.0f, 0.0f };
+        }
+
+        if (desiredPos.x < selfCenter.x)
+            s->lastDirection = LEFT;
+        else
+            s->lastDirection = RIGHT;
+    }
+}
+
+void KiteBehavior::draw()
+{
+    if (game.debug) {
+        DrawCircle(static_cast<int>(desiredPos.x), static_cast<int>(desiredPos.y), 2.0f, RED);
+        if (auto s = self.lock(); s) {
+            DrawLineEx(s->position, desiredPos, 1.0f, RED);
+        }
+    }
+}
+
+LungeBehavior::LungeBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, float lungeSpeed, uint32_t jumpForce)
+    : game{ game }, self{ self }, target{ target }, lungeSpeed{ lungeSpeed }, jumpForce{ jumpForce }, lungeDirection{ 0.0f, 0.0f }, hasLunged{ false } {
+}
+
+void LungeBehavior::update(float deltaTime) {
+    if (auto s = self.lock(), t = target.lock(); s && t) {
+        if (!hasLunged) {
+            Vector2 selfCenter = GetRectCenter(s->rect);
+            Vector2 targetCenter = GetRectCenter(t->rect);
+            float dx = targetCenter.x - selfCenter.x;
+            float dy = targetCenter.y - selfCenter.y;
+            float dist = std::sqrt(dx * dx + dy * dy);
+
+            if (dist > 0.0f) {
+                lungeDirection.x = dx / dist;
+                lungeDirection.y = dy / dist;
+            }
+
+            s->jump(jumpForce);
+            game.playSound("Rise03");
+            hasLunged = true;
+        }
+
+        s->acc.x = lungeDirection.x * lungeSpeed;
+        s->acc.y = lungeDirection.y * lungeSpeed;
+
+        if (s->z >= 0.0f && hasLunged) {
+            s->acc = { 0.0f, 0.0f };
+            s->vel = { 0.0f, 0.0f };
+            done = true;
         }
     }
 }
@@ -826,6 +1018,72 @@ std::unique_ptr<Behavior> createBehaviorFromJSON(Game& game, std::shared_ptr<Spr
 
         emitter->prototype = *proto;
         return std::make_unique<EmitterBehavior>(game, sprite, std::move(emitter), std::move(proto));
+    }
+    if (behaviorKey == "Kite") {
+        std::string targetName = behaviorData.value("kiteTarget", "player");
+        float orbitDistance = behaviorData.value("orbitDistance", 80.0f);
+        float moveSpeed = behaviorData.value("moveSpeed", 1.5f);
+
+        if (game.spriteMap.find(targetName) != game.spriteMap.end())
+            return std::make_unique<KiteBehavior>(game, sprite, game.spriteMap[targetName], orbitDistance, moveSpeed);
+        else {
+            TraceLog(LOG_WARNING, "Target \"%s\" not found in spriteMap. Skipping KiteBehavior.", targetName.c_str());
+            return nullptr;
+        }
+    }
+    else if (behaviorKey == "ShootBurst") {
+        std::string targetName = behaviorData.value("shootTarget", "player");
+        shootingConfig conf;
+        conf.projectileKey = behaviorData.value("shootProjectile", conf.projectileKey);
+        conf.sound = behaviorData.value("shootSound", conf.sound);
+        conf.damage = behaviorData.value("shootDamage", conf.damage);
+        conf.speed = behaviorData.value("shootSpeed", 20.0f);
+        conf.amount = 10;
+        conf.velocityVariance = { 1.0f, 1.0f };
+        conf.spawnInterval = 0.1f;
+        conf.lifetimeVariance = 0.2f;
+        uint32_t burstCount = behaviorData.value("burstCount", 3);
+        float burstDelay = behaviorData.value("burstDelay", 0.3f);
+
+        if (game.spriteMap.find(targetName) != game.spriteMap.end())
+            return std::make_unique<ShootBurstBehavior>(game, sprite, game.spriteMap[targetName], conf, burstCount, burstDelay);
+        else {
+            TraceLog(LOG_WARNING, "Target \"%s\" not found in spriteMap. Skipping ShootBurstBehavior.", targetName.c_str());
+            return nullptr;
+        }
+    }
+    else if (behaviorKey == "ShootSpread") {
+        std::string targetName = behaviorData.value("shootTarget", "player");
+        shootingConfig conf;
+        conf.projectileKey = behaviorData.value("shootProjectile", conf.projectileKey);
+        conf.sound = behaviorData.value("shootSound", conf.sound);
+        conf.damage = behaviorData.value("shootDamage", conf.damage);
+        conf.speed = behaviorData.value("shootSpeed", 20.0f);
+        conf.amount = 10;
+        conf.velocityVariance = { 1.0f, 1.0f };
+        conf.spawnInterval = 0.1f;
+        conf.lifetimeVariance = 0.2f;
+        uint32_t projectileCount = behaviorData.value("projectileCount", 3);
+        float spreadAngle = behaviorData.value("spreadAngle", 0.5f);
+
+        if (game.spriteMap.find(targetName) != game.spriteMap.end())
+            return std::make_unique<ShootSpreadBehavior>(game, sprite, game.spriteMap[targetName], conf, projectileCount, spreadAngle);
+        else {
+            TraceLog(LOG_WARNING, "Target \"%s\" not found in spriteMap. Skipping ShootSpreadBehavior.", targetName.c_str());
+            return nullptr;
+        }
+    }
+    else if (behaviorKey == "Lunge") {
+        std::string targetName = behaviorData.value("lungeTarget", "player");
+        float lungeSpeed = behaviorData.value("lungeSpeed", 2.0f);
+        uint32_t jumpForce = behaviorData.value("jumpForce", 600);
+
+        if (game.spriteMap.find(targetName) != game.spriteMap.end())
+            return std::make_unique<LungeBehavior>(game, sprite, game.spriteMap[targetName], lungeSpeed, jumpForce);
+        else {
+            TraceLog(LOG_WARNING, "Target \"%s\" not found in spriteMap. Skipping LungeBehavior.", targetName.c_str());
+            return nullptr;
+        }
     }
     else {
         TraceLog(LOG_WARNING, "Unknown behavior type: %s", behaviorKey.c_str());
