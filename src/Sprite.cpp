@@ -205,6 +205,29 @@ void Sprite::draw() {
         return;
     }
     Texture2D& texture = textures[currentFrame];
+
+    // Draw shadow if enabled
+    if (castsShadow) {
+        // Shadow position at ground level
+        float shadowX = position.x + rect.width / 2.0f + hitboxOffset.x;
+        float shadowY = position.y + rect.height + hitboxOffset.y;
+
+        // Shadow size scales with texture width and shrinks with height (negative z)
+        float shadowScale = 1.0f + (z / 150.0f); // shadow shrinks as sprite goes up
+        if (shadowScale < 0.3f)
+            shadowScale = 0.3f; // minimum shadow size
+
+        float shadowRadiusX = (texture.width * 0.4f) * shadowScale;
+        float shadowRadiusY = (texture.width * 0.15f) * shadowScale;
+
+        // Shadow opacity increases when closer to ground
+        float shadowAlpha = 0.4f * shadowScale;
+        if (shadowAlpha > 0.5f)
+            shadowAlpha = 0.5f;
+
+        DrawEllipse((int)shadowX, (int)shadowY, shadowRadiusX, shadowRadiusY, Fade(BLACK, shadowAlpha));
+    }
+
     // Define source and destination rectangles
     Rectangle source = { 0.0f, 0.0f, (float)texture.width, (float)texture.height };
     Rectangle dest = {

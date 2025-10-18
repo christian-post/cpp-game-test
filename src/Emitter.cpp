@@ -31,6 +31,13 @@ void Emitter::draw() {
     }
 }
 
+void Emitter::reset() {
+    for (auto& p : particles)
+        p.active = false;
+    age = 0.0f;
+    timeSinceLastSpawn = 0.0f;
+}
+
 void Emitter::emit() {
     for (auto& p : particles) {
         if (!p.active) {

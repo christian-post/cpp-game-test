@@ -347,6 +347,7 @@ class LungeBehavior : public Behavior {
 public:
     LungeBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, float lungeSpeed, uint32_t jumpForce);
     void update(float deltaTime) override;
+    void draw() override;
     void reset() override;
 
 private:
@@ -364,6 +365,7 @@ public:
     EmitterBehavior(Game& game, std::shared_ptr<Sprite> self, std::unique_ptr<Emitter> emitter, std::unique_ptr<Particle> prototype);
     void update(float deltaTime) override;
     void draw() override;
+    void reset() override;
 
 private:
     Game& game;

@@ -10,7 +10,6 @@ Scenes
 
 - Sprites
 -- drawing priority/layer system
--- shadows!
 -- Pathfinding
 -- dialogue options
 -- create a Sprite.fromJson() method to avoid duplications in InGame.cpp
@@ -19,7 +18,7 @@ Scenes
 -- Command_MoveToPath(target, posX, posY, duration) // should use pathfinding
 
 - Misc
--- more particle effects during combat (e.g. loading a charged shot)
+-- more particle effects during combat (Sword hits, Projectiles hit walls)
 
 - Music/Sounds:
 -- Inventory select item --> different sound
@@ -29,7 +28,6 @@ Scenes
 
 IMPORTANT:
 - load weapons.json data into weaponData structs in Preload
-- States/Behaviors need a reset() method
 
 NOT SO IMPORTANT:
 - add a "persistent" property to event listeners (non-persistent listeners are removed after one event)
@@ -54,7 +52,7 @@ NOT SO IMPORTANT:
 ### BUGS:
 - RandomWalkBehavior: choose new target after some time if the current target can't be reached
 - chest contain coins after loading a save
-- Particles should not just disappear when a state switches from EmitterBehavior
+- Particles just disappear when a state switches from EmitterBehavior
 
 RELEASE CHECKLIST
 - turn on sounds and music

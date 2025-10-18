@@ -768,11 +768,23 @@ void LungeBehavior::update(float deltaTime) {
 
         s->acc.x = lungeDirection.x * lungeSpeed;
         s->acc.y = lungeDirection.y * lungeSpeed;
+        TraceLog(LOG_INFO, "%f, %f", s->acc.x, s->acc.y);
 
         if (s->z >= 0.0f && hasLunged) {
             s->acc = { 0.0f, 0.0f };
             s->vel = { 0.0f, 0.0f };
             done = true;
+        }
+    }
+}
+
+void LungeBehavior::draw()
+{
+    if (game.debug) {
+        if (auto s = self.lock(), t = target.lock(); s && t) {
+            Vector2 lungeT = { lungeDirection.x * lungeSpeed, lungeDirection.y * lungeSpeed };
+            lungeT = Vector2Add(s->position, lungeT); // TODO does not show the lunge vector correctly
+            DrawLineEx(s->position, lungeT, 1.0f, GREEN);
         }
     }
 }
@@ -783,9 +795,7 @@ void LungeBehavior::reset() {
     lungeDirection = { 0.0f, 0.0f };
 }
 
-EmitterBehavior::EmitterBehavior(Game& game, std::shared_ptr<Sprite> self, std::unique_ptr<Emitter> emitter, std::unique_ptr<Particle> prototype) : game{ game }, self{ self }, emitter{ std::move(emitter) }, prototype{ std::move(prototype) }
-{
-}
+EmitterBehavior::EmitterBehavior(Game& game, std::shared_ptr<Sprite> self, std::unique_ptr<Emitter> emitter, std::unique_ptr<Particle> prototype) : game{ game }, self{ self }, emitter{ std::move(emitter) }, prototype{ std::move(prototype) } {}
 
 void EmitterBehavior::update(float deltaTime) {
     if (auto s = self.lock(); s) {
@@ -796,6 +806,18 @@ void EmitterBehavior::update(float deltaTime) {
 
 void EmitterBehavior::draw() {
     emitter->draw();
+}
+
+void EmitterBehavior::reset()
+{
+    // TODO position glitches out when pausing this behavior
+    Behavior::reset(); // Call parent reset
+
+    // Update emitter location to current sprite position immediately
+    if (auto s = self.lock(); s)
+        emitter->location = GetRectCenter(s->rect);
+
+    emitter->reset(); // Clear old particles and reset timers
 }
 
 ChestBehavior::ChestBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> player, const std::string& itemName, uint32_t itemAmount) : game{ game }, self{ self }, player{ player }, itemName{ itemName }, itemAmount{ itemAmount }

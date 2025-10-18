@@ -12,6 +12,7 @@ struct Emitter {
     void emit();
     void update(float deltaTime);
     void draw();
+    void reset();
 
     Vector2 location = { 0.0f, 0.0f };
     float spawnInterval = 1.0f;

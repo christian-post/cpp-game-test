@@ -38,6 +38,7 @@ public:
     bool visible = true;
     bool persistent = false; // controls whether the sprite survives between map changes
     bool emitsLight = false; // in dark rooms, if the sprite gets a light cone
+    bool castsShadow = true;
 
     std::optional<ShaderState> activeShader = std::nullopt;
     direction lastDirection = RIGHT;
