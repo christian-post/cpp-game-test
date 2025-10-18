@@ -358,6 +358,8 @@ private:
     uint32_t jumpForce;
     Vector2 lungeDirection;
     bool hasLunged;
+    bool isAirborne;
+    float originalSpeed;
 };
 
 class EmitterBehavior : public Behavior {

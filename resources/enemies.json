@@ -5,6 +5,9 @@
       "skelet_idle",
       "skelet_run"
     ],
+    "itemDrops": [
+      [ "coin", 1.0 ]
+    ],
     "speed": 12.0,
     "knockback": 5.0,
     "damage": 2,
@@ -34,11 +37,11 @@
         },
         {
           "name": "lunge",
-          "behaviors": [ "Lunge"],
+          "behaviors": [ "Lunge" ],
           "behaviorData": {
             "lungeTarget": "player",
-            "lungeSpeed": 100.0,
-            "jumpForce": 1000
+            "lungeSpeed": 30.0,
+            "jumpForce": 1200
           },
           "transitions": [
             {
@@ -448,8 +451,8 @@
             "shootDamage": 2,
             "shootSpeed": 30.0,
             "shootSound": "fireball",
-            "burstCount": 3,
-            "burstDelay": 0.4
+            "burstCount": 4,
+            "burstDelay": 0.3
           },
           "transitions": [
             {
@@ -478,7 +481,7 @@
               "conditions": [
                 {
                   "type": "timeInStateExceeds",
-                  "seconds": 0.8
+                  "seconds": 1.4
                 }
               ]
             }
@@ -533,8 +536,8 @@
           "behaviors": [ "Lunge", "Watch" ],
           "behaviorData": {
             "lungeTarget": "player",
-            "lungeSpeed": 100.0,
-            "jumpForce": 800,
+            "lungeSpeed": 50.0,
+            "jumpForce": 1400,
             "watchTarget": "player"
           },
           "transitions": [

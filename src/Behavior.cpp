@@ -744,7 +744,7 @@ void KiteBehavior::draw()
 }
 
 LungeBehavior::LungeBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, float lungeSpeed, uint32_t jumpForce)
-    : game{ game }, self{ self }, target{ target }, lungeSpeed{ lungeSpeed }, jumpForce{ jumpForce }, lungeDirection{ 0.0f, 0.0f }, hasLunged{ false } {
+    : game{ game }, self{ self }, target{ target }, lungeSpeed{ lungeSpeed }, jumpForce{ jumpForce }, lungeDirection{ 0.0f, 0.0f }, hasLunged{ false }, originalSpeed{ 0.0f } {
 }
 
 void LungeBehavior::update(float deltaTime) {
@@ -761,19 +761,25 @@ void LungeBehavior::update(float deltaTime) {
                 lungeDirection.y = dy / dist;
             }
 
+            s->speed = lungeSpeed;
             s->jump(jumpForce);
             game.playSound("Rise03");
             hasLunged = true;
         }
 
-        s->acc.x = lungeDirection.x * lungeSpeed;
-        s->acc.y = lungeDirection.y * lungeSpeed;
-        TraceLog(LOG_INFO, "%f, %f", s->acc.x, s->acc.y);
+        s->acc.x = lungeDirection.x;
+        s->acc.y = lungeDirection.y;
 
-        if (s->z >= 0.0f && hasLunged) {
+        if (s->z < 0.0f)
+            isAirborne = true;
+
+        if (s->z >= 0.0f && isAirborne) {
+            // Sprite has landed, reset the attributes
             s->acc = { 0.0f, 0.0f };
             s->vel = { 0.0f, 0.0f };
+            s->speed = originalSpeed;
             done = true;
+            isAirborne = false;
         }
     }
 }
@@ -793,6 +799,8 @@ void LungeBehavior::reset() {
     Behavior::reset(); // Call parent reset
     hasLunged = false;
     lungeDirection = { 0.0f, 0.0f };
+    if (auto s = self.lock())
+        originalSpeed = s->speed;
 }
 
 EmitterBehavior::EmitterBehavior(Game& game, std::shared_ptr<Sprite> self, std::unique_ptr<Emitter> emitter, std::unique_ptr<Particle> prototype) : game{ game }, self{ self }, emitter{ std::move(emitter) }, prototype{ std::move(prototype) } {}
@@ -1172,7 +1180,7 @@ std::unique_ptr<Behavior> createBehaviorFromJSON(Game& game, std::shared_ptr<Spr
     }
     else if (behaviorKey == "Lunge") {
         std::string targetName = behaviorData.value("lungeTarget", "player");
-        float lungeSpeed = behaviorData.value("lungeSpeed", 2.0f);
+        float lungeSpeed = behaviorData.value("lungeSpeed", 30.0f);
         uint32_t jumpForce = behaviorData.value("jumpForce", 600);
 
         if (game.spriteMap.find(targetName) != game.spriteMap.end())

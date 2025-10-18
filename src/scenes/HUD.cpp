@@ -84,7 +84,8 @@ void HUD::update(float deltaTime) {
 }
 
 void HUD::draw() {
-    if (!visible) return;
+    if (!visible) 
+        return;
 
     DrawRectangle(int(x), int(y), int(width), int(height), DARKBURGUNDY);
 
@@ -146,7 +147,7 @@ void HUD::draw() {
         ItemType type = data.type;
         if (data.type != IMMEDIATE) {
             const Texture2D& itemTex = game.loader.getTextures(data.textureKey)[0];
-            int itemX = weaponX + 24;
+            int itemX = 112;
             DrawTexture(itemTex, itemX, collectedItemY, WHITE);
             uint32_t qty = invItems[type].at(collectedItem).second;
             std::string qtyText = "x" + std::to_string(qty);
