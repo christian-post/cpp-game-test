@@ -186,6 +186,25 @@ std::unique_ptr<StateMachine> StateMachine::createFromJSON(
         std::string stateName = stateData["name"];
         auto state = std::make_unique<State>(stateName);
 
+        // Check for animation state override
+        if (stateData.contains("animState")) {
+            std::string animStateStr = stateData["animState"];
+            AnimState animState = IDLE; // default
+
+            if (animStateStr == "CHARGE") animState = CHARGE;
+            else if (animStateStr == "HIT") animState = HIT;
+            else if (animStateStr == "RUN") animState = RUN;
+
+            // Set up callbacks to control animation
+            state->onEnter = [animState](Sprite& sprite) {
+                sprite.setAnimState(animState, true);
+                };
+
+            state->onExit = [](Sprite& sprite) {
+                sprite.unlockAnimState();
+                };
+        }
+
         // Get this state's behavior data
         nlohmann::json behaviorData = stateData.value("behaviorData", nlohmann::json::object());
 

@@ -47,7 +47,7 @@ void Sprite::setTextures(std::vector<std::string> keys) {
 }
 
 void Sprite::animate(float deltaTime) {
-    if (!doesAnimate) 
+    if (!doesAnimate)
         return;
 
     elapsedtime += deltaTime;
@@ -55,21 +55,32 @@ void Sprite::animate(float deltaTime) {
         elapsedtime = 0.0f;
         currentFrame = (currentFrame + 1) % frames[currentAnimState].size();
     }
+
+    // Don't automatically change state if it's locked
+    if (lockedAnimState)
+        return;
+
     // latch the last direction (used for animation)
     if (vel.x == 0.0f && vel.y == 0.0f) {
         currentAnimState = IDLE;
     }
     else {
         if (frames.size() > 1)
-            // only set to RUN if sprite has more than just idle frames
             currentAnimState = RUN;
         if (vel.x > 0.0f) {
-            lastDirection = RIGHT; // right
+            lastDirection = RIGHT;
         }
         else if (vel.x < 0.0f) {
-            lastDirection = LEFT; // left
+            lastDirection = LEFT;
         }
     }
+}
+
+void Sprite::setAnimState(AnimState state, bool lockState)
+{
+    currentAnimState = state;
+    lockedAnimState = lockState;
+    currentFrame = 0;
 }
 
 void Sprite::setHurtbox(float x, float y, float width, float height, bool center) {

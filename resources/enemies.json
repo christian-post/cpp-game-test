@@ -517,6 +517,7 @@
         {
           "name": "preparing_lunge",
           "behaviors": [ "Watch" ],
+          "animState": "CHARGE",
           "behaviorData": {
             "watchTarget": "player"
           },

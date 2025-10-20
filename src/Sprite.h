@@ -86,6 +86,8 @@ public:
     ~Sprite();
     void setTextures(std::vector<std::string> keys);
     void animate(float deltaTime);
+    void setAnimState(AnimState state, bool lockState = false);
+    void unlockAnimState() { lockedAnimState = false; }
     void setHurtbox(float x = -1.0f, float y = -1.0f, float width = -1.0f, float height = -1.0f, bool center = false);
     void getControls();
     void update(float deltaTime);
@@ -120,5 +122,6 @@ public:
 private:
     std::vector<std::unique_ptr<Behavior>> behaviors;
     bool markedForDeletion = false;
+    bool lockedAnimState = false;
 };
 
