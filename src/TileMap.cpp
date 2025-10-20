@@ -118,7 +118,19 @@ void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, 
         }
         // store default data seperately to replace individual attributes
         const auto& defaultData = spriteData.at("sprite_default");
-        auto textureKeys = data.contains("textures") ? data.at("textures").get<std::vector<std::string>>() : defaultData.at("textures").get<std::vector<std::string>>();
+        //auto textureKeys = data.contains("textures") ? data.at("textures").get<std::vector<std::string>>() : defaultData.at("textures").get<std::vector<std::string>>();
+        std::vector<std::string> textureKeys;
+        if (data.contains("textures") && data.at("textures").is_array()) {
+            for (const auto& item : data.at("textures")) {
+                if (item.is_null())
+                    textureKeys.push_back(""); // reads null as empty string (no animation frames for this state)
+                else
+                    textureKeys.push_back(item.get<std::string>());
+            }
+        }
+        else {
+            textureKeys = defaultData.at("textures").get<std::vector<std::string>>();
+        }
         // get the hitbox dimensions for the constructor
         // if not specified in the JSON data, it takes the dimensions from the Tiled object data
         Vector2 hitbox = data.contains("hitbox") ?

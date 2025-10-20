@@ -357,8 +357,8 @@ private:
     float lungeSpeed;
     uint32_t jumpForce;
     Vector2 lungeDirection;
-    bool hasLunged;
-    bool isAirborne;
+    bool hasLunged = false;
+    bool isAirborne = false;
     float originalSpeed;
 };
 

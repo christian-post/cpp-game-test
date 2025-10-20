@@ -763,6 +763,7 @@ void LungeBehavior::update(float deltaTime) {
 
             s->speed = lungeSpeed;
             s->jump(jumpForce);
+            //s->currentAnimState = CHARGE;  // TODO: does not work here bc it gets overwritten in Sprite.animate()
             game.playSound("Rise03");
             hasLunged = true;
         }
@@ -780,6 +781,7 @@ void LungeBehavior::update(float deltaTime) {
             s->speed = originalSpeed;
             done = true;
             isAirborne = false;
+            //s->currentAnimState = IDLE;
         }
     }
 }

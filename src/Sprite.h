@@ -21,7 +21,9 @@ struct ShaderState {
 enum AnimState {
     IDLE,
     RUN,
-    HIT
+    HIT,
+    CHARGE,
+    NUM_ANIM_STATES
 };
 
 

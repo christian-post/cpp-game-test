@@ -18,11 +18,13 @@ Sprite::Sprite(Game& game, float x, float y, float w, float h, const std::string
     health{ 10 }, // default values
     maxHealth{ 10 }
 {
+    // create placeholder textures in case loading goes wrong
     // TODO: solve this differently!
-    frames.resize(3);
+    frames.resize(static_cast<size_t>(NUM_ANIM_STATES));
     frames[IDLE] = { game.loader.fallbackTexture };
     frames[RUN] = { game.loader.fallbackTexture };
     frames[HIT] = { game.loader.fallbackTexture };
+    frames[CHARGE] = { game.loader.fallbackTexture };
 }
 
 Sprite::~Sprite() {
@@ -32,15 +34,17 @@ Sprite::~Sprite() {
 
 void Sprite::setTextures(std::vector<std::string> keys) {
     frames.clear();
-    for (const auto& key : keys) {
-        const auto& textures = game.loader.getTextures(key);
-        if (textures.empty()) {
-            TraceLog(LOG_ERROR, "Missing texture for key: %s", key.c_str());
+    for (size_t i = 0; i < NUM_ANIM_STATES; i++) {
+        if (i < keys.size() && !keys[i].empty()) {
+            const auto& textures = game.loader.getTextures(keys[i]);
+            if (textures.empty())
+                TraceLog(LOG_ERROR, "Missing texture for key: %s", keys[i].c_str());
+            frames.push_back(textures);
         }
-        frames.push_back(textures);
+        else
+            frames.push_back({}); // Push empty vector for skipped states
     }
 }
-
 
 void Sprite::animate(float deltaTime) {
     if (!doesAnimate) 

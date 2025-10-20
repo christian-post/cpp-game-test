@@ -87,6 +87,11 @@ void Preload::startup() {
                 }
             },
             {
+                "big_demon_charge", {
+                    "./resources/textures/sprites/big_demon_idle_anim_f3.png",
+                }   
+            },
+            {
                 "goblin_idle", {
                     "./resources/textures/sprites/goblin_idle_anim_f0.png",
                     "./resources/textures/sprites/goblin_idle_anim_f1.png",

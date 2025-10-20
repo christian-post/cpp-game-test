@@ -325,7 +325,9 @@
     "inherits": "sprite_default",
     "textures": [
       "big_demon_idle",
-      "big_demon_run"
+      "big_demon_run",
+      null,
+      "big_demon_charge"
     ],
     "health": 20,
     "damage": 1,
