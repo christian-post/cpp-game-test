@@ -519,33 +519,90 @@ ProjectileBehavior::ProjectileBehavior(Game& game, std::shared_ptr<Sprite> self,
 }
 
 void ProjectileBehavior::update(float deltaTime) {
-    if (auto s = self.lock(), t = target.lock(); s && t) {
-        // check if the projectile hit a wall
-        for (const auto& wall : game.walls) {
-            if (wall->layer == 0 && CheckCollisionRecs(s->rect, wall->getRect())) {
-                s->markForDeletion();
-                return;
-            }
-        }
-        // check if the target was hit
-        if (CheckCollisionRecs(s->rect, t->rect)) {
+    auto s = self.lock();
+    auto t = target.lock();
+    if (!s || !t)
+        return;
+
+    // If emitter is active, just update it and wait for it to finish
+    if (impactEmitter) {
+        if (impactEmitter->isDone()) {
+            done = true;
             s->markForDeletion();
+        }
+        return;
+    }
+
+    // Check collisions
+    for (const auto& wall : game.walls) {
+        if (wall->layer == 0 && CheckCollisionRecs(s->rect, wall->getRect())) {
+            createImpactEffect(s);
             return;
         }
-        if (steer) {
-            // TODO: only steer a little bit towards the target
-            Vector2 selfCenter = GetRectCenter(s->rect);
-            Vector2 targetCenter = GetRectCenter(t->rect);
-            float dx = targetCenter.x - selfCenter.x;
-            float dy = targetCenter.y - selfCenter.y;
-            float dist = sqrtf(dx * dx + dy * dy);
-            s->acc.x = dx / dist;
-            s->acc.y = dy / dist;
-        }
-        else {
-            s->acc = direction;
-        }
     }
+
+    if (CheckCollisionRecs(s->rect, t->rect)) {
+        createImpactEffect(s);
+        return;
+    }
+
+    // Movement
+    if (steer) {
+        Vector2 selfCenter = GetRectCenter(s->rect);
+        Vector2 targetCenter = GetRectCenter(t->rect);
+        float dx = targetCenter.x - selfCenter.x;
+        float dy = targetCenter.y - selfCenter.y;
+        float dist = sqrtf(dx * dx + dy * dy);
+        s->acc.x = dx / dist;
+        s->acc.y = dy / dist;
+    }
+    else {
+        s->acc = direction;
+    }
+}
+
+void ProjectileBehavior::draw() {
+    if (impactEmitter)
+        impactEmitter->draw();
+}
+
+void ProjectileBehavior::createImpactEffect(std::shared_ptr<Sprite> s) {
+    // Stop and hide the projectile, but keep it alive for particles
+    s->visible = false;
+    s->vel = { 0.0f, 0.0f };
+    s->acc = { 0.0f, 0.0f };
+
+    const auto& particlesData = game.loader.getParticleData();
+
+    if (particlesData.find("projectileImpact") == particlesData.end()) {
+        TraceLog(LOG_WARNING, "projectileImpact not found in particles.json");
+        done = true;
+        s->markForDeletion();
+        return;
+    }
+
+    const auto& defaultEmitterData = particlesData.at("defaultEmitter");
+    const auto& defaultParticleData = particlesData.at("defaultParticle");
+    const auto& emitterData = particlesData.at("projectileImpact");
+
+    std::string particleKey = emitterData.value("particleKey", defaultEmitterData.value("particleKey", "defaultParticle"));
+    const auto& particleData = particlesData.at(particleKey);
+
+    size_t maxParticles = emitterData.value("maxParticles", defaultEmitterData.value("maxParticles", 20));
+    // Create emitter and add it to the game
+    auto emitter = std::make_unique<Emitter>(maxParticles);
+    emitter->location = GetRectCenter(s->rect);
+    emitter->fromJSON(emitterData, defaultEmitterData);
+
+    Particle proto;
+    proto.fromJSON(particleData, defaultParticleData);
+    proto.setAnimationFrames(s->frames[s->currentAnimState]);
+
+    emitter->prototype = proto;
+
+    // Track the pointer before moving
+    impactEmitter = emitter.get();
+    game.emitters.push_back(std::move(emitter));
 }
 
 ShootBehavior::ShootBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, shootingConfig config)
@@ -582,7 +639,7 @@ void ShootBehavior::update(float deltaTime) {
             proto->endSize = config.particleEndSize;
             proto->setAnimationFrames(game.loader.getTextures(config.projectileKey));
             emitter->prototype = *proto;
-            projectile->addBehavior(std::make_unique<EmitterBehavior>(game, projectile, std::move(emitter), std::move(proto)));
+            projectile->addBehavior(std::make_unique<EmitterBehavior>(game, projectile, std::move(emitter)));
         }
     }
 }
@@ -626,7 +683,7 @@ void ShootBurstBehavior::update(float deltaTime) {
             proto->endSize = config.particleEndSize;
             proto->setAnimationFrames(game.loader.getTextures(config.projectileKey));
             emitter->prototype = *proto;
-            projectile->addBehavior(std::make_unique<EmitterBehavior>(game, projectile, std::move(emitter), std::move(proto)));
+            projectile->addBehavior(std::make_unique<EmitterBehavior>(game, projectile, std::move(emitter)));
 
             shotsFired++;
         }
@@ -685,7 +742,7 @@ void ShootSpreadBehavior::update(float deltaTime) {
             proto->endSize = config.particleEndSize;
             proto->setAnimationFrames(game.loader.getTextures(config.projectileKey));
             emitter->prototype = *proto;
-            projectile->addBehavior(std::make_unique<EmitterBehavior>(game, projectile, std::move(emitter), std::move(proto)));
+            projectile->addBehavior(std::make_unique<EmitterBehavior>(game, projectile, std::move(emitter)));
         }
 
         hasFired = true;
@@ -763,7 +820,6 @@ void LungeBehavior::update(float deltaTime) {
 
             s->speed = lungeSpeed;
             s->jump(jumpForce);
-            s->setAnimState(CHARGE, true);
             game.playSound("Rise03");
             hasLunged = true;
         }
@@ -781,7 +837,6 @@ void LungeBehavior::update(float deltaTime) {
             s->speed = originalSpeed;
             done = true;
             isAirborne = false;
-            s->unlockAnimState();
         }
     }
 }
@@ -805,29 +860,30 @@ void LungeBehavior::reset() {
         originalSpeed = s->speed;
 }
 
-EmitterBehavior::EmitterBehavior(Game& game, std::shared_ptr<Sprite> self, std::unique_ptr<Emitter> emitter, std::unique_ptr<Particle> prototype) : game{ game }, self{ self }, emitter{ std::move(emitter) }, prototype{ std::move(prototype) } {}
+EmitterBehavior::EmitterBehavior(Game& game, std::shared_ptr<Sprite> self, std::unique_ptr<Emitter> emitter)
+    : game{ game }, self{ self } {
+    // Add to game's emitters and track the pointer
+    this->emitter = emitter.get();
+    game.emitters.push_back(std::move(emitter));
+}
 
 void EmitterBehavior::update(float deltaTime) {
+    if (!emitter)
+        return;
+
     if (auto s = self.lock(); s) {
         emitter->location = GetRectCenter(s->rect);
     }
-    emitter->update(deltaTime);
 }
 
-void EmitterBehavior::draw() {
-    emitter->draw();
-}
+void EmitterBehavior::reset() {
+    Behavior::reset();
 
-void EmitterBehavior::reset()
-{
-    // TODO position glitches out when pausing this behavior
-    Behavior::reset(); // Call parent reset
-
-    // Update emitter location to current sprite position immediately
-    if (auto s = self.lock(); s)
+    if (auto s = self.lock(); s && emitter)
         emitter->location = GetRectCenter(s->rect);
 
-    emitter->reset(); // Clear old particles and reset timers
+    if (emitter)
+        emitter->reset();
 }
 
 ChestBehavior::ChestBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> player, const std::string& itemName, uint32_t itemAmount) : game{ game }, self{ self }, player{ player }, itemName{ itemName }, itemAmount{ itemAmount }
@@ -1043,17 +1099,14 @@ std::unique_ptr<Behavior> createBehaviorFromJSON(Game& game, std::shared_ptr<Spr
         }
     }
     else if (behaviorKey == "Emitter") {
-        // Get the emitter key from behavior data
         std::string emitterKey = behaviorData.value("emitter", behaviorData.value("particle", ""));
         if (emitterKey.empty()) {
             TraceLog(LOG_WARNING, "No emitter/particle key specified for Emitter behavior");
             return nullptr;
         }
 
-        // Load particles.json data
-        const auto& particlesData = game.loader.getParticleData(); // TODO: change to getParticleData() when implemented
+        const auto& particlesData = game.loader.getParticleData();
 
-        // Get the default emitter and particle for fallback values
         if (particlesData.find("defaultEmitter") == particlesData.end() ||
             particlesData.find("defaultParticle") == particlesData.end()) {
             TraceLog(LOG_ERROR, "Missing 'defaultEmitter' or 'defaultParticle' in particles.json");
@@ -1063,16 +1116,14 @@ std::unique_ptr<Behavior> createBehaviorFromJSON(Game& game, std::shared_ptr<Spr
         const auto& defaultEmitterData = particlesData.at("defaultEmitter");
         const auto& defaultParticleData = particlesData.at("defaultParticle");
 
-        // Get specific emitter data
         if (particlesData.find(emitterKey) == particlesData.end()) {
             TraceLog(LOG_WARNING, "Emitter key \"%s\" not found in particles.json", emitterKey.c_str());
             return nullptr;
         }
 
         const auto& emitterData = particlesData.at(emitterKey);
-
-        // Get particle prototype key
         std::string particleKey = emitterData.value("particleKey", defaultEmitterData.value("particleKey", "defaultParticle"));
+
         if (particlesData.find(particleKey) == particlesData.end()) {
             TraceLog(LOG_WARNING, "Particle key \"%s\" not found in particles.json", particleKey.c_str());
             return nullptr;
@@ -1080,53 +1131,20 @@ std::unique_ptr<Behavior> createBehaviorFromJSON(Game& game, std::shared_ptr<Spr
 
         const auto& particleData = particlesData.at(particleKey);
 
-        // Create emitter with settings from JSON (with defaults as fallback)
         size_t maxParticles = emitterData.value("maxParticles", defaultEmitterData.value("maxParticles", 20));
         std::unique_ptr<Emitter> emitter = std::make_unique<Emitter>(maxParticles);
+        emitter->fromJSON(emitterData, defaultEmitterData);
 
-        emitter->spawnInterval = emitterData.value("spawnInterval", defaultEmitterData.value("spawnInterval", 1.0f));
-        emitter->emitterLifetime = emitterData.value("emitterLifetime", defaultEmitterData.value("emitterLifetime", -1.0f));
-        emitter->spawnRadius = emitterData.value("spawnRadius", defaultEmitterData.value("spawnRadius", 0.0f));
-        emitter->spawnRadiusVariance = emitterData.value("spawnRadiusVariance", defaultEmitterData.value("spawnRadiusVariance", 0.0f));
-        emitter->velocityVariance.x = emitterData.value("velocityVarianceX", defaultEmitterData.value("velocityVarianceX", 0.0f));
-        emitter->velocityVariance.y = emitterData.value("velocityVarianceY", defaultEmitterData.value("velocityVarianceY", 0.0f));
-        emitter->lifetimeVariance = emitterData.value("lifetimeVariance", defaultEmitterData.value("lifetimeVariance", 0.0f));
-        emitter->alphaVariance = emitterData.value("alphaVariance", defaultEmitterData.value("alphaVariance", 0.0f));
-        emitter->radialVelocity = emitterData.value("radialVelocity", defaultEmitterData.value("radialVelocity", false));
-        emitter->speed = emitterData.value("speed", defaultEmitterData.value("speed", 1.0f));
-        emitter->speedVariance = emitterData.value("speedVariance", defaultEmitterData.value("speedVariance", 0.0f));
-
-        // Create particle prototype from JSON (with defaults as fallback)
         std::unique_ptr<Particle> proto = std::make_unique<Particle>();
+        proto->fromJSON(particleData, defaultParticleData);
 
-        proto->velocity.x = particleData.value("velocityX", defaultParticleData.value("velocityX", 0.0f));
-        proto->velocity.y = particleData.value("velocityY", defaultParticleData.value("velocityY", 0.0f));
-        proto->startAlpha = particleData.value("startAlpha", defaultParticleData.value("startAlpha", 1.0f));
-        proto->endAlpha = particleData.value("endAlpha", defaultParticleData.value("endAlpha", 0.0f));
-        proto->lifetime = particleData.value("lifetime", defaultParticleData.value("lifetime", 1.0f));
-        proto->startSize = particleData.value("startSize", defaultParticleData.value("startSize", 1.0f));
-        proto->endSize = particleData.value("endSize", defaultParticleData.value("endSize", 1.0f));
-        proto->animationSpeed = particleData.value("animationSpeed", defaultParticleData.value("animationSpeed", 0.1f));
-
-        // Handle tint color (with default fallback)
-        if (particleData.contains("tint") || defaultParticleData.contains("tint")) {
-            auto tintArray = particleData.contains("tint") ? particleData.at("tint") : defaultParticleData.at("tint");
-            proto->tint = Color{
-                static_cast<unsigned char>(tintArray[0].get<int>()),
-                static_cast<unsigned char>(tintArray[1].get<int>()),
-                static_cast<unsigned char>(tintArray[2].get<int>()),
-                static_cast<unsigned char>(tintArray[3].get<int>())
-            };
-        }
-
-        // Set animation frames from texture key (with default fallback)
         std::string textureKey = particleData.value("textureKey", defaultParticleData.value("textureKey", "sprite_default"));
         proto->setAnimationFrames(game.loader.getTextures(textureKey));
 
         emitter->prototype = *proto;
-        return std::make_unique<EmitterBehavior>(game, sprite, std::move(emitter), std::move(proto));
+        return std::make_unique<EmitterBehavior>(game, sprite, std::move(emitter));
     }
-    if (behaviorKey == "Kite") {
+    else if (behaviorKey == "Kite") {
         std::string targetName = behaviorData.value("kiteTarget", "player");
         float orbitDistance = behaviorData.value("orbitDistance", 80.0f);
         float moveSpeed = behaviorData.value("moveSpeed", 1.5f);

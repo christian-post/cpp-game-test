@@ -60,22 +60,35 @@ void Particle::reset() {
     active = true;
 }
 
-void Particle::fromData(nlohmann::json& data)
+void Particle::fromJSON(const nlohmann::json& data, const nlohmann::json& defaultData)
 {
-    // set the values from JSON data
-    velocity = { data.at("velocityX").get<float>(), data.at("velocityY").get<float>() };
-    startAlpha = data.at("startAlpha").get<float>();
-    endAlpha = data.at("endAlpha").get<float>();
-    auto tintVec = data.at("tint");
-    tint = Color{
-        static_cast<unsigned char>(tintVec[0].get<int>()),
-        static_cast<unsigned char>(tintVec[1].get<int>()),
-        static_cast<unsigned char>(tintVec[2].get<int>()),
-        static_cast<unsigned char>(tintVec[3].get<int>())
-    };
-    lifetime = data.at("lifetime").get<float>();
-    startSize = data.at("startSize").get<float>();
-    endSize = data.at("endSize").get<float>();
+    velocity.x = data.value("velocityX", defaultData.value("velocityX", 0.0f));
+    velocity.y = data.value("velocityY", defaultData.value("velocityY", 0.0f));
+    startAlpha = data.value("startAlpha", defaultData.value("startAlpha", 1.0f));
+    endAlpha = data.value("endAlpha", defaultData.value("endAlpha", 0.0f));
+    lifetime = data.value("lifetime", defaultData.value("lifetime", 1.0f));
+    startSize = data.value("startSize", defaultData.value("startSize", 1.0f));
+    endSize = data.value("endSize", defaultData.value("endSize", 1.0f));
+    animationSpeed = data.value("animationSpeed", defaultData.value("animationSpeed", 0.1f));
+
+    if (data.contains("tint")) {
+        auto tintArray = data.at("tint");
+        tint = Color{
+            static_cast<unsigned char>(tintArray[0].get<int>()),
+            static_cast<unsigned char>(tintArray[1].get<int>()),
+            static_cast<unsigned char>(tintArray[2].get<int>()),
+            static_cast<unsigned char>(tintArray[3].get<int>())
+        };
+    }
+    else if (defaultData.contains("tint")) {
+        auto tintArray = defaultData.at("tint");
+        tint = Color{
+            static_cast<unsigned char>(tintArray[0].get<int>()),
+            static_cast<unsigned char>(tintArray[1].get<int>()),
+            static_cast<unsigned char>(tintArray[2].get<int>()),
+            static_cast<unsigned char>(tintArray[3].get<int>())
+        };
+    }
 }
 
 void Particle::setAnimationFrames(const std::vector<Texture2D>& textures) {

@@ -191,9 +191,12 @@ std::unique_ptr<StateMachine> StateMachine::createFromJSON(
             std::string animStateStr = stateData["animState"];
             AnimState animState = IDLE; // default
 
-            if (animStateStr == "CHARGE") animState = CHARGE;
-            else if (animStateStr == "HIT") animState = HIT;
-            else if (animStateStr == "RUN") animState = RUN;
+            if (animStateStr == "CHARGE") 
+                animState = CHARGE;
+            else if (animStateStr == "HIT")
+                animState = HIT;
+            else if (animStateStr == "RUN")
+                animState = RUN;
 
             // Set up callbacks to control animation
             state->onEnter = [animState](Sprite& sprite) {

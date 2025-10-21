@@ -90,7 +90,8 @@ public:
     std::vector<std::unique_ptr<CollisionObject>> walls; // everything with static collision
     std::vector<std::shared_ptr<Sprite>> sprites; // dynamic objects
     std::unordered_map<std::string, std::shared_ptr<Sprite>> spriteMap; // keep named references to certain sprites
-    std::vector<Emitter> emitters; // particle emitters
+    //std::vector<Emitter> emitters; // particle emitters
+    std::vector<std::unique_ptr<Emitter>> emitters;  // particle emitters
     std::shared_ptr<Sprite> createSprite(std::string spriteName, Rectangle& rect); // TODO: return a shared pointer, or a reference to the sprite?
 
     // Dungeon management

@@ -491,8 +491,14 @@ void InGame::update(float deltaTime) {
 
     // handle the particle effects
     for (auto& emitter : game.emitters) {
-        emitter.update(deltaTime);
+        emitter->update(deltaTime);
     }
+    // clean up finished emitters
+    game.emitters.erase(
+        std::remove_if(game.emitters.begin(), game.emitters.end(),
+            [](const std::unique_ptr<Emitter>& e) { return e->isDone(); }),
+        game.emitters.end()
+    );
 
     // check if the player is outside of the map bounds
     checkRoomTransition();
@@ -540,7 +546,7 @@ void InGame::draw() {
     }
     // draw particles
     for (auto& emitter : game.emitters) {
-        emitter.draw();
+        emitter->draw();
     }
 
     // now draw the top layer above the sprites

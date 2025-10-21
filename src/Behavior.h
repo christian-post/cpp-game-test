@@ -85,7 +85,7 @@ std::unique_ptr<Behavior> createBehaviorFromJSON(
 void addBehaviorsToSprite(Game& game, std::shared_ptr<Sprite> sprite, const std::vector<std::string>& behaviors, const nlohmann::json& behaviorData);
 
 
-
+// Behavior base class
 class Behavior {
 public:
     virtual ~Behavior() = default;
@@ -115,6 +115,8 @@ private:
     std::weak_ptr<Sprite> target;
 };
 
+
+// The sprite periodically chooses random walk position targets
 class RandomWalkBehavior : public Behavior {
 public:
     RandomWalkBehavior(std::shared_ptr<Sprite> self);
@@ -128,6 +130,8 @@ private:
     bool hasWalkTarget = false;
 };
 
+
+// the sprite chases another target sprite
 class ChaseBehavior : public Behavior {
 public:
     ChaseBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> other, float minDist);
@@ -141,6 +145,8 @@ private:
     bool isChasing = false;
 };
 
+
+// The sprite can be used as a weapon
 class WeaponBehavior : public Behavior {
 public:
     WeaponBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> owner, weaponData data, size_t slot);
@@ -154,12 +160,14 @@ private:
     size_t slot;
     static const int controlBindings[2];
     weaponData data;
-    float lifetime; // Counts DOWN - remaining time for weapon
+    float lifetime; // remaining time for weapon
     float originalLifetime;
     bool switchedOn = false; // for weapons that can be turned on/off
     bool shaken = false; // for weapons that cause a screen shake
 };
 
+
+// plays a death animation and then marks the sprite for deletion
 class DeathBehavior : public Behavior {
 public:
     DeathBehavior(Game& game, std::shared_ptr<Sprite> self, float lifetime);
@@ -169,7 +177,7 @@ public:
 private:
     Game& game;
     std::weak_ptr<Sprite> self;
-    float lifetime; // Counts DOWN - remaining time before death animation completes
+    float lifetime; // remaining time before death animation completes (counts down)
     float maxLifetime;
     const Shader* shader = nullptr;
 };
@@ -179,6 +187,8 @@ struct TeleportEvent {
     Vector2 targetPos;
 };
 
+
+// colliding with this sprite teleports the player to another map
 class TeleportBehavior : public Behavior {
 public:
     TeleportBehavior(
@@ -195,8 +205,9 @@ private:
     Vector2 targetPos;
 };
 
+
+// used for consumable sprites that heal the player
 class HealBehavior : public Behavior {
-    // used for consumable sprites that heal the player
 public:
     HealBehavior(
         Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> other,
@@ -211,8 +222,9 @@ private:
     uint32_t amount;
 };
 
+
+// The sprite can be picked up as an item
 class CollectItemBehavior : public Behavior {
-    // used for consumable sprites that heal the player
 public:
     CollectItemBehavior(
         Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> other,
@@ -231,6 +243,8 @@ private:
     float displayDuration = 2.0f; // How long to display item above player
 };
 
+
+// The Sprite displays a dialogue box
 class DialogueBehavior : public Behavior {
 public:
     DialogueBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> player, std::vector<std::string> dialogTexts, std::string voice);
@@ -248,6 +262,8 @@ private:
     bool collided = false;
 };
 
+
+// The sprite can be interacted with (buying it for the shown amount of coins)
 class TradeItemBehavior : public Behavior {
 public:
     TradeItemBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> player, std::string name, uint32_t price);
@@ -265,10 +281,12 @@ private:
     bool collided = false;
 };
 
+// Sprite behaves like a projectile
 class ProjectileBehavior : public Behavior {
 public:
     ProjectileBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, bool steer = false, std::optional<Vector2> customDirection = std::nullopt);
     void update(float deltaTime) override;
+    void draw() override;
 
 private:
     Game& game;
@@ -276,9 +294,12 @@ private:
     std::weak_ptr<Sprite> target;
     bool steer;
     Vector2 direction = { 0.0f, 0.0f };
+    Emitter* impactEmitter = nullptr;  // emits a burst of particles on impact
+    void createImpactEffect(std::shared_ptr<Sprite> s);
 };
 
-// shoots a single projectile at intervals
+
+// the sprite shoots a single projectile at intervals
 class ShootBehavior : public Behavior {
 public:
     ShootBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, shootingConfig config);
@@ -292,6 +313,7 @@ private:
     shootingConfig config;
     float interval = 0.0f;
 };
+
 
 // shoots a defined amount of projectiles in quick succession
 class ShootBurstBehavior : public Behavior {
@@ -310,6 +332,7 @@ private:
     float burstDelay;
 };
 
+
 // shoots multiple projectiles at the same time
 class ShootSpreadBehavior : public Behavior {
 public:
@@ -327,6 +350,8 @@ private:
     bool hasFired;
 };
 
+
+// the sprite runs around the target sprite in a circular motion
 class KiteBehavior : public Behavior {
 public:
     KiteBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, float orbitDistance, float moveSpeed);
@@ -343,6 +368,8 @@ private:
     float orbitAngle;
 };
 
+
+// the sprite jumps at the target
 class LungeBehavior : public Behavior {
 public:
     LungeBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, float lungeSpeed, uint32_t jumpForce);
@@ -362,20 +389,23 @@ private:
     float originalSpeed;
 };
 
+
+// The sprite emits particles
 class EmitterBehavior : public Behavior {
 public:
-    EmitterBehavior(Game& game, std::shared_ptr<Sprite> self, std::unique_ptr<Emitter> emitter, std::unique_ptr<Particle> prototype);
+    EmitterBehavior(Game& game, std::shared_ptr<Sprite> self, std::unique_ptr<Emitter> emitter);
     void update(float deltaTime) override;
-    void draw() override;
     void reset() override;
 
 private:
     Game& game;
     std::weak_ptr<Sprite> self;
-    std::unique_ptr<Emitter> emitter;
-    std::unique_ptr<Particle> prototype;
+    //std::unique_ptr<Emitter> emitter;
+    Emitter* emitter = nullptr;
 };
 
+
+// Sprite is a chest that can be interacted with (yields an item)
 class ChestBehavior : public Behavior {
 public:
     ChestBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> player, const std::string& itemName, uint32_t itemAmount);
@@ -395,6 +425,8 @@ private:
     Rectangle interactionRect = Rectangle{ 0.0f, 0.0f ,0.0f, 0.0f };
 };
 
+
+// The sprite is a locked door that is opened by an event
 class OpenLockBehavior : public Behavior {
 public:
     OpenLockBehavior(Game& game, std::shared_ptr<Sprite> door, std::shared_ptr<Sprite> player, const int triggerKey);

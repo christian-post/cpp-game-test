@@ -63,6 +63,11 @@ void Preload::startup() {
                 }
             },
             {
+                "skelet_charge", {
+                    "./resources/textures/sprites/skelet_idle_anim_f3.png"
+                }
+            },
+            {
                 "skelet_run", {
                     "./resources/textures/sprites/skelet_run_anim_f0.png",
                     "./resources/textures/sprites/skelet_run_anim_f1.png",

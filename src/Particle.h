@@ -8,7 +8,7 @@ struct Particle {
     void update(float deltaTime);
     void draw();
     void reset();
-    void fromData(nlohmann::json& data);
+    void fromJSON(const nlohmann::json& data, const nlohmann::json& defaultData);
 
     Vector2 position = { 0.0f, 0.0f };
     Vector2 velocity = { 0.0f, 0.0f };

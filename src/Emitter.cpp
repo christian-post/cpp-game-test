@@ -7,6 +7,35 @@ Emitter::Emitter(size_t maxParticles)
     particles.resize(maxParticles);
 }
 
+void Emitter::fromJSON(const nlohmann::json& data, const nlohmann::json& defaultData) {
+    spawnInterval = data.value("spawnInterval", defaultData.value("spawnInterval", 1.0f));
+    emitterLifetime = data.value("emitterLifetime", defaultData.value("emitterLifetime", -1.0f));
+    spawnRadius = data.value("spawnRadius", defaultData.value("spawnRadius", 0.0f));
+    spawnRadiusVariance = data.value("spawnRadiusVariance", defaultData.value("spawnRadiusVariance", 0.0f));
+    velocityVariance.x = data.value("velocityVarianceX", defaultData.value("velocityVarianceX", 0.0f));
+    velocityVariance.y = data.value("velocityVarianceY", defaultData.value("velocityVarianceY", 0.0f));
+    lifetimeVariance = data.value("lifetimeVariance", defaultData.value("lifetimeVariance", 0.0f));
+    alphaVariance = data.value("alphaVariance", defaultData.value("alphaVariance", 0.0f));
+    radialVelocity = data.value("radialVelocity", defaultData.value("radialVelocity", false));
+    speed = data.value("speed", defaultData.value("speed", 1.0f));
+    speedVariance = data.value("speedVariance", defaultData.value("speedVariance", 0.0f));
+}
+
+bool Emitter::isDone() const {
+    // If emitter has a positive lifetime and hasn't finished spawning, not done
+    if (emitterLifetime > 0 && age < emitterLifetime)
+        return false;
+
+    // Check if any particles are still active
+    for (const auto& p : particles) {
+        if (p.active)
+            return false;
+    }
+
+    // Emitter finished spawning AND all particles are dead
+    return true;
+}
+
 void Emitter::update(float deltaTime) {
     age += deltaTime;
     if (emitterLifetime > 0 && age >= emitterLifetime)

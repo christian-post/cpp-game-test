@@ -4,6 +4,7 @@
 #include "raylib.h"
 #include "raymath.h"
 #include "Particle.h"
+#include "json.hpp"
 
 
 struct Emitter {
@@ -13,6 +14,8 @@ struct Emitter {
     void update(float deltaTime);
     void draw();
     void reset();
+    void fromJSON(const nlohmann::json& data, const nlohmann::json& defaultData);
+    bool isDone() const;
 
     Vector2 location = { 0.0f, 0.0f };
     float spawnInterval = 1.0f;
