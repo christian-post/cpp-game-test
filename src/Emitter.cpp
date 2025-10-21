@@ -22,8 +22,12 @@ void Emitter::fromJSON(const nlohmann::json& data, const nlohmann::json& default
 }
 
 bool Emitter::isDone() const {
+    // Infinite emitters are never "done" on their own
+    if (emitterLifetime <= 0)
+        return false;
+
     // If emitter has a positive lifetime and hasn't finished spawning, not done
-    if (emitterLifetime > 0 && age < emitterLifetime)
+    if (age < emitterLifetime)
         return false;
 
     // Check if any particles are still active
@@ -33,6 +37,7 @@ bool Emitter::isDone() const {
     }
 
     // Emitter finished spawning AND all particles are dead
+    TraceLog(LOG_INFO, "Emitter is done");
     return true;
 }
 

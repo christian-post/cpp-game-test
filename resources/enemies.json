@@ -10,17 +10,18 @@
     ],
     "speed": 12.0,
     "knockback": 5.0,
-    "damage": 2,
+    "damage": 0,
     "stateMachine": {
       "initialState": "kite",
       "states": [
         {
           "name": "kite",
-          "behaviors": [ "Kite" ],
+          "behaviors": [ "Kite", "Emitter" ],
           "behaviorData": {
             "kiteTarget": "player",
-            "orbitDistance": 40.0,
-            "moveSpeed": 1.5
+            "orbitDistance": 80.0,
+            "moveSpeed": 1.0,
+            "emitter": "smoke"
           },
           "transitions": [
             {
@@ -29,7 +30,7 @@
               "conditions": [
                 {
                   "type": "timeInStateExceeds",
-                  "seconds": 2.0
+                  "seconds": 4.0
                 }
               ]
             }
@@ -40,8 +41,8 @@
           "behaviors": [ "Lunge" ],
           "behaviorData": {
             "lungeTarget": "player",
-            "lungeSpeed": 80.0,
-            "jumpForce": 2000
+            "lungeSpeed": 60.0,
+            "jumpForce": 1000
           },
           "transitions": [
             {

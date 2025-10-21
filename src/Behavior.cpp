@@ -626,25 +626,67 @@ void ShootBehavior::update(float deltaTime) {
             projectile->damage = config.damage;
             projectile->speed = config.speed;
             projectile->frameTime = config.frameTime;
-            // add a Particle effect that imitates the sprite, but slowly fades
-            std::unique_ptr<Emitter> emitter = std::make_unique<Emitter>(config.amount);
-            emitter->location = GetRectCenter(s->rect);
-            emitter->spawnInterval = config.spawnInterval;
-            emitter->lifetimeVariance = config.lifetimeVariance;
-            emitter->velocityVariance = config.velocityVariance;
+
+            // Create particle emitter
+            const auto& particlesData = game.loader.getParticleData();
+
+            if (particlesData.find("defaultEmitter") == particlesData.end() || particlesData.find("defaultParticle") == particlesData.end()) {
+                TraceLog(LOG_ERROR, "Missing 'defaultEmitter' or 'defaultParticle' in particles.json");
+                return;
+            }
+
+            const auto& defaultEmitterData = particlesData.at("defaultEmitter");
+            const auto& defaultParticleData = particlesData.at("defaultParticle");
+
+            std::unique_ptr<Emitter> emitter;
             std::unique_ptr<Particle> proto = std::make_unique<Particle>();
-            proto->velocity = config.particleVelocity;
-            proto->lifetime = config.particleLifetime;
-            proto->alpha = config.particleStartingAlpha;
-            proto->endSize = config.particleEndSize;
-            proto->setAnimationFrames(game.loader.getTextures(config.projectileKey));
+
+            if (config.emitterKey.empty()) {
+                // Use projectile texture with default emitter settings
+                emitter = std::make_unique<Emitter>(defaultEmitterData.value("maxParticles", 20));
+                emitter->fromJSON(defaultEmitterData, defaultEmitterData);
+                proto->fromJSON(defaultParticleData, defaultParticleData);
+                proto->setAnimationFrames(game.loader.getTextures(config.projectileKey));
+            }
+            else {
+                // Load specific emitter from particles.json
+                if (particlesData.find(config.emitterKey) == particlesData.end()) {
+                    TraceLog(LOG_WARNING, "Emitter key \"%s\" not found in particles.json, using default", config.emitterKey.c_str());
+                    emitter = std::make_unique<Emitter>(defaultEmitterData.value("maxParticles", 20));
+                    emitter->fromJSON(defaultEmitterData, defaultEmitterData);
+                    proto->fromJSON(defaultParticleData, defaultParticleData);
+                    proto->setAnimationFrames(game.loader.getTextures(config.projectileKey));
+                }
+                else {
+                    const auto& emitterData = particlesData.at(config.emitterKey);
+                    std::string particleKey = emitterData.value("particleKey", defaultEmitterData.value("particleKey", "defaultParticle"));
+
+                    if (particlesData.find(particleKey) == particlesData.end()) {
+                        TraceLog(LOG_WARNING, "Particle key \"%s\" not found in particles.json", particleKey.c_str());
+                        return;
+                    }
+
+                    const auto& particleData = particlesData.at(particleKey);
+                    size_t maxParticles = emitterData.value("maxParticles", defaultEmitterData.value("maxParticles", 20));
+
+                    emitter = std::make_unique<Emitter>(maxParticles);
+                    emitter->fromJSON(emitterData, defaultEmitterData);
+                    proto->fromJSON(particleData, defaultParticleData);
+
+                    std::string textureKey = particleData.value("textureKey", defaultParticleData.value("textureKey", "sprite_default"));
+                    proto->setAnimationFrames(game.loader.getTextures(textureKey));
+                }
+            }
+
+            emitter->location = GetRectCenter(s->rect);
             emitter->prototype = *proto;
             projectile->addBehavior(std::make_unique<EmitterBehavior>(game, projectile, std::move(emitter)));
         }
     }
 }
-// ShootBehavior doesn't need reset() override - uses base class timer only
 
+
+// Shoots a burst of N projectiles
 ShootBurstBehavior::ShootBurstBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, shootingConfig config, uint32_t burstCount, float burstDelay)
     : game{ game }, self{ self }, target{ target }, config{ config }, burstCount{ burstCount }, shotsFired{ 0 }, burstDelay{ burstDelay } {
 }
@@ -671,17 +713,60 @@ void ShootBurstBehavior::update(float deltaTime) {
             projectile->speed = config.speed;
             projectile->frameTime = config.frameTime;
 
-            std::unique_ptr<Emitter> emitter = std::make_unique<Emitter>(config.amount);
-            emitter->location = GetRectCenter(s->rect);
-            emitter->spawnInterval = config.spawnInterval;
-            emitter->lifetimeVariance = config.lifetimeVariance;
-            emitter->velocityVariance = config.velocityVariance;
+            // Create particle emitter
+            const auto& particlesData = game.loader.getParticleData();
+
+            if (particlesData.find("defaultEmitter") == particlesData.end() || particlesData.find("defaultParticle") == particlesData.end()) {
+                TraceLog(LOG_ERROR, "Missing 'defaultEmitter' or 'defaultParticle' in particles.json");
+                shotsFired++;
+                return;
+            }
+
+            const auto& defaultEmitterData = particlesData.at("defaultEmitter");
+            const auto& defaultParticleData = particlesData.at("defaultParticle");
+
+            std::unique_ptr<Emitter> emitter;
             std::unique_ptr<Particle> proto = std::make_unique<Particle>();
-            proto->velocity = config.particleVelocity;
-            proto->lifetime = config.particleLifetime;
-            proto->alpha = config.particleStartingAlpha;
-            proto->endSize = config.particleEndSize;
-            proto->setAnimationFrames(game.loader.getTextures(config.projectileKey));
+
+            if (config.emitterKey.empty()) {
+                // Use projectile texture with default emitter settings
+                emitter = std::make_unique<Emitter>(defaultEmitterData.value("maxParticles", 20));
+                emitter->fromJSON(defaultEmitterData, defaultEmitterData);
+                proto->fromJSON(defaultParticleData, defaultParticleData);
+                proto->setAnimationFrames(game.loader.getTextures(config.projectileKey));
+            }
+            else {
+                // Load specific emitter from particles.json
+                if (particlesData.find(config.emitterKey) == particlesData.end()) {
+                    TraceLog(LOG_WARNING, "Emitter key \"%s\" not found in particles.json, using default", config.emitterKey.c_str());
+                    emitter = std::make_unique<Emitter>(defaultEmitterData.value("maxParticles", 20));
+                    emitter->fromJSON(defaultEmitterData, defaultEmitterData);
+                    proto->fromJSON(defaultParticleData, defaultParticleData);
+                    proto->setAnimationFrames(game.loader.getTextures(config.projectileKey));
+                }
+                else {
+                    const auto& emitterData = particlesData.at(config.emitterKey);
+                    std::string particleKey = emitterData.value("particleKey", defaultEmitterData.value("particleKey", "defaultParticle"));
+
+                    if (particlesData.find(particleKey) == particlesData.end()) {
+                        TraceLog(LOG_WARNING, "Particle key \"%s\" not found in particles.json", particleKey.c_str());
+                        shotsFired++;
+                        return;
+                    }
+
+                    const auto& particleData = particlesData.at(particleKey);
+                    size_t maxParticles = emitterData.value("maxParticles", defaultEmitterData.value("maxParticles", 20));
+
+                    emitter = std::make_unique<Emitter>(maxParticles);
+                    emitter->fromJSON(emitterData, defaultEmitterData);
+                    proto->fromJSON(particleData, defaultParticleData);
+
+                    std::string textureKey = particleData.value("textureKey", defaultParticleData.value("textureKey", "sprite_default"));
+                    proto->setAnimationFrames(game.loader.getTextures(textureKey));
+                }
+            }
+
+            emitter->location = GetRectCenter(s->rect);
             emitter->prototype = *proto;
             projectile->addBehavior(std::make_unique<EmitterBehavior>(game, projectile, std::move(emitter)));
 
@@ -694,6 +779,7 @@ void ShootBurstBehavior::reset() {
     Behavior::reset(); // Call parent reset
     shotsFired = 0;
 }
+
 
 ShootSpreadBehavior::ShootSpreadBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, shootingConfig config, uint32_t projectileCount, float spreadAngle)
     : game{ game }, self{ self }, target{ target }, config{ config }, projectileCount{ projectileCount }, spreadAngle{ spreadAngle }, hasFired{ false } {
@@ -714,6 +800,18 @@ void ShootSpreadBehavior::update(float deltaTime) {
         float startAngle = baseAngle - spreadAngle / 2.0f;
         float angleStep = (projectileCount > 1) ? spreadAngle / (projectileCount - 1) : 0.0f;
 
+        // Load particle data once before the loop
+        const auto& particlesData = game.loader.getParticleData();
+
+        if (particlesData.find("defaultEmitter") == particlesData.end() || particlesData.find("defaultParticle") == particlesData.end()) {
+            TraceLog(LOG_ERROR, "Missing 'defaultEmitter' or 'defaultParticle' in particles.json");
+            hasFired = true;
+            return;
+        }
+
+        const auto& defaultEmitterData = particlesData.at("defaultEmitter");
+        const auto& defaultParticleData = particlesData.at("defaultParticle");
+
         for (uint32_t i = 0; i < projectileCount; i++) {
             float currentAngle = startAngle + angleStep * i;
 
@@ -730,17 +828,48 @@ void ShootSpreadBehavior::update(float deltaTime) {
             projectile->acc = direction;
             projectile->addBehavior(std::make_unique<ProjectileBehavior>(game, projectile, t, false, direction));
 
-            std::unique_ptr<Emitter> emitter = std::make_unique<Emitter>(config.amount);
-            emitter->location = sCenter;
-            emitter->spawnInterval = config.spawnInterval;
-            emitter->lifetimeVariance = config.lifetimeVariance;
-            emitter->velocityVariance = config.velocityVariance;
+            // Create particle emitter
+            std::unique_ptr<Emitter> emitter;
             std::unique_ptr<Particle> proto = std::make_unique<Particle>();
-            proto->velocity = config.particleVelocity;
-            proto->lifetime = config.particleLifetime;
-            proto->alpha = config.particleStartingAlpha;
-            proto->endSize = config.particleEndSize;
-            proto->setAnimationFrames(game.loader.getTextures(config.projectileKey));
+
+            if (config.emitterKey.empty()) {
+                // Use projectile texture with default emitter settings
+                emitter = std::make_unique<Emitter>(defaultEmitterData.value("maxParticles", 20));
+                emitter->fromJSON(defaultEmitterData, defaultEmitterData);
+                proto->fromJSON(defaultParticleData, defaultParticleData);
+                proto->setAnimationFrames(game.loader.getTextures(config.projectileKey));
+            }
+            else {
+                // Load specific emitter from particles.json
+                if (particlesData.find(config.emitterKey) == particlesData.end()) {
+                    TraceLog(LOG_WARNING, "Emitter key \"%s\" not found in particles.json, using default", config.emitterKey.c_str());
+                    emitter = std::make_unique<Emitter>(defaultEmitterData.value("maxParticles", 20));
+                    emitter->fromJSON(defaultEmitterData, defaultEmitterData);
+                    proto->fromJSON(defaultParticleData, defaultParticleData);
+                    proto->setAnimationFrames(game.loader.getTextures(config.projectileKey));
+                }
+                else {
+                    const auto& emitterData = particlesData.at(config.emitterKey);
+                    std::string particleKey = emitterData.value("particleKey", defaultEmitterData.value("particleKey", "defaultParticle"));
+
+                    if (particlesData.find(particleKey) == particlesData.end()) {
+                        TraceLog(LOG_WARNING, "Particle key \"%s\" not found in particles.json", particleKey.c_str());
+                        continue;
+                    }
+
+                    const auto& particleData = particlesData.at(particleKey);
+                    size_t maxParticles = emitterData.value("maxParticles", defaultEmitterData.value("maxParticles", 20));
+
+                    emitter = std::make_unique<Emitter>(maxParticles);
+                    emitter->fromJSON(emitterData, defaultEmitterData);
+                    proto->fromJSON(particleData, defaultParticleData);
+
+                    std::string textureKey = particleData.value("textureKey", defaultParticleData.value("textureKey", "sprite_default"));
+                    proto->setAnimationFrames(game.loader.getTextures(textureKey));
+                }
+            }
+
+            emitter->location = sCenter;
             emitter->prototype = *proto;
             projectile->addBehavior(std::make_unique<EmitterBehavior>(game, projectile, std::move(emitter)));
         }
@@ -753,6 +882,7 @@ void ShootSpreadBehavior::reset() {
     Behavior::reset(); // Call parent reset
     hasFired = false;
 }
+
 
 KiteBehavior::KiteBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, float orbitDistance, float moveSpeed)
     : game{ game }, self{ self }, target{ target }, orbitDistance{ orbitDistance }, moveSpeed{ moveSpeed }, orbitAngle{ 0.0f } {
@@ -860,6 +990,7 @@ void LungeBehavior::reset() {
         originalSpeed = s->speed;
 }
 
+
 EmitterBehavior::EmitterBehavior(Game& game, std::shared_ptr<Sprite> self, std::unique_ptr<Emitter> emitter)
     : game{ game }, self{ self } {
     // Add to game's emitters and track the pointer
@@ -885,6 +1016,7 @@ void EmitterBehavior::reset() {
     if (emitter)
         emitter->reset();
 }
+
 
 ChestBehavior::ChestBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> player, const std::string& itemName, uint32_t itemAmount) : game{ game }, self{ self }, player{ player }, itemName{ itemName }, itemAmount{ itemAmount }
 {
@@ -1085,10 +1217,7 @@ std::unique_ptr<Behavior> createBehaviorFromJSON(Game& game, std::shared_ptr<Spr
         conf.damage = behaviorData.value("shootDamage", conf.damage);
         conf.shootInterval = behaviorData.value("shootInterval", 2.0f);
         conf.speed = behaviorData.value("shootSpeed", 20.0f);
-        conf.amount = 10;
-        conf.velocityVariance = { 1.0f, 1.0f };
-        conf.spawnInterval = 0.1f;
-        conf.lifetimeVariance = 0.2f;
+        conf.emitterKey = behaviorData.value("emitterKey", "");
 
         if (game.spriteMap.find(targetName) != game.spriteMap.end()) {
             return std::make_unique<ShootBehavior>(game, sprite, game.spriteMap[targetName], conf);
@@ -1142,6 +1271,7 @@ std::unique_ptr<Behavior> createBehaviorFromJSON(Game& game, std::shared_ptr<Spr
         proto->setAnimationFrames(game.loader.getTextures(textureKey));
 
         emitter->prototype = *proto;
+        TraceLog(LOG_INFO, "Creating Emitter for particle \"%s\"", textureKey.c_str());
         return std::make_unique<EmitterBehavior>(game, sprite, std::move(emitter));
     }
     else if (behaviorKey == "Kite") {
@@ -1163,10 +1293,7 @@ std::unique_ptr<Behavior> createBehaviorFromJSON(Game& game, std::shared_ptr<Spr
         conf.sound = behaviorData.value("shootSound", conf.sound);
         conf.damage = behaviorData.value("shootDamage", conf.damage);
         conf.speed = behaviorData.value("shootSpeed", 20.0f);
-        conf.amount = 10;
-        conf.velocityVariance = { 1.0f, 1.0f };
-        conf.spawnInterval = 0.1f;
-        conf.lifetimeVariance = 0.2f;
+        conf.emitterKey = behaviorData.value("emitterKey", "");
         uint32_t burstCount = behaviorData.value("burstCount", 3);
         float burstDelay = behaviorData.value("burstDelay", 0.3f);
 
@@ -1184,10 +1311,7 @@ std::unique_ptr<Behavior> createBehaviorFromJSON(Game& game, std::shared_ptr<Spr
         conf.sound = behaviorData.value("shootSound", conf.sound);
         conf.damage = behaviorData.value("shootDamage", conf.damage);
         conf.speed = behaviorData.value("shootSpeed", 20.0f);
-        conf.amount = 10;
-        conf.velocityVariance = { 1.0f, 1.0f };
-        conf.spawnInterval = 0.1f;
-        conf.lifetimeVariance = 0.2f;
+        conf.emitterKey = behaviorData.value("emitterKey", "");
         uint32_t projectileCount = behaviorData.value("projectileCount", 3);
         float spreadAngle = behaviorData.value("spreadAngle", 0.5f);
 

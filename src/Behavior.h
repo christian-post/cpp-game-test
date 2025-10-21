@@ -56,19 +56,8 @@ struct shootingConfig {
     float frameTime = 0.1f;
     float hitboxSize = 8.0f;
     float shootInterval = 1.0f; // seconds
-    // particle effect (in addition to the projectile
-    // TODO: read these values from particles.json?
-    bool hasEmitter = true;
-    // emitter 
-    float spawnInterval = 1.0f;
-    float lifetimeVariance = 0.0f;
-    Vector2 velocityVariance = { 0.0f, 0.0f };
-    uint32_t amount = 1;
-    // particle prototype
-    Vector2 particleVelocity = { 0.0f, 0.0f };
-    float particleLifetime = 1.0f;
-    float particleStartingAlpha = 1.0f;
-    float particleEndSize = 0.1f;
+    // particle effect (in addition to the projectile)
+    std::string emitterKey = ""; // empty = use projectile texture, non-empty = load from particles.json
 };
 
 
@@ -280,6 +269,7 @@ private:
     bool triggered = false;
     bool collided = false;
 };
+
 
 // Sprite behaves like a projectile
 class ProjectileBehavior : public Behavior {
