@@ -2,7 +2,9 @@
 #include "raylib.h"
 #include "raymath.h"
 #include "Commands.h"
-#include "Behavior.h"
+#include "ChaseBehavior.h"
+#include "DialogueBehavior.h"
+
 
 // any InGame events (like cutscenes) that are triggered by some condition
 // once triggered, they never trigger again

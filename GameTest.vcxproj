@@ -104,7 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)src/tests;$(ProjectDir)src/scenes;$(ProjectDir)include;$(ProjectDir)include/raylib-5.5_win64_msvc16\include;$(ProjectDir)libs\raylib-5.5_win64_msvc16\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)src/tests;$(ProjectDir)src/behaviors;$(ProjectDir)src/scenes;$(ProjectDir)include;$(ProjectDir)include/raylib-5.5_win64_msvc16\include;$(ProjectDir)libs\raylib-5.5_win64_msvc16\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -151,6 +151,25 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
   <ItemGroup>
     <ClCompile Include="src\AssetLoader.cpp" />
     <ClCompile Include="src\Behavior.cpp" />
+    <ClCompile Include="src\behaviors\ChaseBehavior.cpp" />
+    <ClCompile Include="src\behaviors\ChestBehavior.cpp" />
+    <ClCompile Include="src\behaviors\CollectItemBehavior.cpp" />
+    <ClCompile Include="src\behaviors\DeathBehavior.cpp" />
+    <ClCompile Include="src\behaviors\DialogueBehavior.cpp" />
+    <ClCompile Include="src\behaviors\EmitterBehavior.cpp" />
+    <ClCompile Include="src\behaviors\HealBehavior.cpp" />
+    <ClCompile Include="src\behaviors\KiteBehavior.cpp" />
+    <ClCompile Include="src\behaviors\LungeBehavior.cpp" />
+    <ClCompile Include="src\behaviors\OpenLockBehavior.cpp" />
+    <ClCompile Include="src\behaviors\ProjectileBehavior.cpp" />
+    <ClCompile Include="src\behaviors\RandomWalkBehavior.cpp" />
+    <ClCompile Include="src\behaviors\ShootBehavior.cpp" />
+    <ClCompile Include="src\behaviors\ShootBurstBehavior.cpp" />
+    <ClCompile Include="src\behaviors\ShootSpreadBehavior.cpp" />
+    <ClCompile Include="src\behaviors\TeleportBehavior.cpp" />
+    <ClCompile Include="src\behaviors\TradeItemBehavior.cpp" />
+    <ClCompile Include="src\behaviors\WatchBehavior.cpp" />
+    <ClCompile Include="src\behaviors\WeaponBehavior.cpp" />
     <ClCompile Include="src\CameraController.cpp" />
     <ClCompile Include="src\CircleOverlay.cpp" />
     <ClCompile Include="src\Commands.cpp" />
@@ -191,6 +210,25 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <ClInclude Include="resource.h" />
     <ClInclude Include="src\AssetLoader.h" />
     <ClInclude Include="src\Behavior.h" />
+    <ClInclude Include="src\behaviors\ChaseBehavior.h" />
+    <ClInclude Include="src\behaviors\ChestBehavior.h" />
+    <ClInclude Include="src\behaviors\CollectItemBehavior.h" />
+    <ClInclude Include="src\behaviors\DeathBehavior.h" />
+    <ClInclude Include="src\behaviors\DialogueBehavior.h" />
+    <ClInclude Include="src\behaviors\EmitterBehavior.h" />
+    <ClInclude Include="src\behaviors\HealBehavior.h" />
+    <ClInclude Include="src\behaviors\KiteBehavior.h" />
+    <ClInclude Include="src\behaviors\LungeBehavior.h" />
+    <ClInclude Include="src\behaviors\OpenLockBehavior.h" />
+    <ClInclude Include="src\behaviors\ProjectileBehavior.h" />
+    <ClInclude Include="src\behaviors\RandomWalkBehavior.h" />
+    <ClInclude Include="src\behaviors\ShootBehavior.h" />
+    <ClInclude Include="src\behaviors\ShootBurstBehavior.h" />
+    <ClInclude Include="src\behaviors\ShootSpreadBehavior.h" />
+    <ClInclude Include="src\behaviors\TeleportBehavior.h" />
+    <ClInclude Include="src\behaviors\TradeItemBehavior.h" />
+    <ClInclude Include="src\behaviors\WatchBehavior.h" />
+    <ClInclude Include="src\behaviors\WeaponBehavior.h" />
     <ClInclude Include="src\CameraController.h" />
     <ClInclude Include="src\CircleOverlay.h" />
     <ClInclude Include="src\Commands.h" />

@@ -1,6 +1,10 @@
 #include "TileMap.h"
 #include "Game.h"
-#include "Behavior.h"
+#include "TeleportBehavior.h"
+#include "TradeItemBehavior.h"
+#include "CollectItemBehavior.h"
+#include "OpenLockBehavior.h"
+#include "ChestBehavior.h"
 
 
 TileLayer::TileLayer(const nlohmann::json& layerJson) {

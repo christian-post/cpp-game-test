@@ -1,11 +1,12 @@
 #include "InGame.h"
 #include "raymath.h"
-#include "Behavior.h"
 #include "Controls.h"
 #include "Events.h"
 #include "Utils.h"
 #include "TileMap.h"
 #include "Savegame.h"
+#include "DeathBehavior.h"
+#include "WeaponBehavior.h"
 
 
 InGame::InGame(Game& game, const std::string& name) : Scene(game, name), tileMap(nullptr), tilemapRenderer(game), cameraController(game) {}
