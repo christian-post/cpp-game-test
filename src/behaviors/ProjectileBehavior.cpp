@@ -73,6 +73,7 @@ void ProjectileBehavior::draw() {
         impactEmitter->draw();
 }
 
+// configures the emitter that spreads particles on impact
 void ProjectileBehavior::createImpactEffect(std::shared_ptr<Sprite> s) {
     s->visible = false;
     s->vel = { 0.0f, 0.0f };

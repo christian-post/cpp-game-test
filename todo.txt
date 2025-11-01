@@ -52,7 +52,6 @@ NOT SO IMPORTANT:
 ### BUGS:
 - RandomWalkBehavior: choose new target after some time if the current target can't be reached
 - chest contain coins after loading a save
-- Particles just disappear when a state switches from EmitterBehavior
 
 RELEASE CHECKLIST
 - turn on sounds and music

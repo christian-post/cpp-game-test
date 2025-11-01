@@ -16,7 +16,10 @@ struct Emitter {
     void reset();
     void fromJSON(const nlohmann::json& data, const nlohmann::json& defaultData);
     bool isDone() const;
+    void start() { active = true; }
+    void stop() { active = false; }
 
+    bool active = true;  // flag to control emission
     Vector2 location = { 0.0f, 0.0f };
     float spawnInterval = 1.0f;
     float timeSinceLastSpawn = 0.0f;

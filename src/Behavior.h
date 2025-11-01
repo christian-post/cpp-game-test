@@ -71,6 +71,7 @@ public:
     virtual ~Behavior() = default;
     virtual void update(float deltaTime) = 0;
     virtual void draw() {};
+    virtual void onDeactivate() {}
 
     // Reset the behavior to its initial state
     // Override this in child classes that need to reset additional state beyond timer

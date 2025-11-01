@@ -119,7 +119,7 @@
                         {
                          "name":"spriteName",
                          "type":"string",
-                         "value":"big_demon_boss"
+                         "value":"enemy_test"
                         }],
                  "rotation":0,
                  "type":"sprite",

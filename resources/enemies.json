@@ -12,50 +12,19 @@
     "knockback": 5.0,
     "damage": 0,
     "stateMachine": {
-      "initialState": "kite",
+      "initialState": "shoot",
       "states": [
         {
-          "name": "kite",
-          "behaviors": [ "Kite", "Emitter" ],
+          "name": "shoot",
+          "behaviors": [ "Shoot", "Emitter" ],
           "behaviorData": {
-            "kiteTarget": "player",
-            "orbitDistance": 80.0,
-            "moveSpeed": 1.0,
+            "shootTarget": "player",
+            "shootProjectile": "fireball",
+            "emitterKey": "fireTrail",
+            "shootDamage": 0,
+            "shootInterval": 1.0,
             "emitter": "smoke"
-          },
-          "transitions": [
-            {
-              "to": "lunge",
-              "requiresAll": true,
-              "conditions": [
-                {
-                  "type": "timeInStateExceeds",
-                  "seconds": 4.0
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "lunge",
-          "behaviors": [ "Lunge" ],
-          "behaviorData": {
-            "lungeTarget": "player",
-            "lungeSpeed": 60.0,
-            "jumpForce": 1000
-          },
-          "transitions": [
-            {
-              "to": "kite",
-              "requiresAll": false,
-              "conditions": [
-                {
-                  "type": "timeInStateExceeds",
-                  "seconds": 2.0
-                }
-              ]
-            }
-          ]
+          }
         }
       ],
       "transitions": [

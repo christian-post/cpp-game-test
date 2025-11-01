@@ -3,7 +3,7 @@
     "type": "emitter",
     "particleKey": "defaultParticle",
     "maxParticles": 20,
-    "spawnInterval": 1.0,
+    "spawnInterval": 0.3,
     "emitterLifetime": -1.0,
     "spawnRadius": 0.0,
     "spawnRadiusVariance": 0.0,
@@ -73,6 +73,18 @@
     "speed": 40.0,
     "speedVariance": 10.0
   },
+  "fireTrail": {
+    "type": "emitter",
+    "particleKey": "fireParticleBig",
+    "maxParticles": 10,
+    "spawnInterval": 0.15,
+    "emitterLifetime": -1.0,
+    "lifetimeVariance": 0.05,
+    "alphaVariance": 0.0,
+    "radialVelocity": false,
+    "speed": 0.0,
+    "speedVariance": 0.0
+  },
   "fireballCharge": {
     "type": "emitter",
     "particleKey": "fireParticle",
@@ -111,6 +123,18 @@
     "lifetime": 0.4,
     "startSize": 0.6,
     "endSize": 0.1,
+    "animationSpeed": 0.1
+  },
+  "fireParticleBig": {
+    "type": "particle",
+    "textureKey": "fireball",
+    "velocityX": 0.0,
+    "velocityY": 0.0,
+    "startAlpha": 0.9,
+    "endAlpha": 0.0,
+    "lifetime": 0.5,
+    "startSize": 1.0,
+    "endSize": 0.4,
     "animationSpeed": 0.1
   },
   "projectileImpact": {

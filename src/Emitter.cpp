@@ -31,6 +31,7 @@ bool Emitter::isDone() const {
         return false;
 
     // Check if any particles are still active
+    // TODO circular logic
     for (const auto& p : particles) {
         if (p.active)
             return false;
@@ -46,10 +47,12 @@ void Emitter::update(float deltaTime) {
     if (emitterLifetime > 0 && age >= emitterLifetime)
         return;
 
-    timeSinceLastSpawn += deltaTime;
-    while (timeSinceLastSpawn >= spawnInterval) {
-        emit();
-        timeSinceLastSpawn -= spawnInterval;
+    if (active && (emitterLifetime <= 0 || age < emitterLifetime)) {
+        timeSinceLastSpawn += deltaTime;
+        while (timeSinceLastSpawn >= spawnInterval) {
+            emit();
+            timeSinceLastSpawn -= spawnInterval;
+        }
     }
 
     for (auto& p : particles) {

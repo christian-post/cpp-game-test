@@ -26,4 +26,11 @@ void EmitterBehavior::reset() {
 
     if (emitter)
         emitter->reset();
+        emitter->start();
+}
+
+void EmitterBehavior::onDeactivate()
+{
+    if (emitter)
+        emitter->stop();
 }

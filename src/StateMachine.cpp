@@ -151,6 +151,15 @@ void StateMachine::activateBehaviors(const std::vector<std::string>& keys) {
     // Identify newly activated behaviors
     std::unordered_set<std::string> newKeys(keys.begin(), keys.end());
 
+    // Call onDeactivate for old behaviors being deactivated
+    for (const auto& oldKey : activeBehaviorKeys) {
+        if (newKeys.find(oldKey) == newKeys.end()) {
+            auto it = behaviors.find(oldKey);
+            if (it != behaviors.end())
+                it->second->onDeactivate();
+        }
+    }
+
     // Reset behaviors that are being newly activated (weren't active before)
     for (const auto& key : newKeys) {
         if (activeBehaviorKeys.find(key) == activeBehaviorKeys.end()) {
