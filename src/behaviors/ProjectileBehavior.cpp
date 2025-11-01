@@ -75,10 +75,6 @@ void ProjectileBehavior::draw() {
 
 // configures the emitter that spreads particles on impact
 void ProjectileBehavior::createImpactEffect(std::shared_ptr<Sprite> s) {
-    s->visible = false;
-    s->vel = { 0.0f, 0.0f };
-    s->acc = { 0.0f, 0.0f };
-
     const auto& particlesData = game.loader.getParticleData();
 
     if (particlesData.find("projectileImpact") == particlesData.end()) {
@@ -108,4 +104,18 @@ void ProjectileBehavior::createImpactEffect(std::shared_ptr<Sprite> s) {
 
     impactEmitter = emitter.get();
     game.emitters.push_back(std::move(emitter));
+
+    stopProjectile(s);
+}
+
+void ProjectileBehavior::stopProjectile(std::shared_ptr<Sprite> s) {
+    s->visible = false;
+    s->vel = { 0.0f, 0.0f };
+    s->acc = { 0.0f, 0.0f };
+    s->canHurtPlayer = false;    
+    done = true;
+
+    game.eventManager.pushDelayedEvent(UNNAMED, 0.0f, nullptr, [s]() {
+        s->removeAllBehaviors();
+        });
 }

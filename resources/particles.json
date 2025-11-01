@@ -142,7 +142,7 @@
     "particleKey": "projectileImpactParticle",
     "maxParticles": 8,
     "spawnInterval": 0.01,
-    "emitterLifetime": 0.5,
+    "emitterLifetime": 0.2,
     "spawnRadius": 2.0,
     "spawnRadiusVariance": 1.0,
     "velocityVarianceX": 0.0,

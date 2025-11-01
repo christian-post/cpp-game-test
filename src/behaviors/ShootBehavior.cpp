@@ -28,6 +28,10 @@ void ShootBehavior::update(float deltaTime) {
             projectile->speed = config.speed;
             projectile->frameTime = config.frameTime;
 
+            // trail effect (otional)
+            if (config.emitterKey.empty())
+                return;
+
             const auto& particlesData = game.loader.getParticleData();
 
             if (particlesData.find("defaultEmitter") == particlesData.end() || particlesData.find("defaultParticle") == particlesData.end()) {
@@ -41,39 +45,31 @@ void ShootBehavior::update(float deltaTime) {
             std::unique_ptr<Emitter> emitter;
             std::unique_ptr<Particle> proto = std::make_unique<Particle>();
 
-            if (config.emitterKey.empty()) {
+            if (particlesData.find(config.emitterKey) == particlesData.end()) {
+                TraceLog(LOG_WARNING, "Emitter key \"%s\" not found in particles.json, using default", config.emitterKey.c_str());
                 emitter = std::make_unique<Emitter>(defaultEmitterData.value("maxParticles", 20));
                 emitter->fromJSON(defaultEmitterData, defaultEmitterData);
                 proto->fromJSON(defaultParticleData, defaultParticleData);
                 proto->setAnimationFrames(game.loader.getTextures(config.projectileKey));
             }
             else {
-                if (particlesData.find(config.emitterKey) == particlesData.end()) {
-                    TraceLog(LOG_WARNING, "Emitter key \"%s\" not found in particles.json, using default", config.emitterKey.c_str());
-                    emitter = std::make_unique<Emitter>(defaultEmitterData.value("maxParticles", 20));
-                    emitter->fromJSON(defaultEmitterData, defaultEmitterData);
-                    proto->fromJSON(defaultParticleData, defaultParticleData);
-                    proto->setAnimationFrames(game.loader.getTextures(config.projectileKey));
+                const auto& emitterData = particlesData.at(config.emitterKey);
+                std::string particleKey = emitterData.value("particleKey", defaultEmitterData.value("particleKey", "defaultParticle"));
+
+                if (particlesData.find(particleKey) == particlesData.end()) {
+                    TraceLog(LOG_WARNING, "Particle key \"%s\" not found in particles.json", particleKey.c_str());
+                    return;
                 }
-                else {
-                    const auto& emitterData = particlesData.at(config.emitterKey);
-                    std::string particleKey = emitterData.value("particleKey", defaultEmitterData.value("particleKey", "defaultParticle"));
 
-                    if (particlesData.find(particleKey) == particlesData.end()) {
-                        TraceLog(LOG_WARNING, "Particle key \"%s\" not found in particles.json", particleKey.c_str());
-                        return;
-                    }
+                const auto& particleData = particlesData.at(particleKey);
+                size_t maxParticles = emitterData.value("maxParticles", defaultEmitterData.value("maxParticles", 20));
 
-                    const auto& particleData = particlesData.at(particleKey);
-                    size_t maxParticles = emitterData.value("maxParticles", defaultEmitterData.value("maxParticles", 20));
+                emitter = std::make_unique<Emitter>(maxParticles);
+                emitter->fromJSON(emitterData, defaultEmitterData);
+                proto->fromJSON(particleData, defaultParticleData);
 
-                    emitter = std::make_unique<Emitter>(maxParticles);
-                    emitter->fromJSON(emitterData, defaultEmitterData);
-                    proto->fromJSON(particleData, defaultParticleData);
-
-                    std::string textureKey = particleData.value("textureKey", defaultParticleData.value("textureKey", "sprite_default"));
-                    proto->setAnimationFrames(game.loader.getTextures(textureKey));
-                }
+                std::string textureKey = particleData.value("textureKey", defaultParticleData.value("textureKey", "sprite_default"));
+                proto->setAnimationFrames(game.loader.getTextures(textureKey));
             }
 
             emitter->location = GetRectCenter(s->rect);

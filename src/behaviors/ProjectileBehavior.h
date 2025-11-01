@@ -22,4 +22,5 @@ private:
     Vector2 direction = { 0.0f, 0.0f };
     Emitter* impactEmitter = nullptr;
     void createImpactEffect(std::shared_ptr<Sprite> s);
+    void stopProjectile(std::shared_ptr<Sprite> s);
 };

@@ -420,6 +420,7 @@
           "behaviorData": {
             "shootTarget": "player",
             "shootProjectile": "fireball",
+            "emitterKey": "fireTrail",
             "shootDamage": 2,
             "shootSpeed": 30.0,
             "shootSound": "fireball",
@@ -465,6 +466,7 @@
           "behaviorData": {
             "shootTarget": "player",
             "shootProjectile": "fireball",
+            "emitterKey": "fireTrail",
             "shootDamage": 2,
             "shootSpeed": 50.0,
             "shootSound": "fireball",

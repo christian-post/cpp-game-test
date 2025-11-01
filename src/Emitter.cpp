@@ -31,30 +31,30 @@ bool Emitter::isDone() const {
         return false;
 
     // Check if any particles are still active
-    // TODO circular logic
     for (const auto& p : particles) {
         if (p.active)
             return false;
     }
 
     // Emitter finished spawning AND all particles are dead
-    TraceLog(LOG_INFO, "Emitter is done");
     return true;
 }
 
 void Emitter::update(float deltaTime) {
     age += deltaTime;
-    if (emitterLifetime > 0 && age >= emitterLifetime)
-        return;
 
-    if (active && (emitterLifetime <= 0 || age < emitterLifetime)) {
-        timeSinceLastSpawn += deltaTime;
-        while (timeSinceLastSpawn >= spawnInterval) {
-            emit();
-            timeSinceLastSpawn -= spawnInterval;
+    // Only emit new particles if within lifetime
+    if (emitterLifetime <= 0 || age < emitterLifetime) {
+        if (active) {
+            timeSinceLastSpawn += deltaTime;
+            while (timeSinceLastSpawn >= spawnInterval) {
+                emit();
+                timeSinceLastSpawn -= spawnInterval;
+            }
         }
     }
 
+    // Always update existing particles regardless of emitter lifetime
     for (auto& p : particles) {
         if (p.active)
             p.update(deltaTime);

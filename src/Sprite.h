@@ -102,6 +102,10 @@ public:
         behaviors.push_back(std::move(behavior));
     };
     void removeAllBehaviors() {
+        for (auto& behavior : behaviors) {
+            if (behavior)
+                behavior->onDeactivate();
+        }
         behaviors.clear();
     }
     void executeBehavior(float deltaTime);
