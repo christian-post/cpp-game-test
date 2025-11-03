@@ -16,9 +16,9 @@
             240, 1, 1, 1, 73, 73, 1, 1, 1, 1, 73, 73, 1, 1, 1, 240,
             240, 1, 1, 1, 73, 73, 1, 1, 1, 1, 73, 73, 1, 1, 1, 240,
             240, 1, 1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 240,
-            240, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 240,
-            240, 240, 240, 240, 240, 240, 240, 240, 240, 240, 240, 240, 240, 240, 240, 240,
-            240, 240, 240, 240, 240, 240, 240, 240, 240, 240, 240, 240, 240, 240, 240, 240],
+            240, 53, 53, 53, 53, 53, 1, 1, 1, 1, 53, 53, 53, 53, 53, 240,
+            240, 240, 240, 240, 240, 240, 1, 1, 1, 1, 240, 240, 240, 240, 240, 240,
+            240, 240, 240, 240, 240, 240, 1, 240, 240, 1, 240, 240, 240, 240, 240, 240],
          "height":16,
          "id":1,
          "name":"floor",
@@ -98,8 +98,8 @@
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 214, 195, 195, 195, 195, 195, 195, 195, 195, 195, 195, 195, 195, 213, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            0, 214, 195, 195, 195, 195, 196, 0, 0, 193, 195, 195, 195, 195, 213, 0,
+            0, 0, 0, 0, 0, 0, 214, 195, 195, 213, 0, 0, 0, 0, 0, 0],
          "height":16,
          "id":3,
          "name":"top",
@@ -116,7 +116,7 @@
          "name":"sprites",
          "objects":[
                 {
-                 "height":64,
+                 "height":80,
                  "id":18,
                  "name":"hurt",
                  "properties":[
@@ -138,7 +138,7 @@
                  "y":112
                 }, 
                 {
-                 "height":64,
+                 "height":80,
                  "id":19,
                  "name":"hurt",
                  "properties":[
@@ -209,6 +209,11 @@
                  "name":"npc",
                  "properties":[
                         {
+                         "name":"castsShadow",
+                         "type":"bool",
+                         "value":false
+                        }, 
+                        {
                          "name":"drawLayer",
                          "type":"int",
                          "value":-1
@@ -231,9 +236,19 @@
                  "name":"npc",
                  "properties":[
                         {
+                         "name":"castsShadow",
+                         "type":"bool",
+                         "value":false
+                        }, 
+                        {
                          "name":"drawLayer",
                          "type":"int",
                          "value":-1
+                        }, 
+                        {
+                         "name":"emitsLight",
+                         "type":"bool",
+                         "value":true
                         }, 
                         {
                          "name":"spriteName",
@@ -252,6 +267,11 @@
                  "id":24,
                  "name":"npc",
                  "properties":[
+                        {
+                         "name":"castsShadow",
+                         "type":"bool",
+                         "value":false
+                        }, 
                         {
                          "name":"drawLayer",
                          "type":"int",
@@ -275,9 +295,19 @@
                  "name":"npc",
                  "properties":[
                         {
+                         "name":"castsShadow",
+                         "type":"bool",
+                         "value":false
+                        }, 
+                        {
                          "name":"drawLayer",
                          "type":"int",
                          "value":-1
+                        }, 
+                        {
+                         "name":"emitsLight",
+                         "type":"bool",
+                         "value":true
                         }, 
                         {
                          "name":"spriteName",
@@ -328,12 +358,6 @@
                  "height":100,
                  "id":8,
                  "name":"",
-                 "properties":[
-                        {
-                         "name":"music",
-                         "type":"string",
-                         "value":"dungeon01"
-                        }],
                  "rotation":0,
                  "type":"wall",
                  "visible":true,
@@ -345,12 +369,6 @@
                  "height":100,
                  "id":15,
                  "name":"",
-                 "properties":[
-                        {
-                         "name":"music",
-                         "type":"string",
-                         "value":"dungeon01"
-                        }],
                  "rotation":0,
                  "type":"wall",
                  "visible":true,
@@ -376,9 +394,42 @@
                  "rotation":0,
                  "type":"wall",
                  "visible":true,
-                 "width":208,
+                 "width":72,
                  "x":24,
                  "y":220
+                }, 
+                {
+                 "height":36,
+                 "id":26,
+                 "name":"",
+                 "rotation":0,
+                 "type":"wall",
+                 "visible":true,
+                 "width":72,
+                 "x":160,
+                 "y":220
+                }, 
+                {
+                 "height":16,
+                 "id":27,
+                 "name":"",
+                 "rotation":0,
+                 "type":"wall",
+                 "visible":true,
+                 "width":28,
+                 "x":80,
+                 "y":240
+                }, 
+                {
+                 "height":16,
+                 "id":28,
+                 "name":"",
+                 "rotation":0,
+                 "type":"wall",
+                 "visible":true,
+                 "width":28,
+                 "x":148,
+                 "y":240
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -387,13 +438,13 @@
          "y":0
         }],
  "nextlayerid":7,
- "nextobjectid":26,
+ "nextobjectid":29,
  "orientation":"orthogonal",
  "properties":[
         {
          "name":"dark",
          "type":"bool",
-         "value":false
+         "value":true
         }],
  "renderorder":"right-down",
  "tiledversion":"1.11.2",

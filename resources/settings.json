@@ -23,5 +23,7 @@
     "ENTER": "CONTROL_CONFIRM",
     "BACKSPACE": "CONTROL_CANCEL",
     "F1": "CONTROL_DEBUG"
-  }
+  },
+  "vignetteIntensity": 0.3,
+  "vignetteSmoothness": 0.5
 }

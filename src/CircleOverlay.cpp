@@ -27,3 +27,18 @@ void DrawLightOverlay(Texture2D& texture, const Shader& shader, Light* lights, i
     DrawTexturePro(texture, source, dest, { 0.0f, 0.0f }, 0.0f, WHITE);
     EndShaderMode();
 }
+
+void DrawVignette(Texture2D& texture, const Shader& shader, float intensity, float softness, float screenW, float screenH) {
+    // Set shader uniforms (matching the light shader pattern)
+    SetShaderValue(shader, GetShaderLocation(shader, "screenWidth"), &screenW, SHADER_UNIFORM_FLOAT);
+    SetShaderValue(shader, GetShaderLocation(shader, "screenHeight"), &screenH, SHADER_UNIFORM_FLOAT);
+    SetShaderValue(shader, GetShaderLocation(shader, "vignetteIntensity"), &intensity, SHADER_UNIFORM_FLOAT);
+    SetShaderValue(shader, GetShaderLocation(shader, "vignetteSoftness"), &softness, SHADER_UNIFORM_FLOAT);
+
+    // Apply shader and draw texture
+    BeginShaderMode(shader);
+    Rectangle source = { 0.0f, 0.0f, screenW, screenH };
+    Rectangle dest = { 0.0f, 0.0f, screenW, screenH };
+    DrawTexturePro(texture, source, dest, { 0.0f, 0.0f }, 0.0f, WHITE);
+    EndShaderMode();
+}

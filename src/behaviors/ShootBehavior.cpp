@@ -6,6 +6,8 @@
 #include "Utils.h"
 #include "Emitter.h"
 #include "Particle.h"
+#include <limits>
+
 
 ShootBehavior::ShootBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, shootingConfig config)
     : game{ game }, self{ self }, target{ target }, config{ config } {
@@ -77,4 +79,10 @@ void ShootBehavior::update(float deltaTime) {
             projectile->addBehavior(std::make_unique<EmitterBehavior>(game, projectile, std::move(emitter)));
         }
     }
+}
+
+void ShootBehavior::reset()
+{
+    done = false;
+    timer = std::numeric_limits<float>::infinity(); // immediately shoot the first shot
 }

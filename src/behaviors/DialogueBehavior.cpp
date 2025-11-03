@@ -24,6 +24,7 @@ void DialogueBehavior::update(float deltaTime) {
                 triggered = true;
                 if (auto scene = dynamic_cast<InGame*>(game.getScene("InGame"))) {
                     bool pitch = (voice == "tone") ? false : true;
+                    game.cutsceneManager.queueCommand(new Command_LookTowards(*s, *p));
                     game.cutsceneManager.queueCommand(new Command_Textbox(game, dialogTexts[currentTextIndex], voice, pitch));
                     game.cutsceneManager.queueCommand(new Command_Callback([this]() {
                         game.eventManager.pushDelayedEvent(UNNAMED, 0.3f, nullptr, [this]() {

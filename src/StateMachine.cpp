@@ -102,9 +102,8 @@ void StateMachine::transitionTo(const std::string& stateName) {
 
     std::string oldStateName = currentState ? currentState->name : "null";
 
-    TraceLog(LOG_INFO, "State transition: %s -> %s",
-        oldStateName.c_str(),
-        newState->name.c_str());
+    if (game.debug)
+        TraceLog(LOG_INFO, "State transition: %s -> %s", oldStateName.c_str(), newState->name.c_str());
 
     exitState(currentState);
     enterState(newState);

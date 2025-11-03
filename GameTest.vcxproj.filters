@@ -384,6 +384,7 @@
     <None Include="resources\particles.json" />
     <None Include="resources\shaders\light_mask.fs" />
     <None Include="src\readme.md" />
+    <None Include="resources\shaders\vignette.fs" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="github\hero.gif">

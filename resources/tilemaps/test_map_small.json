@@ -108,7 +108,7 @@
                 }, 
                 {
                  "height":16,
-                 "id":38,
+                 "id":39,
                  "name":"enemy",
                  "properties":[
                         {
@@ -119,13 +119,13 @@
                         {
                          "name":"spriteName",
                          "type":"string",
-                         "value":"big_demon_boss"
+                         "value":"turret"
                         }],
                  "rotation":0,
                  "type":"sprite",
                  "visible":true,
                  "width":16,
-                 "x":192,
+                 "x":188,
                  "y":240
                 }],
          "opacity":1,
@@ -260,7 +260,7 @@
          "y":0
         }],
  "nextlayerid":6,
- "nextobjectid":39,
+ "nextobjectid":40,
  "orientation":"orthogonal",
  "properties":[
         {

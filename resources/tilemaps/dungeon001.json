@@ -160,6 +160,11 @@
                         }],
                  "properties":[
                         {
+                         "name":"castsShadow",
+                         "type":"bool",
+                         "value":false
+                        }, 
+                        {
                          "name":"event",
                          "type":"string",
                          "value":"door001open"
@@ -214,6 +219,11 @@
                  "name":"npc",
                  "properties":[
                         {
+                         "name":"castsShadow",
+                         "type":"bool",
+                         "value":false
+                        }, 
+                        {
                          "name":"spriteName",
                          "type":"string",
                          "value":"wall_fountain_mid"
@@ -230,6 +240,11 @@
                  "id":26,
                  "name":"npc",
                  "properties":[
+                        {
+                         "name":"castsShadow",
+                         "type":"bool",
+                         "value":false
+                        }, 
                         {
                          "name":"drawLayer",
                          "type":"int",
@@ -253,6 +268,11 @@
                  "name":"npc",
                  "properties":[
                         {
+                         "name":"castsShadow",
+                         "type":"bool",
+                         "value":false
+                        }, 
+                        {
                          "name":"spriteName",
                          "type":"string",
                          "value":"wall_fountain_mid"
@@ -269,6 +289,11 @@
                  "id":28,
                  "name":"npc",
                  "properties":[
+                        {
+                         "name":"castsShadow",
+                         "type":"bool",
+                         "value":false
+                        }, 
                         {
                          "name":"drawLayer",
                          "type":"int",

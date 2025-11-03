@@ -6,12 +6,6 @@
 
 StartMenu::StartMenu(Game& game, const std::string& name) 
     : Scene(game, name), menu(MenuSelect(game)) {
-
-    //game.eventManager.addListener(LOADING_SAVEGAME_SUCCESS, [&](const std::any& data) {
-    //        game.startScene("InGame");
-    //        game.startScene("HUD");
-    //        game.stopScene(getName());
-    //    });
 }
 
 void StartMenu::startup() {

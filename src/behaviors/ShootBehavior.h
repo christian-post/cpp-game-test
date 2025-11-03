@@ -9,6 +9,7 @@ class ShootBehavior : public Behavior {
 public:
     ShootBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, shootingConfig config);
     void update(float deltaTime) override;
+    void reset() override;
 
 private:
     Game& game;

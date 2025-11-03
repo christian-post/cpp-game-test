@@ -60,7 +60,8 @@ Command_LookTowards::Command_LookTowards(Sprite& target, Sprite& other)
 void Command_LookTowards::update(float deltaTime) {
     if (!started) {
         target.lastDirection = (other.position.x > target.position.x) ? RIGHT : LEFT;
-        started = true; done = true;
+        started = true; 
+        done = true;
     }
 }
 

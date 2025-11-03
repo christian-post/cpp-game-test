@@ -574,6 +574,9 @@ void InGame::draw() {
     if (game.currentDungeon->isRoomDark())
         DrawLightOverlay(game.target.texture, game.loader.getShader("light_mask"), lights, lightCount, static_cast<float>(game.gameScreenWidth), static_cast<float>(game.gameScreenHeight));
 
+    // draw a vignette
+    DrawVignette(game.target.texture, game.loader.getShader("vignette"), game.getSetting("vignetteIntensity"), game.getSetting("vignetteSmoothness"), static_cast<float>(game.gameScreenWidth), static_cast<float>(game.gameScreenHeight));
+
     // cutscene stuff (textboxes etc) gets drawn relative to window position
     game.cutsceneManager.draw();
 }

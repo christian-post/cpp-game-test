@@ -154,7 +154,7 @@ void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, 
         sprite->hitboxOffset = data.contains("hitboxOffset") ?
             Vector2{ data.at("hitboxOffset")[0].get<float>(), data.at("hitboxOffset")[1].get<float>() } :
             Vector2{ 0.0f, 0.0f };
-        //sprite->emitsLight = true; // TODO
+        sprite->emitsLight = data.contains("emitsLight") ? data.at("emitsLight").get<bool>() : false;
         // attributes from Tiled data (instance-specific, overwrite JSON data)
         sprite->spriteName = spriteName;
         sprite->speed = obj.properties.value("speed", sprite->speed);
@@ -162,18 +162,19 @@ void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, 
         sprite->knockback = obj.properties.value("knockback", sprite->knockback);
         sprite->tileMapID = obj.id;
         sprite->drawLayer = obj.properties.value("drawLayer", 0);
+        sprite->emitsLight = obj.properties.value("emitsLight", false);
+        sprite->castsShadow = obj.properties.value("castsShadow", true);
         float hurtboxW = obj.properties.value("hurtboxW", 0.0f);
         float hurtboxH = obj.properties.value("hurtboxH", 0.0f);
         if (hurtboxW != 0.0f && hurtboxH != 0.0f) {
             sprite->setHurtbox(-1.0f, -1.0f, hurtboxW, hurtboxH);
         }
+
+        // collision
         if (data.contains("collides")) {
-            sprite->isColliding = static_cast<bool>(data.at("collides").get<int>());
+            sprite->isColliding = static_cast<bool>(data.at("collides").get<int>()); //TODO shouldn't this also be a bool in the data?
         }
-        // TODO: is this still needed?
-        //if (obj.properties.contains("dialogue")) {
-        //    data["behaviorData"]["dialogue"] = obj.properties["dialogue"].get<std::string>();
-        //}
+        
 
         // specific sprite attributes
         // TODO: for persistent sprites, check if they exist in the spriteMap

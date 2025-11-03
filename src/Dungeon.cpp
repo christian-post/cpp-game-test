@@ -4,7 +4,7 @@
 #include "WorldGraph.h"
 
 // Debug flags (comment in/out)
-#define TEST_ROOM
+//#define TEST_ROOM
 
 
 Dungeon::Dungeon(Game& game, size_t roomsW, size_t roomsH) : game{ game }, roomsW { roomsW }, roomsH{ roomsH }
@@ -328,6 +328,7 @@ void Dungeon::generate()
     insertRoom(2, 1, Room{ game.loader.getTilemap("dungeon006"), 0b0101 });
     insertRoom(1, 1, Room{ game.loader.getTilemap("dungeon_empty_1101"), 0b1101 });
     insertRoom(1, 2, Room{ game.loader.getTilemap("dungeon_turrets_1010"), 0b1010 });
+    insertRoom(1, 3, Room{ game.loader.getTilemap("dungeon_spikes_1011"), 0b1011 });
     insertRoom(0, 1, Room{ game.loader.getTilemap("dungeon_shop"), 0b0001 });
 
 #endif // TEST_ROOM

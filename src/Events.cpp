@@ -33,7 +33,7 @@ void setupConditionalEvents(InGame& inGame) {
             return (inGame.tileMap->getName() == "dungeon001" && game.inventory.getItemQuantity("weapon_sword") > 0);
             },
         [&]() {
-            if (game.spriteMap.find("elfCompanion2") == game.spriteMap.end())
+            if (game.spriteMap.find("elfCompanion2") == game.spriteMap.end() || game.currentDungeon->getCurrentRoomState() >= 6)
                 return;
             game.eventManager.pushDelayedEvent(UNNAMED, 0.1f, nullptr, [&]() {
                 Sprite& npcRef = *game.spriteMap["elfCompanion2"];               
@@ -57,6 +57,31 @@ void setupConditionalEvents(InGame& inGame) {
                         npcRef.addBehavior(std::make_unique<ChaseBehavior>(game, game.spriteMap["elfCompanion2"], game.spriteMap["player"], 20.0f));
                     }
                     }));
+                });
+        }
+    );
+
+    game.eventManager.pushConditionalEvent(
+        [&]() {
+            // this event sets the position of the elf companion next to the player after loading the first room
+            if (!inGame.tileMap)
+                return false;
+            return (inGame.tileMap->getName() == "dungeon001" && game.currentDungeon->getCurrentRoomState() >= 6);
+        },
+        [&]() {
+            if (game.spriteMap.find("elfCompanion2") == game.spriteMap.end())
+                return;
+
+            game.eventManager.pushDelayedEvent(UNNAMED, 0.0f, nullptr, [&]() {
+                Sprite& npcRef = *game.spriteMap["elfCompanion2"];
+                Vector2 playerPos = game.getPlayer()->position;
+                npcRef.moveTo(playerPos.x - 16.0f, playerPos.y);
+                if (!npcRef.persistent) {
+                    npcRef.persistent = true;
+                    npcRef.followsPlayer = true;
+                    npcRef.speed = 16;
+                    npcRef.addBehavior(std::make_unique<ChaseBehavior>(game, game.spriteMap["elfCompanion2"], game.spriteMap["player"], 20.0f));
+                }
                 });
         }
     );
