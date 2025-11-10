@@ -7,6 +7,8 @@
   "textboxHeight": 64,
   "targetFPS": 120,
   "PlayeriFrames": 1.0,
+  "playerStartingHealth": 1,
+  "playerStartingMaxHealth": 10,
   "HudHeight": 32.0,
   "textDelay": 0.02,
   "soundOn": false,

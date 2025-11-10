@@ -7,7 +7,7 @@
 #include <cmath>
 #include <limits>
 
-const int WeaponBehavior::controlBindings[2] = { CONTROL_ACTION2, CONTROL_ACTION4 };
+const int WeaponBehavior::controlBindings[2] = { CONTROL_ACTION2, CONTROL_ACTION3 };
 
 WeaponBehavior::WeaponBehavior(Game& game, std::shared_ptr<Sprite> sprite, std::shared_ptr<Sprite> ownerSprite, weaponData data, size_t slot)
     : game{ game }, self{ sprite }, owner{ ownerSprite }, data{ data }, lifetime{ data.lifetime }, originalLifetime{ data.lifetime }, slot{ slot }

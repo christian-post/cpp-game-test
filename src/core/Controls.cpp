@@ -53,8 +53,8 @@ uint32_t GetControls(KeyCheckFunc keyFunc, GamepadCheckFunc gamepadFunc) {
     if (keyFunc(KEY_RIGHT) || keyFunc(KEY_D)) controls |= CONTROL_RIGHT;
     if (keyFunc(KEY_O)) controls |= CONTROL_ACTION1;
     if (keyFunc(KEY_P)) controls |= CONTROL_ACTION2;
-    if (keyFunc(KEY_K)) controls |= CONTROL_ACTION3;
-    if (keyFunc(KEY_L)) controls |= CONTROL_ACTION4;
+    if (keyFunc(KEY_K)) controls |= CONTROL_ACTION4;
+    if (keyFunc(KEY_L)) controls |= CONTROL_ACTION3;
     if (keyFunc(KEY_M)) controls |= CONTROL_ACTIONR;
     if (keyFunc(KEY_N)) controls |= CONTROL_ACTIONL;
     if (keyFunc(KEY_ENTER)) controls |= CONTROL_CONFIRM;

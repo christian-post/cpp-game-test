@@ -61,7 +61,7 @@ private:
     void setupInputCallbacks();
     // Callback functions
     void onActionButton2();
-    void onActionButton4();
+    void onActionButton3();
     void onInventoryButton();
     void onMenuButton();
     void onDebugButton1();

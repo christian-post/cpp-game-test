@@ -3,7 +3,7 @@
 #include <unordered_map>
 
 // Event key aliases to make the code more maintainable
-// TODO: add a comment to each event describing what it does and where it's used
+// TODO: add a comment to each event describing what it does and how it's used
 
 enum EventName {
     SAVE_GAME,
@@ -22,7 +22,7 @@ enum EventName {
     MOVE_CAMERA,
     TELEPORT,
     SET_MUSIC_VOLUME,
-    SCREEN_SHAKE,
+    SCREEN_SHAKE,  // data: tuple[duration, xMag, yMag]
     KILL_WEAPON,
     INVENTORY_DONE,
     SELECT_MENU_DONE,

@@ -326,7 +326,7 @@ void Dungeon::generate()
     insertRoom(3, 1, Room{ game.loader.getTilemap("dungeon003"), 0b1111 });
     insertRoom(3, 2, Room{ game.loader.getTilemap("dungeon002"), 0b0011 });
     insertRoom(2, 1, Room{ game.loader.getTilemap("dungeon006"), 0b0101 });
-    insertRoom(1, 1, Room{ game.loader.getTilemap("dungeon_empty_1101"), 0b1101 });
+    insertRoom(1, 1, Room{ game.loader.getTilemap("dungeon_hallway_1101"), 0b1101 });
     insertRoom(1, 2, Room{ game.loader.getTilemap("dungeon_turrets_1010"), 0b1010 });
     insertRoom(1, 3, Room{ game.loader.getTilemap("dungeon_spikes_1011"), 0b1011 });
     insertRoom(0, 1, Room{ game.loader.getTilemap("dungeon_shop"), 0b0001 });

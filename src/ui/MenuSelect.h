@@ -37,6 +37,7 @@ public:
     size_t getXMargin() const { return xMargin; }
     void setXMargin(size_t size) { xMargin = size; }
     void setPosition(MenuPosition pos) { position = pos; }
+    void restrictHeight(size_t h, size_t offset);
     MenuSelect(Game& game);
 
 private:
@@ -44,7 +45,10 @@ private:
     std::vector<MenuItem> menuItems;
     size_t menuIndex = 0;
     size_t fontsize = 10;
-    size_t yMargin = 20;
+    bool heightLimited = false;
+    size_t yOffset = 0; // only used when height is limited
+    size_t heightLimit = 0; // only used when height is limited
+    size_t yMargin = 20; // space between elements
     size_t xMargin = 40; // only used when aliged LEFT or RIGHT
     MenuPosition position = MenuPosition::CENTER;
 };

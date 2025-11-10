@@ -117,6 +117,15 @@ void HUD::draw() {
             const auto& wpnTex = textures[0];
             DrawTexture(wpnTex, weaponX - wpnTex.width / 2, weaponY - wpnTex.height / 2, WHITE);
         }
+        // show the corresponding button or key
+        if (WasGamepadUsedLast()) {
+            const auto& buttonTex = game.loader.getTextures("xbox_buttons")[slot];
+            DrawTexture(buttonTex, weaponX + frameTex.width / 2 - 12, weaponY, WHITE);
+        }
+        else {
+            std::string btnText = slot == 0 ? "P" : "L";
+            DrawText(btnText.c_str(), weaponX + frameTex.width / 2 - 6, weaponY + 8, 10, LIGHTGRAY);
+        }
     }
 
     // draw the mini map
@@ -164,6 +173,7 @@ void HUD::draw() {
         DrawText(qtyText.c_str(), coinX + 8, 8, 10, LIGHTGRAY);
     }
     if (showHelpText) {
+        // context sensitive help text at the bottom of the screen
         const char* ht = helpText.c_str();
         int fontSize = 10;
         int margin = 2;

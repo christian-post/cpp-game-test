@@ -104,7 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)src/tests;$(ProjectDir)src/behaviors;$(ProjectDir)src/scenes;$(ProjectDir)include;$(ProjectDir)include/raylib-5.5_win64_msvc16\include;$(ProjectDir)libs\raylib-5.5_win64_msvc16\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)src/cutscenes;$(ProjectDir)src/world;$(ProjectDir)src/ui;$(ProjectDir)src/core;$(ProjectDir)src/rendering;$(ProjectDir)src/particles;$(ProjectDir)src/entities;$(ProjectDir)src/assets;$(ProjectDir)src/tests;$(ProjectDir)src/entities/behaviors;$(ProjectDir)src/scenes;$(ProjectDir)include;$(ProjectDir)include/raylib-5.5_win64_msvc16\include;$(ProjectDir)libs\raylib-5.5_win64_msvc16\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -149,45 +149,46 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\AssetLoader.cpp" />
-    <ClCompile Include="src\Behavior.cpp" />
-    <ClCompile Include="src\behaviors\ChaseBehavior.cpp" />
-    <ClCompile Include="src\behaviors\ChestBehavior.cpp" />
-    <ClCompile Include="src\behaviors\CollectItemBehavior.cpp" />
-    <ClCompile Include="src\behaviors\DeathBehavior.cpp" />
-    <ClCompile Include="src\behaviors\DialogueBehavior.cpp" />
-    <ClCompile Include="src\behaviors\EmitterBehavior.cpp" />
-    <ClCompile Include="src\behaviors\HealBehavior.cpp" />
-    <ClCompile Include="src\behaviors\KiteBehavior.cpp" />
-    <ClCompile Include="src\behaviors\LungeBehavior.cpp" />
-    <ClCompile Include="src\behaviors\OpenLockBehavior.cpp" />
-    <ClCompile Include="src\behaviors\ProjectileBehavior.cpp" />
-    <ClCompile Include="src\behaviors\RandomWalkBehavior.cpp" />
-    <ClCompile Include="src\behaviors\ShootBehavior.cpp" />
-    <ClCompile Include="src\behaviors\ShootBurstBehavior.cpp" />
-    <ClCompile Include="src\behaviors\ShootSpreadBehavior.cpp" />
-    <ClCompile Include="src\behaviors\TeleportBehavior.cpp" />
-    <ClCompile Include="src\behaviors\TradeItemBehavior.cpp" />
-    <ClCompile Include="src\behaviors\WatchBehavior.cpp" />
-    <ClCompile Include="src\behaviors\WeaponBehavior.cpp" />
-    <ClCompile Include="src\CameraController.cpp" />
-    <ClCompile Include="src\CircleOverlay.cpp" />
-    <ClCompile Include="src\Commands.cpp" />
-    <ClCompile Include="src\Controls.cpp" />
-    <ClCompile Include="src\CutsceneManager.cpp" />
-    <ClCompile Include="src\Dungeon.cpp" />
-    <ClCompile Include="src\Emitter.cpp" />
-    <ClCompile Include="src\EventManager.cpp" />
-    <ClCompile Include="src\Events.cpp" />
-    <ClCompile Include="src\Game.cpp" />
-    <ClCompile Include="src\ItemData.cpp" />
-    <ClCompile Include="src\MenuSelect.cpp" />
-    <ClCompile Include="src\Particle.cpp" />
-    <ClCompile Include="src\Savegame.cpp" />
+    <ClCompile Include="src\assets\AssetLoader.cpp" />
+    <ClCompile Include="src\assets\InventoryManager.cpp" />
+    <ClCompile Include="src\assets\ItemData.cpp" />
+    <ClCompile Include="src\core\Controls.cpp" />
+    <ClCompile Include="src\core\EventManager.cpp" />
+    <ClCompile Include="src\core\Game.cpp" />
+    <ClCompile Include="src\core\Main.cpp" />
+    <ClCompile Include="src\core\Savegame.cpp" />
+    <ClCompile Include="src\cutscenes\Commands.cpp" />
+    <ClCompile Include="src\cutscenes\CutsceneManager.cpp" />
+    <ClCompile Include="src\cutscenes\Events.cpp" />
+    <ClCompile Include="src\entities\Behavior.cpp" />
+    <ClCompile Include="src\entities\behaviors\ChaseBehavior.cpp" />
+    <ClCompile Include="src\entities\behaviors\ChestBehavior.cpp" />
+    <ClCompile Include="src\entities\behaviors\CollectItemBehavior.cpp" />
+    <ClCompile Include="src\entities\behaviors\DeathBehavior.cpp" />
+    <ClCompile Include="src\entities\behaviors\DialogueBehavior.cpp" />
+    <ClCompile Include="src\entities\behaviors\EmitterBehavior.cpp" />
+    <ClCompile Include="src\entities\behaviors\HealBehavior.cpp" />
+    <ClCompile Include="src\entities\behaviors\KiteBehavior.cpp" />
+    <ClCompile Include="src\entities\behaviors\LungeBehavior.cpp" />
+    <ClCompile Include="src\entities\behaviors\OpenLockBehavior.cpp" />
+    <ClCompile Include="src\entities\behaviors\ProjectileBehavior.cpp" />
+    <ClCompile Include="src\entities\behaviors\RandomWalkBehavior.cpp" />
+    <ClCompile Include="src\entities\behaviors\ShootBehavior.cpp" />
+    <ClCompile Include="src\entities\behaviors\ShootBurstBehavior.cpp" />
+    <ClCompile Include="src\entities\behaviors\ShootSpreadBehavior.cpp" />
+    <ClCompile Include="src\entities\behaviors\TeleportBehavior.cpp" />
+    <ClCompile Include="src\entities\behaviors\TradeItemBehavior.cpp" />
+    <ClCompile Include="src\entities\behaviors\WatchBehavior.cpp" />
+    <ClCompile Include="src\entities\behaviors\WeaponBehavior.cpp" />
+    <ClCompile Include="src\entities\Sprite.cpp" />
+    <ClCompile Include="src\entities\StateMachine.cpp" />
+    <ClCompile Include="src\particles\Emitter.cpp" />
+    <ClCompile Include="src\particles\Particle.cpp" />
+    <ClCompile Include="src\rendering\CameraController.cpp" />
+    <ClCompile Include="src\rendering\CircleOverlay.cpp" />
     <ClCompile Include="src\scenes\GameOver.cpp" />
     <ClCompile Include="src\scenes\HUD.cpp" />
     <ClCompile Include="src\scenes\InGame.cpp" />
-    <ClCompile Include="src\InventoryManager.cpp" />
     <ClCompile Include="src\scenes\InventoryUI.cpp" />
     <ClCompile Include="src\scenes\LoadSavegameMenu.cpp" />
     <ClCompile Include="src\scenes\MapUI.cpp" />
@@ -196,58 +197,57 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <ClCompile Include="src\scenes\SoundTest.cpp" />
     <ClCompile Include="src\scenes\StartMenu.cpp" />
     <ClCompile Include="src\scenes\TitleScreen.cpp" />
-    <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\scenes\WriteSavegameMenu.cpp" />
-    <ClCompile Include="src\Sprite.cpp" />
-    <ClCompile Include="src\StateMachine.cpp" />
-    <ClCompile Include="src\TextBox.cpp" />
-    <ClCompile Include="src\TileMap.cpp" />
-    <ClCompile Include="src\TilemapRenderer.cpp" />
+    <ClCompile Include="src\ui\MenuSelect.cpp" />
+    <ClCompile Include="src\ui\TextBox.cpp" />
     <ClCompile Include="src\Utils.cpp" />
-    <ClCompile Include="src\WorldGraph.cpp" />
+    <ClCompile Include="src\world\Dungeon.cpp" />
+    <ClCompile Include="src\world\TileMap.cpp" />
+    <ClCompile Include="src\world\TilemapRenderer.cpp" />
+    <ClCompile Include="src\world\WorldGraph.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
-    <ClInclude Include="src\AssetLoader.h" />
-    <ClInclude Include="src\Behavior.h" />
-    <ClInclude Include="src\behaviors\ChaseBehavior.h" />
-    <ClInclude Include="src\behaviors\ChestBehavior.h" />
-    <ClInclude Include="src\behaviors\CollectItemBehavior.h" />
-    <ClInclude Include="src\behaviors\DeathBehavior.h" />
-    <ClInclude Include="src\behaviors\DialogueBehavior.h" />
-    <ClInclude Include="src\behaviors\EmitterBehavior.h" />
-    <ClInclude Include="src\behaviors\HealBehavior.h" />
-    <ClInclude Include="src\behaviors\KiteBehavior.h" />
-    <ClInclude Include="src\behaviors\LungeBehavior.h" />
-    <ClInclude Include="src\behaviors\OpenLockBehavior.h" />
-    <ClInclude Include="src\behaviors\ProjectileBehavior.h" />
-    <ClInclude Include="src\behaviors\RandomWalkBehavior.h" />
-    <ClInclude Include="src\behaviors\ShootBehavior.h" />
-    <ClInclude Include="src\behaviors\ShootBurstBehavior.h" />
-    <ClInclude Include="src\behaviors\ShootSpreadBehavior.h" />
-    <ClInclude Include="src\behaviors\TeleportBehavior.h" />
-    <ClInclude Include="src\behaviors\TradeItemBehavior.h" />
-    <ClInclude Include="src\behaviors\WatchBehavior.h" />
-    <ClInclude Include="src\behaviors\WeaponBehavior.h" />
-    <ClInclude Include="src\CameraController.h" />
-    <ClInclude Include="src\CircleOverlay.h" />
-    <ClInclude Include="src\Commands.h" />
-    <ClInclude Include="src\Controls.h" />
-    <ClInclude Include="src\CutsceneManager.h" />
-    <ClInclude Include="src\Dungeon.h" />
-    <ClInclude Include="src\Emitter.h" />
-    <ClInclude Include="src\EventManager.h" />
-    <ClInclude Include="src\EventNames.h" />
-    <ClInclude Include="src\Events.h" />
-    <ClInclude Include="src\Game.h" />
-    <ClInclude Include="src\ItemData.h" />
-    <ClInclude Include="src\MenuSelect.h" />
-    <ClInclude Include="src\Particle.h" />
-    <ClInclude Include="src\Savegame.h" />
+    <ClInclude Include="src\assets\AssetLoader.h" />
+    <ClInclude Include="src\assets\InventoryManager.h" />
+    <ClInclude Include="src\assets\ItemData.h" />
+    <ClInclude Include="src\core\Controls.h" />
+    <ClInclude Include="src\core\EventManager.h" />
+    <ClInclude Include="src\core\EventNames.h" />
+    <ClInclude Include="src\core\Game.h" />
+    <ClInclude Include="src\core\Savegame.h" />
+    <ClInclude Include="src\core\Scene.h" />
+    <ClInclude Include="src\cutscenes\Commands.h" />
+    <ClInclude Include="src\cutscenes\CutsceneManager.h" />
+    <ClInclude Include="src\cutscenes\Events.h" />
+    <ClInclude Include="src\entities\Behavior.h" />
+    <ClInclude Include="src\entities\behaviors\ChaseBehavior.h" />
+    <ClInclude Include="src\entities\behaviors\ChestBehavior.h" />
+    <ClInclude Include="src\entities\behaviors\CollectItemBehavior.h" />
+    <ClInclude Include="src\entities\behaviors\DeathBehavior.h" />
+    <ClInclude Include="src\entities\behaviors\DialogueBehavior.h" />
+    <ClInclude Include="src\entities\behaviors\EmitterBehavior.h" />
+    <ClInclude Include="src\entities\behaviors\HealBehavior.h" />
+    <ClInclude Include="src\entities\behaviors\KiteBehavior.h" />
+    <ClInclude Include="src\entities\behaviors\LungeBehavior.h" />
+    <ClInclude Include="src\entities\behaviors\OpenLockBehavior.h" />
+    <ClInclude Include="src\entities\behaviors\ProjectileBehavior.h" />
+    <ClInclude Include="src\entities\behaviors\RandomWalkBehavior.h" />
+    <ClInclude Include="src\entities\behaviors\ShootBehavior.h" />
+    <ClInclude Include="src\entities\behaviors\ShootBurstBehavior.h" />
+    <ClInclude Include="src\entities\behaviors\ShootSpreadBehavior.h" />
+    <ClInclude Include="src\entities\behaviors\TeleportBehavior.h" />
+    <ClInclude Include="src\entities\behaviors\TradeItemBehavior.h" />
+    <ClInclude Include="src\entities\behaviors\WatchBehavior.h" />
+    <ClInclude Include="src\entities\behaviors\WeaponBehavior.h" />
+    <ClInclude Include="src\entities\Sprite.h" />
+    <ClInclude Include="src\entities\StateMachine.h" />
+    <ClInclude Include="src\particles\Emitter.h" />
+    <ClInclude Include="src\particles\Particle.h" />
+    <ClInclude Include="src\rendering\CameraController.h" />
+    <ClInclude Include="src\rendering\CircleOverlay.h" />
     <ClInclude Include="src\scenes\HUD.h" />
-    <ClInclude Include="src\InventoryManager.h" />
     <ClInclude Include="src\scenes\InventoryUI.h" />
-    <ClInclude Include="src\Scene.h" />
     <ClInclude Include="src\scenes\GameOver.h" />
     <ClInclude Include="src\scenes\InGame.h" />
     <ClInclude Include="src\scenes\LoadSavegameMenu.h" />
@@ -258,14 +258,14 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <ClInclude Include="src\scenes\StartMenu.h" />
     <ClInclude Include="src\scenes\TitleScreen.h" />
     <ClInclude Include="src\scenes\WriteSavegameMenu.h" />
-    <ClInclude Include="src\Sprite.h" />
-    <ClInclude Include="src\StateMachine.h" />
     <ClInclude Include="src\tests\TestWorldGraph.h" />
-    <ClInclude Include="src\TextBox.h" />
-    <ClInclude Include="src\TileMap.h" />
-    <ClInclude Include="src\TilemapRenderer.h" />
+    <ClInclude Include="src\ui\MenuSelect.h" />
+    <ClInclude Include="src\ui\TextBox.h" />
     <ClInclude Include="src\Utils.h" />
-    <ClInclude Include="src\WorldGraph.h" />
+    <ClInclude Include="src\world\Dungeon.h" />
+    <ClInclude Include="src\world\TileMap.h" />
+    <ClInclude Include="src\world\TilemapRenderer.h" />
+    <ClInclude Include="src\world\WorldGraph.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="savegames\thumbs\readme.txt" />
@@ -275,6 +275,7 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <ResourceCompile Include="GameTest.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include=".gitignore" />
     <None Include="LICENSE" />
     <None Include="readme.md" />
     <None Include="resources\enemies.json" />
@@ -283,6 +284,7 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <None Include="resources\settings.json" />
     <None Include="resources\shaders\crumble.fs" />
     <None Include="resources\shaders\light_mask.fs" />
+    <None Include="resources\shaders\light_mask_flicker.fs" />
     <None Include="resources\shaders\vignette.fs" />
     <None Include="resources\texts.json" />
     <None Include="resources\weapons.json" />

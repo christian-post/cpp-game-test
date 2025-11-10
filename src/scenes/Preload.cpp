@@ -217,7 +217,7 @@ void Preload::startup() {
         l.LoadtileMapFromTiled("./resources/tilemaps/dungeon007.json");
         l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_shop.json");
         l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_2skelets_1010.json");
-        l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_empty_1101.json");
+        l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_hallway_1101.json");
         l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_turrets_1010.json");
         l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_spikes_1010.json");
         l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_spikes_0101.json");
@@ -232,6 +232,7 @@ void Preload::startup() {
         l.LoadShaderFile("./resources/shaders/crumble.fs");
         l.LoadShaderFile("./resources/shaders/light_mask.fs");
         l.LoadShaderFile("./resources/shaders/vignette.fs");
+        l.LoadShaderFile("./resources/shaders/light_mask_flicker.fs");
         });
     // JSON data
     loadQueue.emplace("Loading JSON data", [&]() {

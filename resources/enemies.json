@@ -349,12 +349,12 @@
             },
             {
               "to": "preparing_lunge",
-              "weight": 0.5,
+              "weight": 0.6,
               "requiresAll": true,
               "conditions": [
                 {
                   "type": "timeInStateExceeds",
-                  "seconds": 3.5
+                  "seconds": 3
                 },
                 {
                   "type": "healthBelowPercent",
@@ -364,12 +364,12 @@
             },
             {
               "to": "preparing_burst",
-              "weight": 0.25,
+              "weight": 0.2,
               "requiresAll": true,
               "conditions": [
                 {
                   "type": "timeInStateExceeds",
-                  "seconds": 3.5
+                  "seconds": 3
                 },
                 {
                   "type": "healthBelowPercent",
@@ -379,12 +379,12 @@
             },
             {
               "to": "preparing_spread",
-              "weight": 0.25,
+              "weight": 0.2,
               "requiresAll": true,
               "conditions": [
                 {
                   "type": "timeInStateExceeds",
-                  "seconds": 3.5
+                  "seconds": 3
                 },
                 {
                   "type": "healthBelowPercent",

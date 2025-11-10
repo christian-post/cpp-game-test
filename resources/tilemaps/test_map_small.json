@@ -53,9 +53,14 @@
                          "value":1
                         }, 
                         {
+                         "name":"emitsLight",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
                          "name":"item",
                          "type":"string",
-                         "value":"weapon_hammer"
+                         "value":"item_lamp"
                         }, 
                         {
                          "name":"roomState",
@@ -85,6 +90,11 @@
                          "value":1
                         }, 
                         {
+                         "name":"emitsLight",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
                          "name":"item",
                          "type":"string",
                          "value":"weapon_sword"
@@ -111,6 +121,11 @@
                  "id":39,
                  "name":"enemy",
                  "properties":[
+                        {
+                         "name":"emitsLight",
+                         "type":"bool",
+                         "value":true
+                        }, 
                         {
                          "name":"roomState",
                          "type":"int",
@@ -266,7 +281,7 @@
         {
          "name":"dark",
          "type":"bool",
-         "value":false
+         "value":true
         }],
  "renderorder":"right-down",
  "tiledversion":"1.11.2",

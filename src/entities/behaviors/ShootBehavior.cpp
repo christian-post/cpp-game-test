@@ -29,6 +29,7 @@ void ShootBehavior::update(float deltaTime) {
             projectile->damage = config.damage;
             projectile->speed = config.speed;
             projectile->frameTime = config.frameTime;
+            projectile->emitsLight = true; // TODO is this always true?
 
             // trail effect (otional)
             if (config.emitterKey.empty())

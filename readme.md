@@ -116,9 +116,9 @@ Here is the default button layout:
 | Move Left     | ← or A           | Left Stick Left or D-Pad Left   | move player/cursor          |
 | Move Right    | → or D           | Left Stick Right or D-Pad Right | move player/cursor          |
 | Action 1      | O                | A					             | select item<br>advance text |
-| Action 2      | P                | Y								 | use weapon                  |
-| Action 3      | K                | X								 | ---                         |
-| Action 4      | L                | B								 | ---                         |
+| Action 2      | P                | Y								 | use weapon 2                |
+| Action 3      | K                | X								 | use weapon 1                |
+| Action 4      | L                | B								 | unused                      |
 | Confirm       | Enter            | Start							 | open/close inventory        |
 | Cancel        | Backspace        | Back							 | ---                         |
 | Restart Game  | F5               | —                               | restart and go back to title|

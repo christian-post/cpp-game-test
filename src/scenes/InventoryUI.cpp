@@ -127,20 +127,26 @@ void InventoryUI::update(float deltaTime) {
             game.playSound("menuCursor");
         }
 
+        // use a consumable item
         if (game.buttonsPressed & CONTROL_ACTION1) {
             // choose the appropriate action for the selected item
+            const auto* selected = flatItems[index];
+            if (selected->first->type == CONSUMABLE) {
+                game.eventManager.pushEvent(CONSUME_ITEM, selected->first->textureKey);
+            }
+        }
+
+        // equip the primary weapon
+        if (game.buttonsPressed & CONTROL_ACTION2) {
             const auto* selected = flatItems[index];
             if (selected->first->type == WEAPON) {
                 game.eventManager.pushEvent(WEAPON_SET, std::pair<std::string, size_t>(selected->first->textureKey, 0));
                 game.playSound("menuSelect");
             }
-            else {
-                game.eventManager.pushEvent(CONSUME_ITEM, selected->first->textureKey);
-            }
         }
 
         // equip the secondary weapon
-        if (game.buttonsPressed & CONTROL_ACTION2) {
+        if (game.buttonsPressed & CONTROL_ACTION3) {
             const auto* selected = flatItems[index];
             if (selected->first->type == WEAPON) {
                 game.eventManager.pushEvent(WEAPON_SET, std::pair<std::string, size_t>(selected->first->textureKey, 1));
@@ -241,8 +247,6 @@ void InventoryUI::draw() {
         DrawText(qtyText.c_str(), centerX + 8, centerY + 8, 10, LIGHTGRAY);
     }
 
-    
-
     // display selected item name
     int fontSize = 8;
     uint32_t textY = int(y) + int(game.gameScreenHeight - topY) - fontSize - 24;
@@ -265,13 +269,14 @@ void InventoryUI::draw() {
         const char* helpText = nullptr;
         const char* textLeft = nullptr;
         const char* textRight = nullptr;
+        // TODO get key layout from config
         if (WasGamepadUsedLast()) {
-            helpText = "Equip/use with [A]"; // TODO draw a sprite that shows the gamepad buttons
+            helpText = index < weaponsSize ? "Equip with [X] or [Y]" : "Use with [A]"; // TODO draw a sprite that shows the gamepad buttons
             textLeft = "<< LB";
             textRight = "RB >>";
         }
         else {
-            helpText = "Equip/use with [O]";
+            helpText = index < weaponsSize ? "Equip with [P] or [L]" : "Use with [O}";
             textLeft = "<< N";
             textRight = "M >>";
         }

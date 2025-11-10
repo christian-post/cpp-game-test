@@ -20,8 +20,16 @@ add_executable(MyGame ${SOURCES})
 target_include_directories(MyGame PRIVATE
     ${CMAKE_SOURCE_DIR}/include
     ${CMAKE_SOURCE_DIR}/src
+    ${CMAKE_SOURCE_DIR}/src/assets
+    ${CMAKE_SOURCE_DIR}/src/core
+    ${CMAKE_SOURCE_DIR}/src/cutscenes
+    ${CMAKE_SOURCE_DIR}/src/entities
+    ${CMAKE_SOURCE_DIR}/src/entities/behaviors
+    ${CMAKE_SOURCE_DIR}/src/particles
+    ${CMAKE_SOURCE_DIR}/src/rendering
     ${CMAKE_SOURCE_DIR}/src/scenes
-    ${CMAKE_SOURCE_DIR}/src/behaviors
+    ${CMAKE_SOURCE_DIR}/src/ui
+    ${CMAKE_SOURCE_DIR}/src/world
 )
 
 

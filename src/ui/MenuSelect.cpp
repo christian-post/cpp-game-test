@@ -1,6 +1,7 @@
 #include "MenuSelect.h"
 #include "Controls.h"
 
+
 MenuSelect::MenuSelect(Game& game): game{ game }
 {}
 
@@ -12,6 +13,13 @@ void MenuSelect::setItems(std::vector<MenuItem> items)
 void MenuSelect::addItem(MenuItem item)
 {
     menuItems.push_back(item);
+}
+
+void MenuSelect::restrictHeight(size_t h, size_t offset)
+{
+    heightLimited = true;
+    heightLimit = h;
+    yOffset = offset;
 }
 
 void MenuSelect::update()
@@ -47,7 +55,13 @@ void MenuSelect::draw() {
     size_t totalHeight = menuItems.size() * rowHeight;
     size_t startY = 0;
     if (totalHeight <= height)
-        startY = (height - totalHeight) / 2;
+        if (heightLimited) {
+            height = heightLimit;
+            startY += yOffset + (height - totalHeight) / 2;
+        }
+        else {
+            startY = (height - totalHeight) / 2;
+        }
     else {
         // the menu does not fit on the screen
         startY = yMargin;

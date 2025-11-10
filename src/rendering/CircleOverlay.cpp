@@ -15,6 +15,8 @@ void DrawLightOverlay(Texture2D& texture, const Shader& shader, Light* lights, i
         }
         radii[i] = lights[i].radius;
     }
+    float time = GetTime();
+    SetShaderValue(shader, GetShaderLocation(shader, "time"), &time, SHADER_UNIFORM_FLOAT);
     SetShaderValue(shader, GetShaderLocation(shader, "u_lightCount"), &lightCount, SHADER_UNIFORM_INT);
     SetShaderValueV(shader, GetShaderLocation(shader, "u_centers"), centers, SHADER_UNIFORM_VEC2, lightCount);
     SetShaderValueV(shader, GetShaderLocation(shader, "u_radii"), radii, SHADER_UNIFORM_FLOAT, lightCount);

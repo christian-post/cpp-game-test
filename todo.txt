@@ -1,7 +1,7 @@
 ### features
 
 Scenes
-- show a menu (load save, go to title, quit) at the end of GameOver
+- show a menu (save and continue, quit) at the end of GameOver
 - Scenes should know from which Scene they came from, so that I don't need to hard-code the scene they return to once finished
 
 - Dungeon
@@ -28,6 +28,8 @@ Scenes
 
 IMPORTANT:
 - load weapons.json data into weaponData structs in Preload
+- weapons become unsuable when activated during a room transition
+
 
 NOT SO IMPORTANT:
 - add a "persistent" property to event listeners (non-persistent listeners are removed after one event)
@@ -49,7 +51,7 @@ NOT SO IMPORTANT:
 - add a light cone to items that come from chests (if in a dark room) (or maybe draw them over the darkness layer?)
 - make Game.getPlayer() obsolete
 
-### BUGS:
+### OTHER BUGS:
 - RandomWalkBehavior: choose new target after some time if the current target can't be reached
 - chest contain coins after loading a save
 

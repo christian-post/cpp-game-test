@@ -112,7 +112,8 @@ void ProjectileBehavior::stopProjectile(std::shared_ptr<Sprite> s) {
     s->visible = false;
     s->vel = { 0.0f, 0.0f };
     s->acc = { 0.0f, 0.0f };
-    s->canHurtPlayer = false;    
+    s->canHurtPlayer = false;
+    s->emitsLight = false;
     done = true;
 
     game.eventManager.pushDelayedEvent(UNNAMED, 0.0f, nullptr, [s]() {

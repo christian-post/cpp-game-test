@@ -19,6 +19,8 @@ void InGame::startup() {
     );
 
     game.spriteMap["player"] = player;
+    player->health = game.getSetting("playerStartingHealth");
+    player->maxHealth = game.getSetting("playerStartingMaxHealth");
     player->persistent = true;
     game.sprites.emplace_back(player);  // add to the sprites vector
     player->setTextures({ "player_idle", "player_run", "player_hit" });
@@ -122,7 +124,7 @@ void InGame::handleDeadSprites()
 void InGame::setupInputCallbacks() {
     // Assign callbacks to specific buttons
     buttonCallbacks[CONTROL_ACTION2] = [this]() { onActionButton2(); };
-    buttonCallbacks[CONTROL_ACTION4] = [this]() { onActionButton4(); };
+    buttonCallbacks[CONTROL_ACTION3] = [this]() { onActionButton3(); };
     buttonCallbacks[CONTROL_CONFIRM] = [this]() { onInventoryButton(); };
     buttonCallbacks[CONTROL_CANCEL] = [this]() { onMenuButton(); };
     // debug stuff
@@ -141,7 +143,7 @@ void InGame::onActionButton2()
     }
 }
 
-void InGame::onActionButton4()
+void InGame::onActionButton3()
 {
     // secondary weapon
     if (currentWeapon[1] && !getSprite(*currentWeapon[1])) {
@@ -464,6 +466,7 @@ void InGame::update(float deltaTime) {
             }
             player->iFrameTimer = game.getSetting("PlayeriFrames");
             applyKnockback(*sprite, *player, sprite->knockback);
+            game.eventManager.pushEvent(SCREEN_SHAKE, std::make_tuple(0.2f, 4.0f, 0.0f));
             game.playSound("hurt1");
         }
 
@@ -483,7 +486,7 @@ void InGame::update(float deltaTime) {
                     
                     // screen shake
                     // TODO: get shake intensity from data
-                    game.eventManager.pushEvent(SCREEN_SHAKE, std::make_tuple(0.2f, 2.0f, 0.0f));
+                    game.eventManager.pushEvent(SCREEN_SHAKE, std::make_tuple(0.2f, 4.0f, 0.0f));
                     game.playSound("creature_hurt_02");
                 }
             }
@@ -572,7 +575,7 @@ void InGame::draw() {
     // draw lighting in dark rooms
     // TODO: should game.target be passed as an argument to scene.draw() instead of being indirectly accessible to the scenes?
     if (game.currentDungeon->isRoomDark())
-        DrawLightOverlay(game.target.texture, game.loader.getShader("light_mask"), lights, lightCount, static_cast<float>(game.gameScreenWidth), static_cast<float>(game.gameScreenHeight));
+        DrawLightOverlay(game.target.texture, game.loader.getShader("light_mask_flicker"), lights, lightCount, static_cast<float>(game.gameScreenWidth), static_cast<float>(game.gameScreenHeight));
 
     // draw a vignette
     DrawVignette(game.target.texture, game.loader.getShader("vignette"), game.getSetting("vignetteIntensity"), game.getSetting("vignetteSmoothness"), static_cast<float>(game.gameScreenWidth), static_cast<float>(game.gameScreenHeight));

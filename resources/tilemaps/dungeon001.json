@@ -251,6 +251,11 @@
                          "value":-1
                         }, 
                         {
+                         "name":"emitsLight",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
                          "name":"spriteName",
                          "type":"string",
                          "value":"wall_fountain_basin"
@@ -298,6 +303,11 @@
                          "name":"drawLayer",
                          "type":"int",
                          "value":-1
+                        }, 
+                        {
+                         "name":"emitsLight",
+                         "type":"bool",
+                         "value":true
                         }, 
                         {
                          "name":"spriteName",
