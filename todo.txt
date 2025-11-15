@@ -1,8 +1,7 @@
 ### features
 
 Scenes
-- show a menu (save and continue, quit) at the end of GameOver
-- Scenes should know from which Scene they came from, so that I don't need to hard-code the scene they return to once finished
+- 
 
 - Dungeon
 -- procedural room generation
@@ -28,7 +27,6 @@ Scenes
 
 IMPORTANT:
 - load weapons.json data into weaponData structs in Preload
-- weapons become unsuable when activated during a room transition
 
 
 NOT SO IMPORTANT:
@@ -50,6 +48,7 @@ NOT SO IMPORTANT:
 - give the Signpost some collision
 - add a light cone to items that come from chests (if in a dark room) (or maybe draw them over the darkness layer?)
 - make Game.getPlayer() obsolete
+
 
 ### OTHER BUGS:
 - RandomWalkBehavior: choose new target after some time if the current target can't be reached

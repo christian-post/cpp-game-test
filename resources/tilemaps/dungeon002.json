@@ -143,6 +143,11 @@
                  "name":"npc",
                  "properties":[
                         {
+                         "name":"castsShadow",
+                         "type":"bool",
+                         "value":false
+                        }, 
+                        {
                          "name":"drawLayer",
                          "type":"int",
                          "value":-1
@@ -164,6 +169,11 @@
                  "id":18,
                  "name":"npc",
                  "properties":[
+                        {
+                         "name":"castsShadow",
+                         "type":"bool",
+                         "value":false
+                        }, 
                         {
                          "name":"drawLayer",
                          "type":"int",

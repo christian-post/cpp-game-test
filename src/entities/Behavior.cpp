@@ -67,6 +67,8 @@ std::unique_ptr<Behavior> createBehaviorFromJSON(Game& game, std::shared_ptr<Spr
         conf.shootInterval = behaviorData.value("shootInterval", 2.0f);
         conf.speed = behaviorData.value("shootSpeed", 20.0f);
         conf.emitterKey = behaviorData.value("emitterKey", "");
+        conf.emitterKey = behaviorData.value("projectileTrailEmitterKey", "");
+        conf.emitterKey = behaviorData.value("projectileImpactEmitterKey", "");
 
         if (game.spriteMap.find(targetName) != game.spriteMap.end()) {
             return std::make_unique<ShootBehavior>(game, sprite, game.spriteMap[targetName], conf);
@@ -143,6 +145,8 @@ std::unique_ptr<Behavior> createBehaviorFromJSON(Game& game, std::shared_ptr<Spr
         conf.damage = behaviorData.value("shootDamage", conf.damage);
         conf.speed = behaviorData.value("shootSpeed", 20.0f);
         conf.emitterKey = behaviorData.value("emitterKey", "");
+        conf.projectileTrailEmitterKey = behaviorData.value("projectileTrailEmitterKey", "");
+        conf.projectileImpactEmitterKey = behaviorData.value("projectileImpactEmitterKey", "");
         uint32_t burstCount = behaviorData.value("burstCount", 3);
         float burstDelay = behaviorData.value("burstDelay", 0.3f);
 
@@ -161,6 +165,8 @@ std::unique_ptr<Behavior> createBehaviorFromJSON(Game& game, std::shared_ptr<Spr
         conf.damage = behaviorData.value("shootDamage", conf.damage);
         conf.speed = behaviorData.value("shootSpeed", 20.0f);
         conf.emitterKey = behaviorData.value("emitterKey", "");
+        conf.projectileTrailEmitterKey = behaviorData.value("projectileTrailEmitterKey", "");
+        conf.projectileImpactEmitterKey = behaviorData.value("projectileImpactEmitterKey", "");
         uint32_t projectileCount = behaviorData.value("projectileCount", 3);
         float spreadAngle = behaviorData.value("spreadAngle", 0.5f);
 

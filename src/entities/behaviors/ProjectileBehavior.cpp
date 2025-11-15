@@ -1,4 +1,5 @@
 #include "ProjectileBehavior.h"
+#include "EmitterBehavior.h"
 #include "Sprite.h"
 #include "Game.h"
 #include "Utils.h"
@@ -6,8 +7,8 @@
 #include "Particle.h"
 #include <cmath>
 
-ProjectileBehavior::ProjectileBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, bool steer, std::optional<Vector2> customDirection)
-    : game{ game }, self{ self }, target{ target }, steer{ steer }
+ProjectileBehavior::ProjectileBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, bool steer, std::optional<Vector2> customDirection, std::string trailEmitterKey, std::string impactEmitterKey)
+    : game{ game }, self{ self }, target{ target }, steer{ steer }, trailEmitterKey{ trailEmitterKey}, impactEmitterKey{ impactEmitterKey }
 {
     if (customDirection.has_value()) {
         direction = customDirection.value();
@@ -26,12 +27,19 @@ ProjectileBehavior::ProjectileBehavior(Game& game, std::shared_ptr<Sprite> self,
         direction = { dx / dist, dy / dist };
     }
     self->isColliding = false;
+
+    if (trailEmitterKey.length() > 0) {
+        // create a trail effect
+        std::unique_ptr<Emitter> emitter = createEmitter(game, trailEmitterKey);
+        emitter->location = GetRectCenter(self->rect);
+        self->addBehavior(std::make_unique<EmitterBehavior>(game, self, std::move(emitter)));
+    }
 }
 
 void ProjectileBehavior::update(float deltaTime) {
     auto s = self.lock();
     auto t = target.lock();
-    if (!s || !t)
+    if (!s)
         return;
 
     if (impactEmitter) {
@@ -49,12 +57,12 @@ void ProjectileBehavior::update(float deltaTime) {
         }
     }
 
-    if (CheckCollisionRecs(s->rect, t->rect)) {
+    if (t && (CheckCollisionRecs(s->rect, t->rect))) {
         createImpactEffect(s);
         return;
     }
 
-    if (steer) {
+    if (steer and t) {
         Vector2 selfCenter = GetRectCenter(s->rect);
         Vector2 targetCenter = GetRectCenter(t->rect);
         float dx = targetCenter.x - selfCenter.x;
@@ -77,25 +85,24 @@ void ProjectileBehavior::draw() {
 void ProjectileBehavior::createImpactEffect(std::shared_ptr<Sprite> s) {
     const auto& particlesData = game.loader.getParticleData();
 
-    if (particlesData.find("projectileImpact") == particlesData.end()) {
-        TraceLog(LOG_WARNING, "projectileImpact not found in particles.json");
-        done = true;
-        s->markForDeletion();
+    // TODO let the projectile define different emitters
+    if (particlesData.find(impactEmitterKey) == particlesData.end()) {
+        TraceLog(LOG_WARNING, "Impact Emitter '%s' not found in particles.json", impactEmitterKey.c_str());
+        stopProjectile(s);
         return;
     }
 
     const auto& defaultEmitterData = particlesData.at("defaultEmitter");
     const auto& defaultParticleData = particlesData.at("defaultParticle");
-    const auto& emitterData = particlesData.at("projectileImpact");
-
-    std::string particleKey = emitterData.value("particleKey", defaultEmitterData.value("particleKey", "defaultParticle"));
-    const auto& particleData = particlesData.at(particleKey);
+    const auto& emitterData = particlesData.at(impactEmitterKey);
 
     size_t maxParticles = emitterData.value("maxParticles", defaultEmitterData.value("maxParticles", 20));
     auto emitter = std::make_unique<Emitter>(maxParticles);
     emitter->location = GetRectCenter(s->rect);
     emitter->fromJSON(emitterData, defaultEmitterData);
 
+    std::string particleKey = emitterData.value("particleKey", defaultEmitterData.value("particleKey", "defaultParticle"));
+    const auto& particleData = particlesData.at(particleKey);
     Particle proto;
     proto.fromJSON(particleData, defaultParticleData);
     proto.setAnimationFrames(s->frames[s->currentAnimState]);
@@ -103,6 +110,7 @@ void ProjectileBehavior::createImpactEffect(std::shared_ptr<Sprite> s) {
     emitter->prototype = proto;
 
     impactEmitter = emitter.get();
+    lifetimeAfterImpact = impactEmitter->emitterLifetime;
     game.emitters.push_back(std::move(emitter));
 
     stopProjectile(s);
@@ -118,5 +126,9 @@ void ProjectileBehavior::stopProjectile(std::shared_ptr<Sprite> s) {
 
     game.eventManager.pushDelayedEvent(UNNAMED, 0.0f, nullptr, [s]() {
         s->removeAllBehaviors();
+        });
+
+    game.eventManager.pushDelayedEvent(UNNAMED, lifetimeAfterImpact, nullptr, [s]() {
+        s->markForDeletion();
         });
 }

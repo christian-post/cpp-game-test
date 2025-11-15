@@ -73,6 +73,12 @@ void Game::startScene(const std::string& name) {
         else
             scenes[name]->setDrawPriority(0); // default
 
+        // transfer the onComplete callback to this scene
+        if (sceneCallbacks.count(name)) {
+            scenes[name]->setOnComplete(sceneCallbacks[name]);
+            sceneCallbacks.erase(name);
+        }
+
         scenes[name]->markForStarting();
     }
     else {
@@ -85,7 +91,8 @@ void Game::startScene(const std::string& name) {
 void Game::stopScene(const std::string& name) {
     // Marks the scene for removal
     if (scenes.count(name)) {
-        scenes[name]->markForDeletion();  
+        scenes[name]->markForDeletion(); 
+        scenes[name]->complete();
     }
 }
 
@@ -165,6 +172,7 @@ void Game::save(std::string& filename)
 
     // save a screenshot as a thumbnail
     // TODO: delayed so that it captures the InGame scene
+    // TODO: this does not work when the savegame menu does not go back in game
     // --> maybe save the last texture surface of InGame in memory?
     eventManager.pushDelayedEvent(UNNAMED, 0.1f, nullptr, [this, filename] {
         Image img = LoadImageFromTexture(this->target.texture);
@@ -234,6 +242,16 @@ void Game::clearSprites(bool clearPersistent) {
 }
 
 void Game::processMarkedSprites() {
+    // Remove marked sprites from spriteMap first
+    for (auto& sprite : sprites) {
+        if (sprite->isMarkedForDeletion()) {
+            auto it = spriteMap.find(sprite->spriteName);
+            if (it != spriteMap.end() && it->second == sprite)
+                spriteMap.erase(it);
+        }
+    }
+
+    // Remove marked sprites from sprites vector
     sprites.erase(std::remove_if(sprites.begin(), sprites.end(),
         [](auto sprite) {
             return sprite->isMarkedForDeletion();

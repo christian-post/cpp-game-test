@@ -10,9 +10,11 @@ struct Emitter;
 
 class ProjectileBehavior : public Behavior {
 public:
-    ProjectileBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, bool steer = false, std::optional<Vector2> customDirection = std::nullopt);
+    ProjectileBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, bool steer = false, std::optional<Vector2> customDirection = std::nullopt, std::string trailEmitterKey = "", std::string impactEmitterKey = "");
     void update(float deltaTime) override;
     void draw() override;
+    std::string trailEmitterKey = "";
+    std::string impactEmitterKey = "";
 
 private:
     Game& game;
@@ -21,6 +23,7 @@ private:
     bool steer;
     Vector2 direction = { 0.0f, 0.0f };
     Emitter* impactEmitter = nullptr;
+    float lifetimeAfterImpact = 0.0f;
     void createImpactEffect(std::shared_ptr<Sprite> s);
     void stopProjectile(std::shared_ptr<Sprite> s);
 };

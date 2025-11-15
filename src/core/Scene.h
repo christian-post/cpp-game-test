@@ -3,6 +3,7 @@
 #include <string>
 #include <any>
 #include <unordered_map>
+#include <functional>
 
 class Game;
 
@@ -44,6 +45,16 @@ public:
     Game& getGame() { return game; }
     inventoryState getState() { return state; }
 
+
+    using CompletionCallback = std::function<void()>;
+    void setOnComplete(CompletionCallback callback) {
+        onComplete = callback;
+    }
+    void complete() {
+        if (onComplete) 
+            onComplete();
+    }
+
     bool markedForStarting = false;
 
     Music* music = nullptr;
@@ -59,6 +70,7 @@ protected:
     bool paused = false;
     bool markedForDeletion = false;
     inventoryState state = NONE;
+    CompletionCallback onComplete;
 };
 
 

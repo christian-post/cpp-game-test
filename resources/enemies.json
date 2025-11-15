@@ -210,7 +210,7 @@
               "conditions": [
                 {
                   "type": "playerInRange",
-                  "distance": 120.0
+                  "distance": 600.0
                 },
                 {
                   "type": "hasLineOfSight"
@@ -232,7 +232,7 @@
               "conditions": [
                 {
                   "type": "timeInStateExceeds",
-                  "seconds": 2.0
+                  "seconds": 1.0
                 }
               ]
             },
@@ -242,7 +242,7 @@
               "conditions": [
                 {
                   "type": "playerOutOfRange",
-                  "distance": 140.0
+                  "distance": 620.0
                 },
                 {
                   "type": "lostLineOfSight"
@@ -420,7 +420,8 @@
           "behaviorData": {
             "shootTarget": "player",
             "shootProjectile": "fireball",
-            "emitterKey": "fireTrail",
+            "projectileTrailEmitterKey": "fireTrail",
+            "projectileImpactEmitterKey": "projectileImpact",
             "shootDamage": 2,
             "shootSpeed": 30.0,
             "shootSound": "fireball",
@@ -466,7 +467,8 @@
           "behaviorData": {
             "shootTarget": "player",
             "shootProjectile": "fireball",
-            "emitterKey": "fireTrail",
+            "projectileTrailEmitterKey": "fireTrail",
+            "projectileImpactEmitterKey": "projectileImpact",
             "shootDamage": 2,
             "shootSpeed": 50.0,
             "shootSound": "fireball",

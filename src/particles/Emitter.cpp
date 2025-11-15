@@ -1,4 +1,5 @@
 #include "Emitter.h"
+#include "Game.h"
 #include <cmath>
 
 
@@ -119,4 +120,26 @@ void Emitter::emit() {
             return;
         }
     }
+}
+
+
+std::unique_ptr<Emitter> createEmitter(Game& game, std::string key)
+{
+    const auto& particlesData = game.loader.getParticleData();
+    const auto& emitterData = particlesData.at(key);
+    std::string particleKey = emitterData.at("particleKey");
+    const auto& particleData = particlesData.at(particleKey);
+    size_t maxParticles = emitterData.at("maxParticles");
+
+    std::unique_ptr<Emitter> emitter = std::make_unique<Emitter>(maxParticles);
+    std::unique_ptr<Particle> proto = std::make_unique<Particle>();
+
+    emitter->fromJSON(emitterData, particlesData.at("defaultEmitter"));
+    proto->fromJSON(particleData, particlesData.at("defaultParticle"));
+
+    std::string textureKey = particleData.at("textureKey");
+    proto->setAnimationFrames(game.loader.getTextures(textureKey));
+    emitter->prototype = *proto;
+
+    return emitter;
 }

@@ -297,7 +297,9 @@ void InGame::spawnWeapon(size_t index)
     game.eventManager.addListener(eventKey, [this, wpn, index, eventKey](std::any data) {
         game.spriteMap.erase(*currentWeapon[index]);
         wpn->markForDeletion();
-        game.eventManager.removeListeners(eventKey);
+        game.eventManager.pushDelayedEvent(UNNAMED, 0.0f, nullptr, [this, eventKey]() {
+            game.eventManager.removeListeners(eventKey);
+            });
         });
 
     game.playSound(wpnData.soundKey); // TODO put this in WeaponBehavior
@@ -470,8 +472,29 @@ void InGame::update(float deltaTime) {
             game.playSound("hurt1");
         }
 
-        // weapon damage
-        // everything that can hurt the player can also be damaged
+        // damage enemies
+        if (sprite->canHurtEnemies) {
+            for (const auto& target : game.sprites) {
+                if (target->isEnemy && target != sprite && target->iFrameTimer < 0.001f &&
+                    target->health > 0 && CheckCollisionRecs(sprite->hurtbox, target->rect)) {
+
+                    target->health = (sprite->damage > target->health) ? 0 : target->health - sprite->damage;
+                    target->iFrameTimer = 0.5f;
+
+                    if (target->weight > 0)
+                        applyKnockback(*sprite, *target, 8.0f / target->weight);
+
+                    game.eventManager.pushEvent(SCREEN_SHAKE, std::make_tuple(0.2f, 4.0f, 0.0f));
+                    game.playSound("creature_hurt_02");
+
+                    // Mark projectile as done if it should disappear on hit
+                    sprite->markForDeletion();
+                    break;  // Projectile only hits one enemy
+                }
+            }
+        }
+
+        // weapon damage (TODO obsolete with projectile damage?)
         for (size_t wpnIdx = 0; wpnIdx < 2; wpnIdx++) {
             if (sprite->isEnemy && currentWeapon[wpnIdx].has_value()) {
                 Sprite* weapon = getSprite(*currentWeapon[wpnIdx]);

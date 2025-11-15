@@ -4,6 +4,7 @@
 #include <functional>
 #include <optional>
 #include "Behavior.h"
+#include "WeaponBehavior.h"
 
 class Game;
 

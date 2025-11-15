@@ -79,6 +79,18 @@
     "maxParticles": 10,
     "spawnInterval": 0.15,
     "emitterLifetime": -1.0,
+    "lifetimeVariance": 0.02,
+    "alphaVariance": 0.0,
+    "radialVelocity": false,
+    "speed": 0.0,
+    "speedVariance": 0.0
+  },
+  "smokeTrail": {
+    "type": "emitter",
+    "particleKey": "smokeParticle",
+    "maxParticles": 10,
+    "spawnInterval": 0.1,
+    "emitterLifetime": -1.0,
     "lifetimeVariance": 0.05,
     "alphaVariance": 0.0,
     "radialVelocity": false,
@@ -132,9 +144,9 @@
     "velocityY": 0.0,
     "startAlpha": 0.9,
     "endAlpha": 0.0,
-    "lifetime": 0.5,
+    "lifetime": 0.3,
     "startSize": 1.0,
-    "endSize": 0.4,
+    "endSize": 0.5,
     "animationSpeed": 0.1
   },
   "projectileImpact": {
@@ -153,6 +165,22 @@
     "speed": 140.0,
     "speedVariance": 20.0
   },
+  "projectileImpactSingle": {
+    "type": "emitter",
+    "particleKey": "projectileImpactParticleSingle",
+    "maxParticles": 1,
+    "spawnInterval": 0.001,
+    "emitterLifetime": 0.5,
+    "spawnRadius": 0.0,
+    "spawnRadiusVariance": 0.0,
+    "velocityVarianceX": 10.0,
+    "velocityVarianceY": 10.0,
+    "lifetimeVariance": 0.0,
+    "alphaVariance": 0.0,
+    "radialVelocity": false,
+    "speed": 60.0,
+    "speedVariance": 0.0
+  },
   "projectileImpactParticle": {
     "type": "particle",
     "textureKey": "sprite_default",
@@ -164,6 +192,19 @@
     "lifetime": 0.4,
     "startSize": 0.9,
     "endSize": 0.4,
+    "animationSpeed": 0.1
+  },
+  "projectileImpactParticleSingle": {
+    "type": "particle",
+    "textureKey": "sprite_default",
+    "velocityX": 20.0,
+    "velocityY": 40.0,
+    "startAlpha": 0.8,
+    "endAlpha": 0.2,
+    "tint": [ 255, 255, 255, 255 ],
+    "lifetime": 0.5,
+    "startSize": 1.0,
+    "endSize": 1.0,
     "animationSpeed": 0.1
   }
 }

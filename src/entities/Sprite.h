@@ -75,6 +75,7 @@ public:
     void refillHealth() { health = maxHealth; }
     float iFrameTimer = 0.0f; // duration of invincibility (s)
     bool canHurtPlayer = false;
+    bool canHurtEnemies = false;
     bool followsPlayer = false;
     bool isEnemy = false;
     uint32_t damage = 0;
@@ -87,6 +88,7 @@ public:
     void setTextures(std::vector<std::string> keys);
     void animate(float deltaTime);
     void setAnimState(AnimState state, bool lockState = false);
+    void LockAnimState() { lockedAnimState = true; }
     void unlockAnimState() { lockedAnimState = false; }
     void setHurtbox(float x = -1.0f, float y = -1.0f, float width = -1.0f, float height = -1.0f, bool center = false);
     void getControls();

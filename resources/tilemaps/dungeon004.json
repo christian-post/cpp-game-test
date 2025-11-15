@@ -138,6 +138,11 @@
                         }],
                  "properties":[
                         {
+                         "name":"castsShadow",
+                         "type":"bool",
+                         "value":false
+                        }, 
+                        {
                          "name":"event",
                          "type":"string",
                          "value":"door004open"

@@ -1,5 +1,6 @@
 #include "ItemData.h"
 #include "Game.h"
+#include "WeaponBehavior.h"
 
 
 static weaponData createWeaponDataFromJSON(const nlohmann::json& weaponJSON, const std::string& weaponKey) {
@@ -25,6 +26,11 @@ static weaponData createWeaponDataFromJSON(const nlohmann::json& weaponJSON, con
     wpnData.HurtboxWidth = data.at("HurtboxWidth");
     wpnData.HurtboxHeight = data.at("HurtboxHeight");
     wpnData.soundKey = data.at("sound");
+    if (wpnData.type == SHOOT || wpnData.type == BOW) {
+        wpnData.projectileKey = data.at("projectile");
+        wpnData.projectileTrailEmitterKey = data.at("projectileTrailEmitter");
+        wpnData.projectileImpactEmitterKey = data.at("projectileImpactEmitter");
+    }
 
     return wpnData;
 }

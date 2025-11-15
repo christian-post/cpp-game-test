@@ -20,35 +20,13 @@ enum direction {
     DOWN
 };
 
-enum weaponType {
-    SWING = 0,
-    POKE = 1,
-    SHOOT = 2,
-    WHACK = 3,
-    HOLD = 4
-};
-
-struct weaponData {
-    // encapsulates the data from weapons.json
-    weaponType type;
-    uint32_t damage;
-    float posOffsetX;
-    float posOffsetY;
-    float HurtboxOffsetX;
-    float HurtboxOffsetY;
-    float HurtboxWidth;
-    float HurtboxHeight;
-    float lifetime;
-    std::string soundKey;
-    // optional callbacks
-    std::function<void()> onCreate;
-    std::function<void()> onDestroy;
-};
-
 struct shootingConfig {
     // a copy is passed to ShootBehavior's constructor
     // sprite (main projectile)
     std::string projectileKey = "sprite_default";
+    std::string projectileTrailEmitterKey = "";
+    std::string projectileImpactEmitterKey = "";
+    std::string emitterKey = ""; // empty = use projectile texture, non-empty = load from particles.json
     std::string sound = "powerUp1"; // just a default sound to indicate a missing override
     uint32_t damage = 0;
     float speed = 1.0f;
@@ -56,7 +34,6 @@ struct shootingConfig {
     float hitboxSize = 8.0f;
     float shootInterval = 1.0f; // seconds
     // particle effect (in addition to the projectile)
-    std::string emitterKey = ""; // empty = use projectile texture, non-empty = load from particles.json
 };
 
 struct TeleportEvent {

@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <random>
+#include <memory>
 #include "raylib.h"
 #include "raymath.h"
 #include "Particle.h"
@@ -41,3 +42,7 @@ struct Emitter {
     Particle prototype;
     std::mt19937 rng;
 };
+
+class Game;
+
+std::unique_ptr<Emitter> createEmitter(Game& game, std::string key); // helper function that creates an emitter from a key

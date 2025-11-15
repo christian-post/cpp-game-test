@@ -155,6 +155,7 @@ void setupConditionalEvents(InGame& inGame) {
     game.eventManager.pushConditionalEvent(
         [&]() {
             // give your companion a different dialogue after the last room
+            // TODO change because the shop isn't the last room anymore
             if (!inGame.tileMap) 
                 return false;
             return (inGame.tileMap->getName() == "dungeon_shop");
@@ -169,6 +170,39 @@ void setupConditionalEvents(InGame& inGame) {
                 std::string textKey = "elfDialogue3";
                 std::vector<std::string> texts = game.loader.getText(textKey);
                 npcRef.addBehavior(std::make_unique<DialogueBehavior>(game, game.spriteMap["elfCompanion2"], game.spriteMap["player"], texts, "powerUp4"));
+                });
+        }
+    );
+
+    game.eventManager.pushConditionalEvent(
+        // the player has defeated all the turrets across the moat (needs bow)
+        [&]() {
+            if (!inGame.tileMap)
+                return false;
+            return inGame.tileMap->getName() == "dungeon_turrets_0101" &&
+                game.currentDungeon->getCurrentRoomState() < 2 &&
+                std::none_of(game.sprites.begin(), game.sprites.end(),
+                    [](const std::shared_ptr<Sprite>& s) {
+                        return s->isEnemy;
+                    });
+        },
+        [&]() {
+            TraceLog(LOG_INFO, "enemies defeated");
+            game.eventManager.pushDelayedEvent(UNNAMED, 0.1f, nullptr, [&]() {
+                game.eventManager.pushEvent(HIDE_HUD);
+                game.cutsceneManager.queueCommand(new Command_CameraPan(game, 110.0f, 242.0f, 1.0f));
+                game.cutsceneManager.queueCommand(new Command_Wait(0.3f));
+                game.cutsceneManager.queueCommand(new Command_Callback([&]() {
+                    int eventKey = EventKeyRegistry::getEventKey("doorTurretsDefeatOpen");
+                    game.eventManager.pushEvent(eventKey);
+                    game.playSound("doorOpen_2");
+                    }));
+                game.cutsceneManager.queueCommand(new Command_Wait(1.5f));
+                game.cutsceneManager.queueCommand(new Command_Callback([&]() {
+                    game.eventManager.pushEvent(SHOW_HUD);
+                    game.cutsceneManager.setCameraControl(false);
+                    game.currentDungeon->advanceRoomState();
+                    }));
                 });
         }
     );

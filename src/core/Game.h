@@ -1,9 +1,14 @@
 #pragma once
+#include <functional>
 #include <iostream>
 #include <memory>
 #include <string>
-#include "Scene.h"
+#include <stdexcept>
+
+#include "json.hpp"
 #include "raylib.h"
+
+#include "Scene.h"
 #include "AssetLoader.h"
 #include "Sprite.h"
 #include "EventManager.h"
@@ -12,8 +17,6 @@
 #include "Emitter.h"
 #include "Dungeon.h"
 #include "Savegame.h"
-#include "json.hpp"
-#include <stdexcept>
 
 #define DARKBURGUNDY { 20, 0, 8, 255 }
 #define LIGHTBURGUNDY { 40, 0, 16, 255 }
@@ -64,6 +67,11 @@ public:
     Scene* getScene(const std::string& name) {
         auto it = scenes.find(name);
         return (it != scenes.end()) ? it->second.get() : nullptr;
+    }
+
+    using SceneCallback = std::function<void()>;
+    void setOnSceneComplete(const std::string& sceneName, SceneCallback callback) {
+        sceneCallbacks[sceneName] = callback;
     }
 
     EventManager eventManager; // event handling
@@ -140,6 +148,7 @@ private:
     std::unordered_map<std::string, std::function<std::unique_ptr<Scene>(const std::string&)>> sceneRegistry; // stores scene constructors
     std::unordered_map<std::string, int> scenePriorities; // stores the drawing order (TODO: also control the update order?)
     void setSceneState(const std::string& name, bool active, bool paused);
+    std::unordered_map<std::string, SceneCallback> sceneCallbacks; // temporarily hold scene completion callbacks for scenes that haven't been started yet
     std::vector<std::shared_ptr<Sprite>> spritesToAdd; // stores the sprites that are later added to the actual sprites vector (prevents changing the vector during the update loop)
     std::shared_ptr<SaveGame> savegame = nullptr; // store save data
 };

@@ -58,8 +58,8 @@
         }, 
         {
          "data":[0, 0, 0, 0, 0, 0, 0, 201, 202, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 223, 0, 0, 226, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 223, 228, 229, 226, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 251, 252, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -197,60 +197,6 @@
                  "width":24,
                  "x":232,
                  "y":20
-                }, 
-                {
-                 "height":24,
-                 "id":9,
-                 "name":"door",
-                 "properties":[
-                        {
-                         "name":"castsShadow",
-                         "type":"bool",
-                         "value":false
-                        }, 
-                        {
-                         "name":"event",
-                         "type":"string",
-                         "value":"door006open"
-                        }, 
-                        {
-                         "name":"openState",
-                         "type":"int",
-                         "value":2
-                        }, 
-                        {
-                         "name":"spriteName",
-                         "type":"string",
-                         "value":"dungeon_door"
-                        }],
-                 "rotation":0,
-                 "type":"sprite",
-                 "visible":true,
-                 "width":32,
-                 "x":112,
-                 "y":24
-                }, 
-                {
-                 "height":16,
-                 "id":11,
-                 "name":"enemy",
-                 "properties":[
-                        {
-                         "name":"roomState",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"spriteName",
-                         "type":"string",
-                         "value":"big_demon_boss"
-                        }],
-                 "rotation":0,
-                 "type":"sprite",
-                 "visible":true,
-                 "width":16,
-                 "x":112,
-                 "y":96
                 }],
          "opacity":1,
          "type":"objectgroup",

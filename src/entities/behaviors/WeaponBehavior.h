@@ -5,6 +5,36 @@
 class Game;
 class Sprite;
 
+enum weaponType {
+    SWING = 0,
+    POKE = 1,
+    SHOOT = 2,
+    WHACK = 3,
+    HOLD = 4,
+    BOW = 5
+};
+
+struct weaponData {
+    // encapsulates the data from weapons.json
+    weaponType type;
+    uint32_t damage;
+    float posOffsetX;
+    float posOffsetY;
+    float HurtboxOffsetX;
+    float HurtboxOffsetY;
+    float HurtboxWidth;
+    float HurtboxHeight;
+    float lifetime;
+    std::string soundKey;
+    std::string projectileKey;
+    std::string projectileTrailEmitterKey;
+    std::string projectileImpactEmitterKey;
+    // optional callbacks 
+    std::function<void()> onCreate;
+    std::function<void()> onDestroy;
+};
+
+
 class WeaponBehavior : public Behavior {
 public:
     WeaponBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> owner, weaponData data, size_t slot);
@@ -22,4 +52,6 @@ private:
     float originalLifetime;
     bool switchedOn = false;
     bool shaken = false;
+    bool isNotched = false;
+    direction notchedDirection = RIGHT;
 };

@@ -2,6 +2,7 @@
 #include "LoadSavegameMenu.h"
 #include "Game.h"
 #include "Utils.h"
+#include <vector>
 
 LoadSavegameMenu::LoadSavegameMenu(Game& game, const std::string& name)
     : Scene(game, name), menu(MenuSelect(game)) {
@@ -66,6 +67,7 @@ void LoadSavegameMenu::draw()
         DrawText(infoStr.c_str(), x, 20, 8, LIGHTGRAY);
         // draw the thumbnail (0th element)
         auto& thumbnail = game.loader.getTextures(menu.getCurrentItem().displayName);
-        DrawTexture(thumbnail[0], x, 40, WHITE);
+        if (thumbnail.size())
+            DrawTexture(thumbnail[0], x, 40, WHITE);
     }
 }

@@ -369,21 +369,6 @@
                  "name":"chest",
                  "properties":[
                         {
-                         "name":"amount",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"item",
-                         "type":"string",
-                         "value":"weapon_spear"
-                        }, 
-                        {
-                         "name":"roomState",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
                          "name":"spriteName",
                          "type":"string",
                          "value":"chest"

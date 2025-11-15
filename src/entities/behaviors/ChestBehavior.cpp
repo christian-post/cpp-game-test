@@ -30,7 +30,7 @@ void ChestBehavior::update(float deltaTime) {
             if (game.buttonsDown & CONTROL_ACTION1) {
                 triggered = true;
                 auto& itemData = game.inventory.getItemData();
-                const ItemData& data = itemData.at(itemName);
+                const ItemData& data = itemData.at(itemName);  // TODO check for missing key
                 s->currentFrame = 2;
                 showItem = true;
                 game.playSound("doorOpen_2");

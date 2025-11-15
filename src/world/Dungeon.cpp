@@ -3,9 +3,6 @@
 #include "Game.h"
 #include "WorldGraph.h"
 
-// Debug flags (comment in/out)
-//#define TEST_ROOM
-
 
 Dungeon::Dungeon(Game& game, size_t roomsW, size_t roomsH) : game{ game }, roomsW { roomsW }, roomsH{ roomsH }
 {
@@ -315,69 +312,80 @@ void Dungeon::generate()
     // coordinates are row, column
     // second argument is the directions of the doors, starting at the right and going counter clockwise
 
-#ifdef TEST_ROOM
-    insertRoom(0, 0, Room{ game.loader.getTilemap("test_map_small"), 0b0000 }); // test dungeon
-#else
-    insertRoom(4, 1, Room{ game.loader.getTilemap("dungeon004"), 0b1100 });
-    insertRoom(4, 2, Room{ game.loader.getTilemap("dungeon001"), 0b1111 }); // starting room
-    insertRoom(4, 3, Room{ game.loader.getTilemap("dungeon_2skelets_1010"), 0b1010 });
-    insertRoom(4, 4, Room{ game.loader.getTilemap("dungeon005"), 0b0010 });
-    insertRoom(3, 0, Room{ game.loader.getTilemap("dungeon007"), 0b1000 });
-    insertRoom(3, 1, Room{ game.loader.getTilemap("dungeon003"), 0b1111 });
-    insertRoom(3, 2, Room{ game.loader.getTilemap("dungeon002"), 0b0011 });
-    insertRoom(2, 1, Room{ game.loader.getTilemap("dungeon006"), 0b0101 });
-    insertRoom(1, 1, Room{ game.loader.getTilemap("dungeon_hallway_1101"), 0b1101 });
-    insertRoom(1, 2, Room{ game.loader.getTilemap("dungeon_turrets_1010"), 0b1010 });
-    insertRoom(1, 3, Room{ game.loader.getTilemap("dungeon_spikes_1011"), 0b1011 });
-    insertRoom(0, 1, Room{ game.loader.getTilemap("dungeon_shop"), 0b0001 });
+    if (game.getSetting("testRoom")) {
+        insertRoom(0, 0, Room{ game.loader.getTilemap("test_map_small"), 0b0000 }); // test dungeon
+        insertRoom(0, 1, Room{ game.loader.getTilemap("test_map_small"), 0b0000 }); 
 
-#endif // TEST_ROOM
-
-#ifdef TEST_ROOM
-    setStartingRoomIndex(0); // TODO: testing
-#else 
-    setStartingRoomIndex(26); // start in R1
-    // TODO: testing item requirements
-    std::vector<std::tuple<std::string, std::string, std::vector<std::string>>> edges = {
-        { "dungeon001", "dungeon002", { "__impossible__" }}, // should only be opened from the top
-        { "dungeon002", "dungeon001", { "key" }},
-        { "dungeon003", "dungeon006", { "key" }},
-        { "dungeon004", "dungeon003", { "weapon_sword" }},
-        { "dungeon003", "dungeon007", { "item_lamp" }}, // TODO 
-        { "dungeon006", "dungeon_shop", { "weapon_sword" }}
-    };
-    std::unordered_set<std::string> itemNodes = { "dungeon002", "dungeon005", "dungeon007", "dungeon_shop"};
-
-    WorldGraph G = buildGraphFromDungeon("dungeon001", edges, itemNodes);
-    int attempts = 0;
-    const int max_attempts = 100;
-
-    do {
-        G.initialize_items({ "key", "key", "weapon_sword", "item_lamp"});
-        G.forward_fill();
-        attempts++;
-    } while (!G.item_pool.empty() && attempts < max_attempts);
-
-    if (!G.item_pool.empty()) {
-        throw std::runtime_error("Failed to place all items after 100 attempts");
+        setStartingRoomIndex(0);
     }
+    else {
+        // hard-coding the first dungeon
+        // TODO get this from JSON data
+        insertRoom(4, 1, Room{ game.loader.getTilemap("dungeon004"), 0b1100 });
+        insertRoom(4, 2, Room{ game.loader.getTilemap("dungeon001"), 0b1111 }); // starting room
+        insertRoom(4, 3, Room{ game.loader.getTilemap("dungeon_2skelets_1010"), 0b1010 });
+        insertRoom(4, 4, Room{ game.loader.getTilemap("dungeon005"), 0b0010 });
 
-    // put the items into the Tiled data
-    for (const auto& [name, node] : G.nodes) {
-        if (node->item.has_value()) {
-            TraceLog(LOG_INFO, "[%s] placed item: %s", name.c_str(), node->item->c_str());
-            TileMap& roomData = rooms[node->id]->tilemap;
-            std::vector<TileObject>& objects = roomData.getObjects();
-            for (auto& obj : objects) {
-                if (obj.name == "chest") {
-                    // put the item here
-                    obj.properties["item"] = node->item.value();
-                    obj.properties["amount"] = 1;
-                    break;  // break in case there are multiple chests (which shouldn't happen but whatever)
+        insertRoom(3, 0, Room{ game.loader.getTilemap("dungeon007"), 0b1000 });
+        insertRoom(3, 1, Room{ game.loader.getTilemap("dungeon003"), 0b1111 });
+        insertRoom(3, 2, Room{ game.loader.getTilemap("dungeon002"), 0b0011 });
+        insertRoom(3, 3, Room{ game.loader.getTilemap("dungeon_hallway_1100"), 0b1100 });
+
+        insertRoom(2, 1, Room{ game.loader.getTilemap("dungeon006"), 0b0101 });
+        insertRoom(2, 3, Room{ game.loader.getTilemap("dungeon_turrets_0101"), 0b0101 });
+
+        insertRoom(1, 1, Room{ game.loader.getTilemap("dungeon_hallway_1101"), 0b1101 });
+        insertRoom(1, 2, Room{ game.loader.getTilemap("dungeon_turrets_1010"), 0b1010 });
+        insertRoom(1, 3, Room{ game.loader.getTilemap("dungeon_spikes_1011"), 0b1011 });
+        insertRoom(1, 4, Room{ game.loader.getTilemap("dungeon_4skelets_1010"), 0b1010 });
+
+        insertRoom(0, 1, Room{ game.loader.getTilemap("dungeon_shop"), 0b0001 });
+
+        setStartingRoomIndex(26); // start in R1
+
+        // TODO: testing item requirements
+        std::vector<std::tuple<std::string, std::string, std::vector<std::string>>> edges = {
+            { "dungeon001", "dungeon002", { "__impossible__" }}, // should only be opened from the top
+            { "dungeon002", "dungeon001", { "key" }},
+            { "dungeon003", "dungeon006", { "key" }},
+            { "dungeon004", "dungeon003", { "weapon_sword" }},
+            { "dungeon006", "dungeon_shop", { "weapon_sword" }},
+            { "dungeon003", "dungeon007", { "item_lamp" }},
+            { "dungeon_turrets_0101", "dungeon_spikes_1011", { "item_lamp" }},
+            { "dungeon_turrets_0101", "dungeon_hallway_1100", { "weapon_bow" }},
+        };
+        std::unordered_set<std::string> itemNodes = { "dungeon002", "dungeon005", "dungeon007", "dungeon_shop", "dungeon_4skelets_1010" };  // shop has two chests (for now)
+
+        WorldGraph G = buildGraphFromDungeon("dungeon001", edges, itemNodes);
+        int attempts = 0;
+        const int max_attempts = 100;
+
+        do {
+            G.initialize_items({ "key", "key", "weapon_sword", "item_lamp", "weapon_bow" });
+            G.forward_fill();
+            attempts++;
+        } while (!G.item_pool.empty() && attempts < max_attempts);
+
+        if (!G.item_pool.empty()) {
+            throw std::runtime_error("Failed to place all items after 100 attempts");
+        }
+
+        // put the items into the Tiled data
+        for (const auto& [name, node] : G.nodes) {
+            if (node->item.has_value()) {
+                TraceLog(LOG_INFO, "[%s] placed item: %s", name.c_str(), node->item->c_str());
+                TileMap& roomData = rooms[node->id]->tilemap;
+                std::vector<TileObject>& objects = roomData.getObjects();
+                for (auto& obj : objects) {
+                    if (obj.name == "chest") {
+                        // put the item here
+                        obj.properties["item"] = node->item.value();
+                        obj.properties["amount"] = 1;
+                        break;  // break in case there are multiple chests (which shouldn't happen but whatever)
+                    }
                 }
             }
         }
+        G.log_debug();
     }
-    G.log_debug();
-#endif // TEST_ROOM
 }

@@ -14,8 +14,8 @@
             4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 4,
             4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 4,
             4, 5, 5, 5, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 4,
-            4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 5, 5, 5, 4,
-            4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 4,
+            5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 5, 5, 5, 5,
+            5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
             4, 5, 5, 5, 5, 5, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 4,
             4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 4,
             4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 4,
@@ -60,7 +60,7 @@
                         {
                          "name":"item",
                          "type":"string",
-                         "value":"item_lamp"
+                         "value":"weapon_bow"
                         }, 
                         {
                          "name":"roomState",
@@ -134,7 +134,7 @@
                         {
                          "name":"spriteName",
                          "type":"string",
-                         "value":"turret"
+                         "value":"big_demon_boss"
                         }],
                  "rotation":0,
                  "type":"sprite",
@@ -155,7 +155,7 @@
          "name":"static_collision",
          "objects":[
                 {
-                 "height":384,
+                 "height":176,
                  "id":27,
                  "name":"",
                  "rotation":0,
@@ -166,7 +166,7 @@
                  "y":0
                 }, 
                 {
-                 "height":384,
+                 "height":176,
                  "id":28,
                  "name":"",
                  "rotation":0,
@@ -197,6 +197,28 @@
                  "width":352,
                  "x":16,
                  "y":368
+                }, 
+                {
+                 "height":176,
+                 "id":40,
+                 "name":"",
+                 "rotation":0,
+                 "type":"wall",
+                 "visible":true,
+                 "width":16,
+                 "x":0,
+                 "y":208
+                }, 
+                {
+                 "height":176,
+                 "id":41,
+                 "name":"",
+                 "rotation":0,
+                 "type":"wall",
+                 "visible":true,
+                 "width":16,
+                 "x":368,
+                 "y":208
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -275,13 +297,13 @@
          "y":0
         }],
  "nextlayerid":6,
- "nextobjectid":40,
+ "nextobjectid":42,
  "orientation":"orthogonal",
  "properties":[
         {
          "name":"dark",
          "type":"bool",
-         "value":true
+         "value":false
         }],
  "renderorder":"right-down",
  "tiledversion":"1.11.2",

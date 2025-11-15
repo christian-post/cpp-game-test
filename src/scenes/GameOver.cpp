@@ -14,6 +14,9 @@ void GameOver::startup() {
             "Save and Try Again",
             [&]() {
                 game.stopScene(getName());
+                game.setOnSceneComplete("WriteSavegameMenu", [&game = game]() {
+                    game.restart(); // go to title screen after saving
+                });
                 game.startScene("WriteSavegameMenu");
             }
         },
