@@ -15,6 +15,11 @@ void MenuSelect::addItem(MenuItem item)
     menuItems.push_back(item);
 }
 
+void MenuSelect::updateItemText(size_t index, std::string txt)
+{
+    menuItems[index].displayName = txt;
+}
+
 void MenuSelect::restrictHeight(size_t h, size_t offset)
 {
     heightLimited = true;

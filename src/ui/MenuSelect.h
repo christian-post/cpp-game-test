@@ -24,10 +24,11 @@ struct MenuItem {
 class MenuSelect {
 public:
     // TODO: optimize memory management
-    void setItems(std::vector<MenuItem> items); // sets all MenuItems at once
-    void addItem(MenuItem item);
     void update();
     void draw();
+    void setItems(std::vector<MenuItem> items); // sets all MenuItems at once
+    void addItem(MenuItem item);
+    void updateItemText(size_t index, std::string txt); // just changes the text, TODO: do I also need to update the callback?
     const size_t getCurrentIndex() const { return menuIndex; }
     const MenuItem getCurrentItem() const { return menuItems[menuIndex]; }
     size_t getFontSize() const { return fontsize; }

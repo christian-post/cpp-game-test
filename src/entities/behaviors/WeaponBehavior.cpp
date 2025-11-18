@@ -117,7 +117,6 @@ void WeaponBehavior::update(float deltaTime) {
                 // Adjust position based on rotation to keep bow at player's hand
                 float offsetX = 0.0f;
                 float offsetY = 0.0f;
-
                 if (std::abs(aimDirection.x) > std::abs(aimDirection.y)) {
                     // Horizontal aim
                     if (aimDirection.x > 0.0f) {
@@ -143,14 +142,49 @@ void WeaponBehavior::update(float deltaTime) {
                         offsetY = -18.0f;
                     }
                 }
-
                 s->position.x = s->position.x + offsetX;
                 s->position.y = s->position.y + offsetY + o->z;
 
                 // Second press - fire the arrow
                 if (game.buttonsPressed & controlBindings[slot]) {
-                    Vector2 sCenter = GetRectCenter(s->rect);
-                    Rectangle sRect = { sCenter.x - 4.0f, sCenter.y - 3.0f, 8.0f, 2.0f };
+                    // Calculate projectile spawn position using same logic as draw()
+                    const auto& weaponTextures = s->frames[s->currentAnimState];
+                    float wpnTexHeight = weaponTextures.empty() ? s->rect.height : static_cast<float>(weaponTextures[s->currentFrame].height);
+
+                    // Calculate the rotation pivot (center-bottom of weapon texture)
+                    Vector2 rotationPivot = {
+                        s->position.x + s->rect.width / 2.0f + s->hitboxOffset.x,
+                        s->position.y + s->rect.height + s->hitboxOffset.y + o->z
+                    };
+
+                    // The visual center is offset from the pivot before rotation
+                    float localOffsetX = 0.0f;
+                    float localOffsetY = -wpnTexHeight / 2.0f;
+
+                    // Apply rotation to this offset
+                    float angleRad = s->rotationAngle * DEG2RAD;
+                    float rotatedOffsetX = localOffsetX * std::cos(angleRad) - localOffsetY * std::sin(angleRad);
+                    float rotatedOffsetY = localOffsetX * std::sin(angleRad) + localOffsetY * std::cos(angleRad);
+
+                    // Calculate the actual visual center after rotation
+                    Vector2 weaponVisualCenter = {
+                        rotationPivot.x + rotatedOffsetX,
+                        rotationPivot.y + rotatedOffsetY
+                    };
+
+                    // Place projectile along the aim direction from the visual center
+                    float arrowDistance = 8.0f;
+                    Vector2 projectileSpawnPos = {
+                        weaponVisualCenter.x + aimDirection.x * arrowDistance,
+                        weaponVisualCenter.y + aimDirection.y * arrowDistance
+                    };
+
+                    Rectangle sRect = {
+                        projectileSpawnPos.x - 4.0f,
+                        projectileSpawnPos.y - 3.0f,
+                        8.0f,
+                        2.0f
+                    };
                     auto projectile = game.createSprite(data.projectileKey, sRect);
                     projectile->setTextures({ data.projectileKey, data.projectileKey });
                     projectile->addBehavior(std::make_unique<ProjectileBehavior>(
@@ -162,7 +196,6 @@ void WeaponBehavior::update(float deltaTime) {
                     projectile->speed = 80.0f;
                     projectile->damage = data.damage;
                     projectile->rotationAngle = std::atan2(aimDirection.y, aimDirection.x) * RAD2DEG + 90.0f;
-
                     game.playSound(data.soundKey);
                     lifetime = 0.0f;
                     o->unlockAnimState();

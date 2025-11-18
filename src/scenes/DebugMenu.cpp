@@ -3,6 +3,10 @@
 #include "raylib.h"
 #include <functional>
 #include <string>
+#include <map>
+#include <any>
+#include <tuple>
+
 
 DebugMenu::DebugMenu(Game& game, const std::string& name) : Scene(game, name) {
     // initialize all menus
@@ -20,9 +24,8 @@ void DebugMenu::startup()
             // change to submenu
             activeMenu = 1;
         }
-    });
-    menus[0]->addItem({ "Unused", [&]() {
-            // change to submenu
+        });
+    menus[0]->addItem({ "Item Cheat", [&]() {
             activeMenu = 2;
         }
         });
@@ -39,7 +42,7 @@ void DebugMenu::startup()
         Room* room = game.currentDungeon->getRoomAt(i);
         if (room) {
             menus[1]->addItem({ std::to_string(i) + " : " + room->tilemap.getName(), [&, i]() {
-                    // TODO change to this room
+                    // change to this room
                     game.currentDungeon->setCurrentRoomIndex(i);
                     game.eventManager.pushEvent(RELOAD_ROOM);
                     game.eventManager.pushEvent(SELECT_MENU_DONE);
@@ -54,7 +57,16 @@ void DebugMenu::startup()
         }
         });
 
-    // submenu 2 (???)
+    // submenu 2 (adding items)
+    auto& itemData = game.inventory.getItemData();
+    for (const auto& [key, item] : itemData) {
+        uint32_t qty = game.inventory.getItemQuantity(key);
+        menus[2]->addItem({ key + " x " + std::to_string(qty), [this, key]() {
+            game.eventManager.pushEvent(ADD_ITEM, std::make_any<std::pair<std::string, uint32_t>>(key, 1));
+        }
+        });
+    }
+
     menus[2]->addItem({ "Back", [&]() {
             activeMenu = 0;
         }
@@ -64,6 +76,17 @@ void DebugMenu::startup()
 void DebugMenu::update(float deltaTime)
 {
     menus[activeMenu]->update();
+
+    // update the displayed item quantities
+    if (activeMenu == 2) {
+        auto& itemData = game.inventory.getItemData();
+        size_t index = 0;
+        for (const auto& [key, item] : itemData) {
+            uint32_t qty = game.inventory.getItemQuantity(key);
+            menus[2]->updateItemText(index, key + " x " + std::to_string(qty));
+            index++;
+        }
+    }
 }
 
 void DebugMenu::draw()
