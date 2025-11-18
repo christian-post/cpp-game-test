@@ -115,33 +115,6 @@
                  "width":16,
                  "x":96,
                  "y":64
-                }, 
-                {
-                 "height":16,
-                 "id":39,
-                 "name":"enemy",
-                 "properties":[
-                        {
-                         "name":"emitsLight",
-                         "type":"bool",
-                         "value":true
-                        }, 
-                        {
-                         "name":"roomState",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"spriteName",
-                         "type":"string",
-                         "value":"big_demon_boss"
-                        }],
-                 "rotation":0,
-                 "type":"sprite",
-                 "visible":true,
-                 "width":16,
-                 "x":188,
-                 "y":240
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -297,7 +270,7 @@
          "y":0
         }],
  "nextlayerid":6,
- "nextobjectid":42,
+ "nextobjectid":43,
  "orientation":"orthogonal",
  "properties":[
         {

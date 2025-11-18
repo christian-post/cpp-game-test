@@ -206,4 +206,35 @@ void setupConditionalEvents(InGame& inGame) {
                 });
         }
     );
+
+    game.eventManager.pushConditionalEvent(
+        // the player has defeated all the enemies in dungeon_fight_chest_0100
+        [&]() {
+            if (!inGame.tileMap)
+                return false;
+            return inGame.tileMap->getName() == "dungeon_fight_chest_0100" &&
+                game.currentDungeon->getCurrentRoomState() < 2 &&
+                std::none_of(game.sprites.begin(), game.sprites.end(),
+                    [](const std::shared_ptr<Sprite>& s) {
+                        return s->isEnemy;
+                    });
+        },
+        [&]() {
+            TraceLog(LOG_INFO, "enemies defeated");
+            game.eventManager.pushDelayedEvent(UNNAMED, 0.1f, nullptr, [&]() {
+                game.eventManager.pushEvent(HIDE_HUD);
+                game.cutsceneManager.queueCommand(new Command_CameraPan(game, 136.0f, 118.0f, 1.0f));
+                game.cutsceneManager.queueCommand(new Command_Wait(0.3f));
+                game.cutsceneManager.queueCommand(new Command_Callback([&]() {
+                    game.currentDungeon->advanceRoomState();
+                    game.eventManager.pushEvent(RELOAD_ROOM); // make the chest appear
+                    }));
+                game.cutsceneManager.queueCommand(new Command_Wait(0.5f));
+                game.cutsceneManager.queueCommand(new Command_Callback([&]() {
+                    game.eventManager.pushEvent(SHOW_HUD);
+                    game.cutsceneManager.setCameraControl(false);
+                    }));
+                });
+        }
+    );
 }

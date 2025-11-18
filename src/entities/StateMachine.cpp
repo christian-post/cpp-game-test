@@ -280,6 +280,11 @@ std::unique_ptr<StateMachine> StateMachine::createFromJSON(
                     }
                     else if (type == "timeInStateExceeds") {
                         float seconds = condData["seconds"];
+                        if (condData.contains("variance")) {
+                            float variance = condData["variance"];
+                            float randomOffset = ((float)rand() / RAND_MAX) * (2 * variance) - variance;
+                            seconds += randomOffset;
+                        }
                         transition.conditions.push_back(TransitionConditions::TimeInStateExceeds(seconds));
                     }
                     else if (type == "healthAbove") {

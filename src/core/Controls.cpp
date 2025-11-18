@@ -59,10 +59,11 @@ uint32_t GetControls(KeyCheckFunc keyFunc, GamepadCheckFunc gamepadFunc) {
     if (keyFunc(KEY_N)) controls |= CONTROL_ACTIONL;
     if (keyFunc(KEY_ENTER)) controls |= CONTROL_CONFIRM;
     if (keyFunc(KEY_BACKSPACE)) controls |= CONTROL_CANCEL;
-    if (keyFunc(KEY_F1)) controls |= CONTROL_DEBUG;
-    if (keyFunc(KEY_KP_1)) controls |= CONTROL_DEBUG_K1;
-    if (keyFunc(KEY_KP_2)) controls |= CONTROL_DEBUG_K2;
-    if (keyFunc(KEY_KP_3)) controls |= CONTROL_DEBUG_K3;
+    if (keyFunc(KEY_F1)) controls |= CONTROL_DEBUG; // toggle debug mode
+    if (keyFunc(KEY_F2)) controls |= CONTROL_DEBUG2; // enter debug menu
+    if (keyFunc(KEY_KP_1)) controls |= CONTROL_DEBUG_K1; // debug function
+    if (keyFunc(KEY_KP_2)) controls |= CONTROL_DEBUG_K2; // debug function
+    if (keyFunc(KEY_KP_3)) controls |= CONTROL_DEBUG_K3; // debug function
 
     if (IsGamepadAvailable(0)) {
         if (gamepadFunc(0, GAMEPAD_BUTTON_LEFT_FACE_UP)) controls |= CONTROL_UP;

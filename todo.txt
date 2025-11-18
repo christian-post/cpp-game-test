@@ -28,7 +28,6 @@ Scenes
 IMPORTANT:
 - load weapons.json data into weaponData structs in Preload
 
-
 NOT SO IMPORTANT:
 - add a "persistent" property to event listeners (non-persistent listeners are removed after one event)
 - Too much coupling between Game and Sprite?
@@ -57,4 +56,5 @@ NOT SO IMPORTANT:
 RELEASE CHECKLIST
 - turn on sounds and music
 - hand painted title image
+- consistent source code formatting (brackets!)
 - test xbox controller

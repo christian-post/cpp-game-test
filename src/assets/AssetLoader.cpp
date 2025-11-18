@@ -347,11 +347,10 @@ void AssetLoader::LoadSoundFile(const std::string& filename, const float volume,
     sounds[id] = sound;
 }
 
-void AssetLoader::LoadSavegameThumbnails(const std::string& filepath)
-{
+void AssetLoader::LoadSavegameThumbnails(const std::string& filepath) {
     for (auto& entry : fs::directory_iterator(filepath)) {
         if (entry.path().extension() == ".png") {
-            // TODO create a seperate map to avoid single-element vectors?
+            // TODO create a separate map to avoid single-element vectors?
             std::string key = entry.path().stem().string();
             Texture2D tex = LoadTexture(entry.path().string().c_str());
             textureGroups[key].emplace_back(tex);

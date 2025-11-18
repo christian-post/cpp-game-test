@@ -39,6 +39,7 @@ public:
     void setPosition(MenuPosition pos) { position = pos; }
     void restrictHeight(size_t h, size_t offset);
     MenuSelect(Game& game);
+    MenuSelect() = default;
 
 private:
     Game& game;
@@ -51,4 +52,5 @@ private:
     size_t yMargin = 20; // space between elements
     size_t xMargin = 40; // only used when aliged LEFT or RIGHT
     MenuPosition position = MenuPosition::CENTER;
+    
 };

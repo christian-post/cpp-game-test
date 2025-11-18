@@ -321,25 +321,28 @@ void Dungeon::generate()
     else {
         // hard-coding the first dungeon
         // TODO get this from JSON data
-        insertRoom(4, 1, Room{ game.loader.getTilemap("dungeon004"), 0b1100 });
-        insertRoom(4, 2, Room{ game.loader.getTilemap("dungeon001"), 0b1111 }); // starting room
-        insertRoom(4, 3, Room{ game.loader.getTilemap("dungeon_2skelets_1010"), 0b1010 });
-        insertRoom(4, 4, Room{ game.loader.getTilemap("dungeon005"), 0b0010 });
-
-        insertRoom(3, 0, Room{ game.loader.getTilemap("dungeon007"), 0b1000 });
-        insertRoom(3, 1, Room{ game.loader.getTilemap("dungeon003"), 0b1111 });
-        insertRoom(3, 2, Room{ game.loader.getTilemap("dungeon002"), 0b0011 });
-        insertRoom(3, 3, Room{ game.loader.getTilemap("dungeon_hallway_1100"), 0b1100 });
-
-        insertRoom(2, 1, Room{ game.loader.getTilemap("dungeon006"), 0b0101 });
-        insertRoom(2, 3, Room{ game.loader.getTilemap("dungeon_turrets_0101"), 0b0101 });
+        insertRoom(0, 1, Room{ game.loader.getTilemap("dungeon_shop"), 0b0001 });
 
         insertRoom(1, 1, Room{ game.loader.getTilemap("dungeon_hallway_1101"), 0b1101 });
         insertRoom(1, 2, Room{ game.loader.getTilemap("dungeon_turrets_1010"), 0b1010 });
         insertRoom(1, 3, Room{ game.loader.getTilemap("dungeon_spikes_1011"), 0b1011 });
         insertRoom(1, 4, Room{ game.loader.getTilemap("dungeon_4skelets_1010"), 0b1010 });
+        insertRoom(1, 5, Room{ game.loader.getTilemap("dungeon_before_boss_0110"), 0b0110 });
 
-        insertRoom(0, 1, Room{ game.loader.getTilemap("dungeon_shop"), 0b0001 });
+        insertRoom(2, 1, Room{ game.loader.getTilemap("dungeon006"), 0b0101 });
+        insertRoom(2, 3, Room{ game.loader.getTilemap("dungeon_turrets_0101"), 0b0101 });
+
+        insertRoom(3, 0, Room{ game.loader.getTilemap("dungeon007"), 0b1000 });
+        insertRoom(3, 1, Room{ game.loader.getTilemap("dungeon003"), 0b1111 });
+        insertRoom(3, 2, Room{ game.loader.getTilemap("dungeon002"), 0b0011 });
+        insertRoom(3, 3, Room{ game.loader.getTilemap("dungeon_hallway_1100"), 0b1100 });
+        insertRoom(3, 4, Room{ game.loader.getTilemap("dungeon_empty_1110"), 0b1110 });
+
+        insertRoom(4, 1, Room{ game.loader.getTilemap("dungeon004"), 0b1100 });
+        insertRoom(4, 2, Room{ game.loader.getTilemap("dungeon001"), 0b1111 }); // starting room
+        insertRoom(4, 3, Room{ game.loader.getTilemap("dungeon_2skelets_1010"), 0b1010 });
+        insertRoom(4, 4, Room{ game.loader.getTilemap("dungeon005"), 0b0010 });
+        insertRoom(4, 5, Room{ game.loader.getTilemap("dungeon_fight_chest_0100"), 0b0100 });
 
         setStartingRoomIndex(26); // start in R1
 

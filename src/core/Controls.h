@@ -19,7 +19,8 @@ enum Controls : uint32_t {
     CONTROL_DEBUG = 1 << 12,
     CONTROL_DEBUG_K1 = 1 << 13,
     CONTROL_DEBUG_K2 = 2 << 14,
-    CONTROL_DEBUG_K3 = 2 << 15
+    CONTROL_DEBUG_K3 = 2 << 15,
+    CONTROL_DEBUG2 = 2 << 16
 };
 
 // function that takes one of the other functions below and checks for each of the Controls

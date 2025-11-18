@@ -39,6 +39,7 @@ class WeaponBehavior : public Behavior {
 public:
     WeaponBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> owner, weaponData data, size_t slot);
     void update(float deltaTime) override;
+    void draw() override;
     void reset() override;
 
 private:
@@ -54,4 +55,6 @@ private:
     bool shaken = false;
     bool isNotched = false;
     direction notchedDirection = RIGHT;
+    Vector2 aimDirection = { 1.0f, 0.0f };
+    bool isInAimMode() const { return isNotched; } // for bows
 };

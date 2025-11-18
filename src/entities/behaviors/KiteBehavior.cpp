@@ -33,6 +33,46 @@ void KiteBehavior::update(float deltaTime) {
             s->acc = { 0.0f, 0.0f };
         }
 
+        // separation behavior between enemies 
+        // TODO this is duplicate code from ChaseBehavior, make a function?
+        for (auto& sprite : game.sprites) {
+            if (!sprite->isEnemy)
+                continue;
+
+            Vector2 sum = { 0, 0 };
+            int count = 0;
+            float desiredSeparation = sprite->rect.width / 2.0f;
+
+            for (auto& other : game.sprites) {
+                if (other != sprite && other->isEnemy) {
+                    float dx = sprite->position.x - other->position.x;
+                    float dy = sprite->position.y - other->position.y;
+                    float distSq = dx * dx + dy * dy;
+                    if (distSq < desiredSeparation * desiredSeparation) {
+                        float dist = std::sqrt(distSq);
+                        Vector2 diff = { dx / dist, dy / dist };
+                        float mag = 1.0f / dist;
+                        diff.x *= mag;
+                        diff.y *= mag;
+                        sum.x += diff.x;
+                        sum.y += diff.y;
+                        count++;
+                    }
+                }
+            }
+            if (count > 0) {
+                sum.x /= count;
+                sum.y /= count;
+
+                float mag = std::sqrt(sum.x * sum.x + sum.y * sum.y);
+                sum.x = sum.x / mag;
+                sum.y = sum.y / mag;
+
+                sprite->acc.x += (sum.x - sprite->acc.x);
+                sprite->acc.y += (sum.y - sprite->acc.y);
+            }
+        }
+
         if (desiredPos.x < selfCenter.x)
             s->lastDirection = LEFT;
         else

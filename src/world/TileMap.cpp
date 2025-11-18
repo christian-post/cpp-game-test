@@ -120,9 +120,8 @@ void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, 
         if (!spriteData.contains(spriteName)) {
             TraceLog(LOG_WARNING, "Missing sprite data for %s, falling back to sprite_default", spriteName.c_str());
         }
-        // store default data seperately to replace individual attributes
+        // store default data separately to replace individual attributes
         const auto& defaultData = spriteData.at("sprite_default");
-        //auto textureKeys = data.contains("textures") ? data.at("textures").get<std::vector<std::string>>() : defaultData.at("textures").get<std::vector<std::string>>();
         std::vector<std::string> textureKeys;
         if (data.contains("textures") && data.at("textures").is_array()) {
             for (const auto& item : data.at("textures")) {

@@ -64,6 +64,9 @@ private:
     void onActionButton3();
     void onInventoryButton();
     void onMenuButton();
+    void onDebugMenuButton();
     void onDebugButton1();
     void handlePlayerInput(float deltaTime);
+
+    bool playerMovementLocked = false; // arrow keys won't move the player
 };

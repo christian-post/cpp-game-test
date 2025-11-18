@@ -27,7 +27,7 @@ void InGame::startup() {
     player->emitsLight = true; // TODO: for debugging, until I program the lamp item
 
     // check for existing loaded savegame data here
-    // TODO put this in seperate function for less spaghetti
+    // TODO put this in separate function for less spaghetti
     auto saveData = game.getSaveData();
     if (saveData) {
         loadWorldFromSave(saveData);
@@ -87,6 +87,18 @@ void InGame::setupEventListeners() {
     game.eventManager.addListener(LAMP_OFF, [this](const std::any& data) {
         lampIsOn = false;
         });
+
+    game.eventManager.addListener(LOCK_PLAYER_MOVEMENT, [this](const std::any&) {
+        playerMovementLocked = true;
+        });
+
+    game.eventManager.addListener(UNLOCK_PLAYER_MOVEMENT, [this](const std::any&) {
+        playerMovementLocked = false;
+        });
+
+    game.eventManager.addListener(RELOAD_ROOM, [this](const std::any&) {
+        loadTilemap();
+        });
 }
 
 void InGame::handleDeadSprites()
@@ -128,6 +140,7 @@ void InGame::setupInputCallbacks() {
     buttonCallbacks[CONTROL_CONFIRM] = [this]() { onInventoryButton(); };
     buttonCallbacks[CONTROL_CANCEL] = [this]() { onMenuButton(); };
     // debug stuff
+    buttonCallbacks[CONTROL_DEBUG2] = [this]() { onDebugMenuButton(); };
     buttonCallbacks[CONTROL_DEBUG_K1] = [this]() { onDebugButton1(); };
 }
 
@@ -178,6 +191,17 @@ void InGame::onMenuButton()
     game.eventManager.pushEvent(SET_MUSIC_VOLUME, 0.3f);
 }
 
+void InGame::onDebugMenuButton()
+{
+    game.pauseScene(this->getName());
+    game.sleepScene("HUD");
+    game.startScene("DebugMenu");
+    game.eventManager.addListener(SELECT_MENU_DONE, [this](std::any) {
+        this->game.resumeScene(this->getName());
+        game.wakeScene("HUD");
+        });
+}
+
 void InGame::onDebugButton1()
 {
     if (!game.debug)
@@ -201,8 +225,10 @@ void InGame::handlePlayerInput(float deltaTime)
             callback();
         }
     }
-    // direct player sprite steering
-    player->getControls();
+
+    // Don't allow movement if player is locked
+    if (!playerMovementLocked)
+        player->getControls();
 }
 
 void InGame::loadWorldFromSave(std::shared_ptr<SaveGame> save)

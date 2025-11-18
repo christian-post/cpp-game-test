@@ -24,7 +24,7 @@ void ChaseBehavior::update(float deltaTime) {
             s->acc.y = dy / dist;
         }
     }
-    // seperation behavior between enemies
+    // separation behavior between enemies
     for (auto& sprite : game.sprites) {
         if (!sprite->isEnemy)
             continue;

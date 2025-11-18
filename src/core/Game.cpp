@@ -4,6 +4,7 @@
 #include "TitleScreen.h"
 #include "StartMenu.h"
 #include "SoundTest.h"
+#include "DebugMenu.h"
 #include "SelectMenu.h"
 #include "LoadSavegameMenu.h"
 #include "WriteSavegameMenu.h"
@@ -46,12 +47,16 @@ Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this) {
     registerScene<LoadSavegameMenu>("LoadSavegameMenu", 0);
     registerScene<WriteSavegameMenu>("WriteSavegameMenu", 1);
     registerScene<SoundTest>("SoundTest", 0);
+    registerScene<DebugMenu>("DebugMenu", 2);
     registerScene<SelectMenu>("SelectMenu", 0);
     registerScene<InGame>("InGame", 0);
     registerScene<HUD>("HUD", 1);
     registerScene<InventoryUI>("InventoryUI", 2);
     registerScene<MapUI>("MapUI", 2);
     registerScene<GameOver>("GameOver", 2);
+
+    // seed the rng
+    srand(time(nullptr));
 }
 
 const nlohmann::json& Game::getSetting(const std::string& key) const {
@@ -258,7 +263,7 @@ void Game::processMarkedSprites() {
         }), sprites.end());
 
     // add any new sprites to the vector
-    // TODO: just doing this here, no need for a seperate function I guess
+    // TODO: just doing this here, no need for a separate function I guess
     for (auto& s : spritesToAdd) {
         sprites.push_back(s);
     }

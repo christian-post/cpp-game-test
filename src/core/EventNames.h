@@ -21,6 +21,7 @@ enum EventName {
     HIDE_HELP_TEXT,
     MOVE_CAMERA,
     TELEPORT,
+    RELOAD_ROOM,
     SET_MUSIC_VOLUME,
     SCREEN_SHAKE,  // data: tuple[duration, xMag, yMag]
     KILL_WEAPON,
@@ -29,6 +30,8 @@ enum EventName {
     LOADING_SAVEGAME_SUCCESS,
     LAMP_ON,
     LAMP_OFF,
+    LOCK_PLAYER_MOVEMENT,
+    UNLOCK_PLAYER_MOVEMENT,
     UNNAMED, // used whenever no name is needed (delayed or repeated events that have no listeners)
     STATIC_EVENT_COUNT // needs to be at the last position
 };
