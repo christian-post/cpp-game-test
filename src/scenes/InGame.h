@@ -66,7 +66,9 @@ private:
     void onMenuButton();
     void onDebugMenuButton();
     void onDebugButton1();
+    void onDebugButton3();
     void handlePlayerInput(float deltaTime);
 
     bool playerMovementLocked = false; // arrow keys won't move the player
+    bool cameraHasBounds = true;  // only for debugging
 };

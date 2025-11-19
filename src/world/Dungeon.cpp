@@ -322,6 +322,7 @@ void Dungeon::generate()
         // hard-coding the first dungeon
         // TODO get this from JSON data
         insertRoom(0, 1, Room{ game.loader.getTilemap("dungeon_shop"), 0b0001 });
+        insertRoom(0, 5, Room{ game.loader.getTilemap("dungeon_final_boss_0001"), 0b0001 });
 
         insertRoom(1, 1, Room{ game.loader.getTilemap("dungeon_hallway_1101"), 0b1101 });
         insertRoom(1, 2, Room{ game.loader.getTilemap("dungeon_turrets_1010"), 0b1010 });
@@ -331,12 +332,15 @@ void Dungeon::generate()
 
         insertRoom(2, 1, Room{ game.loader.getTilemap("dungeon006"), 0b0101 });
         insertRoom(2, 3, Room{ game.loader.getTilemap("dungeon_turrets_0101"), 0b0101 });
+        insertRoom(2, 4, Room{ game.loader.getTilemap("dungeon_empty_1101"), 0b1101 });
+        insertRoom(2, 5, Room{ game.loader.getTilemap("dungeon_chest_0010"), 0b0010 });
 
         insertRoom(3, 0, Room{ game.loader.getTilemap("dungeon007"), 0b1000 });
         insertRoom(3, 1, Room{ game.loader.getTilemap("dungeon003"), 0b1111 });
         insertRoom(3, 2, Room{ game.loader.getTilemap("dungeon002"), 0b0011 });
         insertRoom(3, 3, Room{ game.loader.getTilemap("dungeon_hallway_1100"), 0b1100 });
         insertRoom(3, 4, Room{ game.loader.getTilemap("dungeon_empty_1110"), 0b1110 });
+        insertRoom(3, 5, Room{ game.loader.getTilemap("dungeon_fight_0011"), 0b0011 });
 
         insertRoom(4, 1, Room{ game.loader.getTilemap("dungeon004"), 0b1100 });
         insertRoom(4, 2, Room{ game.loader.getTilemap("dungeon001"), 0b1111 }); // starting room
@@ -351,20 +355,21 @@ void Dungeon::generate()
             { "dungeon001", "dungeon002", { "__impossible__" }}, // should only be opened from the top
             { "dungeon002", "dungeon001", { "key" }},
             { "dungeon003", "dungeon006", { "key" }},
+            { "dungeon_before_boss_0110", "dungeon_final_boss_0001", { "key" }},
             { "dungeon004", "dungeon003", { "weapon_sword" }},
             { "dungeon006", "dungeon_shop", { "weapon_sword" }},
             { "dungeon003", "dungeon007", { "item_lamp" }},
             { "dungeon_turrets_0101", "dungeon_spikes_1011", { "item_lamp" }},
             { "dungeon_turrets_0101", "dungeon_hallway_1100", { "weapon_bow" }},
         };
-        std::unordered_set<std::string> itemNodes = { "dungeon002", "dungeon005", "dungeon007", "dungeon_shop", "dungeon_4skelets_1010" };  // shop has two chests (for now)
+        std::unordered_set<std::string> itemNodes = { "dungeon002", "dungeon005", "dungeon007", "dungeon_shop", "dungeon_4skelets_1010", "dungeon_chest_0010", "dungeon_fight_chest_0100"};  // TODO shop has two chests (for now)
 
         WorldGraph G = buildGraphFromDungeon("dungeon001", edges, itemNodes);
         int attempts = 0;
         const int max_attempts = 100;
 
         do {
-            G.initialize_items({ "key", "key", "weapon_sword", "item_lamp", "weapon_bow" });
+            G.initialize_items({ "key", "key", "key", "weapon_sword", "item_lamp", "weapon_bow" });
             G.forward_fill();
             attempts++;
         } while (!G.item_pool.empty() && attempts < max_attempts);

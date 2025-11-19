@@ -227,7 +227,11 @@ void Preload::startup() {
         l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_4skelets_1010.json");
         l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_before_boss_0110.json");
         l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_empty_1110.json");
+        l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_empty_1101.json");
+        l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_chest_0010.json");
+        l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_fight_0011.json");
         l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_fight_chest_0100.json");
+        l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_final_boss_0001.json");
         });
     // load the font
     loadQueue.emplace("Loading fonts", [&]() {

@@ -237,4 +237,53 @@ void setupConditionalEvents(InGame& inGame) {
                 });
         }
     );
+
+    game.eventManager.pushConditionalEvent(
+        // the player has defeated the final boss
+        [&]() {
+            if (!inGame.tileMap)
+                return false;
+            return inGame.tileMap->getName() == "dungeon_final_boss_0001" &&
+                game.currentDungeon->getCurrentRoomState() < 4 &&
+                std::none_of(game.sprites.begin(), game.sprites.end(),
+                    [](const std::shared_ptr<Sprite>& s) {
+                        return s->isEnemy;
+                    });
+        },
+        [&]() {
+            TraceLog(LOG_INFO, "enemies defeated");
+            game.eventManager.pushDelayedEvent(UNNAMED, 0.1f, nullptr, [&]() {
+                game.eventManager.pushEvent(HIDE_HUD);
+                game.cutsceneManager.queueCommand(new Command_CameraPan(game, 110.0f, 242.0f, 1.0f));
+                game.cutsceneManager.queueCommand(new Command_Wait(0.3f));
+                game.cutsceneManager.queueCommand(new Command_Callback([&]() {
+                    int eventKey = EventKeyRegistry::getEventKey("doorFinalBossOpen");
+                    game.eventManager.pushEvent(eventKey);
+                    game.playSound("doorOpen_2");
+                    }));
+                game.cutsceneManager.queueCommand(new Command_Wait(1.5f));
+
+                if (!(game.spriteMap.find("elfCompanion2") == game.spriteMap.end())) {
+                    Sprite& npcRef = *game.spriteMap["elfCompanion2"];
+                    Vector2 playerPos = game.getPlayer()->position;
+                    game.cutsceneManager.queueCommand(new Command_CameraPan(game, playerPos.x, playerPos.y, 0.5f));
+                    game.cutsceneManager.queueCommand(new Command_MoveTo(npcRef, playerPos.x - 16.0f, playerPos.y, 0.5f));
+                    game.cutsceneManager.queueCommand(new Command_LookTowards(npcRef, *game.getPlayer()));
+                    game.cutsceneManager.queueCommand(new Command_LookTowards(*game.getPlayer(), npcRef));
+                    game.cutsceneManager.queueCommand(new Command_Wait(0.5f));
+                    std::string textKey = "elfDialogue4";
+                    std::vector<std::string> texts = game.loader.getText(textKey);
+                    game.cutsceneManager.queueCommand(new Command_Textbox(game, texts[0], "powerUp4", true)); // TODO pass the key to texts.json directly instead of the actual dialogue string... 
+                }
+
+                game.cutsceneManager.queueCommand(new Command_Callback([&]() {
+                    game.eventManager.pushEvent(SHOW_HUD);
+                    game.cutsceneManager.setCameraControl(false);
+                    // TODO state 2 closes the door
+                    game.currentDungeon->advanceRoomState();
+                    game.currentDungeon->advanceRoomState();
+                    }));
+                });
+        }
+    );
 }

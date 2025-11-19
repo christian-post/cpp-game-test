@@ -134,7 +134,7 @@ void InGame::handleDeadSprites()
 }
 
 void InGame::setupInputCallbacks() {
-    // Assign callbacks to specific buttons
+    // Bind callbacks to specific buttons
     buttonCallbacks[CONTROL_ACTION2] = [this]() { onActionButton2(); };
     buttonCallbacks[CONTROL_ACTION3] = [this]() { onActionButton3(); };
     buttonCallbacks[CONTROL_CONFIRM] = [this]() { onInventoryButton(); };
@@ -142,6 +142,7 @@ void InGame::setupInputCallbacks() {
     // debug stuff
     buttonCallbacks[CONTROL_DEBUG2] = [this]() { onDebugMenuButton(); };
     buttonCallbacks[CONTROL_DEBUG_K1] = [this]() { onDebugButton1(); };
+    buttonCallbacks[CONTROL_DEBUG_K3] = [this]() { onDebugButton3(); };
 }
 
 void InGame::onActionButton2()
@@ -213,6 +214,16 @@ void InGame::onDebugButton1()
     game.eventManager.pushDelayedEvent(UNNAMED, 0.0f, nullptr, [&]() {
         loadTilemap();
         });
+}
+
+void InGame::onDebugButton3()
+{
+    if (!game.debug)
+        return;
+    cameraHasBounds = !cameraHasBounds;
+    player->isColliding = !player->isColliding;
+    TraceLog(LOG_INFO, "Toggled camera bounds, %d", cameraHasBounds);
+    TraceLog(LOG_INFO, "Toggled no clip, %d", player->isColliding);
 }
 
 void InGame::handlePlayerInput(float deltaTime)
@@ -368,6 +379,7 @@ void InGame::loadTilemap() {
     tileMap = game.currentDungeon->loadCurrentTileMap();
     // remove static and dynamic (non-persistent) sprites
     game.walls.clear();
+    game.emitters.clear();
     game.clearSprites();
     // check if there even is a valid tile map
     if (!tileMap)
@@ -455,11 +467,11 @@ void InGame::update(float deltaTime) {
             currentLightIndex++;
         }
     }
-    // collision of sprites with static objects (walls)
-    // TODO: make this a method of Sprite?
-    // 
-    // resolve collision in the X direction
     for (const auto& sprite : game.sprites) {
+        // collision of sprites with static objects (walls)
+        // TODO: make this a method of Sprite?
+        // 
+        // resolve collision in the X direction
         sprite->rect.x = sprite->position.x;
         for (const auto& wall : game.walls) {
             resolveAxisX(sprite, wall->getRect());
@@ -554,13 +566,20 @@ void InGame::update(float deltaTime) {
     );
 
     // check if the player is outside of the map bounds
-    checkRoomTransition();
+    if (player->isColliding)
+        checkRoomTransition();
 
     // update the camera controller to follow the player
-    cameraController.setWorldBounds(
-        tilemapRenderer.getWorldWidth() * tilemapRenderer.getTileSize(),
-        tilemapRenderer.getWorldHeight() * tilemapRenderer.getTileSize()
-    );
+    if (cameraHasBounds) {
+        cameraController.setWorldBounds(
+            tilemapRenderer.getWorldWidth() * tilemapRenderer.getTileSize(),
+            tilemapRenderer.getWorldHeight() * tilemapRenderer.getTileSize()
+        );
+    }
+    else {
+        // only used in debugging
+        cameraController.setWorldBounds(-1.0f, -1.0f);
+    }
     cameraController.update(deltaTime);
 
     // player dies, GameOver scene starts

@@ -27,6 +27,8 @@ Scenes
 
 IMPORTANT:
 - load weapons.json data into weaponData structs in Preload
+- dialogue after final boss is broken
+- emitters appear in the top left corner
 
 NOT SO IMPORTANT:
 - add a "persistent" property to event listeners (non-persistent listeners are removed after one event)
@@ -38,15 +40,15 @@ NOT SO IMPORTANT:
 - Weapon hurtbox should appear only a fraction of the weapon's lifetime (TODO test this)
 - repeated events that go infinite
 - Error check for a wrong emitter texture key
-- Give Particle and Emitter a .fromData() function to avoid hard-coding 
 - Sprite.jump() method: add argument "jumpHeight" that roughly corresponds to the number of pixels
 - talking to an NPC should have the least priority when pressing the "interact" button and two or more interactibles are within reach
 - don't show the "<<" and ">>" help texts in the menu if there is no next screen to that side
-- add xbox button textures to the menu when using a gamepad
+- add xbox button textures to the inventory/menus when using a gamepad
 - check for hard-coded display texts in code and move them to texts.json
 - give the Signpost some collision
 - add a light cone to items that come from chests (if in a dark room) (or maybe draw them over the darkness layer?)
 - make Game.getPlayer() obsolete
+- give enemies certain weapon weaknesses
 
 
 ### OTHER BUGS:

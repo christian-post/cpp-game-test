@@ -109,25 +109,31 @@ A preview version for Windows x64 can be found under [Releases](https://github.c
 You can use the keyboard or a gamepad (I tested with an XBOX Controller). 
 Here is the default button layout: 
 
+| Action             | Keyboard Keys    | Xbox Controller Button          | Function                        |
+|--------------------|------------------|---------------------------------|---------------------------------|
+| Move Up            | ↑ or W           | D-Pad Up                        | move player/menu cursor         |
+| Move Down          | ↓ or S           | D-Pad Down                      | move player/menu cursor         |
+| Move Left          | ← or A           | D-Pad Left                      | move player/menu cursor         |
+| Move Right         | → or D           | D-Pad Right                     | move player/menu cursor         |
+| Action 1           | O                | A	                              | select item<br>advance text     |
+| Action 2           | P                | Y	                              | use weapon 2                    |
+| Action 3           | K                | X                               | use weapon 1                    |
+| Action 4           | L                | B	                              | unused                          |
+| Confirm            | Enter            | Start                           | open/close inventory            |
+| Cancel             | Backspace        | Back                            | game menu                       |
+| Toggle Fullscreen  | F4               | —                               | switches to fullscreen and back |
+| Restart Game       | F5               | —                               | restart and go back to title    |
+|                    |                  |                                 |                                 |
+
+Debug Functions (won't be in the final game) - only available in debug mode 
+
 | Action        | Keyboard Keys    | Xbox Controller Button          | Function                    |
 |---------------|------------------|---------------------------------|---------------------------- |
-| Move Up       | ↑ or W           | Left Stick Up or D-Pad Up       | move player/cursor          |
-| Move Down     | ↓ or S           | Left Stick Down or D-Pad Down   | move player/cursor          |
-| Move Left     | ← or A           | Left Stick Left or D-Pad Left   | move player/cursor          |
-| Move Right    | → or D           | Left Stick Right or D-Pad Right | move player/cursor          |
-| Action 1      | O                | A					             | select item<br>advance text |
-| Action 2      | P                | Y								 | use weapon 2                |
-| Action 3      | K                | X								 | use weapon 1                |
-| Action 4      | L                | B								 | unused                      |
-| Confirm       | Enter            | Start							 | open/close inventory        |
-| Cancel        | Backspace        | Back							 | ---                         |
-| Restart Game  | F5               | —                               | restart and go back to title|
 | Debug Mode    | F1               | —                               | toggle debug overlay        |
 | Debug Menu    | F2               | —                               | open debug menu             |
-| Debug Functions (won't be in the final game) - only available in debug mode
 | Debug 1       | Keypad 1         | —                               | teleport to next room       |
 | Debug 2       | Keypad 2         | —                               | Toggle sound on/off         |
-| Debug 3       | Keypad 3         | —                               | unused                      |
+| Debug 3       | Keypad 3         | —                               | activate noclip mode        |
 
 
 

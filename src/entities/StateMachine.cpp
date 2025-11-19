@@ -230,6 +230,7 @@ std::unique_ptr<StateMachine> StateMachine::createFromJSON(
                 if (behavior) {
                     // Create unique key: "stateName_behaviorType"
                     std::string uniqueKey = stateName + "_" + behaviorKeyStr;
+                    behavior->onDeactivate(); // make sure all behaviors start inactive, if needed
                     stateMachine->addBehavior(uniqueKey, std::move(behavior));
                     state->activeBehaviorKeys.push_back(uniqueKey);
                 }

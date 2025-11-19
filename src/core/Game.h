@@ -34,6 +34,9 @@ public:
     // in-game resolution (stays constant, gets scaled up to window size)
     uint32_t gameScreenWidth = 256;
     uint32_t gameScreenHeight = 192;
+    bool isFullscreen = false;  // start in windowed mode, TODO put this in settings.json
+    int lastWindowX = 0;
+    int lastWindowY = 0; // store the position in windowed mode to return to after fullscreen
 
     RenderTexture2D target; // texture surface for the ingame graphics
 
@@ -151,4 +154,5 @@ private:
     std::unordered_map<std::string, SceneCallback> sceneCallbacks; // temporarily hold scene completion callbacks for scenes that haven't been started yet
     std::vector<std::shared_ptr<Sprite>> spritesToAdd; // stores the sprites that are later added to the actual sprites vector (prevents changing the vector during the update loop)
     std::shared_ptr<SaveGame> savegame = nullptr; // store save data
+    void toggleFullscreen();
 };

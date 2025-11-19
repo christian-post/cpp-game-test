@@ -27,8 +27,11 @@ Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this) {
     SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT);
     InitWindow(getSetting("windowWidth"), getSetting("windowHeight"), "My first game");
     SetWindowMinSize(320, 240);
-    InitAudioDevice();
+    auto [x, y] = GetWindowPosition();
+    lastWindowX = static_cast<int>(x);
+    lastWindowY = static_cast<int>(y);
 
+    InitAudioDevice();
     soundOn = getSetting("soundOn");
 
     // Render texture initialization, used to hold the rendering result so we can easily resize it
@@ -106,6 +109,27 @@ void Game::setSceneState(const std::string& name, bool active, bool paused) {
         scenes[name]->setActive(active);
         scenes[name]->setPaused(paused);
     }
+}
+
+void Game::toggleFullscreen()
+{
+    if (isFullscreen) {
+        SetWindowSize(getSetting("windowWidth"), getSetting("windowHeight"));
+        // restore the old position 
+        SetWindowPosition(lastWindowX, lastWindowY);
+    }
+    else {
+        // some manual adjustment is needed here because raylib doesn't handle changing aspect ratios well
+        int width = GetMonitorWidth(0);
+        int height = GetMonitorHeight(0);
+        SetWindowSize(width, height);
+        // store the window pos
+        auto [x, y] = GetWindowPosition();
+        lastWindowX = static_cast<int>(x);
+        lastWindowY = static_cast<int>(y);
+    }
+    isFullscreen = !isFullscreen;
+    ToggleFullscreen();
 }
 
 void Game::sleepScene(const std::string& name) { setSceneState(name, false, false); }
@@ -444,10 +468,18 @@ void Game::run() {
         playMusic();
         draw();
 
-        // restarting the game TODO: just for faster debugging
+        // toggle fullscreen
+        if (IsKeyPressed(KEY_F4)) {
+            toggleFullscreen();
+        }
+
+        // restart the game 
+        // TODO: this is just for faster debugging
         if (IsKeyPressed(KEY_F5)) {
             restart();
         }
+
+        // safely clean up sprites and scenes after the other logic is done
         processMarkedSprites();
         processMarkedScenes();
     }
