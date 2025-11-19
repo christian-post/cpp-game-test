@@ -27,8 +27,8 @@ Scenes
 
 IMPORTANT:
 - load weapons.json data into weaponData structs in Preload
-- dialogue after final boss is broken
-- emitters appear in the top left corner
+- Make a seperate collision for pitfalls that allow projectiles to fly over
+- why are the WorldBounds functions in Game.h?
 
 NOT SO IMPORTANT:
 - add a "persistent" property to event listeners (non-persistent listeners are removed after one event)

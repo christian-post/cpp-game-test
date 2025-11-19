@@ -1,5 +1,5 @@
 {
-  "testRoom": true,
+  "testRoom": false,
   "windowWidth": 1152,
   "windowHeight": 864,
   "gameScreenWidth": 256,

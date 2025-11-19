@@ -2,7 +2,7 @@
     <img width="600" src="github/title_big.png">
 </p>
 
-![Demo](github/hero.gif)
+![Demo](github/dungeon_crusader_trailer2.gif)
 
 ## Download
 
