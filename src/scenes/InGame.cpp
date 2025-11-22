@@ -64,12 +64,13 @@ void InGame::setupEventListeners() {
         });
 
     game.eventManager.addListener(WEAPON_SET, [this](const std::any& data) {
+        // assign a weapon to one of two buttons
         if (data.has_value()) {
             auto [weapon, index] = std::any_cast<std::pair<std::string, size_t>>(data);
             if (index < currentWeapon.size()) {
-                currentWeapon[index] = weapon.empty() ? std::nullopt : std::optional<std::string>{ weapon };
+                currentWeapon[index] = weapon.empty() ? std::nullopt : std::make_optional(std::make_pair(weapon, false));
                 size_t otherIdx = (index + 1) % 2;
-                if (currentWeapon[otherIdx] == weapon) {
+                if (currentWeapon[otherIdx].has_value() && currentWeapon[otherIdx]->first == weapon) {
                     currentWeapon[otherIdx] = std::nullopt;
                 }
             }
@@ -148,11 +149,12 @@ void InGame::setupInputCallbacks() {
 void InGame::onActionButton2()
 {
     // primary weapon
-    if (currentWeapon[0] && !getSprite(*currentWeapon[0])) {
+    if (currentWeapon[0] && !getSprite(currentWeapon[0]->first)) {
         // spawn the weapon next to the player if not already there
         // This needs to be inside of a delayed event because of the quirks of the button polling...
         game.eventManager.pushDelayedEvent(UNNAMED, 0.0f, nullptr, [&]() {
             spawnWeapon(0);
+            currentWeapon[0]->second = true; // weapon active
             });
     }
 }
@@ -160,9 +162,10 @@ void InGame::onActionButton2()
 void InGame::onActionButton3()
 {
     // secondary weapon
-    if (currentWeapon[1] && !getSprite(*currentWeapon[1])) {
+    if (currentWeapon[1] && !getSprite(currentWeapon[1]->first)) {
         game.eventManager.pushDelayedEvent(UNNAMED, 0.0f, nullptr, [&]() {
             spawnWeapon(1);
+            currentWeapon[1]->second = true;
             });
     }
 }
@@ -301,7 +304,7 @@ void InGame::spawnWeapon(size_t index)
         return;
     }
 
-    std::string weaponKey = *currentWeapon[index];
+    std::string weaponKey = currentWeapon[index]->first;
 
     // Get pre-built item data
     auto& itemData = game.inventory.getItemData();
@@ -323,7 +326,6 @@ void InGame::spawnWeapon(size_t index)
     wpn->setTextures({ weaponKey });
     wpn->setHurtbox(-1.0f, -1.0f, wpnData.HurtboxWidth, wpnData.HurtboxHeight);
     wpn->hurtboxOffset = { wpnData.HurtboxOffsetX, wpnData.HurtboxOffsetY };
-    wpn->doesAnimate = false;
     wpn->isColliding = false;
     wpn->damage = wpnData.damage;
 
@@ -332,8 +334,9 @@ void InGame::spawnWeapon(size_t index)
     // create a listener for when the weapon is finished
     int eventKey = EventKeyRegistry::getIndexedEventKey(KILL_WEAPON, index);
     game.eventManager.addListener(eventKey, [this, wpn, index, eventKey](std::any data) {
-        game.spriteMap.erase(*currentWeapon[index]);
+        game.spriteMap.erase(currentWeapon[index]->first);
         wpn->markForDeletion();
+        currentWeapon[index]->second = false;
         game.eventManager.pushDelayedEvent(UNNAMED, 0.0f, nullptr, [this, eventKey]() {
             game.eventManager.removeListeners(eventKey);
             });
@@ -422,6 +425,12 @@ void InGame::loadTilemap() {
             sprite->moveTo(player->position.x, player->position.y);
         }
     }
+    // TODO check if the player holds a weapon
+    for (size_t wpnIdx = 0; wpnIdx < 2; wpnIdx++) {
+        if (currentWeapon[wpnIdx].has_value() && currentWeapon[wpnIdx]->second == true) {
+            spawnWeapon(wpnIdx);
+        }
+    }
 }
 
 
@@ -447,7 +456,7 @@ void InGame::update(float deltaTime) {
     size_t currentLightIndex = 0;
     // draw a much bigger radius if the lamp is equipped
     // TODO: put these in the config
-    const float lightRadius = (lampIsOn) ? 180.0f : 24.0f;
+    //const float lightRadius = (lampIsOn) ? 180.0f : 24.0f;
 
     for (int i = 0; i < MAX_LIGHTS; i++) {
         lights[i].active = false;
@@ -462,7 +471,15 @@ void InGame::update(float deltaTime) {
         if (game.currentDungeon->isRoomDark() && sprite->emitsLight && currentLightIndex < MAX_LIGHTS) {
             lights[currentLightIndex].center = GetWorldToScreen2D(GetRectCenter(sprite->rect), cameraController.getCamera());
             lights[currentLightIndex].center.y += sprite->z; // apply jump height
-            lights[currentLightIndex].radius = lightRadius; // TODO
+            if (lampIsOn) {
+                if (sprite == player)
+                    lights[currentLightIndex].radius = 200.0f; // TODO get values from settings
+                else
+                    lights[currentLightIndex].radius = 0.0f;
+            }
+            else {
+                lights[currentLightIndex].radius = 24.0f;
+            }
             lights[currentLightIndex].active = true;
             currentLightIndex++;
         }
@@ -535,7 +552,7 @@ void InGame::update(float deltaTime) {
         // weapon damage (TODO obsolete with projectile damage?)
         for (size_t wpnIdx = 0; wpnIdx < 2; wpnIdx++) {
             if (sprite->isEnemy && currentWeapon[wpnIdx].has_value()) {
-                Sprite* weapon = getSprite(*currentWeapon[wpnIdx]);
+                Sprite* weapon = getSprite(currentWeapon[wpnIdx]->first);
                 if (weapon && sprite->iFrameTimer < 0.001f && sprite->health > 0 &&
                     CheckCollisionRecs(weapon->hurtbox, sprite->rect)) {
                     sprite->health = (weapon->damage > sprite->health) ? 0 : sprite->health - weapon->damage;

@@ -109,6 +109,7 @@ public:
     void createDungeon(size_t roomsW, size_t roomsH);
 
     // World bounds (set by InGame when loading tilemap)
+    // TODO these need to be here (and not in CameraController.h) because behaviors need to have access to this information 
     float worldWidth = 0.0f;
     float worldHeight = 0.0f;
 

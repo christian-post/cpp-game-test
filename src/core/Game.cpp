@@ -114,9 +114,11 @@ void Game::setSceneState(const std::string& name, bool active, bool paused) {
 void Game::toggleFullscreen()
 {
     if (isFullscreen) {
+        // go back to windowed mode
         SetWindowSize(getSetting("windowWidth"), getSetting("windowHeight"));
         // restore the old position 
         SetWindowPosition(lastWindowX, lastWindowY);
+        ShowCursor();
     }
     else {
         // some manual adjustment is needed here because raylib doesn't handle changing aspect ratios well
@@ -127,6 +129,7 @@ void Game::toggleFullscreen()
         auto [x, y] = GetWindowPosition();
         lastWindowX = static_cast<int>(x);
         lastWindowY = static_cast<int>(y);
+        HideCursor();
     }
     isFullscreen = !isFullscreen;
     ToggleFullscreen();
@@ -170,9 +173,9 @@ void Game::save(std::string& filename)
     InGame* inGame = dynamic_cast<InGame*>(getScene("InGame"));
     assert(inGame && "InGame scene not accessible");
     if (inGame->currentWeapon[0])
-        save.currentWeapons[0] = *inGame->currentWeapon[0];
+        save.currentWeapons[0] = inGame->currentWeapon[0]->first;
     if (inGame->currentWeapon[1])
-        save.currentWeapons[1] = *inGame->currentWeapon[1];
+        save.currentWeapons[1] = inGame->currentWeapon[1]->first;
 
     for (auto& sprite : sprites) {
         // check if a sprite follows the player.

@@ -27,6 +27,7 @@ ProjectileBehavior::ProjectileBehavior(Game& game, std::shared_ptr<Sprite> self,
         direction = { dx / dist, dy / dist };
     }
     self->isColliding = false;
+    self->layer = 0; // TODO change this when the collision layer system is fixed
 
     if (trailEmitterKey.length() > 0) {
         // create a trail effect
@@ -51,12 +52,13 @@ void ProjectileBehavior::update(float deltaTime) {
     }
 
     for (const auto& wall : game.walls) {
-        if (wall->layer == 0 && CheckCollisionRecs(s->rect, wall->getRect())) {
+        if (wall->layer == s->layer && CheckCollisionRecs(s->rect, wall->getRect())) {
             createImpactEffect(s);
             return;
         }
     }
 
+    // TODO check every sprite that can be damaged
     if (t && (CheckCollisionRecs(s->rect, t->rect))) {
         createImpactEffect(s);
         return;

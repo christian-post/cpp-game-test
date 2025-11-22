@@ -409,7 +409,7 @@ namespace TransitionConditions {
                     return false;
 
                 Vector2 targetPos = player->position;
-                return isPathClear(sprite.rect, targetPos, game.walls);
+                return isPathClear(sprite.rect, targetPos, game.walls, sprite.layer);
             },
             "HasLineOfSightToPlayer()"
         };
@@ -424,7 +424,7 @@ namespace TransitionConditions {
                     return true;
 
                 Vector2 targetPos = player->position;
-                return !isPathClear(sprite.rect, targetPos, game.walls);
+                return !isPathClear(sprite.rect, targetPos, game.walls, sprite.layer);
             },
             "LostLineOfSightToPlayer()"
         };

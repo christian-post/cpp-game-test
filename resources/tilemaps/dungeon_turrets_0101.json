@@ -322,6 +322,12 @@
                  "height":192,
                  "id":16,
                  "name":"",
+                 "properties":[
+                        {
+                         "name":"layer",
+                         "type":"int",
+                         "value":1
+                        }],
                  "rotation":0,
                  "type":"wall",
                  "visible":true,

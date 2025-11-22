@@ -60,7 +60,7 @@ void RandomWalkBehavior::update(float deltaTime) {
                 testRect.y = candidate.y;
 
                 if (s->game.isInWorldBounds(testRect) &&
-                    isPathClear(s->rect, candidate, s->game.walls)) {
+                    isPathClear(s->rect, candidate, s->game.walls, s->layer)) {
                     walkTarget = candidate;
                     hasWalkTarget = true;
                     waitTime = float(rand() % 5 + 1);

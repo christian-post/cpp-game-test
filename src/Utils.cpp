@@ -14,7 +14,7 @@ Vector2 GetRectCenter(Rectangle rect) {
     return { rect.x + rect.width / 2.0f, rect.y + rect.height / 2.0f };
 }
 
-bool isPathClear(const Rectangle& currentRect, Vector2 targetPos, const std::vector<std::unique_ptr<CollisionObject>>& walls) {
+bool isPathClear(const Rectangle& currentRect, Vector2 targetPos, const std::vector<std::unique_ptr<CollisionObject>>& walls, int spriteLayer) {
     Rectangle sweptRect = {
         std::min(currentRect.x, targetPos.x),
         std::min(currentRect.y, targetPos.y),
@@ -22,8 +22,8 @@ bool isPathClear(const Rectangle& currentRect, Vector2 targetPos, const std::vec
         fabsf(targetPos.y - currentRect.y) + currentRect.height
     };
     for (const auto& wall : walls) {
-        // TODO check if wall and sprite are on similar collision layers
-        if (wall->layer == 0 && CheckCollisionRecs(sweptRect, wall->getRect()))
+        // check if wall and sprite are on similar collision layers
+        if (wall->layer == spriteLayer && CheckCollisionRecs(sweptRect, wall->getRect()))
             return false;
     }
     return true;

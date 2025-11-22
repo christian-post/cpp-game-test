@@ -10,9 +10,7 @@
 #include <tuple>
 
 ChestBehavior::ChestBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> player, const std::string& itemName, uint32_t itemAmount)
-    : game{ game }, self{ self }, player{ player }, itemName{ itemName }, itemAmount{ itemAmount }
-{
-}
+    : game{ game }, self{ self }, player{ player }, itemName{ itemName }, itemAmount{ itemAmount } {}
 
 void ChestBehavior::update(float deltaTime) {
     if (auto s = self.lock(), p = player.lock(); s && p) {

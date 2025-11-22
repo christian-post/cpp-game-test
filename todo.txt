@@ -27,8 +27,8 @@ Scenes
 
 IMPORTANT:
 - load weapons.json data into weaponData structs in Preload
-- Make a seperate collision for pitfalls that allow projectiles to fly over
-- why are the WorldBounds functions in Game.h?
+- projectiles only create an impact emitter on the target and on walls, not on other sprites
+- collision objects should be able to span multiple layers
 
 NOT SO IMPORTANT:
 - add a "persistent" property to event listeners (non-persistent listeners are removed after one event)

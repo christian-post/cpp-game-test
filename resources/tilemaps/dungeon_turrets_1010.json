@@ -237,9 +237,15 @@
                  "y":28
                 }, 
                 {
-                 "height":32,
+                 "height":12,
                  "id":4,
                  "name":"",
+                 "properties":[
+                        {
+                         "name":"layer",
+                         "type":"int",
+                         "value":1
+                        }],
                  "rotation":0,
                  "type":"wall",
                  "visible":true,
@@ -251,6 +257,12 @@
                  "height":16,
                  "id":7,
                  "name":"",
+                 "properties":[
+                        {
+                         "name":"layer",
+                         "type":"int",
+                         "value":1
+                        }],
                  "rotation":0,
                  "type":"hole",
                  "visible":true,
@@ -307,6 +319,12 @@
                  "height":36,
                  "id":17,
                  "name":"",
+                 "properties":[
+                        {
+                         "name":"layer",
+                         "type":"int",
+                         "value":1
+                        }],
                  "rotation":0,
                  "type":"hole",
                  "visible":true,
@@ -318,6 +336,12 @@
                  "height":76,
                  "id":18,
                  "name":"",
+                 "properties":[
+                        {
+                         "name":"layer",
+                         "type":"int",
+                         "value":1
+                        }],
                  "rotation":0,
                  "type":"hole",
                  "visible":true,
@@ -329,6 +353,12 @@
                  "height":76,
                  "id":19,
                  "name":"",
+                 "properties":[
+                        {
+                         "name":"layer",
+                         "type":"int",
+                         "value":1
+                        }],
                  "rotation":0,
                  "type":"hole",
                  "visible":true,
@@ -340,6 +370,12 @@
                  "height":76,
                  "id":20,
                  "name":"",
+                 "properties":[
+                        {
+                         "name":"layer",
+                         "type":"int",
+                         "value":1
+                        }],
                  "rotation":0,
                  "type":"wall",
                  "visible":true,
@@ -351,6 +387,12 @@
                  "height":76,
                  "id":21,
                  "name":"",
+                 "properties":[
+                        {
+                         "name":"layer",
+                         "type":"int",
+                         "value":1
+                        }],
                  "rotation":0,
                  "type":"hole",
                  "visible":true,
@@ -362,12 +404,29 @@
                  "height":36,
                  "id":27,
                  "name":"",
+                 "properties":[
+                        {
+                         "name":"layer",
+                         "type":"int",
+                         "value":1
+                        }],
                  "rotation":0,
                  "type":"hole",
                  "visible":true,
                  "width":160,
                  "x":48,
                  "y":92
+                }, 
+                {
+                 "height":20,
+                 "id":28,
+                 "name":"",
+                 "rotation":0,
+                 "type":"wall",
+                 "visible":true,
+                 "width":208,
+                 "x":24,
+                 "y":236
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -376,7 +435,7 @@
          "y":0
         }],
  "nextlayerid":7,
- "nextobjectid":28,
+ "nextobjectid":29,
  "orientation":"orthogonal",
  "properties":[
         {

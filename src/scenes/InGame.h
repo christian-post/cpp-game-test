@@ -8,6 +8,7 @@
 #include "TilemapRenderer.h"
 #include "CameraController.h"
 #include <memory>
+#include <utility>
 #include "json.hpp"
 
 struct SaveGame;
@@ -30,7 +31,8 @@ public:
 
     // keep a player variable for direct frequent access
     std::shared_ptr<Sprite> player;
-    std::array<std::optional<std::string>, 2> currentWeapon = { std::nullopt, std::nullopt };
+    // pair is (weapon_key, isActive)
+    std::array<std::optional<std::pair<std::string, bool>>, 2> currentWeapon = { std::nullopt, std::nullopt };
     // light effects
     // TODO: these need to be dynamic and shouldn't be hard-coded here.
     // > use a vector instead

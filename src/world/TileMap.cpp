@@ -98,13 +98,9 @@ void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, 
         return;
     // object type-specific code
     if (obj.type == "wall") {
+        int layer = obj.properties.value("layer", 0);
         game.walls.push_back(std::make_unique<CollisionObject>(
-            CollisionObject{ 0, obj.x, obj.y, obj.width, obj.height })
-        );
-    }
-    if (obj.type == "hole") {
-        game.walls.push_back(std::make_unique<CollisionObject>(
-            CollisionObject{ -1, obj.x, obj.y, obj.width, obj.height })
+            CollisionObject{ layer, obj.x, obj.y, obj.width, obj.height })
         );
     }
     else if (obj.type == "sprite") {

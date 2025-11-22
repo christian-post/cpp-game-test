@@ -179,7 +179,7 @@ void Preload::startup() {
             { "heart_1up", { "./resources/textures/sprites/item_drop_heart1up.png" } },
             { "bomb", { "./resources/textures/sprites/bomb_f0.png" } },
             { "item_key", { "./resources/textures/sprites/item_key.png" } },
-            { "item_lamp", { "./resources/textures/sprites/item_lamp_0.png" } },
+            //{ "item_lamp", { "./resources/textures/sprites/item_lamp_new_0.png" } },
             {
                 "dungeon_door", {
                     "./resources/textures/sprites/doors_leaf_closed.png",
@@ -196,6 +196,7 @@ void Preload::startup() {
             l.loadSpritesheet("./resources/textures/sprites/fireball_16x4.png", 16, 16, "fireball");
             l.loadSpritesheet("./resources/textures/sprites/smoke_16x6.png", 16, 16, "smoke");
             l.loadSpritesheet("./resources/textures/sprites/xbox_buttons_16x16.png", 16, 16, "xbox_buttons");
+            l.loadSpritesheet("./resources/textures/sprites/lantern-Sheet.png", 16, 16, "item_lamp");
         });
 
     // load the tileset (the textures)
