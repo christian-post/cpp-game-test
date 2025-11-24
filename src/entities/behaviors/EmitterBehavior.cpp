@@ -15,14 +15,14 @@ void EmitterBehavior::update(float deltaTime) {
         return;
 
     if (auto s = self.lock(); s)
-        emitter->location = GetRectCenter(s->rect);
+        emitter->position = GetRectCenter(s->rect);
 }
 
 void EmitterBehavior::reset() {
     Behavior::reset();
 
     if (auto s = self.lock(); s && emitter)
-        emitter->location = GetRectCenter(s->rect);
+        emitter->position = GetRectCenter(s->rect);
 
     if (emitter)
         emitter->reset();

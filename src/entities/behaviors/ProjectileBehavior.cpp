@@ -32,7 +32,7 @@ ProjectileBehavior::ProjectileBehavior(Game& game, std::shared_ptr<Sprite> self,
     if (trailEmitterKey.length() > 0) {
         // create a trail effect
         std::unique_ptr<Emitter> emitter = createEmitter(game, trailEmitterKey);
-        emitter->location = GetRectCenter(self->rect);
+        emitter->position = GetRectCenter(self->rect);
         self->addBehavior(std::make_unique<EmitterBehavior>(game, self, std::move(emitter)));
     }
 }
@@ -100,7 +100,7 @@ void ProjectileBehavior::createImpactEffect(std::shared_ptr<Sprite> s) {
 
     size_t maxParticles = emitterData.value("maxParticles", defaultEmitterData.value("maxParticles", 20));
     auto emitter = std::make_unique<Emitter>(maxParticles);
-    emitter->location = GetRectCenter(s->rect);
+    emitter->position = GetRectCenter(s->rect);
     emitter->fromJSON(emitterData, defaultEmitterData);
 
     std::string particleKey = emitterData.value("particleKey", defaultEmitterData.value("particleKey", "defaultParticle"));

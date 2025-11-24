@@ -67,6 +67,7 @@ void Emitter::draw() {
         if (p.active)
             p.draw();
     }
+    DrawCircle(int(position.x), int(position.y), 2.0f, BLUE);
 }
 
 void Emitter::reset() {
@@ -89,11 +90,11 @@ void Emitter::emit() {
             float angle = angleDist(rng);
             float radius = spawnRadius + radiusOffset(rng);
             Vector2 offset = { std::cos(angle) * radius, std::sin(angle) * radius };
-            p.position = Vector2Add(location, offset);
+            p.position = Vector2Add(position, offset);
 
             if (radialVelocity) {
                 // Calculate direction from spawn position to center (inward)
-                Vector2 direction = Vector2Subtract(location, p.position);
+                Vector2 direction = Vector2Subtract(position, p.position);
                 float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
 
                 if (length > 0.0f) {

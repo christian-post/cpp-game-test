@@ -129,14 +129,14 @@
                         {
                          "name":"spriteName",
                          "type":"string",
-                         "value":"turret"
+                         "value":"enemy_test"
                         }],
                  "rotation":0,
                  "type":"sprite",
                  "visible":true,
                  "width":16,
-                 "x":256,
-                 "y":304
+                 "x":160,
+                 "y":160
                 }, 
                 {
                  "height":16,
@@ -251,40 +251,6 @@
                  "width":352,
                  "x":16,
                  "y":368
-                }, 
-                {
-                 "height":32,
-                 "id":46,
-                 "name":"",
-                 "properties":[
-                        {
-                         "name":"layer",
-                         "type":"int",
-                         "value":1
-                        }],
-                 "rotation":0,
-                 "type":"wall",
-                 "visible":true,
-                 "width":192,
-                 "x":176,
-                 "y":240
-                }, 
-                {
-                 "height":96,
-                 "id":48,
-                 "name":"",
-                 "properties":[
-                        {
-                         "name":"layer",
-                         "type":"int",
-                         "value":1
-                        }],
-                 "rotation":0,
-                 "type":"wall",
-                 "visible":true,
-                 "width":32,
-                 "x":176,
-                 "y":272
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -369,7 +335,7 @@
         {
          "name":"dark",
          "type":"bool",
-         "value":true
+         "value":false
         }],
  "renderorder":"right-down",
  "tiledversion":"1.11.2",

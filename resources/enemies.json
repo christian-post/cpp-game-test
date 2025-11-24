@@ -12,18 +12,16 @@
     "knockback": 5.0,
     "damage": 0,
     "stateMachine": {
-      "initialState": "shoot",
+      "initialState": "test",
       "states": [
         {
-          "name": "shoot",
-          "behaviors": [ "Shoot", "Emitter" ],
+          "name": "test",
+          "behaviors": [ "Emitter" ],
           "behaviorData": {
             "shootTarget": "player",
-            "shootProjectile": "fireball",
-            "emitterKey": "fireTrail",
             "shootDamage": 0,
             "shootInterval": 1.0,
-            "emitter": "smoke"
+            "emitter": "fireballCharge"
           }
         }
       ],
