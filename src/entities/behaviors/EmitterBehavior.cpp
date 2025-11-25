@@ -14,8 +14,11 @@ void EmitterBehavior::update(float deltaTime) {
     if (!emitter)
         return;
 
-    if (auto s = self.lock(); s)
+    if (auto s = self.lock(); s) {
         emitter->position = GetRectCenter(s->rect);
+        //TraceLog(LOG_INFO, "(%d, %d)", int(emitter->position.x), int(emitter->position.y));
+    }
+        
 }
 
 void EmitterBehavior::reset() {

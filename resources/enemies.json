@@ -12,27 +12,43 @@
     "knockback": 5.0,
     "damage": 0,
     "stateMachine": {
-      "initialState": "test",
+      "initialState": "test1",
       "states": [
         {
-          "name": "test",
+          "name": "test1",
           "behaviors": [ "Emitter" ],
           "behaviorData": {
-            "shootTarget": "player",
-            "shootDamage": 0,
-            "shootInterval": 1.0,
-            "emitter": "fireballCharge"
-          }
-        }
-      ],
-      "transitions": [
-        {
-          "to": "lunge",
-          "requiresAll": false,
-          "conditions": [
+            "emitter": "exampleBurst"
+          },
+          "transitions": [
             {
-              "type": "timeInStateExceeds",
-              "seconds": 1.0
+              "to": "test2",
+              "requiresAll": false,
+              "conditions": [
+                {
+                  "type": "playerInRange",
+                  "distance": 48.0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "test2",
+          "behaviors": [ "Emitter" ],
+          "behaviorData": {
+            "emitter": "exampleSteadyRadial"
+          },
+          "transitions": [
+            {
+              "to": "test1",
+              "requiresAll": false,
+              "conditions": [
+                {
+                  "type": "playerOutOfRange",
+                  "distance": 56.0
+                }
+              ]
             }
           ]
         }

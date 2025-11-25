@@ -34,22 +34,34 @@ void Particle::update(float deltaTime) {
 }
 
 void Particle::draw() {
-    if (!active || animationFrames.empty())
-        return;
-
-    Texture2D* tex = animationFrames[currentFrame];
-    if (!tex)
+    if (!active)
         return;
 
     Color finalColor = tint;
     finalColor.a = static_cast<unsigned char>(alpha * 255.0f);
 
-    Vector2 origin = { tex->width / 2.0f, tex->height / 2.0f };
+    if (type == ParticleType::Circle) {
+        float radius = primitiveSize * size;
+        DrawCircle(int(position.x), int(position.y), radius, finalColor);
+    }
+    else if (type == ParticleType::Square) {
+        float halfSize = primitiveSize * size;
+        Rectangle rect = { position.x - halfSize, position.y - halfSize, halfSize * 2, halfSize * 2 };
+        DrawRectangleRec(rect, finalColor);
+    }
+    else if (type == ParticleType::Texture) {
+        if (animationFrames.empty())
+            return;
 
-    Rectangle source = { 0, 0, static_cast<float>(tex->width), static_cast<float>(tex->height) };
-    Rectangle dest = { position.x, position.y, static_cast<float>(tex->width) * size, static_cast<float>(tex->height) * size };
+        Texture2D* tex = animationFrames[currentFrame];
+        if (!tex)
+            return;
 
-    DrawTexturePro(*tex, source, dest, origin, 0.0f, finalColor);
+        Vector2 origin = { tex->width / 2.0f * size, tex->height / 2.0f * size };
+        Rectangle source = { 0, 0, static_cast<float>(tex->width), static_cast<float>(tex->height) };
+        Rectangle dest = { position.x, position.y, static_cast<float>(tex->width) * size, static_cast<float>(tex->height) * size };
+        DrawTexturePro(*tex, source, dest, origin, 0.0f, finalColor);
+    }
 }
 
 void Particle::reset() {
@@ -72,7 +84,7 @@ void Particle::fromJSON(const nlohmann::json& data, const nlohmann::json& defaul
     animationSpeed = data.value("animationSpeed", defaultData.value("animationSpeed", 0.1f));
 
     if (data.contains("tint")) {
-        auto tintArray = data.at("tint");
+        auto& tintArray = data.at("tint");
         tint = Color{
             static_cast<unsigned char>(tintArray[0].get<int>()),
             static_cast<unsigned char>(tintArray[1].get<int>()),
@@ -81,7 +93,7 @@ void Particle::fromJSON(const nlohmann::json& data, const nlohmann::json& defaul
         };
     }
     else if (defaultData.contains("tint")) {
-        auto tintArray = defaultData.at("tint");
+        auto& tintArray = defaultData.at("tint");
         tint = Color{
             static_cast<unsigned char>(tintArray[0].get<int>()),
             static_cast<unsigned char>(tintArray[1].get<int>()),
@@ -89,6 +101,16 @@ void Particle::fromJSON(const nlohmann::json& data, const nlohmann::json& defaul
             static_cast<unsigned char>(tintArray[3].get<int>())
         };
     }
+    if (data.contains("primitiveType")) {
+        std::string typeStr = data.at("primitiveType");
+        if (typeStr == "circle")
+            type = ParticleType::Circle;
+        else if (typeStr == "square")
+            type = ParticleType::Square;
+        else
+            TraceLog(LOG_WARNING, "Unsupported primitive type: %s", typeStr.c_str());
+    }
+    primitiveSize = data.value("primitiveSize", defaultData.value("primitiveSize", 5.0f));
 }
 
 void Particle::setAnimationFrames(const std::vector<Texture2D>& textures) {

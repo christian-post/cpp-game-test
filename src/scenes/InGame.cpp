@@ -5,6 +5,7 @@
 #include "Utils.h"
 #include "TileMap.h"
 #include "Savegame.h"
+#include "Emitter.h"
 #include "DeathBehavior.h"
 #include "WeaponBehavior.h"
 

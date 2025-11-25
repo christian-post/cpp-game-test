@@ -2,6 +2,7 @@
 #include "Sprite.h"
 #include "Game.h"
 #include "Utils.h"
+#include <raymath.h>
 #include <cmath>
 
 LungeBehavior::LungeBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, float lungeSpeed, uint32_t jumpForce)

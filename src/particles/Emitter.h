@@ -23,7 +23,8 @@ struct Emitter {
     bool active = true;  // flag to control emission
     Vector2 position = { 0.0f, 0.0f };
     float spawnInterval = 1.0f;
-    float timeSinceLastSpawn = 0.0f;
+    float spawnDelay = 0.0f;
+    float timer = 0.0f;
     float emitterLifetime = -1.0f;
     float age = 0.0f;
     float spawnRadius = 0.0f;
@@ -31,6 +32,9 @@ struct Emitter {
     Vector2 velocityVariance = { 0.0f, 0.0f };
     float lifetimeVariance = 0.0f;
     float alphaVariance = 0.0f;
+    float startSizeVariance = 0.0f;
+    float endSizeVariance = 0.0f;
+    Color tint = WHITE; // overwrites particle tint
 
     // Radial velocity mode (for inward/outward particle movement)
     bool radialVelocity = false;
@@ -40,6 +44,7 @@ struct Emitter {
     std::vector<Particle> particles;
     size_t maxParticles;
     Particle prototype;
+    Particle createParticle(Particle p);
     std::mt19937 rng;
 };
 

@@ -20,10 +20,25 @@ void Emitter::fromJSON(const nlohmann::json& data, const nlohmann::json& default
     radialVelocity = data.value("radialVelocity", defaultData.value("radialVelocity", false));
     speed = data.value("speed", defaultData.value("speed", 1.0f));
     speedVariance = data.value("speedVariance", defaultData.value("speedVariance", 0.0f));
+    startSizeVariance = data.value("startSizeVariance", defaultData.value("startSizeVariance", 0.0f));
+    endSizeVariance = data.value("endSizeVariance", defaultData.value("endSizeVariance", 0.0f));
+
+    spawnDelay = data.value("spawnDelay", defaultData.value("spawnDelay", 0.0f));
+    timer = spawnInterval - spawnDelay;
+
+    if (data.contains("tint")) {
+        auto& tintArray = data.at("tint");
+        tint = Color{
+            static_cast<unsigned char>(tintArray[0].get<int>()),
+            static_cast<unsigned char>(tintArray[1].get<int>()),
+            static_cast<unsigned char>(tintArray[2].get<int>()),
+            static_cast<unsigned char>(tintArray[3].get<int>())
+        };
+    }
 }
 
 bool Emitter::isDone() const {
-    // Infinite emitters are never "done" on their own
+    // Infinite emitters (lifetime == -1) are never "done" on their own
     if (emitterLifetime <= 0)
         return false;
 
@@ -41,16 +56,66 @@ bool Emitter::isDone() const {
     return true;
 }
 
+Particle Emitter::createParticle(Particle p)
+{
+    p = prototype;
+
+    std::uniform_real_distribution<float> angleDist(0.0f, 2.0f * PI);
+    std::uniform_real_distribution<float> radiusOffset(-spawnRadiusVariance, spawnRadiusVariance);
+    std::uniform_real_distribution<float> lifetimeOffset(-lifetimeVariance, lifetimeVariance);
+    std::uniform_real_distribution<float> alphaOffset(-alphaVariance, alphaVariance);
+    std::uniform_real_distribution<float> startSizeOffset(-startSizeVariance, startSizeVariance);
+    std::uniform_real_distribution<float> endSizeOffset(-endSizeVariance, endSizeVariance);
+
+    float angle = angleDist(rng);
+    float radius = spawnRadius + radiusOffset(rng);
+    Vector2 offset = { std::cos(angle) * radius, std::sin(angle) * radius };
+    p.position = Vector2Add(position, offset);
+
+    if (radialVelocity) {
+        // Calculate direction from spawn position to center (inward)
+        Vector2 direction = Vector2Subtract(position, p.position);
+        float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+
+        if (length > 0.0f) {
+            direction.x /= length;
+            direction.y /= length;
+        }
+
+        std::uniform_real_distribution<float> speedOffset(-speedVariance, speedVariance);
+        float finalSpeed = speed + speedOffset(rng);
+
+        p.velocity.x += direction.x * finalSpeed;
+        p.velocity.y += direction.y * finalSpeed;
+    }
+    else {
+        std::uniform_real_distribution<float> vxOffset(-velocityVariance.x, velocityVariance.x);
+        std::uniform_real_distribution<float> vyOffset(-velocityVariance.y, velocityVariance.y);
+        p.velocity.x += vxOffset(rng);
+        p.velocity.y += vyOffset(rng);
+    }
+
+    p.lifetime += lifetimeOffset(rng);
+    p.alpha += alphaOffset(rng);
+    p.startSize += startSizeOffset(rng);
+    p.endSize += startSizeOffset(rng);
+
+    p.tint = tint;
+
+    p.reset();
+    return p;
+}
+
 void Emitter::update(float deltaTime) {
     age += deltaTime;
 
     // Only emit new particles if within lifetime
     if (emitterLifetime <= 0 || age < emitterLifetime) {
         if (active) {
-            timeSinceLastSpawn += deltaTime;
-            while (timeSinceLastSpawn >= spawnInterval) {
+            timer += deltaTime;
+            if (timer >= spawnInterval) {
                 emit();
-                timeSinceLastSpawn -= spawnInterval;
+                timer = 0.0f;
             }
         }
     }
@@ -67,58 +132,19 @@ void Emitter::draw() {
         if (p.active)
             p.draw();
     }
-    DrawCircle(int(position.x), int(position.y), 2.0f, BLUE);
 }
 
 void Emitter::reset() {
     for (auto& p : particles)
         p.active = false;
     age = 0.0f;
-    timeSinceLastSpawn = 0.0f;
+    timer = spawnInterval - spawnDelay;
 }
 
 void Emitter::emit() {
     for (auto& p : particles) {
         if (!p.active) {
-            p = prototype;
-
-            std::uniform_real_distribution<float> angleDist(0.0f, 2.0f * PI);
-            std::uniform_real_distribution<float> radiusOffset(-spawnRadiusVariance, spawnRadiusVariance);
-            std::uniform_real_distribution<float> lifetimeOffset(-lifetimeVariance, lifetimeVariance);
-            std::uniform_real_distribution<float> alphaOffset(-alphaVariance, alphaVariance);
-
-            float angle = angleDist(rng);
-            float radius = spawnRadius + radiusOffset(rng);
-            Vector2 offset = { std::cos(angle) * radius, std::sin(angle) * radius };
-            p.position = Vector2Add(position, offset);
-
-            if (radialVelocity) {
-                // Calculate direction from spawn position to center (inward)
-                Vector2 direction = Vector2Subtract(position, p.position);
-                float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
-
-                if (length > 0.0f) {
-                    direction.x /= length;
-                    direction.y /= length;
-                }
-
-                std::uniform_real_distribution<float> speedOffset(-speedVariance, speedVariance);
-                float finalSpeed = speed + speedOffset(rng);
-
-                p.velocity = { direction.x * finalSpeed, direction.y * finalSpeed };
-            }
-            else {
-                std::uniform_real_distribution<float> vxOffset(-velocityVariance.x, velocityVariance.x);
-                std::uniform_real_distribution<float> vyOffset(-velocityVariance.y, velocityVariance.y);
-                p.velocity.x += vxOffset(rng);
-                p.velocity.y += vyOffset(rng);
-            }
-
-            p.lifetime += lifetimeOffset(rng);
-            p.alpha += alphaOffset(rng);
-
-            p.reset();
-            return;
+            p = createParticle(p);
         }
     }
 }

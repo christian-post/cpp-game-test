@@ -14,6 +14,7 @@
 #include "MapUI.h"
 #include "GameOver.h"
 #include "Utils.h"
+#include "Emitter.h"
 #include <sstream>
 #include <fstream>
 #include <cassert>
@@ -61,6 +62,8 @@ Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this) {
     // seed the rng
     srand(time(nullptr));
 }
+
+Game::~Game() {}
 
 const nlohmann::json& Game::getSetting(const std::string& key) const {
     try {

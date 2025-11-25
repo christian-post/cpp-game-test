@@ -19,7 +19,10 @@
 #include "ChestBehavior.h"
 #include "OpenLockBehavior.h"
 #include "Sprite.h"
+#include "Emitter.h"
 #include "Game.h"
+#include "Utils.h"
+#include <iostream>
 
 
 std::unique_ptr<Behavior> createBehaviorFromJSON(Game& game, std::shared_ptr<Sprite> sprite, const std::string& behaviorKey, const nlohmann::json& behaviorData)
@@ -84,6 +87,8 @@ std::unique_ptr<Behavior> createBehaviorFromJSON(Game& game, std::shared_ptr<Spr
             TraceLog(LOG_WARNING, "No emitter/particle key specified for Emitter behavior");
             return nullptr;
         }
+
+        // TODO use createEmitter helper function
 
         const auto& particlesData = game.loader.getParticleData();
 

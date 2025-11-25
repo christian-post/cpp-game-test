@@ -28,6 +28,11 @@ Scenes
 IMPORTANT:
 - load weapons.json data into weaponData structs in Preload
 - projectiles only create an impact emitter on the target and on walls, not on other sprites
+- use createEmitter helper function in Behavior::createBehaviorFromJSON
+- Particles
+-- easing functions
+-- gravity
+-- fix steady stream emitter (incorporate burstSize)
 - collision objects should be able to span multiple layers
 
 NOT SO IMPORTANT:

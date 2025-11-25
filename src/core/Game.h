@@ -14,7 +14,6 @@
 #include "EventManager.h"
 #include "CutsceneManager.h"
 #include "InventoryManager.h"
-#include "Emitter.h"
 #include "Dungeon.h"
 #include "Savegame.h"
 
@@ -24,6 +23,7 @@
 
 class Command;
 struct CollisionObject;
+struct Emitter;
 
 class Game {
 private:
@@ -31,6 +31,7 @@ private:
 
 public:
     Game();
+    ~Game();
     // in-game resolution (stays constant, gets scaled up to window size)
     uint32_t gameScreenWidth = 256;
     uint32_t gameScreenHeight = 192;
