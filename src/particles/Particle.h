@@ -11,7 +11,7 @@ enum class ParticleType {
 
 struct Particle {
     Particle();
-    void update(float deltaTime);
+    void update(float deltaTime, Vector2 gravity);
     void draw();
     void reset();
     void fromJSON(const nlohmann::json& data, const nlohmann::json& defaultData);

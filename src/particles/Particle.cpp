@@ -7,7 +7,7 @@ Particle::Particle()
     startAlpha = alpha;
 }
 
-void Particle::update(float deltaTime) {
+void Particle::update(float deltaTime, Vector2 gravity) {
     if (!active)
         return;
 
@@ -16,6 +16,9 @@ void Particle::update(float deltaTime) {
         active = false;
         return;
     }
+
+    velocity.x += gravity.x * deltaTime;
+    velocity.y += gravity.y * deltaTime;
 
     position.x += velocity.x * deltaTime;
     position.y += velocity.y * deltaTime;

@@ -10,6 +10,7 @@ Emitter::Emitter(size_t maxParticles)
 
 void Emitter::fromJSON(const nlohmann::json& data, const nlohmann::json& defaultData) {
     spawnInterval = data.value("spawnInterval", defaultData.value("spawnInterval", 1.0f));
+    burstSize = data.value("burstSize", defaultData.value("burstSize", 1));
     emitterLifetime = data.value("emitterLifetime", defaultData.value("emitterLifetime", -1.0f));
     spawnRadius = data.value("spawnRadius", defaultData.value("spawnRadius", 0.0f));
     spawnRadiusVariance = data.value("spawnRadiusVariance", defaultData.value("spawnRadiusVariance", 0.0f));
@@ -22,9 +23,14 @@ void Emitter::fromJSON(const nlohmann::json& data, const nlohmann::json& default
     speedVariance = data.value("speedVariance", defaultData.value("speedVariance", 0.0f));
     startSizeVariance = data.value("startSizeVariance", defaultData.value("startSizeVariance", 0.0f));
     endSizeVariance = data.value("endSizeVariance", defaultData.value("endSizeVariance", 0.0f));
+    if (data.contains("gravity")) {
+        // TODO cleaner error checking?
+        gravity.x = data["gravity"]["x"];
+        gravity.y = data["gravity"]["y"];
+    }
 
     spawnDelay = data.value("spawnDelay", defaultData.value("spawnDelay", 0.0f));
-    timer = spawnInterval - spawnDelay;
+    timer = -spawnDelay;
 
     if (data.contains("tint")) {
         auto& tintArray = data.at("tint");
@@ -113,9 +119,9 @@ void Emitter::update(float deltaTime) {
     if (emitterLifetime <= 0 || age < emitterLifetime) {
         if (active) {
             timer += deltaTime;
-            if (timer >= spawnInterval) {
+            if (timer >= 0.0f) {
                 emit();
-                timer = 0.0f;
+                timer -= spawnInterval;
             }
         }
     }
@@ -123,7 +129,7 @@ void Emitter::update(float deltaTime) {
     // Always update existing particles regardless of emitter lifetime
     for (auto& p : particles) {
         if (p.active)
-            p.update(deltaTime);
+            p.update(deltaTime, gravity);
     }
 }
 
@@ -138,13 +144,17 @@ void Emitter::reset() {
     for (auto& p : particles)
         p.active = false;
     age = 0.0f;
-    timer = spawnInterval - spawnDelay;
+    timer = -spawnDelay;
 }
 
 void Emitter::emit() {
+    size_t spawned = 0;
     for (auto& p : particles) {
         if (!p.active) {
             p = createParticle(p);
+            spawned++;
+            if (spawned >= burstSize)
+                return;
         }
     }
 }

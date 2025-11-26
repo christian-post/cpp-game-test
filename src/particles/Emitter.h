@@ -22,6 +22,7 @@ struct Emitter {
 
     bool active = true;  // flag to control emission
     Vector2 position = { 0.0f, 0.0f };
+    size_t burstSize = 1;
     float spawnInterval = 1.0f;
     float spawnDelay = 0.0f;
     float timer = 0.0f;
@@ -35,6 +36,7 @@ struct Emitter {
     float startSizeVariance = 0.0f;
     float endSizeVariance = 0.0f;
     Color tint = WHITE; // overwrites particle tint
+    Vector2 gravity = { 0.0f, 0.0f }; // modifies velocity
 
     // Radial velocity mode (for inward/outward particle movement)
     bool radialVelocity = false;
