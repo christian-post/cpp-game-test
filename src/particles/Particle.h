@@ -9,9 +9,19 @@ enum class ParticleType {
     Square
 };
 
+enum class EasingType {
+    None,
+    QuadIn,
+    QuadOut,
+    QuadInOut,
+    CubicIn,
+    CubicOut,
+    CubicInOut
+};
+
 struct Particle {
     Particle();
-    void update(float deltaTime, Vector2 gravity);
+    void update(float deltaTime);
     void draw();
     void reset();
     void fromJSON(const nlohmann::json& data, const nlohmann::json& defaultData);
@@ -20,7 +30,10 @@ struct Particle {
     float primitiveSize = 5.0f;
 
     Vector2 position = { 0.0f, 0.0f };
-    Vector2 velocity = { 0.0f, 0.0f };
+    Vector2 velocity = { 0.0f, 0.0f }; // dynamic velocity
+    Vector2 initialVelocity = { 0.0f, 0.0f }; // save vel before easing is applied
+    Vector2 gravity = { 0.0f, 0.0f };
+    EasingType velocityEasing = EasingType::None;
     float alpha = 1.0f;
     float startAlpha = 1.0f;
     float endAlpha = 0.0f;

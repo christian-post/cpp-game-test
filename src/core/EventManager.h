@@ -67,9 +67,9 @@ public:
         std::unordered_map<int, std::any> popped = std::move(events);
         events.clear();
         return popped;
-    } // TODO: is this method even needed?
+    } // currently unused
 
     void clearEvent(const int key) {
         events.erase(key);
-    } // TODO: is this even needed?
+    } // currently unused
 };

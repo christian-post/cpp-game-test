@@ -1,15 +1,11 @@
 {
-  "enemy_test": {
+  "enemy_test_emitter": {
     "inherits": "sprite_default",
     "textures": [
-      "skelet_idle",
-      "skelet_run"
+      "blob",
+      "blob"
     ],
-    "itemDrops": [
-      [ "coin", 1.0 ]
-    ],
-    "speed": 12.0,
-    "knockback": 5.0,
+    "health": 1000,
     "damage": 0,
     "stateMachine": {
       "initialState": "test1",
@@ -19,38 +15,97 @@
           "behaviors": [ "Emitter" ],
           "behaviorData": {
             "emitter": "exampleBurst"
-          },
-          "transitions": [
-            {
-              "to": "test2",
-              "requiresAll": false,
-              "conditions": [
-                {
-                  "type": "playerInRange",
-                  "distance": 48.0
-                }
-              ]
-            }
-          ]
-        },
+          }
+        }
+      ]
+    }
+  },
+  "enemy_test_emitter2": {
+    "inherits": "enemy_test_emitter",
+    "stateMachine": {
+      "initialState": "test1",
+      "states": [
         {
-          "name": "test2",
+          "name": "test1",
           "behaviors": [ "Emitter" ],
           "behaviorData": {
-            "emitter": "exampleSteadyRadial"
-          },
-          "transitions": [
-            {
-              "to": "test1",
-              "requiresAll": false,
-              "conditions": [
-                {
-                  "type": "playerOutOfRange",
-                  "distance": 56.0
-                }
-              ]
+            "emitter": "exampleBurst",
+            "emitterData": {
+              "velocityEasing": "quadOut"
             }
-          ]
+          }
+        }
+      ]
+    }
+  },
+  "enemy_test_emitter3": {
+    "inherits": "enemy_test_emitter",
+    "stateMachine": {
+      "initialState": "test1",
+      "states": [
+        {
+          "name": "test1",
+          "behaviors": [ "Emitter" ],
+          "behaviorData": {
+            "emitter": "exampleBurst",
+            "emitterData": {
+              "velocityEasing": "quadInOut"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "enemy_test_emitter4": {
+    "inherits": "enemy_test_emitter",
+    "stateMachine": {
+      "initialState": "test1",
+      "states": [
+        {
+          "name": "test1",
+          "behaviors": [ "Emitter" ],
+          "behaviorData": {
+            "emitter": "exampleBurst",
+            "emitterData": {
+              "velocityEasing": "cubicIn"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "enemy_test_emitter5": {
+    "inherits": "enemy_test_emitter",
+    "stateMachine": {
+      "initialState": "test1",
+      "states": [
+        {
+          "name": "test1",
+          "behaviors": [ "Emitter" ],
+          "behaviorData": {
+            "emitter": "exampleBurst",
+            "emitterData": {
+              "velocityEasing": "cubicOut"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "enemy_test_emitter6": {
+    "inherits": "enemy_test_emitter",
+    "stateMachine": {
+      "initialState": "test1",
+      "states": [
+        {
+          "name": "test1",
+          "behaviors": [ "Emitter" ],
+          "behaviorData": {
+            "emitter": "exampleBurst",
+            "emitterData": {
+              "velocityEasing": "cubicInOut"
+            }
+          }
         }
       ]
     }

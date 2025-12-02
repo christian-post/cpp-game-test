@@ -8,38 +8,82 @@ Emitter::Emitter(size_t maxParticles)
     particles.resize(maxParticles);
 }
 
-void Emitter::fromJSON(const nlohmann::json& data, const nlohmann::json& defaultData) {
-    spawnInterval = data.value("spawnInterval", defaultData.value("spawnInterval", 1.0f));
-    burstSize = data.value("burstSize", defaultData.value("burstSize", 1));
-    emitterLifetime = data.value("emitterLifetime", defaultData.value("emitterLifetime", -1.0f));
-    spawnRadius = data.value("spawnRadius", defaultData.value("spawnRadius", 0.0f));
-    spawnRadiusVariance = data.value("spawnRadiusVariance", defaultData.value("spawnRadiusVariance", 0.0f));
-    velocityVariance.x = data.value("velocityVarianceX", defaultData.value("velocityVarianceX", 0.0f));
-    velocityVariance.y = data.value("velocityVarianceY", defaultData.value("velocityVarianceY", 0.0f));
-    lifetimeVariance = data.value("lifetimeVariance", defaultData.value("lifetimeVariance", 0.0f));
-    alphaVariance = data.value("alphaVariance", defaultData.value("alphaVariance", 0.0f));
-    radialVelocity = data.value("radialVelocity", defaultData.value("radialVelocity", false));
-    speed = data.value("speed", defaultData.value("speed", 1.0f));
-    speedVariance = data.value("speedVariance", defaultData.value("speedVariance", 0.0f));
-    startSizeVariance = data.value("startSizeVariance", defaultData.value("startSizeVariance", 0.0f));
-    endSizeVariance = data.value("endSizeVariance", defaultData.value("endSizeVariance", 0.0f));
-    if (data.contains("gravity")) {
-        // TODO cleaner error checking?
+void Emitter::fromJSON(const nlohmann::json& data, const nlohmann::json& defaultData, const nlohmann::json& overrideData) {
+    // lambda func to get value with override priority
+    auto getValue = [&](const char* key, auto defaultValue) {
+        if (overrideData.contains(key))
+            return overrideData.value(key, defaultValue);
+        return data.value(key, defaultData.value(key, defaultValue));
+        };
+
+    spawnInterval = getValue("spawnInterval", 1.0f);
+    burstSize = getValue("burstSize", size_t(1));
+    emitterLifetime = getValue("emitterLifetime", -1.0f);
+    spawnRadius = getValue("spawnRadius", 0.0f);
+    spawnRadiusVariance = getValue("spawnRadiusVariance", 0.0f);
+    velocityVariance.x = getValue("velocityVarianceX", 0.0f);
+    velocityVariance.y = getValue("velocityVarianceY", 0.0f);
+    lifetimeVariance = getValue("lifetimeVariance", 0.0f);
+    alphaVariance = getValue("alphaVariance", 0.0f);
+    radialVelocity = getValue("radialVelocity", false);
+    speed = getValue("speed", 1.0f);
+    speedVariance = getValue("speedVariance", 0.0f);
+    startSizeVariance = getValue("startSizeVariance", 0.0f);
+    endSizeVariance = getValue("endSizeVariance", 0.0f);
+    spawnDelay = getValue("spawnDelay", 0.0f);
+
+    // Handle gravity (check override first, then data)
+    if (overrideData.contains("gravity")) {
+        gravity.x = overrideData["gravity"]["x"];
+        gravity.y = overrideData["gravity"]["y"];
+    }
+    else if (data.contains("gravity")) {
         gravity.x = data["gravity"]["x"];
         gravity.y = data["gravity"]["y"];
     }
 
-    spawnDelay = data.value("spawnDelay", defaultData.value("spawnDelay", 0.0f));
     timer = -spawnDelay;
 
-    if (data.contains("tint")) {
-        auto& tintArray = data.at("tint");
+    // Handle tint (check override first, then data)
+    const nlohmann::json* tintSource = nullptr;
+    if (overrideData.contains("tint"))
+        tintSource = &overrideData;
+    else if (data.contains("tint"))
+        tintSource = &data;
+
+    if (tintSource) {
+        auto& tintArray = tintSource->at("tint");
         tint = Color{
             static_cast<unsigned char>(tintArray[0].get<int>()),
             static_cast<unsigned char>(tintArray[1].get<int>()),
             static_cast<unsigned char>(tintArray[2].get<int>()),
             static_cast<unsigned char>(tintArray[3].get<int>())
         };
+    }
+
+    // velocityEasing
+    const nlohmann::json* easingSource = nullptr;
+    if (overrideData.contains("velocityEasing"))
+        easingSource = &overrideData;
+    else if (data.contains("velocityEasing"))
+        easingSource = &data;
+
+    if (easingSource) {
+        std::string easingStr = easingSource->at("velocityEasing");
+        if (easingStr == "quadIn")
+            velocityEasing = EasingType::QuadIn;
+        else if (easingStr == "quadOut")
+            velocityEasing = EasingType::QuadOut;
+        else if (easingStr == "quadInOut")
+            velocityEasing = EasingType::QuadInOut;
+        else if (easingStr == "cubicIn")
+            velocityEasing = EasingType::CubicIn;
+        else if (easingStr == "cubicOut")
+            velocityEasing = EasingType::CubicOut;
+        else if (easingStr == "cubicInOut")
+            velocityEasing = EasingType::CubicInOut;
+        else
+            velocityEasing = EasingType::None;
     }
 }
 
@@ -60,6 +104,12 @@ bool Emitter::isDone() const {
 
     // Emitter finished spawning AND all particles are dead
     return true;
+}
+
+void Emitter::explode()
+{
+    start();
+    emit();
 }
 
 Particle Emitter::createParticle(Particle p)
@@ -105,6 +155,10 @@ Particle Emitter::createParticle(Particle p)
     p.alpha += alphaOffset(rng);
     p.startSize += startSizeOffset(rng);
     p.endSize += startSizeOffset(rng);
+    p.gravity = gravity;
+    if (velocityEasing != EasingType::None) {
+        p.velocityEasing = velocityEasing;
+    }
 
     p.tint = tint;
 
@@ -129,7 +183,7 @@ void Emitter::update(float deltaTime) {
     // Always update existing particles regardless of emitter lifetime
     for (auto& p : particles) {
         if (p.active)
-            p.update(deltaTime, gravity);
+            p.update(deltaTime);
     }
 }
 
@@ -160,7 +214,7 @@ void Emitter::emit() {
 }
 
 
-std::unique_ptr<Emitter> createEmitter(Game& game, std::string key)
+std::shared_ptr<Emitter> createEmitter(Game& game, std::string key, const nlohmann::json& overrideData)
 {
     const auto& particlesData = game.loader.getParticleData();
     const auto& emitterData = particlesData.at(key);
@@ -168,14 +222,16 @@ std::unique_ptr<Emitter> createEmitter(Game& game, std::string key)
     const auto& particleData = particlesData.at(particleKey);
     size_t maxParticles = emitterData.at("maxParticles");
 
-    std::unique_ptr<Emitter> emitter = std::make_unique<Emitter>(maxParticles);
+    std::shared_ptr<Emitter> emitter = std::make_shared<Emitter>(maxParticles);
     std::unique_ptr<Particle> proto = std::make_unique<Particle>();
 
-    emitter->fromJSON(emitterData, particlesData.at("defaultEmitter"));
+    emitter->fromJSON(emitterData, particlesData.at("defaultEmitter"), overrideData);
     proto->fromJSON(particleData, particlesData.at("defaultParticle"));
 
-    std::string textureKey = particleData.at("textureKey");
-    proto->setAnimationFrames(game.loader.getTextures(textureKey));
+    if (particleData.contains("textureKey")) {
+        std::string textureKey = particleData.at("textureKey");
+        proto->setAnimationFrames(game.loader.getTextures(textureKey));
+    }
     emitter->prototype = *proto;
 
     return emitter;

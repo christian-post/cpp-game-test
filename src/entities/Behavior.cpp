@@ -87,48 +87,12 @@ std::unique_ptr<Behavior> createBehaviorFromJSON(Game& game, std::shared_ptr<Spr
             TraceLog(LOG_WARNING, "No emitter/particle key specified for Emitter behavior");
             return nullptr;
         }
-
-        // TODO use createEmitter helper function
-
-        const auto& particlesData = game.loader.getParticleData();
-
-        if (particlesData.find("defaultEmitter") == particlesData.end() ||
-            particlesData.find("defaultParticle") == particlesData.end()) {
-            TraceLog(LOG_ERROR, "Missing 'defaultEmitter' or 'defaultParticle' in particles.json");
-            return nullptr;
-        }
-
-        const auto& defaultEmitterData = particlesData.at("defaultEmitter");
-        const auto& defaultParticleData = particlesData.at("defaultParticle");
-
-        if (particlesData.find(emitterKey) == particlesData.end()) {
-            TraceLog(LOG_WARNING, "Emitter key \"%s\" not found in particles.json", emitterKey.c_str());
-            return nullptr;
-        }
-
-        const auto& emitterData = particlesData.at(emitterKey);
-        std::string particleKey = emitterData.value("particleKey", defaultEmitterData.value("particleKey", "defaultParticle"));
-
-        if (particlesData.find(particleKey) == particlesData.end()) {
-            TraceLog(LOG_WARNING, "Particle key \"%s\" not found in particles.json", particleKey.c_str());
-            return nullptr;
-        }
-
-        const auto& particleData = particlesData.at(particleKey);
-
-        size_t maxParticles = emitterData.value("maxParticles", defaultEmitterData.value("maxParticles", 20));
-        std::unique_ptr<Emitter> emitter = std::make_unique<Emitter>(maxParticles);
-        emitter->fromJSON(emitterData, defaultEmitterData);
-
-        std::unique_ptr<Particle> proto = std::make_unique<Particle>();
-        proto->fromJSON(particleData, defaultParticleData);
-
-        std::string textureKey = particleData.value("textureKey", defaultParticleData.value("textureKey", "sprite_default"));
-        proto->setAnimationFrames(game.loader.getTextures(textureKey));
-
-        emitter->prototype = *proto;
-        TraceLog(LOG_INFO, "Creating Emitter for particle \"%s\"", textureKey.c_str());
-        return std::make_unique<EmitterBehavior>(game, sprite, std::move(emitter));
+        // check for overrides in behavior data
+        const nlohmann::json& overrides = behaviorData.contains("emitterData")
+            ? behaviorData.at("emitterData")
+            : nlohmann::json::object();
+        std::shared_ptr<Emitter> emitter = createEmitter(game, emitterKey, overrides);
+        return std::make_unique<EmitterBehavior>(game, sprite, emitter);
     }
     else if (behaviorKey == "Kite") {
         std::string targetName = behaviorData.value("kiteTarget", "player");

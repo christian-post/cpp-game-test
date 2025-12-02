@@ -4,10 +4,10 @@
 #include "Utils.h"
 #include "Emitter.h"
 
-EmitterBehavior::EmitterBehavior(Game& game, std::shared_ptr<Sprite> self, std::unique_ptr<Emitter> emitter)
+EmitterBehavior::EmitterBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Emitter> emitter)
     : game{ game }, self{ self } {
     this->emitter = emitter.get();
-    game.emitters.push_back(std::move(emitter));
+    game.emitters.push_back(emitter);
 }
 
 void EmitterBehavior::update(float deltaTime) {

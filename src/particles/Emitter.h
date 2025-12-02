@@ -15,12 +15,13 @@ struct Emitter {
     void update(float deltaTime);
     void draw();
     void reset();
-    void fromJSON(const nlohmann::json& data, const nlohmann::json& defaultData);
+    void fromJSON(const nlohmann::json& data, const nlohmann::json& defaultData, const nlohmann::json& overrideData = nlohmann::json::object());
     bool isDone() const;
+    void explode(); // emit once, then stop
     void start() { active = true; }
     void stop() { active = false; }
 
-    bool active = true;  // flag to control emission
+    bool active = true;  // emitter is on by default
     Vector2 position = { 0.0f, 0.0f };
     size_t burstSize = 1;
     float spawnInterval = 1.0f;
@@ -37,6 +38,7 @@ struct Emitter {
     float endSizeVariance = 0.0f;
     Color tint = WHITE; // overwrites particle tint
     Vector2 gravity = { 0.0f, 0.0f }; // modifies velocity
+    EasingType velocityEasing = EasingType::None; // can override easing of the particle velocity
 
     // Radial velocity mode (for inward/outward particle movement)
     bool radialVelocity = false;
@@ -52,4 +54,4 @@ struct Emitter {
 
 class Game;
 
-std::unique_ptr<Emitter> createEmitter(Game& game, std::string key); // helper function that creates an emitter from a key
+std::shared_ptr<Emitter> createEmitter(Game& game, std::string key, const nlohmann::json& overrideData = nlohmann::json::object()); // helper function that creates an emitter from a key (optional json data for overrides)

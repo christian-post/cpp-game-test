@@ -27,6 +27,11 @@ void InGame::startup() {
     player->setTextures({ "player_idle", "player_run", "player_hit" });
     player->emitsLight = true; // TODO: for debugging, until I program the lamp item
 
+    // instantiate a hit effect emitter
+    wpnHitEffect = createEmitter(game, "hitEffect");
+    wpnHitEffect->stop();
+    game.emitters.push_back(wpnHitEffect);
+
     // check for existing loaded savegame data here
     // TODO put this in separate function for less spaghetti
     auto saveData = game.getSaveData();
@@ -383,7 +388,7 @@ void InGame::loadTilemap() {
     tileMap = game.currentDungeon->loadCurrentTileMap();
     // remove static and dynamic (non-persistent) sprites
     game.walls.clear();
-    game.emitters.clear();
+    //game.emitters.clear(); // TODO distinguish between persistent and non-persitstent emitters
     game.clearSprites();
     // check if there even is a valid tile map
     if (!tileMap)
@@ -558,7 +563,7 @@ void InGame::update(float deltaTime) {
                     CheckCollisionRecs(weapon->hurtbox, sprite->rect)) {
                     sprite->health = (weapon->damage > sprite->health) ? 0 : sprite->health - weapon->damage;
                     sprite->iFrameTimer = 0.5f;
-
+                    
                     // calculate the knockback
                     if (sprite->weight > 0)
                         applyKnockback(*weapon, *sprite, 8.0f / sprite->weight); // TODO get knockback from weapon data?
@@ -567,6 +572,15 @@ void InGame::update(float deltaTime) {
                     // TODO: get shake intensity from data
                     game.eventManager.pushEvent(SCREEN_SHAKE, std::make_tuple(0.2f, 4.0f, 0.0f));
                     game.playSound("creature_hurt_02");
+
+                    // TODO trigger particle effect
+                    wpnHitEffect->position = GetRectCenter(sprite->rect);
+                    wpnHitEffect->explode();
+                    // TODO this should be part of explode() somehow
+                    game.eventManager.pushDelayedEvent(UNNAMED, 0.51, nullptr, [&] {
+                        wpnHitEffect->reset();
+                        wpnHitEffect->stop();
+                        });
                 }
             }
         }
@@ -579,7 +593,7 @@ void InGame::update(float deltaTime) {
     // clean up finished emitters
     game.emitters.erase(
         std::remove_if(game.emitters.begin(), game.emitters.end(),
-            [](const std::unique_ptr<Emitter>& e) { return e->isDone(); }),
+            [](const std::shared_ptr<Emitter>& e) { return e->isDone(); }),
         game.emitters.end()
     );
 

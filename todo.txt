@@ -26,14 +26,18 @@ Scenes
 ### Fix/refactor
 
 IMPORTANT:
-- load weapons.json data into weaponData structs in Preload
-- projectiles only create an impact emitter on the target and on walls, not on other sprites
-- use createEmitter helper function in Behavior::createBehaviorFromJSON
-- Particles
--- easing functions
--- gravity
--- fix steady stream emitter (incorporate burstSize)
-- collision objects should be able to span multiple layers
+- BUGS
+-- projectiles only create an impact emitter on the target and on walls, not on other sprites
+-- velocity easing does not work on Emitter
+
+- FEATURES:
+-- load weapons.json data into weaponData structs in Preload
+-- use createEmitter helper function in Behavior::createBehaviorFromJSON
+-- Particles
+--- distinguish between persistent and non-persitstent emitters
+--- fix the easing functions (see Python code)
+--- fix the "explode" function to not need a delayed event
+-- collision objects should be able to span multiple layers
 
 NOT SO IMPORTANT:
 - add a "persistent" property to event listeners (non-persistent listeners are removed after one event)
@@ -54,6 +58,7 @@ NOT SO IMPORTANT:
 - add a light cone to items that come from chests (if in a dark room) (or maybe draw them over the darkness layer?)
 - make Game.getPlayer() obsolete
 - give enemies certain weapon weaknesses
+- custom keyboard keys and gamepad buttons
 
 
 ### OTHER BUGS:
@@ -64,4 +69,5 @@ RELEASE CHECKLIST
 - turn on sounds and music
 - hand painted title image
 - consistent source code formatting (brackets!)
+-- should all enums be UPPERCASE?
 - test xbox controller

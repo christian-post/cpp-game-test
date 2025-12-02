@@ -24,13 +24,26 @@ Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this) {
     loader.loadSettings("./resources/settings.json");
     settings = &loader.getSettings();
     TraceLog(LOG_INFO, settings->dump(2).c_str());
-    // Enable config flags for resizable window and vsync
-    SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT);
+    SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT); // Enable config flags for resizable window and vsync
+    // initialize the main window from the values found in settings.json
     InitWindow(getSetting("windowWidth"), getSetting("windowHeight"), "My first game");
     SetWindowMinSize(320, 240);
-    auto [x, y] = GetWindowPosition();
-    lastWindowX = static_cast<int>(x);
-    lastWindowY = static_cast<int>(y);
+    isFullscreen = getSetting("fullscreen", false);
+    if (isFullscreen) 
+        ToggleFullscreen();
+    int x = getSetting("windowX", GetWindowPosition().x);
+    int y = getSetting("windowY", GetWindowPosition().y);
+    SetWindowPosition(x, y);
+
+    // window event callbacks
+    windowEvents.onResize = [&](int width, int height) {
+        writeSetting("windowWidth", width);
+        writeSetting("windowHeight", height);
+        };
+    windowEvents.onReposition = [&](Vector2 pos) {
+        writeSetting("windowX", pos.x);
+        writeSetting("windowY", pos.y);
+        };
 
     InitAudioDevice();
     soundOn = getSetting("soundOn");
@@ -65,13 +78,42 @@ Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this) {
 
 Game::~Game() {}
 
-const nlohmann::json& Game::getSetting(const std::string& key) const {
-    try {
+void Game::restart() {
+    running = false;
+    restartRequested = true;
+    // make sure settings are saved before they are being loaded again
+    saveSettings();
+}
+
+void Game::cleanup() {
+    saveSettings();
+
+    UnloadRenderTexture(target);
+    CloseAudioDevice();
+    CloseWindow();
+}
+
+nlohmann::json Game::getSetting(const std::string& key, nlohmann::json defaultValue) const {
+    if (settings->contains(key))
         return settings->at(key);
+    TraceLog(LOG_ERROR, "[Settings] Missing key: %s. Using default value.", key.c_str());
+    return defaultValue;
+}
+
+void Game::writeSetting(const std::string& key, nlohmann::json value)
+{
+    loader.writeSetting(key, value);
+}
+
+void Game::saveSettings()
+{
+    if (settings) {
+        std::ofstream file("./resources/settings.json");
+        file << settings->dump(2);
+        TraceLog(LOG_INFO, "Settings have been saved.");
     }
-    catch (const std::out_of_range&) {
-        TraceLog(LOG_ERROR, "[Settings] Missing key: %s", key.c_str());
-        std::terminate();
+    else {
+        TraceLog(LOG_ERROR, "Settings object not initialized or null.");
     }
 }
 
@@ -134,6 +176,7 @@ void Game::toggleFullscreen()
         lastWindowY = static_cast<int>(y);
         HideCursor();
     }
+    writeSetting("fullscreen", isFullscreen);
     isFullscreen = !isFullscreen;
     ToggleFullscreen();
 }
@@ -267,7 +310,6 @@ void Game::killSprite(const std::shared_ptr<Sprite>& sprite) {
 void Game::clearSprites(bool clearPersistent) {
     // removes all current sprites
     // keeps the ones with the "persistent" flag, if not stated otherwise
-    // TODO: testing delayed removal
     for (auto& sprite: sprites) {
         if (!sprite->persistent) {
             sprite->markForDeletion();
@@ -293,7 +335,6 @@ void Game::processMarkedSprites() {
         }), sprites.end());
 
     // add any new sprites to the vector
-    // TODO: just doing this here, no need for a separate function I guess
     for (auto& s : spritesToAdd) {
         sprites.push_back(s);
     }
@@ -315,6 +356,7 @@ void Game::playSound(const std::string& key){
 
 void Game::update(float deltaTime) {
     eventManager.update(deltaTime);
+    windowEvents.update();
 
     for (auto& [name, scene] : scenes) {
         if (scene && scene->isActive() && !scene->isPaused()) {
@@ -480,7 +522,7 @@ void Game::run() {
         }
 
         // restart the game 
-        // TODO: this is just for faster debugging
+        // TODO: this is just for faster debugging, will be removed in the final version
         if (IsKeyPressed(KEY_F5)) {
             restart();
         }
@@ -490,7 +532,5 @@ void Game::run() {
         processMarkedScenes();
     }
     // cleanup after the game loop
-    UnloadRenderTexture(target);
-    CloseAudioDevice();
-    CloseWindow();
+    cleanup();
 }

@@ -12,6 +12,7 @@
 #include "json.hpp"
 
 struct SaveGame;
+struct Emitter;
 
 class InGame : public Scene {
 public:
@@ -73,4 +74,5 @@ private:
 
     bool playerMovementLocked = false; // arrow keys won't move the player
     bool cameraHasBounds = true;  // only for debugging
+    std::shared_ptr<Emitter> wpnHitEffect = nullptr;
 };

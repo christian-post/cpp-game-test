@@ -214,8 +214,12 @@ void AssetLoader::loadSettings(const std::string& filename) {
     file >> settings;
 }
 
-const nlohmann::json& AssetLoader::getSettings() {
+nlohmann::json& AssetLoader::getSettings() {
     return settings;
+}
+
+void AssetLoader::writeSetting(const std::string& key, nlohmann::json value) {
+    settings[key] = value;
 }
 
 void AssetLoader::loadSpriteData(const std::string& filename) {

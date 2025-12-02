@@ -147,11 +147,9 @@ void Preload::startup() {
                     "./resources/textures/sprites/turret_right_f1.png",
                 }
             },
-            {
-                "signpost", {
-                    "./resources/textures/sprites/signpost.png"
-                }
-            },
+            { "signpost", { "./resources/textures/sprites/signpost.png" }},
+            { "blob", { "./resources/textures/sprites/blob.png" }},
+
             // inventory sprites
             {
                 "hearts", {

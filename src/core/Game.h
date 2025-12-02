@@ -12,6 +12,7 @@
 #include "AssetLoader.h"
 #include "Sprite.h"
 #include "EventManager.h"
+#include "WindowEventHandler.h"
 #include "CutsceneManager.h"
 #include "InventoryManager.h"
 #include "Dungeon.h"
@@ -27,7 +28,7 @@ struct Emitter;
 
 class Game {
 private:
-    const nlohmann::json* settings = nullptr;
+    nlohmann::json* settings = nullptr;
 
 public:
     Game();
@@ -42,7 +43,9 @@ public:
     RenderTexture2D target; // texture surface for the ingame graphics
 
     AssetLoader loader;
-    const nlohmann::json& getSetting(const std::string& key) const;
+    nlohmann::json getSetting(const std::string& key, nlohmann::json defaultValue = nlohmann::json()) const;
+    void writeSetting(const std::string& key, nlohmann::json value);
+    void saveSettings();
 
     // basic game loop
     void update(float deltaTime);
@@ -79,16 +82,16 @@ public:
     }
 
     EventManager eventManager; // event handling
+    WindowEventHandler windowEvents; // processes raylib window changes specifically
     CutsceneManager cutsceneManager;
     InventoryManager inventory;
 
     bool isRunning() const { return running; }
     bool isRestartRequested() const { return restartRequested; }
     void end() { running = false; }
-    void restart() {
-        running = false;
-        restartRequested = true; 
-    }
+    void restart();
+    void cleanup(); // cleans up after the game loop ended
+
     // saving and loading the game state
     void save(std::string& filename);
     void load(std::string& filename);
@@ -102,7 +105,7 @@ public:
     std::vector<std::unique_ptr<CollisionObject>> walls; // everything with static collision
     std::vector<std::shared_ptr<Sprite>> sprites; // dynamic objects
     std::unordered_map<std::string, std::shared_ptr<Sprite>> spriteMap; // keep named references to certain sprites
-    std::vector<std::unique_ptr<Emitter>> emitters;  // particle emitters
+    std::vector<std::shared_ptr<Emitter>> emitters;  // particle emitters
     std::shared_ptr<Sprite> createSprite(std::string spriteName, Rectangle& rect); // TODO: return a shared pointer, or a reference to the sprite?
 
     // Dungeon management

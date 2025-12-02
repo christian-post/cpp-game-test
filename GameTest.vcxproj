@@ -218,6 +218,7 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <ClInclude Include="src\core\Game.h" />
     <ClInclude Include="src\core\Savegame.h" />
     <ClInclude Include="src\core\Scene.h" />
+    <ClInclude Include="src\core\WindowEventHandler.h" />
     <ClInclude Include="src\cutscenes\Commands.h" />
     <ClInclude Include="src\cutscenes\CutsceneManager.h" />
     <ClInclude Include="src\cutscenes\Events.h" />

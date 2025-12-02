@@ -209,6 +209,27 @@
     "endSize": 1.0,
     "animationSpeed": 0.1
   },
+  "hitEffect": {
+    "type": "emitter",
+    "particleKey": "exampleCircleParticle",
+    "maxParticles": 5,
+    "spawnInterval": 1.0,
+    "spawnDelay": 0.0,
+    "burstSize": 3,
+    "emitterLifetime": -1.0,
+    "spawnRadius": 0.1,
+    "spawnRadiusVariance": 2.0,
+    "velocityVarianceX": 0.0,
+    "velocityVarianceY": 0.0,
+    "lifetimeVariance": 0.2,
+    "alphaVariance": 0.3,
+    "startSizeVariance": 0.2,
+    "endSizeVariance": 0.0,
+    "radialVelocity": true,
+    "speed": -150.0,
+    "speedVariance": 50.0,
+    "tint": [ 255, 200, 200, 255 ]
+  },
   "exampleCircleParticle": {
     "type": "particle",
     "primitiveType": "circle",
@@ -217,10 +238,9 @@
     "velocityY": 0.0,
     "startAlpha": 1.0,
     "endAlpha": 0.0,
-    "lifetime": 0.5,
+    "lifetime": 1.0,
     "startSize": 1.0,
-    "endSize": 0.2,
-    "animationSpeed": 0.1
+    "endSize": 0.2
   },
   "exampleSteadyRadial": {
     "type": "emitter",
@@ -250,9 +270,9 @@
     "type": "emitter",
     "particleKey": "exampleCircleParticle",
     "maxParticles": 30,
-    "spawnInterval": 4.0,
+    "spawnInterval": 1.0,
     "spawnDelay": 0.5,
-    "burstSize": 30,
+    "burstSize": 25,
     "emitterLifetime": -1.0,
     "spawnRadius": 0.1,
     "spawnRadiusVariance": 2.0,
@@ -263,7 +283,8 @@
     "startSizeVariance": 0.3,
     "endSizeVariance": 0.0,
     "radialVelocity": true,
-    "speed": -100.0,
-    "speedVariance": 50.0
+    "speed": -50.0,
+    "speedVariance": 10.0,
+    "velocityEasing": "quadIn"
   }
 }

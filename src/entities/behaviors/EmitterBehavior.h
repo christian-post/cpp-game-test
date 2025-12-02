@@ -8,7 +8,7 @@ struct Emitter;
 
 class EmitterBehavior : public Behavior {
 public:
-    EmitterBehavior(Game& game, std::shared_ptr<Sprite> self, std::unique_ptr<Emitter> emitter);
+    EmitterBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Emitter> emitter);
     void update(float deltaTime) override;
     void reset() override;
     void onDeactivate() override;

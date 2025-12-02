@@ -1,13 +1,50 @@
 #include "Particle.h"
 #include <cmath>
+#include "raymath.h"
 #include <string>
+
+static float applyEasing(EasingType type, float t) {
+    switch (type) {
+    case EasingType::None:
+        return 1.0f;
+    case EasingType::QuadIn:
+        return 1.0f - t * t;
+    case EasingType::QuadOut:
+        return std::pow(1.0f, 2);
+    case EasingType::QuadInOut: {
+        if (t < 0.5f) {
+            return 1.0f - 2.0f * t * t;
+        }
+        else {
+            return std::pow(-2.0f * t + 2.0f, 2.0f) / 2.0f;
+        }
+    }
+    case EasingType::CubicIn: {
+        return 1.0f - t * t * t;
+    }
+    case EasingType::CubicOut:
+        return std::pow(1.0f, 3);
+    case EasingType::CubicInOut: {
+        if (t < 0.5f) {
+            return 1.0f - 4.0f * t * t * t;
+        }
+        else {
+            return std::pow(-2.0f * t + 2.0f, 3.0f) / 2.0f;
+        }
+    }
+    default:
+        return 1.0f;
+    }
+}
+
 
 Particle::Particle()
 {
     startAlpha = alpha;
+    initialVelocity = velocity;
 }
 
-void Particle::update(float deltaTime, Vector2 gravity) {
+void Particle::update(float deltaTime) {
     if (!active)
         return;
 
@@ -20,11 +57,20 @@ void Particle::update(float deltaTime, Vector2 gravity) {
     velocity.x += gravity.x * deltaTime;
     velocity.y += gravity.y * deltaTime;
 
-    position.x += velocity.x * deltaTime;
-    position.y += velocity.y * deltaTime;
+    // Apply velocity easing if enabled
+    Vector2 finalVelocity = velocity;
+    if (velocityEasing != EasingType::None) {
+        float t = age / lifetime;
+        float easeFactor = applyEasing(velocityEasing, t);
+        finalVelocity.x = initialVelocity.x * easeFactor;
+        finalVelocity.y = initialVelocity.y * easeFactor;
+        //TraceLog(LOG_INFO, "%f", Vector2Length(finalVelocity));
+    }
+
+    position.x += finalVelocity.x * deltaTime;
+    position.y += finalVelocity.y * deltaTime;
 
     alpha = startAlpha + (endAlpha - startAlpha) * (age / lifetime);
-
     size = startSize + (endSize - startSize) * (age / lifetime);
 
     if (!animationFrames.empty()) {
@@ -72,6 +118,7 @@ void Particle::reset() {
     currentFrame = 0;
     animationTimer = 0.0f;
     startAlpha = alpha;
+    initialVelocity = velocity;
     active = true;
 }
 
@@ -114,6 +161,24 @@ void Particle::fromJSON(const nlohmann::json& data, const nlohmann::json& defaul
             TraceLog(LOG_WARNING, "Unsupported primitive type: %s", typeStr.c_str());
     }
     primitiveSize = data.value("primitiveSize", defaultData.value("primitiveSize", 5.0f));
+
+    if (data.contains("velocityEasing")) {
+        std::string easingStr = data.at("velocityEasing");
+        if (easingStr == "quadIn")
+            velocityEasing = EasingType::QuadIn;
+        else if (easingStr == "quadOut")
+            velocityEasing = EasingType::QuadOut;
+        else if (easingStr == "quadInOut")
+            velocityEasing = EasingType::QuadInOut;
+        else if (easingStr == "cubicIn")
+            velocityEasing = EasingType::CubicIn;
+        else if (easingStr == "cubicOut")
+            velocityEasing = EasingType::CubicOut;
+        else if (easingStr == "cubicInOut")
+            velocityEasing = EasingType::CubicInOut;
+        else
+            velocityEasing = EasingType::None;
+    }
 }
 
 void Particle::setAnimationFrames(const std::vector<Texture2D>& textures) {

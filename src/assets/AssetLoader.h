@@ -52,7 +52,8 @@ public:
     const Shader& getShader(const std::string& key);
     const Music& getMusic(const std::string& key);
     Sound& getSound(const std::string& key); // not const since I need to change the pitch
-    const nlohmann::json& getSettings();
+    nlohmann::json& getSettings();
+    void writeSetting(const std::string& key, nlohmann::json value);
     const nlohmann::json& getSpriteData();
     const nlohmann::json& getParticleData();
 
