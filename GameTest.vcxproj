@@ -286,6 +286,7 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <None Include="resources\particles.json" />
     <None Include="resources\settings.json" />
     <None Include="resources\shaders\crumble.fs" />
+    <None Include="resources\shaders\heartbeat.fs" />
     <None Include="resources\shaders\light_mask.fs" />
     <None Include="resources\shaders\light_mask_flicker.fs" />
     <None Include="resources\shaders\vignette.fs" />

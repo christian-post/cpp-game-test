@@ -30,7 +30,7 @@ IMPORTANT:
 -- projectiles only create an impact emitter on the target and on walls, not on other sprites
 -- velocity easing does not work on Emitter
 
-- FEATURES:
+- FEATURES/REFACTORS:
 -- load weapons.json data into weaponData structs in Preload
 -- use createEmitter helper function in Behavior::createBehaviorFromJSON
 -- Particles
@@ -38,6 +38,8 @@ IMPORTANT:
 --- fix the easing functions (see Python code)
 --- fix the "explode" function to not need a delayed event
 -- collision objects should be able to span multiple layers
+-- auto load most of the assets instead of manually adding them to Preload.cpp
+-- the shaders should be hardcoded in the function in CircleOverlay.cpp
 
 NOT SO IMPORTANT:
 - add a "persistent" property to event listeners (non-persistent listeners are removed after one event)

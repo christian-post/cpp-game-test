@@ -12,3 +12,5 @@ struct Light {
 void DrawLightOverlay(Texture2D& texture, const Shader& shader, Light* lights, int lightCount, float screenW, float screenH);
 
 void DrawVignette(Texture2D& texture, const Shader& shader, float intensity, float softness, float screenW, float screenHH);
+
+void DrawLowHealthEffect(Texture2D& texture, const Shader& shader, float frequency, float intensity, float softness, float screenW, float screenH);

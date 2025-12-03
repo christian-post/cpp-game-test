@@ -44,3 +44,20 @@ void DrawVignette(Texture2D& texture, const Shader& shader, float intensity, flo
     DrawTexturePro(texture, source, dest, { 0.0f, 0.0f }, 0.0f, WHITE);
     EndShaderMode();
 }
+
+void DrawLowHealthEffect(Texture2D& texture, const Shader& shader, float frequency, float intensity, float softness, float screenW, float screenH)
+{
+    float time = GetTime();
+    SetShaderValue(shader, GetShaderLocation(shader, "time"), &time, SHADER_UNIFORM_FLOAT);
+    SetShaderValue(shader, GetShaderLocation(shader, "screenWidth"), &screenW, SHADER_UNIFORM_FLOAT);
+    SetShaderValue(shader, GetShaderLocation(shader, "screenHeight"), &screenH, SHADER_UNIFORM_FLOAT);
+    SetShaderValue(shader, GetShaderLocation(shader, "frequency"), &frequency, SHADER_UNIFORM_FLOAT);
+    SetShaderValue(shader, GetShaderLocation(shader, "intensity"), &intensity, SHADER_UNIFORM_FLOAT);
+    SetShaderValue(shader, GetShaderLocation(shader, "softness"), &softness, SHADER_UNIFORM_FLOAT);
+
+    BeginShaderMode(shader);
+    Rectangle source = { 0.0f, 0.0f, screenW, screenH };
+    Rectangle dest = { 0.0f, 0.0f, screenW, screenH };
+    DrawTexturePro(texture, source, dest, { 0.0f, 0.0f }, 0.0f, WHITE);
+    EndShaderMode();
+}

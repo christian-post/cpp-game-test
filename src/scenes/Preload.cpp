@@ -242,6 +242,7 @@ void Preload::startup() {
         l.LoadShaderFile("./resources/shaders/light_mask.fs");
         l.LoadShaderFile("./resources/shaders/vignette.fs");
         l.LoadShaderFile("./resources/shaders/light_mask_flicker.fs");
+        l.LoadShaderFile("./resources/shaders/heartbeat.fs");
         });
     // JSON data
     loadQueue.emplace("Loading JSON data", [&]() {

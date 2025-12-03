@@ -680,6 +680,15 @@ void InGame::draw() {
     // draw a vignette
     DrawVignette(game.target.texture, game.loader.getShader("vignette"), game.getSetting("vignetteIntensity"), game.getSetting("vignetteSmoothness"), static_cast<float>(game.gameScreenWidth), static_cast<float>(game.gameScreenHeight));
 
+    // draw an effect when the player if low on health
+    if (player->health < 5) {
+        float modifier = (1.0f - static_cast<float>(player->health) / 4);
+        float freq = 0.6f + modifier;  // gets faster with lower health
+        float intensity = 0.2f + modifier;
+        float softness = 0.5f;
+        DrawLowHealthEffect(game.target.texture, game.loader.getShader("heartbeat"), freq, intensity, softness, static_cast<float>(game.gameScreenWidth), static_cast<float>(game.gameScreenHeight));
+    }
+
     // cutscene stuff (textboxes etc) gets drawn relative to window position
     game.cutsceneManager.draw();
 }

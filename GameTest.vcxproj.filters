@@ -396,6 +396,7 @@
     <None Include="resources\shaders\vignette.fs" />
     <None Include="resources\shaders\light_mask_flicker.fs" />
     <None Include=".gitignore" />
+    <None Include="resources\shaders\heartbeat.fs" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="github\hero.gif">
