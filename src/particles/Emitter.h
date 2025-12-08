@@ -22,6 +22,7 @@ struct Emitter {
     void stop() { active = false; }
 
     bool active = true;  // emitter is on by default
+    bool persistent = false; // whether this survives room changes
     Vector2 position = { 0.0f, 0.0f };
     size_t burstSize = 1;
     float spawnInterval = 1.0f;

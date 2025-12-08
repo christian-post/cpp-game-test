@@ -1,9 +1,22 @@
-### features
+# IMPORTANT:
+## BUGS
+- projectiles only create an impact emitter on the target and on walls, not on other sprites
 
-Scenes
-- 
+## FEATURES/REFACTORS:
+- Core
+-- load weapons.json data into weaponData structs in Preload
+-- do I need a base GameObject class? Or is that too much overhead for too little gain?
+
+- Particles
+-- fix the "explode" function to not need a delayed event
+-- use createEmitter helper function in Behavior::createBehaviorFromJSON
+
+- collision objects should be able to span multiple layers
+- auto load most of the assets instead of manually adding them to Preload.cpp
+- the shaders should be hardcoded in the function in CircleOverlay.cpp
 
 - Dungeon
+-- allow for multiple floors
 -- procedural room generation
 -- dynamically show a shadow over a room entrance if the adjacent room is dark
 
@@ -13,35 +26,8 @@ Scenes
 -- dialogue options
 -- create a Sprite.fromJson() method to avoid duplications in InGame.cpp
 
-- Cutscene commands
--- Command_MoveToPath(target, posX, posY, duration) // should use pathfinding
-
-- Misc
--- more particle effects during combat (Sword hits, Projectiles hit walls)
-
-- Music/Sounds:
--- Inventory select item --> different sound
-
-
-### Fix/refactor
-
-IMPORTANT:
-- BUGS
--- projectiles only create an impact emitter on the target and on walls, not on other sprites
--- velocity easing does not work on Emitter
-
-- FEATURES/REFACTORS:
--- load weapons.json data into weaponData structs in Preload
--- use createEmitter helper function in Behavior::createBehaviorFromJSON
--- Particles
---- distinguish between persistent and non-persitstent emitters
---- fix the easing functions (see Python code)
---- fix the "explode" function to not need a delayed event
--- collision objects should be able to span multiple layers
--- auto load most of the assets instead of manually adding them to Preload.cpp
--- the shaders should be hardcoded in the function in CircleOverlay.cpp
-
-NOT SO IMPORTANT:
+# NOT SO IMPORTANT:
+## FEATURES/REFACTORS:
 - add a "persistent" property to event listeners (non-persistent listeners are removed after one event)
 - Too much coupling between Game and Sprite?
 - when predrawing the Tilemap chunks, don't store textures that are completely transparent
@@ -61,13 +47,14 @@ NOT SO IMPORTANT:
 - make Game.getPlayer() obsolete
 - give enemies certain weapon weaknesses
 - custom keyboard keys and gamepad buttons
+- Music/Sounds:
+-- Inventory select item --> different sound
 
-
-### OTHER BUGS:
+## BUGS:
 - RandomWalkBehavior: choose new target after some time if the current target can't be reached
 - chest contain coins after loading a save
 
-RELEASE CHECKLIST
+# RELEASE CHECKLIST
 - turn on sounds and music
 - hand painted title image
 - consistent source code formatting (brackets!)

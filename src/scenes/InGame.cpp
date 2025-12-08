@@ -29,6 +29,7 @@ void InGame::startup() {
 
     // instantiate a hit effect emitter
     wpnHitEffect = createEmitter(game, "hitEffect");
+    wpnHitEffect->persistent = true;
     wpnHitEffect->stop();
     game.emitters.push_back(wpnHitEffect);
 
@@ -386,9 +387,9 @@ void InGame::checkRoomTransition()
 
 void InGame::loadTilemap() {
     tileMap = game.currentDungeon->loadCurrentTileMap();
-    // remove static and dynamic (non-persistent) sprites
+    // remove static and dynamic (non-persistent) objects
     game.walls.clear();
-    //game.emitters.clear(); // TODO distinguish between persistent and non-persitstent emitters
+    game.clearEmitters();
     game.clearSprites();
     // check if there even is a valid tile map
     if (!tileMap)

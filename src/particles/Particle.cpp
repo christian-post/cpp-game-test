@@ -7,31 +7,38 @@ static float applyEasing(EasingType type, float t) {
     switch (type) {
     case EasingType::None:
         return 1.0f;
+
     case EasingType::QuadIn:
-        return 1.0f - t * t;
+        return t * t;
+
     case EasingType::QuadOut:
-        return std::pow(1.0f, 2);
+        return 1.0f - (1.0f - t) * (1.0f - t);
+
     case EasingType::QuadInOut: {
         if (t < 0.5f) {
-            return 1.0f - 2.0f * t * t;
+            return 2.0f * t * t;
         }
         else {
-            return std::pow(-2.0f * t + 2.0f, 2.0f) / 2.0f;
+            return  1.0f - std::pow(-2.0f * t + 2.0f, 2.0f) / 2.0f;
         }
     }
+
     case EasingType::CubicIn: {
-        return 1.0f - t * t * t;
+        return t * t * t;
     }
+
     case EasingType::CubicOut:
-        return std::pow(1.0f, 3);
+        return 1.0f - std::pow(1.0f - t, 3.0f);
+
     case EasingType::CubicInOut: {
         if (t < 0.5f) {
-            return 1.0f - 4.0f * t * t * t;
+            return 4.0f * t * t * t;
         }
         else {
-            return std::pow(-2.0f * t + 2.0f, 3.0f) / 2.0f;
+            return 1.0f - std::pow(-2.0f * t + 2.0f, 3.0f) / 2.0f;
         }
     }
+
     default:
         return 1.0f;
     }

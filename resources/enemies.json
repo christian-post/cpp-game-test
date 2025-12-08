@@ -31,7 +31,8 @@
           "behaviorData": {
             "emitter": "exampleBurst",
             "emitterData": {
-              "velocityEasing": "quadOut"
+              "velocityEasing": "quadOut",
+              "tint": [ 255, 0, 0, 255 ]
             }
           }
         }
@@ -49,7 +50,8 @@
           "behaviorData": {
             "emitter": "exampleBurst",
             "emitterData": {
-              "velocityEasing": "quadInOut"
+              "velocityEasing": "quadInOut",
+              "tint": [ 0, 255, 0, 255 ]
             }
           }
         }
@@ -67,7 +69,8 @@
           "behaviorData": {
             "emitter": "exampleBurst",
             "emitterData": {
-              "velocityEasing": "cubicIn"
+              "velocityEasing": "cubicIn",
+              "tint": [ 0, 0, 255, 255 ]
             }
           }
         }
@@ -85,7 +88,8 @@
           "behaviorData": {
             "emitter": "exampleBurst",
             "emitterData": {
-              "velocityEasing": "cubicOut"
+              "velocityEasing": "cubicOut",
+              "tint": [ 255, 255, 0, 255 ]
             }
           }
         }
@@ -103,7 +107,8 @@
           "behaviorData": {
             "emitter": "exampleBurst",
             "emitterData": {
-              "velocityEasing": "cubicInOut"
+              "velocityEasing": "cubicInOut",
+              "tint": [ 0, 255, 255, 255 ]
             }
           }
         }

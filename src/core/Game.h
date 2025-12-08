@@ -138,6 +138,8 @@ public:
     void killSprite(const std::shared_ptr<Sprite>& sprite);
     void clearSprites(bool clearPersistent = false);
     void processMarkedSprites();
+    // other game objects
+    void clearEmitters(bool clearPersistent = false);
 
     Sprite* getPlayer(); // store a reference to the player sprite in case a scene other than InGame needs it
 

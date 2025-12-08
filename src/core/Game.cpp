@@ -341,6 +341,14 @@ void Game::processMarkedSprites() {
     spritesToAdd.clear();
 }
 
+void Game::clearEmitters(bool clearPersistent)
+{
+    emitters.erase(std::remove_if(emitters.begin(), emitters.end(),
+        [](auto emitter) {
+            return !emitter->persistent;
+        }), emitters.end());
+}
+
 Sprite* Game::getPlayer() {
     InGame* inGame = dynamic_cast<InGame*>(getScene("InGame"));
     if (!inGame) return nullptr;
