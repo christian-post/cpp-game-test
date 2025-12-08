@@ -212,10 +212,10 @@
   "hitEffect": {
     "type": "emitter",
     "particleKey": "exampleCircleParticle",
-    "maxParticles": 5,
+    "maxParticles": 10,
     "spawnInterval": 1.0,
     "spawnDelay": 0.0,
-    "burstSize": 3,
+    "burstSize": 5,
     "emitterLifetime": -1.0,
     "spawnRadius": 0.1,
     "spawnRadiusVariance": 2.0,
@@ -226,8 +226,8 @@
     "startSizeVariance": 0.2,
     "endSizeVariance": 0.0,
     "radialVelocity": true,
-    "speed": -150.0,
-    "speedVariance": 50.0,
+    "speed": -100.0,
+    "speedVariance": 20.0,
     "tint": [ 255, 200, 200, 255 ]
   },
   "exampleCircleParticle": {

@@ -7,6 +7,12 @@
 #include "Particle.h"
 #include "json.hpp"
 
+enum class EmitterState {
+    Stopped,      // not emitting
+    Continuous,   // infinite emission
+    Timed,        // finite lifetime emission
+    Burst         // one-shot explosion with auto-cleanup
+};
 
 struct Emitter {
     // emits a certain type of Particle
@@ -18,10 +24,10 @@ struct Emitter {
     void fromJSON(const nlohmann::json& data, const nlohmann::json& defaultData, const nlohmann::json& overrideData = nlohmann::json::object());
     bool isDone() const;
     void explode(); // emit once, then stop
-    void start() { active = true; }
-    void stop() { active = false; }
+    void start();
+    void stop();
 
-    bool active = true;  // emitter is on by default
+    EmitterState state = EmitterState::Continuous;
     bool persistent = false; // whether this survives room changes
     Vector2 position = { 0.0f, 0.0f };
     size_t burstSize = 1;

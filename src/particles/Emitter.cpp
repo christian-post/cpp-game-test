@@ -19,6 +19,13 @@ void Emitter::fromJSON(const nlohmann::json& data, const nlohmann::json& default
     spawnInterval = getValue("spawnInterval", 1.0f);
     burstSize = getValue("burstSize", size_t(1));
     emitterLifetime = getValue("emitterLifetime", -1.0f);
+
+    // Set initial state based on configuration
+    if (emitterLifetime < 0)
+        state = EmitterState::Continuous;
+    else
+        state = EmitterState::Timed;
+
     spawnRadius = getValue("spawnRadius", 0.0f);
     spawnRadiusVariance = getValue("spawnRadiusVariance", 0.0f);
     velocityVariance.x = getValue("velocityVarianceX", 0.0f);
@@ -88,27 +95,42 @@ void Emitter::fromJSON(const nlohmann::json& data, const nlohmann::json& default
 }
 
 bool Emitter::isDone() const {
-    // Infinite emitters (lifetime == -1) are never "done" on their own
-    if (emitterLifetime <= 0)
+    // Continuous and stopped emitters are never "done"
+    if (state == EmitterState::Continuous || state == EmitterState::Stopped)
         return false;
 
-    // If emitter has a positive lifetime and hasn't finished spawning, not done
-    if (age < emitterLifetime)
+    // Timed emitters aren't done until they finish their lifetime
+    if (state == EmitterState::Timed && age < emitterLifetime)
         return false;
 
-    // Check if any particles are still active
+    // Burst emitters (and timed past lifetime) are done when all particles die
     for (const auto& p : particles) {
         if (p.active)
             return false;
     }
 
-    // Emitter finished spawning AND all particles are dead
     return true;
+}
+
+void Emitter::start()
+{
+    if (state == EmitterState::Stopped) {
+        if (emitterLifetime < 0)
+            state = EmitterState::Continuous;
+        else
+            state = EmitterState::Timed;
+    }
+}
+
+void Emitter::stop()
+{
+    state = EmitterState::Stopped;
 }
 
 void Emitter::explode()
 {
-    start();
+    age = 0.0f;
+    state = EmitterState::Burst;
     emit();
 }
 
@@ -169,21 +191,25 @@ Particle Emitter::createParticle(Particle p)
 void Emitter::update(float deltaTime) {
     age += deltaTime;
 
-    // Only emit new particles if within lifetime
-    if (emitterLifetime <= 0 || age < emitterLifetime) {
-        if (active) {
-            timer += deltaTime;
-            if (timer >= 0.0f) {
-                emit();
-                timer -= spawnInterval;
-            }
+    // Spawn new particles based on state
+    if (state == EmitterState::Continuous || (state == EmitterState::Timed && age < emitterLifetime)) {
+        timer += deltaTime;
+        if (timer >= 0.0f) {
+            emit();
+            timer -= spawnInterval;
         }
     }
 
-    // Always update existing particles regardless of emitter lifetime
+    // Update all active particles
     for (auto& p : particles) {
         if (p.active)
             p.update(deltaTime);
+    }
+
+    // Auto-cleanup for burst state
+    if (state == EmitterState::Burst && isDone()) {
+        reset();
+        state = EmitterState::Stopped;
     }
 }
 

@@ -6,14 +6,12 @@
 - Core
 -- load weapons.json data into weaponData structs in Preload
 -- do I need a base GameObject class? Or is that too much overhead for too little gain?
+-- collision objects should be able to span multiple layers
+-- auto load most of the assets instead of manually adding them to Preload.cpp
+-- custom keyboard keys and gamepad buttons
 
 - Particles
--- fix the "explode" function to not need a delayed event
--- use createEmitter helper function in Behavior::createBehaviorFromJSON
-
-- collision objects should be able to span multiple layers
-- auto load most of the assets instead of manually adding them to Preload.cpp
-- the shaders should be hardcoded in the function in CircleOverlay.cpp
+-- color interpolation
 
 - Dungeon
 -- allow for multiple floors
@@ -46,7 +44,7 @@
 - add a light cone to items that come from chests (if in a dark room) (or maybe draw them over the darkness layer?)
 - make Game.getPlayer() obsolete
 - give enemies certain weapon weaknesses
-- custom keyboard keys and gamepad buttons
+- the shader keys should be hardcoded in the functions in CircleOverlay.cpp
 - Music/Sounds:
 -- Inventory select item --> different sound
 

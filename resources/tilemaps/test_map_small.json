@@ -118,28 +118,6 @@
                 }, 
                 {
                  "height":16,
-                 "id":43,
-                 "name":"enemy",
-                 "properties":[
-                        {
-                         "name":"roomState",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"spriteName",
-                         "type":"string",
-                         "value":"enemy_test_emitter"
-                        }],
-                 "rotation":0,
-                 "type":"sprite",
-                 "visible":true,
-                 "width":16,
-                 "x":64,
-                 "y":192
-                }, 
-                {
-                 "height":16,
                  "id":49,
                  "name":"chest",
                  "properties":[
@@ -177,6 +155,28 @@
                 }, 
                 {
                  "height":16,
+                 "id":43,
+                 "name":"enemy",
+                 "properties":[
+                        {
+                         "name":"roomState",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"spriteName",
+                         "type":"string",
+                         "value":"enemy_test_emitter"
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":16,
+                 "x":192,
+                 "y":256
+                }, 
+                {
+                 "height":16,
                  "id":50,
                  "name":"enemy",
                  "properties":[
@@ -194,8 +194,8 @@
                  "type":"sprite",
                  "visible":true,
                  "width":16,
-                 "x":128,
-                 "y":192
+                 "x":256,
+                 "y":256
                 }, 
                 {
                  "height":16,
@@ -216,8 +216,8 @@
                  "type":"sprite",
                  "visible":true,
                  "width":16,
-                 "x":192,
-                 "y":192
+                 "x":320,
+                 "y":256
                 }, 
                 {
                  "height":16,
@@ -238,8 +238,8 @@
                  "type":"sprite",
                  "visible":true,
                  "width":16,
-                 "x":64,
-                 "y":256
+                 "x":192,
+                 "y":320
                 }, 
                 {
                  "height":16,
@@ -260,8 +260,8 @@
                  "type":"sprite",
                  "visible":true,
                  "width":16,
-                 "x":128,
-                 "y":256
+                 "x":256,
+                 "y":320
                 }, 
                 {
                  "height":16,
@@ -282,8 +282,30 @@
                  "type":"sprite",
                  "visible":true,
                  "width":16,
-                 "x":192,
-                 "y":256
+                 "x":320,
+                 "y":320
+                }, 
+                {
+                 "height":16,
+                 "id":55,
+                 "name":"enemy",
+                 "properties":[
+                        {
+                         "name":"roomState",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"spriteName",
+                         "type":"string",
+                         "value":"enemy_test"
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":16,
+                 "x":208,
+                 "y":160
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -439,7 +461,7 @@
          "y":0
         }],
  "nextlayerid":6,
- "nextobjectid":55,
+ "nextobjectid":56,
  "orientation":"orthogonal",
  "properties":[
         {

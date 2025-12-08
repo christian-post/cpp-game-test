@@ -574,14 +574,9 @@ void InGame::update(float deltaTime) {
                     game.eventManager.pushEvent(SCREEN_SHAKE, std::make_tuple(0.2f, 4.0f, 0.0f));
                     game.playSound("creature_hurt_02");
 
-                    // TODO trigger particle effect
+                    // trigger particle effect
                     wpnHitEffect->position = GetRectCenter(sprite->rect);
                     wpnHitEffect->explode();
-                    // TODO this should be part of explode() somehow
-                    game.eventManager.pushDelayedEvent(UNNAMED, 0.51, nullptr, [&] {
-                        wpnHitEffect->reset();
-                        wpnHitEffect->stop();
-                        });
                 }
             }
         }
