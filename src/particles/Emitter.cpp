@@ -28,11 +28,8 @@ void Emitter::fromJSON(const nlohmann::json& data, const nlohmann::json& default
 
     spawnRadius = getValue("spawnRadius", 0.0f);
     spawnRadiusVariance = getValue("spawnRadiusVariance", 0.0f);
-    velocityVariance.x = getValue("velocityVarianceX", 0.0f);
-    velocityVariance.y = getValue("velocityVarianceY", 0.0f);
     lifetimeVariance = getValue("lifetimeVariance", 0.0f);
     alphaVariance = getValue("alphaVariance", 0.0f);
-    radialVelocity = getValue("radialVelocity", false);
     speed = getValue("speed", 1.0f);
     speedVariance = getValue("speedVariance", 0.0f);
     startSizeVariance = getValue("startSizeVariance", 0.0f);
@@ -150,28 +147,15 @@ Particle Emitter::createParticle(Particle p)
     Vector2 offset = { std::cos(angle) * radius, std::sin(angle) * radius };
     p.position = Vector2Add(position, offset);
 
-    if (radialVelocity) {
-        // Calculate direction from spawn position to center (inward)
-        Vector2 direction = Vector2Subtract(position, p.position);
-        float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+    // All particles use radial velocity: direction from spawn angle + speed
+    // Positive speed = outward, negative = inward, zero = stationary
+    Vector2 direction = { std::cos(angle), std::sin(angle) };
 
-        if (length > 0.0f) {
-            direction.x /= length;
-            direction.y /= length;
-        }
+    std::uniform_real_distribution<float> speedOffset(-speedVariance, speedVariance);
+    float finalSpeed = speed + speedOffset(rng);
 
-        std::uniform_real_distribution<float> speedOffset(-speedVariance, speedVariance);
-        float finalSpeed = speed + speedOffset(rng);
-
-        p.velocity.x += direction.x * finalSpeed;
-        p.velocity.y += direction.y * finalSpeed;
-    }
-    else {
-        std::uniform_real_distribution<float> vxOffset(-velocityVariance.x, velocityVariance.x);
-        std::uniform_real_distribution<float> vyOffset(-velocityVariance.y, velocityVariance.y);
-        p.velocity.x += vxOffset(rng);
-        p.velocity.y += vyOffset(rng);
-    }
+    p.velocity.x += direction.x * finalSpeed;
+    p.velocity.y += direction.y * finalSpeed;
 
     p.lifetime += lifetimeOffset(rng);
     p.alpha += alphaOffset(rng);

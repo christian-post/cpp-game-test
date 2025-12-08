@@ -38,7 +38,6 @@ struct Emitter {
     float age = 0.0f;
     float spawnRadius = 0.0f;
     float spawnRadiusVariance = 0.0f;
-    Vector2 velocityVariance = { 0.0f, 0.0f };
     float lifetimeVariance = 0.0f;
     float alphaVariance = 0.0f;
     float startSizeVariance = 0.0f;
@@ -47,8 +46,7 @@ struct Emitter {
     Vector2 gravity = { 0.0f, 0.0f }; // modifies velocity
     EasingType velocityEasing = EasingType::None; // can override easing of the particle velocity
 
-    // Radial velocity mode (for inward/outward particle movement)
-    bool radialVelocity = false;
+    // Radial velocity (all particles use this)
     float speed = 100.0f;
     float speedVariance = 0.0f;
 
