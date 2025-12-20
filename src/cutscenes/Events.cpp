@@ -14,14 +14,16 @@ void setupConditionalEvents(InGame& inGame) {
 
     game.eventManager.pushConditionalEvent(
         [&]() {
-            // this event advances the room state after the player got the sword
+            // this event advances the room state of the starting room after the player got the sword
             // TODO: stateful Tiled Map objects (like chests, enemies etc) should probably have the ability to advance the Room state directly, like doors already do
             if (!inGame.tileMap) 
                 return false;
             return (game.inventory.getItemQuantity("weapon_sword") > 0);
         },
         [&]() {
-            game.currentDungeon->advanceRoomState(game.currentDungeon->getStartingRoomIndex());
+            size_t level = 0;
+            size_t roomIdx = game.currentDungeon->getStartingRoomIndex();
+            game.currentDungeon->advanceRoomState(level, roomIdx);
         }
     );
 

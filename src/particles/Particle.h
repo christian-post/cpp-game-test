@@ -19,6 +19,7 @@ enum class EasingType {
     CubicInOut
 };
 
+
 struct Particle {
     Particle();
     void update(float deltaTime);
@@ -38,6 +39,7 @@ struct Particle {
     float startAlpha = 1.0f;
     float endAlpha = 0.0f;
     Color tint = WHITE;
+    std::vector<Vector3> colorGradient; // in case there are multiple colors given
     float lifetime = 1.0f;
     float age = 0.0f;
     float startSize = 1.0f; // fixed

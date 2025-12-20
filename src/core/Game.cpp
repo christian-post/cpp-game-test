@@ -293,7 +293,7 @@ std::shared_ptr<Sprite> Game::createSprite(std::string spriteName, Rectangle& re
 
 void Game::createDungeon(size_t roomsW, size_t roomsH)
 {
-    currentDungeon = std::make_unique<Dungeon>(*this, roomsW, roomsH);
+    currentDungeon = std::make_unique<Dungeon>(*this, roomsW, roomsH, 1); // TODO num. of levels
     currentDungeon->generate();
     // create the minimap images from the tilemap data
     currentDungeon->makeMinimapTextures();
@@ -461,7 +461,7 @@ void Game::draw() {
             size_t maxIndex = currentDungeon->getSize().first * currentDungeon->getSize().second;
             if (currentDungeon->getCurrentRoomIndex() < maxIndex) {
                 std::ostringstream ss;
-                const TileMap* tm = currentDungeon->loadCurrentTileMap();
+                const TileMap* tm = currentDungeon->loadTileMap();
                 size_t roomIndex = currentDungeon->getCurrentRoomIndex();
                 if (tm) {
                     std::string roomName = tm->getName();

@@ -257,5 +257,42 @@
     "speed": -50.0,
     "speedVariance": 10.0,
     "velocityEasing": "quadIn"
+  },
+  "fireParticleGradient": {
+    "type": "particle",
+    "textureKey": "fireball",
+    "tint": [
+      [ 255, 255, 255, 255 ],
+      [ 255, 255, 0, 255 ],
+      [ 255, 100, 0, 255 ],
+      [ 100, 100, 100, 255 ]
+    ],
+    "velocityX": 0.0,
+    "velocityY": 0.0,
+    "startAlpha": 1.0,
+    "endAlpha": 0.0,
+    "lifetime": 0.8,
+    "startSize": 1.0,
+    "endSize": 0.3,
+    "animationSpeed": 0.1
+  },
+  "campfire": {
+    "type": "emitter",
+    "particleKey": "fireParticleGradient",
+    "maxParticles": 30,
+    "spawnInterval": 0.08,
+    "emitterLifetime": -1.0,
+    "spawnRadius": 8.0,
+    "spawnRadiusVariance": 3.0,
+    "lifetimeVariance": 0.2,
+    "alphaVariance": 0.2,
+    "startSizeVariance": 0.3,
+    "speed": 60.0,
+    "speedVariance": 15.0,
+    "gravity": {
+      "x": 0.0,
+      "y": -30.0
+    },
+    "velocityEasing": "quadOut"
   }
 }

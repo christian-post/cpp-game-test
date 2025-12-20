@@ -172,8 +172,8 @@
                  "type":"sprite",
                  "visible":true,
                  "width":16,
-                 "x":192,
-                 "y":256
+                 "x":164,
+                 "y":172
                 }, 
                 {
                  "height":16,
@@ -304,8 +304,8 @@
                  "type":"sprite",
                  "visible":true,
                  "width":16,
-                 "x":208,
-                 "y":160
+                 "x":44,
+                 "y":324
                 }],
          "opacity":1,
          "type":"objectgroup",

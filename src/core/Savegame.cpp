@@ -121,11 +121,9 @@ void saveDungeon(SaveGame& saveGame, Dungeon& dungeon)
 std::unique_ptr<Dungeon> loadDungeon(SaveGame& saveGame, Game& game)
 {
     // creates a dungeon from the save data
-    std::unique_ptr dungeon = std::make_unique<Dungeon>(game, saveGame.dungeonWidth, saveGame.dungeonHeight);
+    std::unique_ptr dungeon = std::make_unique<Dungeon>(game, saveGame.dungeonWidth, saveGame.dungeonHeight, 1); // TODO levels
 
     for (const auto& [index, roomData] : saveGame.DungeonRooms) {
-        //size_t index  = pair.first;
-        //RoomData roomData = pair.second;
         Room room{ game.loader.getTilemap(roomData.tilemapKey), roomData.doors };
         room.dark = roomData.dark;
         room.state = roomData.state;
@@ -135,7 +133,7 @@ std::unique_ptr<Dungeon> loadDungeon(SaveGame& saveGame, Game& game)
         }
         size_t row = index / saveGame.dungeonWidth;
         size_t col = index % saveGame.dungeonWidth;
-        dungeon->insertRoom(row, col, std::move(room));
+        dungeon->insertRoom(0, row, col, std::move(room)); // TODO levels
 
         TraceLog(LOG_INFO, "Loading Room with index %d (%s) in state %d", index, roomData.tilemapKey.c_str(), room.state);
     }

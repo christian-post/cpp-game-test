@@ -100,6 +100,8 @@ void MapUI::draw() {
     offsets[3].y = float(cellHeight);
 
     auto& minimaps = game.currentDungeon->minimapTextures;
+    size_t level = game.currentDungeon->getCurrentLevel(); // TODO make level selectable from within this menu
+
     for (int i = 0; i < cols * rows; ++i) {
         int col = i % cols;
         int row = i / cols;
@@ -108,14 +110,14 @@ void MapUI::draw() {
         Color color = DARKGRAY;
         DrawRectangle(cellX, cellY, cellWidth, cellHeight, color);
 
-        if (i < minimaps.size() && game.currentDungeon->hasVisited(i)) {
-            const auto& tex = minimaps[i].texture;
+        if (i < minimaps[level].size() && game.currentDungeon->hasVisited(level, i)) {
+            const auto& tex = minimaps[level][i].texture;
             Rectangle src = { 0, 0, (float)tex.width, (float)tex.height };
             Rectangle dst = { (float)cellX, (float)cellY, (float)cellWidth, (float)cellHeight };
             DrawTexturePro(tex, src, dst, { 0, 0 }, 0.0f, WHITE);
 
             // indicate the connections between rooms
-            uint8_t doors = game.currentDungeon->getRoomDoors(i);
+            uint8_t doors = game.currentDungeon->getRoomDoors(level, i);
 
             for (int j = 3; j >= 0; j--) {
                 bool isDoor = (doors >> j) & 1;
@@ -133,7 +135,7 @@ void MapUI::draw() {
             if (i == currentRoomIndex && cursorOn && state == OPENED) {
                 // draw a player as a blinking circle
                 const Vector2& pos = game.getPlayer()->position;
-                auto [roomW, roomH] = game.currentDungeon->getRoomSize(currentRoomIndex);
+                auto [roomW, roomH] = game.currentDungeon->getRoomSize(level, currentRoomIndex);
                 float u = pos.x / (float)roomW;
                 float v = pos.y / (float)roomH;
                 float px = cellX + u * cellWidth;

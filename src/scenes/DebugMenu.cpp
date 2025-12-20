@@ -39,7 +39,8 @@ void DebugMenu::startup()
     // submenu 1 (room selection)
     const std::pair<size_t, size_t> size = game.currentDungeon->getSize();
     for (size_t i = 0; i < size.first * size.second; i++) {
-        Room* room = game.currentDungeon->getRoomAt(i);
+        size_t level = game.currentDungeon->getCurrentLevel();  // TODO select level as well
+        Room* room = game.currentDungeon->getRoomAt(level, i);
         if (room) {
             menus[1]->addItem({ std::to_string(i) + " : " + room->tilemap.getName(), [&, i]() {
                     // change to this room

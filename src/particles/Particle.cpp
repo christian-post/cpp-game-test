@@ -3,6 +3,23 @@
 #include "raymath.h"
 #include <string>
 
+static Vector3 getColorAtLifetime(float progress, const std::vector<Vector3>& colors) {
+    if (colors.empty())
+        return { 1.0f, 1.0f, 1.0f };
+
+    if (colors.size() == 1)
+        return colors[0];
+
+    float scaledProgress = progress * (colors.size() - 1);
+    int index = static_cast<int>(scaledProgress);
+    float t = scaledProgress - index;
+
+    if (index >= colors.size() - 1)
+        return colors.back();
+
+    return Vector3Lerp(colors[index], colors[index + 1], t);
+}
+
 static float applyEasing(EasingType type, float t) {
     switch (type) {
     case EasingType::None:
@@ -93,8 +110,17 @@ void Particle::draw() {
     if (!active)
         return;
 
-    Color finalColor = tint;
-    finalColor.a = static_cast<unsigned char>(alpha * 255.0f);
+    //Color finalColor = tint;
+    //finalColor.a = static_cast<unsigned char>(alpha * 255.0f);
+    float progress = age / lifetime;
+    Vector3 colorNorm = getColorAtLifetime(progress, colorGradient);
+
+    Color finalColor = {
+        static_cast<unsigned char>(colorNorm.x * 255.0f),
+        static_cast<unsigned char>(colorNorm.y * 255.0f),
+        static_cast<unsigned char>(colorNorm.z * 255.0f),
+        static_cast<unsigned char>(alpha * 255.0f)
+    };
 
     if (type == ParticleType::Circle) {
         float radius = primitiveSize * size;
@@ -140,24 +166,54 @@ void Particle::fromJSON(const nlohmann::json& data, const nlohmann::json& defaul
     endSize = data.value("endSize", defaultData.value("endSize", 1.0f));
     animationSpeed = data.value("animationSpeed", defaultData.value("animationSpeed", 0.1f));
 
+    // TODO this has a lot of repeating code
     if (data.contains("tint")) {
-        auto& tintArray = data.at("tint");
-        tint = Color{
-            static_cast<unsigned char>(tintArray[0].get<int>()),
-            static_cast<unsigned char>(tintArray[1].get<int>()),
-            static_cast<unsigned char>(tintArray[2].get<int>()),
-            static_cast<unsigned char>(tintArray[3].get<int>())
-        };
+        auto& tintData = data.at("tint");
+        if (tintData[0].is_array()) {
+            // Multi-color gradient
+            colorGradient.clear();
+            for (const auto& colorArray : tintData) {
+                Vector3 normalized = {
+                    colorArray[0].get<int>() / 255.0f,
+                    colorArray[1].get<int>() / 255.0f,
+                    colorArray[2].get<int>() / 255.0f
+                };
+                colorGradient.push_back(normalized);
+            }
+        }
+        else {
+            // Single color
+            Vector3 normalized = {
+                tintData[0].get<int>() / 255.0f,
+                tintData[1].get<int>() / 255.0f,
+                tintData[2].get<int>() / 255.0f
+            };
+            colorGradient = { normalized };
+        }
     }
     else if (defaultData.contains("tint")) {
-        auto& tintArray = defaultData.at("tint");
-        tint = Color{
-            static_cast<unsigned char>(tintArray[0].get<int>()),
-            static_cast<unsigned char>(tintArray[1].get<int>()),
-            static_cast<unsigned char>(tintArray[2].get<int>()),
-            static_cast<unsigned char>(tintArray[3].get<int>())
-        };
+        auto& tintData = defaultData.at("tint");
+        if (tintData[0].is_array()) {
+            colorGradient.clear();
+            for (const auto& colorArray : tintData) {
+                Vector3 normalized = {
+                    colorArray[0].get<int>() / 255.0f,
+                    colorArray[1].get<int>() / 255.0f,
+                    colorArray[2].get<int>() / 255.0f
+                };
+                colorGradient.push_back(normalized);
+            }
+        }
+        else {
+            Vector3 normalized = {
+                tintData[0].get<int>() / 255.0f,
+                tintData[1].get<int>() / 255.0f,
+                tintData[2].get<int>() / 255.0f
+            };
+            colorGradient = { normalized };
+        }
     }
+
     if (data.contains("primitiveType")) {
         std::string typeStr = data.at("primitiveType");
         if (typeStr == "circle")

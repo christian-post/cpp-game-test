@@ -271,7 +271,7 @@ void InGame::loadWorldFromSave(std::shared_ptr<SaveGame> save)
 
     // add NPCs that follow the player to the current room's data
     // TODO: is it worth it to give the TileMap a mutable member?
-    tileMap = game.currentDungeon->loadCurrentTileMap();
+    tileMap = game.currentDungeon->loadTileMap();
 
     for (auto& sName : save->spritesFollowingPlayer) {
         TileObject npc = TileObject();
@@ -386,7 +386,7 @@ void InGame::checkRoomTransition()
 }
 
 void InGame::loadTilemap() {
-    tileMap = game.currentDungeon->loadCurrentTileMap();
+    tileMap = game.currentDungeon->loadTileMap();
     // remove static and dynamic (non-persistent) objects
     game.walls.clear();
     game.clearEmitters();

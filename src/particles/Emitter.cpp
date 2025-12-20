@@ -49,6 +49,21 @@ void Emitter::fromJSON(const nlohmann::json& data, const nlohmann::json& default
     timer = -spawnDelay;
 
     // Handle tint (check override first, then data)
+    //const nlohmann::json* tintSource = nullptr;
+    //if (overrideData.contains("tint"))
+    //    tintSource = &overrideData;
+    //else if (data.contains("tint"))
+    //    tintSource = &data;
+
+    //if (tintSource) {
+    //    auto& tintArray = tintSource->at("tint");
+    //    tint = Color{
+    //        static_cast<unsigned char>(tintArray[0].get<int>()),
+    //        static_cast<unsigned char>(tintArray[1].get<int>()),
+    //        static_cast<unsigned char>(tintArray[2].get<int>()),
+    //        static_cast<unsigned char>(tintArray[3].get<int>())
+    //    };
+    //}
     const nlohmann::json* tintSource = nullptr;
     if (overrideData.contains("tint"))
         tintSource = &overrideData;
@@ -56,13 +71,35 @@ void Emitter::fromJSON(const nlohmann::json& data, const nlohmann::json& default
         tintSource = &data;
 
     if (tintSource) {
-        auto& tintArray = tintSource->at("tint");
-        tint = Color{
-            static_cast<unsigned char>(tintArray[0].get<int>()),
-            static_cast<unsigned char>(tintArray[1].get<int>()),
-            static_cast<unsigned char>(tintArray[2].get<int>()),
-            static_cast<unsigned char>(tintArray[3].get<int>())
-        };
+        auto& tintData = tintSource->at("tint");
+        if (tintData[0].is_array()) {
+            // Multi-color gradient
+            colorGradient.clear();
+            for (const auto& colorArray : tintData) {
+                Vector3 normalized = {
+                    colorArray[0].get<int>() / 255.0f,
+                    colorArray[1].get<int>() / 255.0f,
+                    colorArray[2].get<int>() / 255.0f
+                };
+                colorGradient.push_back(normalized);
+            }
+        }
+        else {
+            // Single color - backward compatibility
+            tint = Color{
+                static_cast<unsigned char>(tintData[0].get<int>()),
+                static_cast<unsigned char>(tintData[1].get<int>()),
+                static_cast<unsigned char>(tintData[2].get<int>()),
+                static_cast<unsigned char>(tintData[3].get<int>())
+            };
+            // Also store as gradient for consistency
+            Vector3 normalized = {
+                tintData[0].get<int>() / 255.0f,
+                tintData[1].get<int>() / 255.0f,
+                tintData[2].get<int>() / 255.0f
+            };
+            colorGradient = { normalized };
+        }
     }
 
     // velocityEasing
@@ -166,7 +203,9 @@ Particle Emitter::createParticle(Particle p)
         p.velocityEasing = velocityEasing;
     }
 
-    p.tint = tint;
+    //p.tint = tint;
+    if (!colorGradient.empty())
+        p.colorGradient = colorGradient;
 
     p.reset();
     return p;

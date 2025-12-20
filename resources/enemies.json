@@ -37,7 +37,7 @@
           "name": "test1",
           "behaviors": [ "Emitter" ],
           "behaviorData": {
-            "emitter": "exampleBurst"
+            "emitter": "campfire"
           }
         }
       ]

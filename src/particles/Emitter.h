@@ -43,6 +43,7 @@ struct Emitter {
     float startSizeVariance = 0.0f;
     float endSizeVariance = 0.0f;
     Color tint = WHITE; // overwrites particle tint
+    std::vector<Vector3> colorGradient; // overwrites Particle colors (for gradients)
     Vector2 gravity = { 0.0f, 0.0f }; // modifies velocity
     EasingType velocityEasing = EasingType::None; // can override easing of the particle velocity
 
