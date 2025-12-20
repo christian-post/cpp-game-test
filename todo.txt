@@ -51,6 +51,7 @@
 ## BUGS:
 - RandomWalkBehavior: choose new target after some time if the current target can't be reached
 - chest contain coins after loading a save
+- save game thumbnail is broken after saving in GameOver scene
 
 # RELEASE CHECKLIST
 - turn on sounds and music

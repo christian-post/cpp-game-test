@@ -42,7 +42,7 @@ void InGame::startup() {
     else {
         // generate a fresh dungeon
         // TODO get the size from data or dungeon generation manager
-        game.createDungeon(6, 5);
+        game.createDungeon(6, 5, 2);
     }
     // retrieve the tilemap
     // and set the player's position in the first room

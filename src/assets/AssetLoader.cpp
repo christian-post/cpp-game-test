@@ -247,6 +247,16 @@ void AssetLoader::loadParticleData(const std::string& filename)
     file >> particleData;
 }
 
+void AssetLoader::loadDungeonData(const std::string& filename)
+{
+    std::ifstream file(filename);
+    if (!file) {
+        TraceLog(LOG_ERROR, "Failed to open dungeon data file %s", filename.c_str());
+        return;
+    }
+    file >> dungeonData;
+}
+
 void AssetLoader::postprocessSpriteData()
 {
     // resolves inherited fields for all sprites in spriteData
@@ -292,6 +302,11 @@ const nlohmann::json& AssetLoader::getSpriteData() {
 const nlohmann::json& AssetLoader::getParticleData()
 {
     return particleData;
+}
+
+const nlohmann::json& AssetLoader::getDungeonData()
+{
+    return dungeonData;
 }
 
 const std::vector<std::string>& AssetLoader::getText(std::string& key)

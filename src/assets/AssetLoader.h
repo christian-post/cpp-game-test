@@ -24,6 +24,7 @@ private:
     nlohmann::json settings;
     nlohmann::json spriteData;
     nlohmann::json particleData;
+    nlohmann::json dungeonData;
     
 public:
     ~AssetLoader();
@@ -39,6 +40,7 @@ public:
     void loadSettings(const std::string& filename);
     void loadSpriteData(const std::string& filename);
     void loadParticleData(const std::string& filename);
+    void loadDungeonData(const std::string& filename);
     void postprocessSpriteData(); // resolves inheritance
     void loadtextData(const std::string& filename);
     void LoadMusicFile(const std::string& filename, const float volume = 1.0f, const std::string& key = "");
@@ -56,6 +58,7 @@ public:
     void writeSetting(const std::string& key, nlohmann::json value);
     const nlohmann::json& getSpriteData();
     const nlohmann::json& getParticleData();
+    const nlohmann::json& getDungeonData();
 
     const std::vector<std::string>& getText(std::string& key);
     Texture2D fallbackTexture;

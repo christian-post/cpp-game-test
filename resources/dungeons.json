@@ -1,0 +1,58 @@
+{
+  "first_dungeon": {
+    "levels": [
+      {
+        "rooms": [
+          { "row": 0, "column": 1, "tilemap": "dungeon_shop", "doors": 1 },
+          { "row": 0, "column": 2, "tilemap": "test_map_small", "doors": 0 },
+          { "row": 0, "column": 5, "tilemap": "dungeon_final_boss_0001", "doors": 1 },
+          { "row": 1, "column": 1, "tilemap": "dungeon_hallway_1101", "doors": 13 },
+          { "row": 1, "column": 2, "tilemap": "dungeon_turrets_1010", "doors": 10 },
+          { "row": 1, "column": 3, "tilemap": "dungeon_spikes_1011", "doors": 11 },
+          { "row": 1, "column": 4, "tilemap": "dungeon_4skelets_1010", "doors": 10 },
+          { "row": 1, "column": 5, "tilemap": "dungeon_before_boss_0110", "doors": 6 },
+          { "row": 2, "column": 1, "tilemap": "dungeon006", "doors": 5 },
+          { "row": 2, "column": 3, "tilemap": "dungeon_turrets_0101", "doors": 5 },
+          { "row": 2, "column": 4, "tilemap": "dungeon_empty_1101", "doors": 13 },
+          { "row": 2, "column": 5, "tilemap": "dungeon_chest_0010", "doors": 2 },
+          { "row": 3, "column": 0, "tilemap": "dungeon007", "doors": 8 },
+          { "row": 3, "column": 1, "tilemap": "dungeon003", "doors": 15 },
+          { "row": 3, "column": 2, "tilemap": "dungeon002", "doors": 3 },
+          { "row": 3, "column": 3, "tilemap": "dungeon_hallway_1100", "doors": 12 },
+          { "row": 3, "column": 4, "tilemap": "dungeon_empty_1110", "doors": 14 },
+          { "row": 3, "column": 5, "tilemap": "dungeon_fight_0011", "doors": 3 },
+          { "row": 4, "column": 1, "tilemap": "dungeon004", "doors": 12 },
+          { "row": 4, "column": 2, "tilemap": "dungeon001", "doors": 15 },
+          { "row": 4, "column": 3, "tilemap": "dungeon_2skelets_1010", "doors": 10 },
+          { "row": 4, "column": 4, "tilemap": "dungeon005", "doors": 2 },
+          { "row": 4, "column": 5, "tilemap": "dungeon_fight_chest_0100", "doors": 4 }
+        ],
+        "starting_room": [4, 2],
+        "edges": [
+          { "from": [4, 2], "to": [3, 2], "required_items": ["__impossible__"] },
+          { "from": [3, 2], "to": [4, 2], "required_items": ["key"] },
+          { "from": [3, 1], "to": [2, 1], "required_items": ["key"] },
+          { "from": [1, 5], "to": [0, 5], "required_items": ["key"] },
+          { "from": [4, 1], "to": [3, 1], "required_items": ["weapon_sword"] },
+          { "from": [2, 1], "to": [0, 1], "required_items": ["weapon_sword"] },
+          { "from": [3, 1], "to": [3, 0], "required_items": ["item_lamp"] },
+          { "from": [2, 3], "to": [1, 3], "required_items": ["item_lamp"] },
+          { "from": [2, 3], "to": [3, 3], "required_items": ["weapon_bow"] }
+        ],
+        "item_nodes": [[3, 2], [4, 4], [3, 0], [0, 1], [1, 4], [2, 5], [4, 5]],
+        "item_pool": ["key", "key", "key", "weapon_sword", "item_lamp", "weapon_bow"]
+      }
+    ]
+  },
+  "second_dungeon": {
+    "levels": [
+      {
+        "rooms": [],
+        "starting_room": [0, 0],
+        "edges": [],
+        "item_nodes": [],
+        "item_pool": []
+      }
+    ]
+  }
+}

@@ -110,7 +110,7 @@ public:
 
     // Dungeon management
     std::unique_ptr<Dungeon> currentDungeon = nullptr; 
-    void createDungeon(size_t roomsW, size_t roomsH);
+    void createDungeon(size_t roomsW, size_t roomsH, size_t numLevels);
 
     // World bounds (set by InGame when loading tilemap)
     // TODO these need to be here (and not in CameraController.h) because behaviors need to have access to this information 

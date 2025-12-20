@@ -281,6 +281,7 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <None Include=".gitignore" />
     <None Include="LICENSE" />
     <None Include="readme.md" />
+    <None Include="resources\dungeons.json" />
     <None Include="resources\enemies.json" />
     <None Include="resources\npcs.json" />
     <None Include="resources\particles.json" />

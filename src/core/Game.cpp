@@ -20,7 +20,8 @@
 #include <cassert>
 
 
-Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this) {
+Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this) 
+{
     loader.loadSettings("./resources/settings.json");
     settings = &loader.getSettings();
     TraceLog(LOG_INFO, settings->dump(2).c_str());
@@ -76,16 +77,20 @@ Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this) {
     srand(time(nullptr));
 }
 
-Game::~Game() {}
+Game::~Game() 
+{
+}
 
-void Game::restart() {
+void Game::restart() 
+{
     running = false;
     restartRequested = true;
     // make sure settings are saved before they are being loaded again
     saveSettings();
 }
 
-void Game::cleanup() {
+void Game::cleanup() 
+{
     saveSettings();
 
     UnloadRenderTexture(target);
@@ -93,7 +98,8 @@ void Game::cleanup() {
     CloseWindow();
 }
 
-nlohmann::json Game::getSetting(const std::string& key, nlohmann::json defaultValue) const {
+nlohmann::json Game::getSetting(const std::string& key, nlohmann::json defaultValue) const 
+{
     if (settings->contains(key))
         return settings->at(key);
     TraceLog(LOG_ERROR, "[Settings] Missing key: %s. Using default value.", key.c_str());
@@ -117,7 +123,8 @@ void Game::saveSettings()
     }
 }
 
-void Game::startScene(const std::string& name) {
+void Game::startScene(const std::string& name) 
+{
     if (sceneRegistry.count(name)) {
         scenes[name] = sceneRegistry[name](name);
 
@@ -141,7 +148,8 @@ void Game::startScene(const std::string& name) {
 }
 
 
-void Game::stopScene(const std::string& name) {
+void Game::stopScene(const std::string& name) 
+{
     // Marks the scene for removal
     if (scenes.count(name)) {
         scenes[name]->markForDeletion(); 
@@ -149,7 +157,8 @@ void Game::stopScene(const std::string& name) {
     }
 }
 
-void Game::setSceneState(const std::string& name, bool active, bool paused) {
+void Game::setSceneState(const std::string& name, bool active, bool paused) 
+{
     if (scenes.count(name)) {  // Check if the scene exists
         scenes[name]->setActive(active);
         scenes[name]->setPaused(paused);
@@ -186,13 +195,15 @@ void Game::wakeScene(const std::string& name) { setSceneState(name, true, false)
 void Game::pauseScene(const std::string& name) { setSceneState(name, true, true); }
 void Game::resumeScene(const std::string& name) { setSceneState(name, true, false); }
 
-void Game::resetScenes() {
+void Game::resetScenes() 
+{
     for (const auto& [name, scene] : scenes) {
         stopScene(name);
     }
 }
 
-void Game::processMarkedScenes() {
+void Game::processMarkedScenes() 
+{
     for (auto it = scenes.begin(); it != scenes.end(); ) {
         if (it->second->ismarkedForStarting()) {
             TraceLog(LOG_INFO, "starting scene %s", it->second->getName().c_str());
@@ -291,15 +302,16 @@ std::shared_ptr<Sprite> Game::createSprite(std::string spriteName, Rectangle& re
     return sprite;
 }
 
-void Game::createDungeon(size_t roomsW, size_t roomsH)
+void Game::createDungeon(size_t roomsW, size_t roomsH, size_t numLevels)
 {
-    currentDungeon = std::make_unique<Dungeon>(*this, roomsW, roomsH, 1); // TODO num. of levels
-    currentDungeon->generate();
+    currentDungeon = std::make_unique<Dungeon>(*this, roomsW, roomsH, numLevels); // TODO num. of levels
+    currentDungeon->generate("first_dungeon");
     // create the minimap images from the tilemap data
     currentDungeon->makeMinimapTextures();
 }
 
-void Game::killSprite(const std::shared_ptr<Sprite>& sprite) {
+void Game::killSprite(const std::shared_ptr<Sprite>& sprite) 
+{
     auto it = std::find(sprites.begin(), sprites.end(), sprite);
     if (it != sprites.end()) {
         *it = std::move(sprites.back());
@@ -307,7 +319,8 @@ void Game::killSprite(const std::shared_ptr<Sprite>& sprite) {
     }
 }
 
-void Game::clearSprites(bool clearPersistent) {
+void Game::clearSprites(bool clearPersistent) 
+{
     // removes all current sprites
     // keeps the ones with the "persistent" flag, if not stated otherwise
     for (auto& sprite: sprites) {
@@ -318,7 +331,8 @@ void Game::clearSprites(bool clearPersistent) {
     }
 }
 
-void Game::processMarkedSprites() {
+void Game::processMarkedSprites() 
+{
     // Remove marked sprites from spriteMap first
     for (auto& sprite : sprites) {
         if (sprite->isMarkedForDeletion()) {
@@ -349,7 +363,8 @@ void Game::clearEmitters(bool clearPersistent)
         }), emitters.end());
 }
 
-Sprite* Game::getPlayer() {
+Sprite* Game::getPlayer() 
+{
     InGame* inGame = dynamic_cast<InGame*>(getScene("InGame"));
     if (!inGame) return nullptr;
     auto it = spriteMap.find("player");
@@ -357,12 +372,14 @@ Sprite* Game::getPlayer() {
     return nullptr;
 }
 
-void Game::playSound(const std::string& key){
+void Game::playSound(const std::string& key)
+{
     if (!soundOn || !sfxOn) return;
     PlaySound(loader.getSound(key));
 }
 
-void Game::update(float deltaTime) {
+void Game::update(float deltaTime)
+{
     eventManager.update(deltaTime);
     windowEvents.update();
 
@@ -373,7 +390,8 @@ void Game::update(float deltaTime) {
     }
 }
 
-void Game::playMusic() {
+void Game::playMusic()
+{
     if (!soundOn || !musicOn) return;
     for (auto& [name, scene] : scenes) {
         if (scene && scene->isActive()) {
@@ -385,7 +403,8 @@ void Game::playMusic() {
     }
 }
 
-void Game::draw() {
+void Game::draw()
+{
     // Compute required framebuffer scaling
     float scale = std::min((float)GetScreenWidth() / gameScreenWidth, (float)GetScreenHeight() / gameScreenHeight);
     
@@ -480,7 +499,8 @@ void Game::draw() {
     EndDrawing();
 }
 
-void Game::run() {
+void Game::run()
+{
     float lastTime = (float)GetTime();
     char title[64];
 
