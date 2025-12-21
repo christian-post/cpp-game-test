@@ -1,6 +1,6 @@
 #include "Utils.h"
 #include "Sprite.h"
-#include "Tilemap.h"
+#include "TileMap.h"
 #include "raylib.h"
 #include "raymath.h"
 #include <algorithm>

@@ -373,7 +373,9 @@ void Dungeon::generate(const std::string& dungeonKey)
             size_t row = roomData["row"];
             size_t column = roomData["column"];
             std::string tilemapName = roomData["tilemap"];
-            uint8_t doors = roomData["doors"];
+            // convert the binary string for the doors to an 8 bit unsigned int that represents a bitmask
+            std::string doorsStr = roomData["doors"];
+            uint8_t doors = static_cast<uint8_t>(std::stoi(doorsStr, nullptr, 2));
 
             std::string coordId = std::to_string(row) + "_" + std::to_string(column);
             coordToTilemap[coordId] = tilemapName;
