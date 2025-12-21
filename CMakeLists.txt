@@ -44,7 +44,7 @@ if (MSVC)
         ${CMAKE_SOURCE_DIR}/libs/raylib-5.5_win64_msvc16/lib
     )
     target_link_libraries(MyGame PRIVATE raylib winmm)
-else()
+elseif(MINGW)
     target_compile_options(MyGame PRIVATE 
         -Wall -Wextra -Wpedantic
         -Wno-error
@@ -60,6 +60,18 @@ else()
         ${CMAKE_SOURCE_DIR}/libs/raylib-5.5_win64_mingw-w64/lib
     )
     target_link_libraries(MyGame PRIVATE raylib winmm)
+else()
+    # Linux
+    target_compile_options(MyGame PRIVATE 
+        -Wall -Wextra -Wpedantic
+        -Wno-error
+        -Wno-reorder
+        -Wno-unused-parameter
+        -Wno-missing-field-initializers
+    )
+    
+    find_package(raylib REQUIRED)
+    target_link_libraries(MyGame PRIVATE raylib m pthread dl rt)
 endif()
 
 # Copy resources after build
