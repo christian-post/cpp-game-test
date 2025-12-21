@@ -1,11 +1,13 @@
 #pragma once
-#include "raylib.h"
 #include <string>
 #include <vector>
-#include "json.hpp"
 #include <functional>
 #include <memory>
 #include <optional>
+#include <cstdint>
+
+#include "json.hpp"
+#include "raylib.h"
 
 
 class Game;

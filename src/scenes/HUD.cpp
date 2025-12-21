@@ -1,6 +1,7 @@
+#include <cstdint>
+#include "raylib.h"
 #include "HUD.h"
 #include "Game.h"
-#include "raylib.h"
 #include "InGame.h"
 #include "Utils.h"
 #include "ItemData.h"

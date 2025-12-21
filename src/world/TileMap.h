@@ -1,9 +1,11 @@
 #pragma once
-#include <string>
-#include <vector>
-#include <unordered_map>
-#include <stdexcept>
+#include <cstdint>
 #include <filesystem>
+#include <stdexcept>
+#include <string>
+#include <unordered_map>
+#include <vector>
+
 #include "json.hpp"
 #include "raylib.h"
 //#include "Game.h"

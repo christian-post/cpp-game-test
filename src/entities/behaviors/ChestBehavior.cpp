@@ -1,3 +1,6 @@
+#include <any>
+#include <tuple>
+
 #include "ChestBehavior.h"
 #include "Sprite.h"
 #include "Game.h"
@@ -6,8 +9,6 @@
 #include "Controls.h"
 #include "ItemData.h"
 #include "Utils.h"
-#include <any>
-#include <tuple>
 
 ChestBehavior::ChestBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> player, const std::string& itemName, uint32_t itemAmount)
     : game{ game }, self{ self }, player{ player }, itemName{ itemName }, itemAmount{ itemAmount } {}

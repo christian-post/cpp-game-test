@@ -1,5 +1,6 @@
 #pragma once
 #include "Scene.h"
+#include <cstdint>
 #include <array>
 
 class MapUI : public Scene {

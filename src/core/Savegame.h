@@ -3,6 +3,8 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include <cstdint>
+
 #include "Dungeon.h"
 #include "json.hpp"
 

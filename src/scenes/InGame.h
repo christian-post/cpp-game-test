@@ -1,4 +1,9 @@
 #pragma once
+#include <memory>
+#include <utility>
+#include <cstdint>
+
+#include "json.hpp"
 #include "Scene.h"
 #include "Sprite.h"
 #include "TileMap.h"
@@ -7,9 +12,6 @@
 #include "CircleOverlay.h"
 #include "TilemapRenderer.h"
 #include "CameraController.h"
-#include <memory>
-#include <utility>
-#include "json.hpp"
 
 struct SaveGame;
 struct Emitter;

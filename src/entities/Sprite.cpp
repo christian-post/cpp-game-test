@@ -1,8 +1,9 @@
-#include "Sprite.h"
-#include "raymath.h"
 #include <iostream>
+
+#include "raymath.h"
 #include "Game.h"
 #include "Controls.h"
+#include "Sprite.h"
 #include "Utils.h"
 
 

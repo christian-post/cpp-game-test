@@ -1,11 +1,13 @@
 #pragma once
-#include "Scene.h"
 #include <vector>
 #include <string> 
 #include <map>
 #include <array>
 #include <iostream>
 #include <functional>
+#include <cstdint>
+
+#include "Scene.h"
 #include "ItemData.h"
 
 class Game;

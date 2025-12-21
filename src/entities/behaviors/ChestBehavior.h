@@ -1,9 +1,10 @@
 #pragma once
-#include "Behavior.h"
-#include "raylib.h"
 #include <memory>
 #include <string>
 #include <cstdint>
+
+#include "Behavior.h"
+#include "raylib.h"
 
 class Game;
 class Sprite;

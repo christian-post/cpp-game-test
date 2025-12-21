@@ -1,11 +1,12 @@
 #pragma once
-#include "raylib.h"
 #include <unordered_map>
 #include <string>
 #include <vector>
 #include <memory>
 #include <optional>
 #include <cstdint>
+
+#include "raylib.h"
 #include "Behavior.h"
 #include "StateMachine.h"
 

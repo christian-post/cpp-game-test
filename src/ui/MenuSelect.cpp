@@ -1,3 +1,4 @@
+#include <cstdint>
 #include "MenuSelect.h"
 #include "Controls.h"
 
@@ -50,7 +51,8 @@ void MenuSelect::update()
     }
 }
 
-void MenuSelect::draw() {
+void MenuSelect::draw() 
+{
     ClearBackground(BLACK);
 
     uint32_t width = game.gameScreenWidth;

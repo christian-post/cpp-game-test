@@ -1,12 +1,14 @@
 #pragma once
+#include <cstdint>
 #include <memory>
-#include <vector>
 #include <optional>
 #include <unordered_map>
 #include <unordered_set>
-#include "TileMap.h"
+#include <vector>
+
 #include <raylib.h>
 #include "json.hpp"
+#include "TileMap.h"
 
 class Game;
 class WorldGraph;

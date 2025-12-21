@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include <stdexcept>
+#include <cstdint>
 
 #include "json.hpp"
 #include "raylib.h"

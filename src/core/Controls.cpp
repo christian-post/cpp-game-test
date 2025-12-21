@@ -7,37 +7,37 @@ bool WasGamepadUsedLast() {
     return lastWasGamepad;
 }
 
-bool keyDown(int key) {
+static bool keyDown(int key) {
     bool down = IsKeyDown(key);
     if (down) lastWasGamepad = false;
     return down;
 }
 
-bool keyPressed(int key) {
+static bool keyPressed(int key) {
     bool pressed = IsKeyPressed(key);
     if (pressed) lastWasGamepad = false;
     return pressed;
 }
 
-bool keyReleased(int key) {
+static bool keyReleased(int key) {
     bool released = IsKeyReleased(key);
     if (released) lastWasGamepad = false;
     return released;
 }
 
-bool gamepadDown(int gamepad, int button) {
+static bool gamepadDown(int gamepad, int button) {
     bool down = IsGamepadButtonDown(gamepad, button);
     if (down) lastWasGamepad = true;
     return down;
 }
 
-bool gamepadPressed(int gamepad, int button) {
+static bool gamepadPressed(int gamepad, int button) {
     bool pressed = IsGamepadButtonPressed(gamepad, button);
     if (pressed) lastWasGamepad = true;
     return pressed;
 }
 
-bool gamepadReleased(int gamepad, int button) {
+static bool gamepadReleased(int gamepad, int button) {
     bool released = IsGamepadButtonReleased(gamepad, button);
     if (released) lastWasGamepad = true;
     return released;
