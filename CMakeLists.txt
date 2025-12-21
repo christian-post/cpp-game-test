@@ -30,6 +30,7 @@ target_include_directories(MyGame PRIVATE
     ${CMAKE_SOURCE_DIR}/src/scenes
     ${CMAKE_SOURCE_DIR}/src/ui
     ${CMAKE_SOURCE_DIR}/src/world
+    ${CMAKE_SOURCE_DIR}/src/tests
 )
 
 

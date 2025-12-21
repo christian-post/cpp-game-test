@@ -10,11 +10,13 @@
 #include <chrono>
 #include <ctime>
 
-Vector2 GetRectCenter(Rectangle rect) {
+Vector2 GetRectCenter(Rectangle rect) 
+{
     return { rect.x + rect.width / 2.0f, rect.y + rect.height / 2.0f };
 }
 
-bool isPathClear(const Rectangle& currentRect, Vector2 targetPos, const std::vector<std::unique_ptr<CollisionObject>>& walls, int spriteLayer) {
+bool isPathClear(const Rectangle& currentRect, Vector2 targetPos, const std::vector<std::unique_ptr<CollisionObject>>& walls, int spriteLayer) 
+{
     Rectangle sweptRect = {
         std::min(currentRect.x, targetPos.x),
         std::min(currentRect.y, targetPos.y),
@@ -29,14 +31,16 @@ bool isPathClear(const Rectangle& currentRect, Vector2 targetPos, const std::vec
     return true;
 }
 
-void applyKnockback(Sprite& sourceSprite, Sprite& targetSprite, float strength) {
+void applyKnockback(Sprite& sourceSprite, Sprite& targetSprite, float strength) 
+{
     Vector2 sourceCenter = GetRectCenter(sourceSprite.hurtbox);
     Vector2 targetCenter = GetRectCenter(targetSprite.rect);
     Vector2 direction = Vector2Normalize(Vector2Subtract(targetCenter, sourceCenter));
     targetSprite.vel = Vector2Scale(direction, strength);
 }
 
-std::vector<std::string> splitCSV(const std::string& input) {
+std::vector<std::string> splitCSV(const std::string& input) 
+{
     std::vector<std::string> result;
     std::istringstream ss(input);
     std::string token;
@@ -44,36 +48,38 @@ std::vector<std::string> splitCSV(const std::string& input) {
     return result;
 }
 
-float getRandomFloat(float min, float max) {
+float getRandomFloat(float min, float max) 
+{
     return min + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (max - min)));
 }
 
 void TraceLogLong(int logLevel, const std::string& message)
 {
-    // circumvents the size limitation of raylib's logging 
+    // circumvents the size limitation of raylib's logging
+    // TODO doesn't work?
     const size_t chunkSize = 500;
 
-    if (message.length() <= chunkSize)
-    {
+    if (message.length() <= chunkSize) {
         TraceLog(logLevel, message.c_str());
         return;
     }
 
-    for (size_t i = 0; i < message.length(); i += chunkSize)
-    {
+    for (size_t i = 0; i < message.length(); i += chunkSize) {
         std::string chunk = message.substr(i, chunkSize);
         TraceLog(logLevel, chunk.c_str());
     }
 }
 
-void CameraShake::start(float dur, float xMag, float yMag) {
+void CameraShake::start(float dur, float xMag, float yMag) 
+{
     duration = dur;
     baseDuration = dur;
     xMagnitude = xMag;
     yMagnitude = yMag;
 }
 
-void CameraShake::update(float deltaTime) {
+void CameraShake::update(float deltaTime) 
+{
     duration -= deltaTime;
     if (duration <= 0.0f) {
         duration = 0.0f;
@@ -82,7 +88,8 @@ void CameraShake::update(float deltaTime) {
     }
 }
 
-Vector2 CameraShake::apply(const Vector2& baseTarget) const {
+Vector2 CameraShake::apply(const Vector2& baseTarget) const 
+{
     if (duration > 0.0f && baseDuration > 0.0f) {
         float t = 1.0f - (duration / baseDuration);
         float strength = sinf(t * 3.14159f);
@@ -94,7 +101,8 @@ Vector2 CameraShake::apply(const Vector2& baseTarget) const {
     return baseTarget;
 }
 
-std::vector<std::string> listJSONFiles(const std::string& path) {
+std::vector<std::string> listJSONFiles(const std::string& path) 
+{
     std::vector<std::string> jsonFiles;
     for (const auto& entry : std::filesystem::directory_iterator(path)) {
         if (entry.path().extension() == ".json") {
@@ -118,7 +126,8 @@ void mergeJson(nlohmann::json& base, const nlohmann::json & override)
     }
 }
 
-std::vector<std::string> listFiles(const std::string& path) {
+std::vector<std::string> listFiles(const std::string& path) 
+{
     std::vector<std::string> files;
     for (const auto& entry : std::filesystem::directory_iterator(path)) {
         if (entry.is_regular_file()) {
@@ -128,26 +137,34 @@ std::vector<std::string> listFiles(const std::string& path) {
     return files;
 }
 
-std::string GetBaseName(const std::string& path) {
+std::string GetBaseName(const std::string& path) 
+{
     // returns the filename without parents and extension
     std::filesystem::path p(path);
     return p.stem().string();  
 }
 
-std::string GetLastWriteTime(const std::string& path) {
+std::string GetLastWriteTime(const std::string& path) 
+{
     auto ftime = std::filesystem::last_write_time(path);
     auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
         ftime - decltype(ftime)::clock::now() + std::chrono::system_clock::now()
     );
     std::time_t cftime = std::chrono::system_clock::to_time_t(sctp);
     std::tm timeinfo;
-    localtime_s(&timeinfo, &cftime);
     char buf[26];
+#ifdef _WIN32
+    localtime_s(&timeinfo, &cftime);
     asctime_s(buf, sizeof(buf), &timeinfo);
+#else
+    localtime_r(&cftime, &timeinfo);
+    asctime_r(&timeinfo, buf);
+#endif
     return std::string(buf);
 }
 
-void resolveAxisX(const std::shared_ptr<Sprite>& sprite, const Rectangle& obstacle) {
+void resolveAxisX(const std::shared_ptr<Sprite>& sprite, const Rectangle& obstacle) 
+{
     if (!sprite->isColliding || !CheckCollisionRecs(sprite->rect, obstacle))
         return;
 
@@ -163,7 +180,8 @@ void resolveAxisX(const std::shared_ptr<Sprite>& sprite, const Rectangle& obstac
     sprite->rect.x = sprite->position.x + sprite->hitboxOffset.x;
 }
 
-void resolveAxisY(const std::shared_ptr<Sprite>& sprite, const Rectangle& obstacle) {
+void resolveAxisY(const std::shared_ptr<Sprite>& sprite, const Rectangle& obstacle) 
+{
     if (!sprite->isColliding || !CheckCollisionRecs(sprite->rect, obstacle))
         return;
 
@@ -180,7 +198,8 @@ void resolveAxisY(const std::shared_ptr<Sprite>& sprite, const Rectangle& obstac
 }
 
 
-bool isSubset(const std::unordered_set<std::string>& subset, const std::unordered_set<std::string>& superset) {
+bool isSubset(const std::unordered_set<std::string>& subset, const std::unordered_set<std::string>& superset) 
+{
     for (const auto& item : subset) {
         if (superset.find(item) == superset.end()) {
             return false;
