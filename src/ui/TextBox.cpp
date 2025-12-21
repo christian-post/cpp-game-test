@@ -1,8 +1,8 @@
 #include "TextBox.h"
-#include <iostream>
 #include "Game.h"
 #include "Utils.h"
 #include "Controls.h"
+#include <iostream>
 
 TextBox::TextBox(Game& game, float x, float y, float width, float height, int fontSize, std::string voice)
     : game(game), 

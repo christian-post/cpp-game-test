@@ -1,4 +1,5 @@
 #pragma once
+#include "EventNames.h"
 #include "raylib.h"
 #include <functional>
 #include <vector>
@@ -7,7 +8,6 @@
 #include <any>
 #include <string>
 #include <optional>
-#include "EventNames.h"
 
 
 class EventManager {

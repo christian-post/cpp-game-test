@@ -1,6 +1,6 @@
-#include <cstdint>
 #include "MenuSelect.h"
 #include "Controls.h"
+#include <cstdint>
 
 
 MenuSelect::MenuSelect(Game& game): game{ game }

@@ -1,14 +1,4 @@
 #pragma once
-#include <functional>
-#include <iostream>
-#include <memory>
-#include <string>
-#include <stdexcept>
-#include <cstdint>
-
-#include "json.hpp"
-#include "raylib.h"
-
 #include "Scene.h"
 #include "AssetLoader.h"
 #include "Sprite.h"
@@ -18,6 +8,14 @@
 #include "InventoryManager.h"
 #include "Dungeon.h"
 #include "Savegame.h"
+#include "json.hpp"
+#include "raylib.h"
+#include <functional>
+#include <iostream>
+#include <memory>
+#include <string>
+#include <stdexcept>
+#include <cstdint>
 
 #define DARKBURGUNDY { 20, 0, 8, 255 }
 #define LIGHTBURGUNDY { 40, 0, 16, 255 }

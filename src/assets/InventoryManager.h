@@ -1,4 +1,6 @@
 #pragma once
+#include "Scene.h"
+#include "ItemData.h"
 #include <vector>
 #include <string> 
 #include <map>
@@ -7,8 +9,6 @@
 #include <functional>
 #include <cstdint>
 
-#include "Scene.h"
-#include "ItemData.h"
 
 class Game;
 using InventoryItem = std::pair<const ItemData*, uint32_t>; // second item of pair is quantity

@@ -1,14 +1,12 @@
 #pragma once
+#include "Scene.h"
+#include "ItemData.h"
 #include <array>
 #include <cstdint>
 #include <iostream>
 #include <string> 
 #include <unordered_map>
 #include <vector>
-
-#include "Scene.h"
-#include "ItemData.h"
-
 
 class InventoryUI : public Scene {
     // scene responsible for drawing the inventory and all the items

@@ -1,11 +1,11 @@
 #pragma once
+#include "Particle.h"
+#include "raylib.h"
+#include "raymath.h"
+#include "json.hpp"
 #include <vector>
 #include <random>
 #include <memory>
-#include "raylib.h"
-#include "raymath.h"
-#include "Particle.h"
-#include "json.hpp"
 
 enum class EmitterState {
     Stopped,      // not emitting

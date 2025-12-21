@@ -1,12 +1,12 @@
 #pragma once
+#include "Dungeon.h"
+#include "json.hpp"
 #include <memory>
 #include <vector>
 #include <string>
 #include <unordered_map>
 #include <cstdint>
 
-#include "Dungeon.h"
-#include "json.hpp"
 
 struct RoomData {
     // persistent data for a single room

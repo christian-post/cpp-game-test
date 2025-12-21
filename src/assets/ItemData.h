@@ -1,10 +1,10 @@
 #pragma once
+#include "Behavior.h"
+#include "WeaponBehavior.h"
 #include <string>
 #include <map>
 #include <functional>
 #include <optional>
-#include "Behavior.h"
-#include "WeaponBehavior.h"
 
 class Game;
 

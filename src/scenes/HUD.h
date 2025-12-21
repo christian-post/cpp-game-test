@@ -1,7 +1,7 @@
 #pragma once
 #include "Scene.h"
-#include <iostream>
 #include "raylib.h"
+#include <iostream>
 #include <vector>
 #include <array>
 

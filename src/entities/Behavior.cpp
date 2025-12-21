@@ -18,9 +18,9 @@
 #include "EmitterBehavior.h"
 #include "ChestBehavior.h"
 #include "OpenLockBehavior.h"
+#include "Game.h"
 #include "Sprite.h"
 #include "Emitter.h"
-#include "Game.h"
 #include "Utils.h"
 #include <iostream>
 

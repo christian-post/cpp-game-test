@@ -1,6 +1,5 @@
 #include "GameOver.h"
 #include "Game.h"
-#include "raylib.h"
 #include "InGame.h"
 #include "Controls.h"
 

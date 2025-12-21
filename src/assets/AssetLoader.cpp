@@ -1,7 +1,7 @@
 #include "AssetLoader.h"
+#include "Utils.h"
 #include <iostream>
 #include <fstream>
-#include "Utils.h"
 
 
 nlohmann::json resolveInheritance(const std::unordered_map<std::string, nlohmann::json>& allData, const std::string& key, std::unordered_map<std::string, bool>& visited)

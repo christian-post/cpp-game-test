@@ -2,7 +2,6 @@
 #include "Game.h"
 #include "Controls.h"
 #include "Utils.h"
-#include "raylib.h"
 
 StartMenu::StartMenu(Game& game, const std::string& name) 
     : Scene(game, name), menu(MenuSelect(game)) {

@@ -1,7 +1,6 @@
 #include "MapUI.h"
 #include "Game.h"
 #include "Controls.h"
-#include "raylib.h"
 #include "Utils.h"
 
 MapUI::MapUI(Game& game, const std::string& name) : Scene(game, name) {}

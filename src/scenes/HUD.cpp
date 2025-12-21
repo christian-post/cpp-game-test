@@ -1,12 +1,10 @@
-#include <cstdint>
-#include "raylib.h"
 #include "HUD.h"
 #include "Game.h"
 #include "InGame.h"
 #include "Utils.h"
 #include "ItemData.h"
 #include "Controls.h"
-
+#include <cstdint>
 
 HUD::HUD(Game& game, const std::string& name) : Scene(game, name), heartImages{} {
     // event listeners

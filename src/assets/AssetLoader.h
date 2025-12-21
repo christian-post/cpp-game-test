@@ -1,11 +1,11 @@
 #pragma once
+#include "TileMap.h"
+#include "raylib.h"
+#include "json.hpp"
 #include <unordered_map>
 #include <vector>
 #include <string>
 #include <filesystem>
-#include "raylib.h"
-#include "json.hpp"
-#include "TileMap.h"
 
 namespace fs = std::filesystem;
 

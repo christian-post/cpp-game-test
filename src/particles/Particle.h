@@ -1,7 +1,7 @@
 #pragma once
 #include "raylib.h"
-#include <vector>
 #include "json.hpp"
+#include <vector>
 
 enum class ParticleType {
     Texture,

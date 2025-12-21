@@ -1,13 +1,11 @@
+#include "Game.h"
+#include "DebugMenu.h"
 #include <functional>
 #include <string>
 #include <map>
 #include <any>
 #include <tuple>
 #include <cstdint>
-
-#include "raylib.h"
-#include "Game.h"
-#include "DebugMenu.h"
 
 DebugMenu::DebugMenu(Game& game, const std::string& name) : Scene(game, name) {
     // initialize all menus

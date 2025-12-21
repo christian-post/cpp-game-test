@@ -1,4 +1,5 @@
 #pragma once
+#include "json.hpp"
 #include <string>
 #include <vector>
 #include <memory>
@@ -6,8 +7,6 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <cstdint>
-
-#include "json.hpp"
 
 class Sprite;
 class Behavior;

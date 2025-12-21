@@ -1,9 +1,9 @@
 #pragma once
+#include "Commands.h"
 #include <queue>
 #include <vector>
 #include <memory>
 #include <string>
-#include "Commands.h"
 
 
 struct QueuedCommand {

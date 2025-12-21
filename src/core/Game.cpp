@@ -19,7 +19,6 @@
 #include <fstream>
 #include <cassert>
 
-
 Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this) 
 {
     loader.loadSettings("./resources/settings.json");

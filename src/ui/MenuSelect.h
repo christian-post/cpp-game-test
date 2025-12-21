@@ -1,8 +1,8 @@
 #pragma once
+#include "Game.h"
 #include <vector>
 #include <string>
 #include <functional>
-#include "Game.h"
 
 /*
 Menu that lets the player select various items

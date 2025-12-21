@@ -1,10 +1,9 @@
-#include <iostream>
-
-#include "raymath.h"
 #include "Game.h"
 #include "Controls.h"
 #include "Sprite.h"
 #include "Utils.h"
+#include "raymath.h"
+#include <iostream>
 
 
 Sprite::Sprite(Game& game, float x, float y, float w, float h, const std::string& spriteName)

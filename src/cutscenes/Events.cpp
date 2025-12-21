@@ -1,9 +1,9 @@
 #include "Events.h"
-#include "raylib.h"
-#include "raymath.h"
 #include "Commands.h"
 #include "ChaseBehavior.h"
 #include "DialogueBehavior.h"
+#include "raylib.h"
+#include "raymath.h"
 
 
 // any InGame events (like cutscenes) that are triggered by some condition

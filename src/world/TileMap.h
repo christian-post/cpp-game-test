@@ -1,4 +1,7 @@
 #pragma once
+//#include "Game.h"
+#include "raylib.h"
+#include "json.hpp"
 #include <cstdint>
 #include <filesystem>
 #include <stdexcept>
@@ -6,9 +9,6 @@
 #include <unordered_map>
 #include <vector>
 
-#include "json.hpp"
-#include "raylib.h"
-//#include "Game.h"
 
 class Game;
 struct ObjectState;

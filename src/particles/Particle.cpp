@@ -1,6 +1,6 @@
 #include "Particle.h"
-#include <cmath>
 #include "raymath.h"
+#include <cmath>
 #include <string>
 
 static Vector3 getColorAtLifetime(float progress, const std::vector<Vector3>& colors) {
