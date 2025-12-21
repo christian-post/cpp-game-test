@@ -20,8 +20,8 @@ void InGame::startup() {
     );
 
     game.spriteMap["player"] = player;
-    player->health = game.getSetting("playerStartingHealth");
-    player->maxHealth = game.getSetting("playerStartingMaxHealth");
+    player->health = game.getSetting<uint32_t>("playerStartingHealth");
+    player->maxHealth = game.getSetting<uint32_t>("playerStartingMaxHealth");
     player->persistent = true;
     game.sprites.emplace_back(player);  // add to the sprites vector
     player->setTextures({ "player_idle", "player_run", "player_hit" });
@@ -528,7 +528,7 @@ void InGame::update(float deltaTime) {
             else {
                 player->health = 0;
             }
-            player->iFrameTimer = game.getSetting("PlayeriFrames");
+            player->iFrameTimer = game.getSetting<float>("PlayeriFrames");
             applyKnockback(*sprite, *player, sprite->knockback);
             game.eventManager.pushEvent(SCREEN_SHAKE, std::make_tuple(0.2f, 4.0f, 0.0f));
             game.playSound("hurt1");
@@ -674,7 +674,7 @@ void InGame::draw() {
         DrawLightOverlay(game.target.texture, game.loader.getShader("light_mask_flicker"), lights, lightCount, static_cast<float>(game.gameScreenWidth), static_cast<float>(game.gameScreenHeight));
 
     // draw a vignette
-    DrawVignette(game.target.texture, game.loader.getShader("vignette"), game.getSetting("vignetteIntensity"), game.getSetting("vignetteSmoothness"), static_cast<float>(game.gameScreenWidth), static_cast<float>(game.gameScreenHeight));
+    DrawVignette(game.target.texture, game.loader.getShader("vignette"), game.getSetting<float>("vignetteIntensity"), game.getSetting<float>("vignetteSmoothness"), static_cast<float>(game.gameScreenWidth), static_cast<float>(game.gameScreenHeight));
 
     // draw an effect when the player if low on health
     if (player->health < 5) {

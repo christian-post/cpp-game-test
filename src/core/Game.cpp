@@ -27,7 +27,7 @@ Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this)
     TraceLog(LOG_INFO, settings->dump(2).c_str());
     SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT); // Enable config flags for resizable window and vsync
     // initialize the main window from the values found in settings.json
-    InitWindow(getSetting("windowWidth"), getSetting("windowHeight"), "My first game");
+    InitWindow(getSetting<int>("windowWidth"), getSetting<int>("windowHeight"), "My first game");
     SetWindowMinSize(320, 240);
     isFullscreen = getSetting("fullscreen", false);
     if (isFullscreen) 
@@ -47,7 +47,7 @@ Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this)
         };
 
     InitAudioDevice();
-    soundOn = getSetting("soundOn");
+    soundOn = getSetting<bool>("soundOn");
 
     // Render texture initialization, used to hold the rendering result so we can easily resize it
     // see https://github.com/raysan5/raylib/blob/master/examples/core/core_window_letterbox.c
@@ -55,7 +55,7 @@ Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this)
     gameScreenHeight = getSetting("gameScreenHeight");
     target = LoadRenderTexture(gameScreenWidth, gameScreenHeight);
 
-    SetTargetFPS(getSetting("targetFPS"));
+    SetTargetFPS(getSetting<int>("targetFPS"));
 
     // define all Scenes as factory functions
     // the second argument is priority for the drawing order
@@ -169,7 +169,7 @@ void Game::toggleFullscreen()
 {
     if (isFullscreen) {
         // go back to windowed mode
-        SetWindowSize(getSetting("windowWidth"), getSetting("windowHeight"));
+        SetWindowSize(getSetting<int>("windowWidth"), getSetting<int>("windowHeight"));
         // restore the old position 
         SetWindowPosition(lastWindowX, lastWindowY);
         ShowCursor();

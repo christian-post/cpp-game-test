@@ -8,10 +8,10 @@ MapUI::MapUI(Game& game, const std::string& name) : Scene(game, name) {}
 
 void MapUI::startup() {
     x = float(game.gameScreenWidth); // start the map screen on the right
-    topY = game.getSetting("HudHeight");
+    topY = game.getSetting<float>("HudHeight");
     y = topY;
     width = game.gameScreenWidth;
-    height = game.gameScreenHeight - game.getSetting("HudHeight");
+    height = game.gameScreenHeight - game.getSetting<uint32_t>("HudHeight");
     // set the sliding speed so that it takes "slideDuration" seconds to expand the inventory
     speed = height / slideDuration;
     state = SLIDING_LEFT;

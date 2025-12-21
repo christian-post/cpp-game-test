@@ -14,7 +14,7 @@ TextBox::TextBox(Game& game, float x, float y, float width, float height, int fo
     textContent{ "" } ,
     voice{ voice }
 {
-    textSpeed = game.getSetting("textDelay");
+    textSpeed = game.getSetting<float>("textDelay");
 }
 
 void TextBox::endPage(size_t index) { 

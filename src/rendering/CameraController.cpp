@@ -16,7 +16,7 @@ CameraController::CameraController(Game& game) : game(game) {
 void CameraController::initialize(float screenW, float screenH) {
     screenWidth = screenW;
     screenHeight = screenH;
-    hudHeight = game.getSetting("HudHeight");
+    hudHeight = game.getSetting<float>("HudHeight");
 
     // Set camera offset to center of screen
     camera.offset = { screenWidth / 2.0f, screenHeight / 2.0f };

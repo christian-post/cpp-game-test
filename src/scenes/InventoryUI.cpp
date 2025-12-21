@@ -9,9 +9,9 @@ InventoryUI::InventoryUI(Game& game, const std::string& name) : Scene(game, name
 
 void InventoryUI::startup() {
     y = float(game.gameScreenHeight); // start the inventory hidden at the bottom
-    topY = game.getSetting("HudHeight");
+    topY = game.getSetting<float>("HudHeight");
     width = game.gameScreenWidth;
-    height = game.gameScreenHeight - game.getSetting("HudHeight");
+    height = game.gameScreenHeight - game.getSetting<uint32_t>("HudHeight");
     // set the sliding speed so that it takes "slideDuration" seconds to expand the inventory
     speed = height / slideDuration;
     state = OPENING;

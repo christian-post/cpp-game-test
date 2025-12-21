@@ -64,7 +64,7 @@ HUD::HUD(Game& game, const std::string& name) : Scene(game, name), heartImages{}
 void HUD::startup() {
     width = float(game.gameScreenWidth);
     heartImages = game.loader.getTextures("hearts");
-    height = game.getSetting("HudHeight");
+    height = game.getSetting<float>("HudHeight");
 }
 
 void HUD::update(float deltaTime) {

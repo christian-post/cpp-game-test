@@ -44,6 +44,17 @@ public:
 
     AssetLoader loader;
     nlohmann::json getSetting(const std::string& key, nlohmann::json defaultValue = nlohmann::json()) const;
+
+    template<typename T>
+    T getSetting(const std::string& key, T defaultValue) const {
+        return getSetting(key, nlohmann::json(defaultValue)).get<T>();
+    } // get with default value
+
+    template<typename T>
+    T getSetting(const std::string& key) const {
+        return getSetting(key, nlohmann::json{}).get<T>();
+    } // get without default value, but specify the type explicitly
+
     void writeSetting(const std::string& key, nlohmann::json value);
     void saveSettings();
 
