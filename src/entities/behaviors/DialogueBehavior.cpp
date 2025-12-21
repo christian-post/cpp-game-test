@@ -8,10 +8,11 @@
 #include <tuple>
 
 DialogueBehavior::DialogueBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> player, std::vector<std::string> dialogTexts, std::string voice)
-    : game{ game }, self{ self }, player{ player }, dialogTexts{ std::move(dialogTexts) }, voice{ voice } {
-}
+    : game{ game }, self{ self }, player{ player }, dialogTexts{ std::move(dialogTexts) }, voice{ voice } 
+{}
 
-void DialogueBehavior::update(float deltaTime) {
+void DialogueBehavior::update(float deltaTime) 
+{
     if (triggered)
         return;
     if (auto s = self.lock(), p = player.lock(); s && p) {
@@ -22,18 +23,18 @@ void DialogueBehavior::update(float deltaTime) {
             }
             if (game.buttonsDown & CONTROL_ACTION1 && !Command_Textbox::isTextboxCooldown()) {
                 triggered = true;
-                if (auto scene = dynamic_cast<InGame*>(game.getScene("InGame"))) {
-                    bool pitch = (voice == "tone") ? false : true;
-                    game.cutsceneManager.queueCommand(new Command_LookTowards(*s, *p));
-                    game.cutsceneManager.queueCommand(new Command_Textbox(game, dialogTexts[currentTextIndex], voice, pitch));
-                    game.cutsceneManager.queueCommand(new Command_Callback([this]() {
-                        game.eventManager.pushDelayedEvent(UNNAMED, 0.3f, nullptr, [this]() {
-                            if (currentTextIndex < dialogTexts.size() - 1)
-                                ++currentTextIndex;
-                            triggered = false;
-                            });
-                        }));
-                }
+                //if (auto scene = dynamic_cast<InGame*>(game.getScene("InGame"))) {
+                bool pitch = (voice == "tone") ? false : true;
+                game.cutsceneManager.queueCommand(new Command_LookTowards(*s, *p));
+                game.cutsceneManager.queueCommand(new Command_Textbox(game, dialogTexts[currentTextIndex], voice, pitch));
+                game.cutsceneManager.queueCommand(new Command_Callback([this]() {
+                    game.eventManager.pushDelayedEvent(UNNAMED, 0.3f, nullptr, [this]() {
+                        if (currentTextIndex < dialogTexts.size() - 1)
+                            ++currentTextIndex;
+                        triggered = false;
+                        });
+                    }));
+                //}
             }
         }
         else {
@@ -45,7 +46,8 @@ void DialogueBehavior::update(float deltaTime) {
     }
 }
 
-void DialogueBehavior::reset() {
+void DialogueBehavior::reset() 
+{
     Behavior::reset();
     triggered = false;
     collided = false;

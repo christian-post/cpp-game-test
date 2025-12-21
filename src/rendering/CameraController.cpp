@@ -4,7 +4,8 @@
 #include "Utils.h"
 #include <algorithm>
 
-CameraController::CameraController(Game& game) : game(game) {
+CameraController::CameraController(Game& game) : game(game) 
+{
     camera.offset = { 0.0f, 0.0f };
     camera.target = { 0.0f, 0.0f };
     camera.rotation = 0.0f;
@@ -13,7 +14,8 @@ CameraController::CameraController(Game& game) : game(game) {
     setupEventListeners();
 }
 
-void CameraController::initialize(float screenW, float screenH) {
+void CameraController::initialize(float screenW, float screenH)
+{
     screenWidth = screenW;
     screenHeight = screenH;
     hudHeight = game.getSetting<float>("HudHeight");
@@ -22,16 +24,19 @@ void CameraController::initialize(float screenW, float screenH) {
     camera.offset = { screenWidth / 2.0f, screenHeight / 2.0f };
 }
 
-void CameraController::setWorldBounds(float worldW, float worldH) {
+void CameraController::setWorldBounds(float worldW, float worldH)
+{
     worldWidth = worldW;
     worldHeight = worldH;
 }
 
-void CameraController::setPosition(Vector2 position) {
+void CameraController::setPosition(Vector2 position)
+{
     manualTarget = position;
 }
 
-void CameraController::startShake(float duration, float xMag, float yMag) {
+void CameraController::startShake(float duration, float xMag, float yMag)
+{
     shakeActive = true;
     shakeDuration = duration;
     shakeTimeRemaining = duration;
@@ -39,7 +44,8 @@ void CameraController::startShake(float duration, float xMag, float yMag) {
     shakeYMagnitude = yMag;
 }
 
-void CameraController::update(float deltaTime) {
+void CameraController::update(float deltaTime)
+{
     // Update camera shake
     updateShake(deltaTime);
 
@@ -58,7 +64,8 @@ void CameraController::update(float deltaTime) {
     camera.target = target;
 }
 
-Vector2 CameraController::calculateTargetPosition() const {
+Vector2 CameraController::calculateTargetPosition() const
+{
     // Manual control takes priority (for cutscenes)
     if (game.cutsceneManager.hasCameraControl()) {
         return manualTarget;
@@ -76,7 +83,8 @@ Vector2 CameraController::calculateTargetPosition() const {
     return camera.target;
 }
 
-Vector2 CameraController::clampToBounds(Vector2 target) const {
+Vector2 CameraController::clampToBounds(Vector2 target) const
+{
     if (worldWidth <= 0.0f || worldHeight <= 0.0f) {
         return target;
     }
@@ -95,7 +103,8 @@ Vector2 CameraController::clampToBounds(Vector2 target) const {
     };
 }
 
-void CameraController::updateShake(float deltaTime) {
+void CameraController::updateShake(float deltaTime)
+{
     if (!shakeActive) {
         return;
     }
@@ -108,13 +117,14 @@ void CameraController::updateShake(float deltaTime) {
     }
 }
 
-Vector2 CameraController::applyShake(Vector2 target) {
+Vector2 CameraController::applyShake(Vector2 target)
+{
     if (!shakeActive || shakeDuration <= 0.0f) {
         return target;
     }
 
-    // Calculate intensity based on remaining time
-    float intensity = shakeTimeRemaining / shakeDuration;
+    // Calculate intensity based on remaining time TODO unused??
+    //float intensity = shakeTimeRemaining / shakeDuration;
 
     // Use sine wave for smoother shake
     float t = 1.0f - (shakeTimeRemaining / shakeDuration);
@@ -126,7 +136,8 @@ Vector2 CameraController::applyShake(Vector2 target) {
     };
 }
 
-void CameraController::setupEventListeners() {
+void CameraController::setupEventListeners()
+{
     // Listen for manual camera movement events
     game.eventManager.addListener(MOVE_CAMERA, [this](std::any data) {
         if (!data.has_value()) {

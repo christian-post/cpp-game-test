@@ -29,8 +29,8 @@ public:
     void setItems(std::vector<MenuItem> items); // sets all MenuItems at once
     void addItem(MenuItem item);
     void updateItemText(size_t index, std::string txt); // just changes the text, TODO: do I also need to update the callback?
-    const size_t getCurrentIndex() const { return menuIndex; }
-    const MenuItem getCurrentItem() const { return menuItems[menuIndex]; }
+    size_t getCurrentIndex() const { return menuIndex; }
+    MenuItem getCurrentItem() const { return menuItems[menuIndex]; }
     size_t getFontSize() const { return fontsize; }
     void setFontSize(size_t size) { fontsize = size; }
     size_t getYMargin() const { return yMargin; }

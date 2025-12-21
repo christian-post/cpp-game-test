@@ -11,7 +11,7 @@ static Vector3 getColorAtLifetime(float progress, const std::vector<Vector3>& co
         return colors[0];
 
     float scaledProgress = progress * (colors.size() - 1);
-    int index = static_cast<int>(scaledProgress);
+    size_t index = static_cast<size_t>(scaledProgress);
     float t = scaledProgress - index;
 
     if (index >= colors.size() - 1)

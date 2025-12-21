@@ -78,3 +78,8 @@ endif()
 add_custom_command(TARGET MyGame POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     ${CMAKE_SOURCE_DIR}/resources $<TARGET_FILE_DIR:MyGame>/resources)
+
+# create a savegame directory (the source code also checks for this, but whatever) 
+add_custom_command(TARGET MyGame POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory
+    $<TARGET_FILE_DIR:MyGame>/savegames/thumbs)

@@ -5,7 +5,8 @@
 
 MapUI::MapUI(Game& game, const std::string& name) : Scene(game, name) {}
 
-void MapUI::startup() {
+void MapUI::startup()
+{
     x = float(game.gameScreenWidth); // start the map screen on the right
     topY = game.getSetting<float>("HudHeight");
     y = topY;
@@ -16,7 +17,8 @@ void MapUI::startup() {
     state = SLIDING_LEFT;
 }
 
-void MapUI::update(float deltaTime) {
+void MapUI::update(float deltaTime)
+{
     blinkTimer += deltaTime;
     if (blinkTimer >= blinkSpeed) {
         cursorOn = !cursorOn;
@@ -70,6 +72,9 @@ void MapUI::update(float deltaTime) {
             game.resumeScene("InventoryUI");
         }
         break;
+    case NONE:
+    default:
+        break;
     }
 }
 
@@ -78,14 +83,15 @@ void MapUI::draw() {
 
     // draw the room layout
     // TODO: hard coding the values for now
-    const int spacing = 4;
-    const int border = 24;
-    std::pair<size_t, size_t> size = game.currentDungeon->getSize();
-    const int cols = static_cast<int>(size.first);
-    const int rows = static_cast<int>(size.second);
+    const size_t spacing = 4;
+    const size_t border = 24;
+    const auto [cols, rows] = game.currentDungeon->getSize();
+    //std::pair<size_t, size_t> size = game.currentDungeon->getSize();
+    //const size_t cols = size.first;
+    //const size_t rows = size.second;
     size_t currentRoomIndex = game.currentDungeon->getCurrentRoomIndex();
-    const int cellWidth = (static_cast<int>(width) - 2 * border - (cols - 1) * spacing) / cols;
-    const int cellHeight = (static_cast<int>(height) - 2 * border - (rows - 1) * spacing) / rows;
+    const size_t cellWidth = (static_cast<size_t>(width) - 2 * border - (cols - 1) * spacing) / cols;
+    const size_t cellHeight = (static_cast<size_t>(height) - 2 * border - (rows - 1) * spacing) / rows;
 
     // calculate the minimap offsets
     // TODO: do I really need to recalculate this every frame?
@@ -101,13 +107,13 @@ void MapUI::draw() {
     auto& minimaps = game.currentDungeon->minimapTextures;
     size_t level = game.currentDungeon->getCurrentLevel(); // TODO make level selectable from within this menu
 
-    for (int i = 0; i < cols * rows; ++i) {
-        int col = i % cols;
-        int row = i / cols;
-        int cellX = static_cast<int>(x) + border + col * (cellWidth + spacing);
-        int cellY = static_cast<int>(y) + border + row * (cellHeight + spacing);
+    for (size_t i = 0; i < cols * rows; ++i) {
+        size_t col = i % cols;
+        size_t row = i / cols;
+        size_t cellX = static_cast<size_t>(x) + border + col * (cellWidth + spacing);
+        size_t cellY = static_cast<size_t>(y) + border + row * (cellHeight + spacing);
         Color color = DARKGRAY;
-        DrawRectangle(cellX, cellY, cellWidth, cellHeight, color);
+        DrawRectangle(int(cellX), int(cellY), int(cellWidth), int(cellHeight), color);
 
         if (i < minimaps[level].size() && game.currentDungeon->hasVisited(level, i)) {
             const auto& tex = minimaps[level][i].texture;
@@ -147,19 +153,19 @@ void MapUI::draw() {
     // help texts
     if (state == OPENED) {
         int fontSize = 6;
-        const char* helpText = nullptr;
+        //const char* helpText = nullptr;
         const char* textLeft = nullptr;
-        const char* textRight = nullptr;
+        //const char* textRight = nullptr; // TODO: draw dynamically if another screen exists
         if (WasGamepadUsedLast()) {
             textLeft = "<< LB";
-            textRight = "RB >>";
+            //textRight = "RB >>";
         }
         else {
             textLeft = "<< N";
-            textRight = "M >>";
+            //textRight = "M >>";
         }
         uint32_t helpTextY = int(y) + int(game.gameScreenHeight - topY) - fontSize - 8;
-        uint32_t txtR = int(x) + int(game.gameScreenWidth) - MeasureText(textRight, fontSize) - 4;
+        //uint32_t txtR = int(x) + int(game.gameScreenWidth) - MeasureText(textRight, fontSize) - 4;
         uint32_t txtL = int(x) + 4;
         //DrawText(textRight, txtR, helpTextY, fontSize, LIGHTGRAY); // TODO: draw dynamically if another screen exists
         DrawText(textLeft, txtL, helpTextY, fontSize, LIGHTGRAY);

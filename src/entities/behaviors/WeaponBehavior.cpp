@@ -24,7 +24,8 @@ WeaponBehavior::WeaponBehavior(Game& game, std::shared_ptr<Sprite> sprite, std::
     }
 }
 
-void WeaponBehavior::update(float deltaTime) {
+void WeaponBehavior::update(float deltaTime) 
+{
     if (auto s = self.lock(), o = owner.lock(); s && o) {
         lifetime -= deltaTime;
         // weapon is done
@@ -211,7 +212,8 @@ void WeaponBehavior::update(float deltaTime) {
     }
 }
 
-void WeaponBehavior::draw() {
+void WeaponBehavior::draw() 
+{
     if (!isNotched)
         return;
     auto s = self.lock();
@@ -228,7 +230,6 @@ void WeaponBehavior::draw() {
             return;
 
         const Texture2D& weaponTex = weaponTextures[s->currentFrame];
-        float wpnTexWidth = static_cast<float>(weaponTex.width);
         float wpnTexHeight = static_cast<float>(weaponTex.height);
 
         // Calculate the rotation pivot (center-bottom of weapon texture)
@@ -321,7 +322,8 @@ void WeaponBehavior::draw() {
     }
 }
 
-void WeaponBehavior::reset() {
+void WeaponBehavior::reset()
+{
     Behavior::reset();
     lifetime = originalLifetime;
     if (lifetime == -1.0f)

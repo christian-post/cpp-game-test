@@ -27,6 +27,7 @@ private:
     nlohmann::json dungeonData;
     
 public:
+    AssetLoader();
     ~AssetLoader();
     // TODO change inconsistent Capital letters!
     void loadTexturesFromDirectory(const std::string& directory);

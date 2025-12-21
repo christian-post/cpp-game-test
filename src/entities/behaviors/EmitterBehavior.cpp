@@ -27,9 +27,10 @@ void EmitterBehavior::reset() {
     if (auto s = self.lock(); s && emitter)
         emitter->position = GetRectCenter(s->rect);
 
-    if (emitter)
+    if (emitter) {
         emitter->reset();
         emitter->start();
+    }
 }
 
 void EmitterBehavior::onDeactivate()

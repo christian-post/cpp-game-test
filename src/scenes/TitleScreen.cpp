@@ -4,12 +4,14 @@
 #include "Utils.h"
 
 
-void TitleScreen::startup() {
+void TitleScreen::startup()
+{
     music = &const_cast<Music&>(game.loader.getMusic("title"));
     PlayMusicStream(*music);
 }
 
-void TitleScreen::update(float deltaTime) {
+void TitleScreen::update(float deltaTime)
+{
     transparency = static_cast<unsigned char>((sinf(float(GetTime()) * PI) + 1.0f) * 127.5f);
     if (AnyKeyPressed(game.buttonsPressed)) {
         game.startScene("StartMenu");
@@ -17,7 +19,8 @@ void TitleScreen::update(float deltaTime) {
     }
 }
 
-void TitleScreen::draw() {
+void TitleScreen::draw()
+{
     ClearBackground(BLACK);
 
     DrawTexture(game.loader.getTextures("title_image")[0], 0, 0, WHITE);
@@ -27,16 +30,15 @@ void TitleScreen::draw() {
     // put the text at the midbottom
     const int promptWidth = MeasureText(promptText, fontSize);
     const int promptX = (game.gameScreenWidth - promptWidth) / 2;
-    const int titleY = game.gameScreenHeight / 3;
     const int promptY = game.gameScreenHeight - 24;
 
     Color color = { 255, 255, 255, transparency };
     Font defaultFont = GetFontDefault();
     DrawTextEx(defaultFont, promptText, { static_cast<float>(promptX), static_cast<float>(promptY) }, static_cast<float>(fontSize), 1.0f, color);
-
 }
 
-void TitleScreen::end() {
+void TitleScreen::end()
+{
     // wait for a split second
     WaitTime(0.25f);
     StopMusicStream(*music);

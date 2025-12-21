@@ -1,6 +1,7 @@
 #include "AssetLoader.h"
 #include "Utils.h"
 #include <iostream>
+#include <filesystem>
 #include <fstream>
 
 
@@ -30,6 +31,11 @@ nlohmann::json resolveInheritance(const std::unordered_map<std::string, nlohmann
     return child;
 }
 
+
+AssetLoader::AssetLoader() : fallbackTexture({ 0 })
+{
+    std::filesystem::create_directories("./savegames/thumbs");
+}
 
 AssetLoader::~AssetLoader() {
     // textures

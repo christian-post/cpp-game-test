@@ -4,9 +4,11 @@
 #include "Utils.h"
 
 
-InventoryUI::InventoryUI(Game& game, const std::string& name) : Scene(game, name) {}
+InventoryUI::InventoryUI(Game& game, const std::string& name) : Scene(game, name) 
+{}
 
-void InventoryUI::startup() {
+void InventoryUI::startup()
+{
     y = float(game.gameScreenHeight); // start the inventory hidden at the bottom
     topY = game.getSetting<float>("HudHeight");
     width = game.gameScreenWidth;
@@ -17,7 +19,8 @@ void InventoryUI::startup() {
     game.playSound("menuOpen");
 }
 
-void InventoryUI::update(float deltaTime) {
+void InventoryUI::update(float deltaTime)
+{
     // state machine
     switch (state) {
     case OPENING:
@@ -51,6 +54,8 @@ void InventoryUI::update(float deltaTime) {
         }
         break;
     case OPENED:
+    {
+
         if (game.buttonsPressed & CONTROL_CONFIRM) {
             state = CLOSING;
             game.playSound("menuClose");
@@ -152,12 +157,16 @@ void InventoryUI::update(float deltaTime) {
                 game.playSound("menuSelect");
             }
         }
-
+        break;
+    }
+    case NONE:
+    default:
         break;
     }
 }
 
-void InventoryUI::draw() {
+void InventoryUI::draw()
+{
     auto& items = game.inventory.getItems();
     size_t weaponsSize = items[WEAPON].size();
     size_t consumablesSize = items[CONSUMABLE].size();
@@ -256,7 +265,6 @@ void InventoryUI::draw() {
         DrawText(weaponText, textX, textY, fontSize, LIGHTGRAY);
     }
     else if (index < totalItems) {
-        size_t consumableIndex = index - weaponsSize;
         const char* consumableText = flatItems[index]->first->displayName.c_str();
         uint32_t textX = int(x) + (int(game.gameScreenWidth) - MeasureText(consumableText, fontSize)) / 2;
         DrawText(consumableText, textX, textY, fontSize, LIGHTGRAY);
@@ -266,17 +274,17 @@ void InventoryUI::draw() {
     if (state == OPENED) {
         fontSize = 6;
         const char* helpText = nullptr;
-        const char* textLeft = nullptr;
+        //const char* textLeft = nullptr; // TODO: draw dynamically if another screen exists
         const char* textRight = nullptr;
         // TODO get key layout from config
         if (WasGamepadUsedLast()) {
             helpText = index < weaponsSize ? "Equip with [X] or [Y]" : "Use with [A]"; // TODO draw a sprite that shows the gamepad buttons
-            textLeft = "<< LB";
+            //textLeft = "<< LB";
             textRight = "RB >>";
         }
         else {
             helpText = index < weaponsSize ? "Equip with [P] or [L]" : "Use with [O}";
-            textLeft = "<< N";
+            //textLeft = "<< N";
             textRight = "M >>";
         }
         uint32_t helpTextX = int(x) + (int(game.gameScreenWidth) - MeasureText(helpText, fontSize)) / 2;
@@ -284,12 +292,13 @@ void InventoryUI::draw() {
         DrawText(helpText, helpTextX, helpTextY, fontSize, LIGHTGRAY);
 
         uint32_t txtR = int(x) + int(game.gameScreenWidth) - MeasureText(textRight, fontSize) - 4;
-        uint32_t txtL = int(x) + 4;
+        //uint32_t txtL = int(x) + 4;
         DrawText(textRight, txtR, helpTextY, fontSize, LIGHTGRAY);
         //DrawText(textLeft, txtL, helpTextY, fontSize, LIGHTGRAY); // TODO: draw dynamically if another screen exists
     }
 }
 
-void InventoryUI::end() {
+void InventoryUI::end()
+{
     game.eventManager.pushEvent(SET_MUSIC_VOLUME, 1.0f);
 }

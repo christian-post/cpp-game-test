@@ -33,7 +33,7 @@ public:
     std::vector<std::vector<Texture2D>> frames; // outer index refers to currentAnimState; inner index refers to currentFrame
     std::string spriteName; // used for general identification
     AnimState currentAnimState = IDLE;
-    int currentFrame = 0;
+    size_t currentFrame = 0;
     uint32_t tileMapID = 0; // Unique identifier for Room creation (saving and loading the sprite data)
     bool doesAnimate = true;
     int drawLayer = 0;
