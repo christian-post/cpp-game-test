@@ -21,5 +21,5 @@ public:
     }
 
 private:
-    Vector2 lastPos = GetWindowPosition();
+    Vector2 lastPos = { 0, 0 };
 };
