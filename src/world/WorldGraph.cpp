@@ -15,11 +15,11 @@ WorldGraph::WorldGraph(){}
 
 std::shared_ptr<Node> WorldGraph::add_node(const std::string& name, const size_t id, const bool canHaveItem)
 {
-	auto node = std::make_shared<Node>(name);
-	nodes[name] = node;
+    auto node = std::make_shared<Node>(name);
+    nodes[name] = node;
     node->id = id;
     node->canHaveItem = canHaveItem;
-	return node;
+    return node;
 }
 
 void WorldGraph::add_edge(

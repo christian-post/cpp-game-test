@@ -1,0 +1,14 @@
+{ "columns":19,
+ "image":"..\/textures\/tilesets\/top-down-dungeon-tileset.png",
+ "imageheight":208,
+ "imagewidth":304,
+ "margin":0,
+ "name":"dungeon_topdown",
+ "spacing":0,
+ "tilecount":247,
+ "tiledversion":"1.11.2",
+ "tileheight":16,
+ "tilewidth":16,
+ "type":"tileset",
+ "version":"1.10"
+}

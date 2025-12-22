@@ -1,6 +1,9 @@
 # IMPORTANT:
 ## BUGS
 - projectiles only create an impact emitter on the target and on walls, not on other sprites
+- RELOAD_ROOM event crashes in combination with emitters
+- "fullscreen" property in settings.json doesn't get saved
+- make sure that windowW and windowH are not out of bounds when not in fullscreen
 
 ## FEATURES/REFACTORS:
 - Core
@@ -9,12 +12,13 @@
 -- collision objects should be able to span multiple layers
 -- auto load most of the assets instead of manually adding them to Preload.cpp
 -- custom keyboard keys and gamepad buttons
+-- option to set windowW and windowH to a fixed aspect ratio (without black borders)
 
 - Particles
 -- color interpolation
 
 - Dungeon
--- allow for multiple floors
+-- fix dungeons.json structure
 -- procedural room generation
 -- dynamically show a shadow over a room entrance if the adjacent room is dark
 
@@ -47,6 +51,7 @@
 - the shader keys should be hardcoded in the functions in CircleOverlay.cpp
 - Music/Sounds:
 -- Inventory select item --> different sound
+- TileMap: add support for multiple tilemaps (and respect the "firstgid" attribute)
 
 ## BUGS:
 - RandomWalkBehavior: choose new target after some time if the current target can't be reached

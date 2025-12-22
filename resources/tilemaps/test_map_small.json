@@ -12,7 +12,7 @@
             4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 5, 5, 5, 5, 5, 4,
             4, 5, 5, 5, 5, 5, 5, 5, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 4,
             4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 4,
-            4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 4,
+            4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 8, 5, 5, 5, 5, 5, 5, 5, 5, 5, 4,
             4, 5, 5, 5, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 4,
             4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 5, 5, 5, 4,
             4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 4,
@@ -170,10 +170,10 @@
                         }],
                  "rotation":0,
                  "type":"sprite",
-                 "visible":true,
+                 "visible":false,
                  "width":16,
-                 "x":164,
-                 "y":172
+                 "x":128,
+                 "y":240
                 }, 
                 {
                  "height":16,
@@ -192,7 +192,7 @@
                         }],
                  "rotation":0,
                  "type":"sprite",
-                 "visible":true,
+                 "visible":false,
                  "width":16,
                  "x":256,
                  "y":256
@@ -214,7 +214,7 @@
                         }],
                  "rotation":0,
                  "type":"sprite",
-                 "visible":true,
+                 "visible":false,
                  "width":16,
                  "x":320,
                  "y":256
@@ -236,7 +236,7 @@
                         }],
                  "rotation":0,
                  "type":"sprite",
-                 "visible":true,
+                 "visible":false,
                  "width":16,
                  "x":192,
                  "y":320
@@ -258,7 +258,7 @@
                         }],
                  "rotation":0,
                  "type":"sprite",
-                 "visible":true,
+                 "visible":false,
                  "width":16,
                  "x":256,
                  "y":320
@@ -280,7 +280,7 @@
                         }],
                  "rotation":0,
                  "type":"sprite",
-                 "visible":true,
+                 "visible":false,
                  "width":16,
                  "x":320,
                  "y":320
@@ -302,10 +302,27 @@
                         }],
                  "rotation":0,
                  "type":"sprite",
-                 "visible":true,
+                 "visible":false,
                  "width":16,
                  "x":44,
                  "y":324
+                }, 
+                {
+                 "height":16,
+                 "id":56,
+                 "name":"stairs",
+                 "properties":[
+                        {
+                         "name":"level",
+                         "type":"int",
+                         "value":1
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":16,
+                 "x":208,
+                 "y":144
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -461,7 +478,7 @@
          "y":0
         }],
  "nextlayerid":6,
- "nextobjectid":56,
+ "nextobjectid":57,
  "orientation":"orthogonal",
  "properties":[
         {

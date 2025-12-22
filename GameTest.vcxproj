@@ -176,6 +176,7 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <ClCompile Include="src\entities\behaviors\ShootBehavior.cpp" />
     <ClCompile Include="src\entities\behaviors\ShootBurstBehavior.cpp" />
     <ClCompile Include="src\entities\behaviors\ShootSpreadBehavior.cpp" />
+    <ClCompile Include="src\entities\behaviors\StairsBehavior.cpp" />
     <ClCompile Include="src\entities\behaviors\TeleportBehavior.cpp" />
     <ClCompile Include="src\entities\behaviors\TradeItemBehavior.cpp" />
     <ClCompile Include="src\entities\behaviors\WatchBehavior.cpp" />
@@ -238,6 +239,7 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <ClInclude Include="src\entities\behaviors\ShootBehavior.h" />
     <ClInclude Include="src\entities\behaviors\ShootBurstBehavior.h" />
     <ClInclude Include="src\entities\behaviors\ShootSpreadBehavior.h" />
+    <ClInclude Include="src\entities\behaviors\StairsBehavior.h" />
     <ClInclude Include="src\entities\behaviors\TeleportBehavior.h" />
     <ClInclude Include="src\entities\behaviors\TradeItemBehavior.h" />
     <ClInclude Include="src\entities\behaviors\WatchBehavior.h" />

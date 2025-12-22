@@ -27,8 +27,8 @@
   "tileChunkSize": 256,
   "vignetteIntensity": 0.3,
   "vignetteSmoothness": 0.5,
-  "windowHeight": 864,
-  "windowWidth": 1152,
-  "windowX": 694.0,
-  "windowY": 119.0
+  "windowHeight": 738,
+  "windowWidth": 1047,
+  "windowX": 436.0,
+  "windowY": 141.0
 }

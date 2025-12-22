@@ -200,12 +200,13 @@ void Preload::startup() {
     loadQueue.emplace("Loading tilesets", [&]() {
         l.LoadtilesetFromTiled("./resources/tilemaps/test.tsj");
         l.LoadtilesetFromTiled("./resources/tilemaps/dungeon.tsj");
+        l.LoadtilesetFromTiled("./resources/tilemaps/dungeon_topdown.tsj");
         l.LoadtilesetFromTiled("./resources/tilemaps/fields.tsj");
         });
     // load the tile maps from text files
     loadQueue.emplace("Loading tilemaps", [&]() {
         l.LoadtileMapFromTiled("./resources/tilemaps/test_map_small.json");
-        l.LoadtileMapFromTiled("./resources/tilemaps/test_map_big.json");
+        l.LoadtileMapFromTiled("./resources/tilemaps/test_map_2.json");
         l.LoadtileMapFromTiled("./resources/tilemaps/dungeon001.json");
         l.LoadtileMapFromTiled("./resources/tilemaps/dungeon002.json");
         l.LoadtileMapFromTiled("./resources/tilemaps/dungeon003.json");

@@ -1,5 +1,15 @@
 {
   "first_dungeon": {
+    "starting_level": 0,
+    "starting_room": [ 4, 2 ],
+    "level_connections": [
+      {
+        "from": 0,
+        "to": 1,
+        "room": [ 0, 2 ]
+      }
+    ],
+    "item_pool": [ "key", "key", "key", "weapon_sword", "item_lamp", "weapon_bow" ],
     "levels": [
       {
         "rooms": [
@@ -142,7 +152,6 @@
             "doors": "0100"
           }
         ],
-        "starting_room": [ 4, 2 ],
         "edges": [
           {
             "from": [ 4, 2 ],
@@ -198,8 +207,19 @@
           [ 1, 4 ],
           [ 2, 5 ],
           [ 4, 5 ]
+        ]
+      },
+      {
+        "rooms": [
+          {
+            "row": 0,
+            "column": 2,
+            "tilemap": "test_map_2",
+            "doors": "1111"
+          }
         ],
-        "item_pool": [ "key", "key", "key", "weapon_sword", "item_lamp", "weapon_bow" ]
+        "edges": [],
+        "item_nodes": []
       }
     ]
   }

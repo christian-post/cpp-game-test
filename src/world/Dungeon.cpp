@@ -123,7 +123,6 @@ const TileMap* Dungeon::loadTileMap()
         return nullptr;
     }
     setVisited(currentLevel, currentRoomIndex); // TODO: is it always correct to set this here?
-    //return &rooms[currentRoomIndex]->tilemap;
     return &room->tilemap;
 }
 
@@ -286,20 +285,23 @@ WorldGraph Dungeon::buildGraphFromDungeon(const std::string& start, const std::v
 {
     WorldGraph graph;
 
-    // turn each room into a node
-    // TODO connections between levels
-
-    for (size_t i = 0; i < roomsW * roomsH; i++) {
-        Room* room = getRoomAt(currentLevel, i);
-        if (room) {
-            std::string key = room->tilemap.getName();
-            bool canHaveItem = itemNodes.count(key) > 0;
-            graph.add_node(key, i, canHaveItem);
+    // Turn each room from each level into a node
+    for (size_t level = 0; level < levels.size(); ++level) {
+        for (size_t i = 0; i < roomsW * roomsH; i++) {
+            Room* room = getRoomAt(level, i);
+            if (room) {
+                size_t row = i / roomsW;
+                size_t col = i % roomsW;
+                std::string roomId = std::to_string(level) + "_" + std::to_string(row) + "_" + std::to_string(col);
+                bool canHaveItem = itemNodes.count(roomId) > 0;
+                graph.add_node(roomId, i, canHaveItem);
+            }
         }
     }
+
     graph.set_start(start);
 
-    // add edges (connections between rooms)
+    // Helper to get requirements for a specific edge from edges parameter
     auto get_requirements = [&](const std::string& from, const std::string& to) {
         std::unordered_set<std::string> reqs;
         for (const auto& [f, t, items] : edges) {
@@ -311,40 +313,51 @@ WorldGraph Dungeon::buildGraphFromDungeon(const std::string& start, const std::v
         return reqs;
         };
 
-    for (size_t i = 0; i < roomsW * roomsH; i++) {
-        Room* room = getRoomAt(currentLevel, i);
-        if (room) {
-            std::string key = room->tilemap.getName();
-            // check the room's doors
-            // RIGHT
-            if (((room->doors >> 3) & 1) && (i % roomsW != roomsW - 1)) {
-                if (Room* right = getRoomAt(currentLevel, i + 1)) {
-                    auto& to = right->tilemap.getName();
-                    graph.add_edge(key, to, get_requirements(key, to));
+    // Add edges based on doors for all levels
+    for (size_t level = 0; level < levels.size(); ++level) {
+        for (size_t i = 0; i < roomsW * roomsH; i++) {
+            Room* room = getRoomAt(level, i);
+            if (room) {
+                size_t row = i / roomsW;
+                size_t col = i % roomsW;
+                std::string fromId = std::to_string(level) + "_" + std::to_string(row) + "_" + std::to_string(col);
+
+                // RIGHT
+                if (((room->doors >> 3) & 1) && (col != roomsW - 1)) {
+                    if (Room* right = getRoomAt(level, i + 1)) {
+                        std::string toId = std::to_string(level) + "_" + std::to_string(row) + "_" + std::to_string(col + 1);
+                        graph.add_edge(fromId, toId, get_requirements(fromId, toId));
+                    }
                 }
-            }
-            // UP
-            if (((room->doors >> 2) & 1) && (i >= roomsW)) {
-                if (Room* up = getRoomAt(currentLevel, i - roomsW)) {
-                    auto& to = up->tilemap.getName();
-                    graph.add_edge(key, to, get_requirements(key, to));
+                // UP
+                if (((room->doors >> 2) & 1) && (row > 0)) {
+                    if (Room* up = getRoomAt(level, i - roomsW)) {
+                        std::string toId = std::to_string(level) + "_" + std::to_string(row - 1) + "_" + std::to_string(col);
+                        graph.add_edge(fromId, toId, get_requirements(fromId, toId));
+                    }
                 }
-            }
-            // LEFT
-            if (((room->doors >> 1) & 1) && (i % roomsW != 0)) {
-                if (Room* left = getRoomAt(currentLevel, i - 1)) {
-                    auto& to = left->tilemap.getName();
-                    graph.add_edge(key, to, get_requirements(key, to));
+                // LEFT
+                if (((room->doors >> 1) & 1) && (col > 0)) {
+                    if (Room* left = getRoomAt(level, i - 1)) {
+                        std::string toId = std::to_string(level) + "_" + std::to_string(row) + "_" + std::to_string(col - 1);
+                        graph.add_edge(fromId, toId, get_requirements(fromId, toId));
+                    }
                 }
-            }
-            // DOWN
-            if ((room->doors & 1) && (i + roomsW < levels[currentLevel].getRooms().size())) {
-                if (Room* down = getRoomAt(currentLevel, i + roomsW)) {
-                    auto& to = down->tilemap.getName();
-                    graph.add_edge(key, to, get_requirements(key, to));
+                // DOWN
+                if ((room->doors & 1) && (row < roomsH - 1)) {
+                    if (Room* down = getRoomAt(level, i + roomsW)) {
+                        std::string toId = std::to_string(level) + "_" + std::to_string(row + 1) + "_" + std::to_string(col);
+                        graph.add_edge(fromId, toId, get_requirements(fromId, toId));
+                    }
                 }
             }
         }
+    }
+
+    // Add custom edges (level connections and edges without corresponding doors)
+    for (const auto& [from, to, requirements] : edges) {
+        std::unordered_set<std::string> reqs(requirements.begin(), requirements.end());
+        graph.add_edge(from, to, reqs);
     }
 
     return graph;
@@ -359,89 +372,106 @@ void Dungeon::generate(const std::string& dungeonKey)
 
     const auto& dungeonData = allDungeons[dungeonKey];
 
+    // Set starting room from coordinates
+    size_t startingLevel = dungeonData["starting_level"];
+    std::vector<int> startCoords = dungeonData["starting_room"];
+    size_t startIndex = startCoords[0] * roomsW + startCoords[1];
+    setStartingRoomIndex(startIndex);
+    currentLevel = startingLevel;
+
+    // Get item pool for this dungeon
+    std::vector<std::string> itemPool = dungeonData["item_pool"];
+
+    // Collect edges and item nodes across all levels
+    std::vector<std::tuple<std::string, std::string, std::vector<std::string>>> edges;
+    std::unordered_set<std::string> itemNodes;
+
+    // Process each level
     for (size_t levelIndex = 0; levelIndex < dungeonData["levels"].size(); ++levelIndex) {
         const auto& levelData = dungeonData["levels"][levelIndex];
 
-        // Build coordinate-to-tilemap mapping
-        std::unordered_map<std::string, std::string> coordToTilemap;
-
-        // Insert all rooms for this level
+        // Insert all rooms for this level into the levels vector
         for (const auto& roomData : levelData["rooms"]) {
             size_t row = roomData["row"];
             size_t column = roomData["column"];
             std::string tilemapName = roomData["tilemap"];
-            // convert the binary string for the doors to an 8 bit unsigned int that represents a bitmask
             std::string doorsStr = roomData["doors"];
             uint8_t doors = static_cast<uint8_t>(std::stoi(doorsStr, nullptr, 2));
-
-            std::string coordId = std::to_string(row) + "_" + std::to_string(column);
-            coordToTilemap[coordId] = tilemapName;
 
             insertRoom(levelIndex, row, column, Room{ game.loader.getTilemap(tilemapName), doors });
         }
 
-        // Set starting room from coordinates
-        std::vector<int> startCoords = levelData["starting_room"];
-        size_t startIndex = startCoords[0] * roomsW + startCoords[1];
-        setStartingRoomIndex(startIndex);
-
-        // Build edges vector - convert coordinates to tilemap names
-        std::vector<std::tuple<std::string, std::string, std::vector<std::string>>> edges;
+        // Collect edges with item requirements from this level for the graph
         for (const auto& edge : levelData["edges"]) {
             std::vector<int> fromCoords = edge["from"];
             std::vector<int> toCoords = edge["to"];
             std::vector<std::string> requiredItems = edge["required_items"];
+            // edge identifiers are build like "0_3_1" (level 0, row 3, column 1)
+            std::string fromId = std::to_string(levelIndex) + "_" + std::to_string(fromCoords[0]) + "_" + std::to_string(fromCoords[1]);
+            std::string toId = std::to_string(levelIndex) + "_" + std::to_string(toCoords[0]) + "_" + std::to_string(toCoords[1]);
 
-            std::string fromId = std::to_string(fromCoords[0]) + "_" + std::to_string(fromCoords[1]);
-            std::string toId = std::to_string(toCoords[0]) + "_" + std::to_string(toCoords[1]);
-
-            edges.emplace_back(coordToTilemap[fromId], coordToTilemap[toId], requiredItems);
+            edges.emplace_back(fromId, toId, requiredItems);
         }
 
-        // Build item nodes set - convert coordinates to tilemap names
-        std::unordered_set<std::string> itemNodes;
+        // Collect item nodes from this level
         for (const auto& coords : levelData["item_nodes"]) {
             std::vector<int> coordPair = coords;
-            std::string coordId = std::to_string(coordPair[0]) + "_" + std::to_string(coordPair[1]);
-            itemNodes.insert(coordToTilemap[coordId]);
+            std::string roomId = std::to_string(levelIndex) + "_" + std::to_string(coordPair[0]) + "_" + std::to_string(coordPair[1]);
+            itemNodes.insert(roomId);
         }
+    }
 
-        // Get item pool
-        std::vector<std::string> itemPool = levelData["item_pool"];
+    // Add level connections (also bidirectional)
+    for (const auto& conn : dungeonData["level_connections"]) {
+        size_t fromLevel = conn["from"];
+        size_t toLevel = conn["to"];
+        std::vector<int> roomCoords = conn["room"];
 
-        // Build starting room identifier
-        std::string startingRoomId = coordToTilemap[std::to_string(startCoords[0]) + "_" + std::to_string(startCoords[1])];
+        std::string fromId = std::to_string(fromLevel) + "_" + std::to_string(roomCoords[0]) + "_" + std::to_string(roomCoords[1]);
+        std::string toId = std::to_string(toLevel) + "_" + std::to_string(roomCoords[0]) + "_" + std::to_string(roomCoords[1]);
 
-        // Build and fill world graph
-        WorldGraph G = buildGraphFromDungeon(startingRoomId, edges, itemNodes);
-        int attempts = 0;
-        const int max_attempts = 100;
+        edges.emplace_back(fromId, toId, std::vector<std::string>{});
+        edges.emplace_back(toId, fromId, std::vector<std::string>{});
+    }
 
-        do {
-            G.initialize_items(itemPool);
-            G.forward_fill();
-            attempts++;
-        } while (!G.item_pool.empty() && attempts < max_attempts);
+    // Build starting room identifier
+    std::string startingRoomId = std::to_string(startingLevel) + "_" + std::to_string(startCoords[0]) + "_" + std::to_string(startCoords[1]);
 
-        if (!G.item_pool.empty())
-            throw std::runtime_error("Failed to place all items after " + std::to_string(max_attempts) + " attempts");
+    // Build and fill world graph
+    WorldGraph G = buildGraphFromDungeon(startingRoomId, edges, itemNodes);
+    int attempts = 0;
+    const int max_attempts = 100;
 
-        // Place items into Tiled data
-        auto& rooms = levels[levelIndex].getRooms();
-        for (const auto& [name, node] : G.nodes) {
-            if (node->item.has_value()) {
-                TraceLog(LOG_INFO, "[%s] placed item: %s", name.c_str(), node->item->c_str());
-                TileMap& roomData = rooms[node->id]->tilemap;
-                std::vector<TileObject>& objects = roomData.getObjects();
-                for (auto& obj : objects) {
-                    if (obj.name == "chest") {
-                        obj.properties["item"] = node->item.value();
-                        obj.properties["amount"] = 1;
-                        break;
-                    }
+    do {
+        G.initialize_items(itemPool);
+        G.forward_fill();
+        attempts++;
+    } while (!G.item_pool.empty() && attempts < max_attempts);
+
+    if (!G.item_pool.empty())
+        throw std::runtime_error("Failed to place all items after " + std::to_string(max_attempts) + " attempts");
+
+    // Place items into Tiled data
+    for (const auto& [roomId, node] : G.nodes) {
+        if (node->item.has_value()) {
+            TraceLog(LOG_INFO, "[%s] placed item: %s", roomId.c_str(), node->item->c_str());
+
+            // Parse level from roomId string "level_row_col"
+            size_t firstUnderscore = roomId.find('_');
+            size_t level = std::stoi(roomId.substr(0, firstUnderscore));
+
+            auto& rooms = levels[level].getRooms();
+            TileMap& roomData = rooms[node->id]->tilemap;
+            std::vector<TileObject>& objects = roomData.getObjects();
+            for (auto& obj : objects) {
+                if (obj.name == "chest") {
+                    obj.properties["item"] = node->item.value();
+                    obj.properties["amount"] = 1;
+                    break;
                 }
             }
         }
-        G.log_debug();
     }
+    // print Dungeon graph to the console
+    G.log_debug();
 }

@@ -1,6 +1,7 @@
 #include "TileMap.h"
 #include "Game.h"
 #include "TeleportBehavior.h"
+#include "StairsBehavior.h"
 #include "TradeItemBehavior.h"
 #include "CollectItemBehavior.h"
 #include "OpenLockBehavior.h"
@@ -174,6 +175,8 @@ void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, 
         // specific sprite attributes
         // TODO: for persistent sprites, check if they exist in the spriteMap
         if (obj.name == "teleport") {
+            // when touched, changes the current index
+            // TODO currently unused
             sprite->isColliding = false;
             sprite->visible = false;
             std::string targetMap = obj.properties.value("targetMap", "");
@@ -182,6 +185,15 @@ void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, 
             sprite->addBehavior(std::make_unique<TeleportBehavior>(
                 game, sprite, game.spriteMap["player"], targetMap,
                 Vector2{ targetX, targetY }
+            ));
+        }
+        else if (obj.name == "stairs") {
+            // when touched, changes the dungeon level number
+            sprite->isColliding = false;
+            sprite->visible = false;
+            int level = obj.properties.value("level", 0);
+            sprite->addBehavior(std::make_unique<StairsBehavior>(
+                game, sprite, game.spriteMap["player"], level
             ));
         }
         else if (obj.name == "npc") {
