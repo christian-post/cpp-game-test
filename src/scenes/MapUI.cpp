@@ -3,18 +3,22 @@
 #include "Controls.h"
 #include "Utils.h"
 
-MapUI::MapUI(Game& game, const std::string& name) : Scene(game, name) {}
+MapUI::MapUI(Game& game, const std::string& name) : Scene(game, name) 
+{}
 
 void MapUI::startup()
 {
     x = float(game.gameScreenWidth); // start the map screen on the right
     topY = game.getSetting<float>("HudHeight");
     y = topY;
+    // recalculate size values
     width = game.gameScreenWidth;
     height = game.gameScreenHeight - game.getSetting<uint32_t>("HudHeight");
-    // set the sliding speed so that it takes "slideDuration" seconds to expand the inventory
+    // set the sliding speed so that it takes [slideDuration] seconds to expand the inventory
     speed = height / slideDuration;
     state = SLIDING_LEFT;
+
+    currentLevel = game.currentDungeon->getCurrentLevel();
 }
 
 void MapUI::update(float deltaTime)
@@ -71,6 +75,12 @@ void MapUI::update(float deltaTime)
             game.playSound("menuOpen");
             game.resumeScene("InventoryUI");
         }
+        if (game.buttonsPressed & CONTROL_UP) {
+            currentLevel = (currentLevel + 1) % game.currentDungeon->getNumLevels();
+        }
+        if (game.buttonsPressed & CONTROL_DOWN) {
+            currentLevel = (currentLevel - 1) % game.currentDungeon->getNumLevels();
+        }
         break;
     case NONE:
     default:
@@ -81,19 +91,41 @@ void MapUI::update(float deltaTime)
 void MapUI::draw() {
     DrawRectangle(int(x), int(y), int(width), int(height), DARKBURGUNDY);
 
-    // draw the room layout
-    // TODO: hard coding the values for now
-    const size_t spacing = 4;
-    const size_t border = 24;
-    const auto [cols, rows] = game.currentDungeon->getSize();
-    //std::pair<size_t, size_t> size = game.currentDungeon->getSize();
-    //const size_t cols = size.first;
-    //const size_t rows = size.second;
-    size_t currentRoomIndex = game.currentDungeon->getCurrentRoomIndex();
-    const size_t cellWidth = (static_cast<size_t>(width) - 2 * border - (cols - 1) * spacing) / cols;
-    const size_t cellHeight = (static_cast<size_t>(height) - 2 * border - (rows - 1) * spacing) / rows;
+    // draw the level indicators (bottom to top)
+    size_t lvlRecW = offsetX - 8;
+    size_t lvlRecH = 18;
+    size_t lvlRecX = x + 12;
+    size_t numLevels = game.currentDungeon->getNumLevels();
+    size_t totalHeight = numLevels * lvlRecH + (numLevels - 1) * spacing;
+    size_t startY = static_cast<size_t>(y) + (static_cast<size_t>(height) - totalHeight) / 2;
+    for (size_t lvl = 0; lvl < numLevels; lvl++) {
+        size_t lvlRecY = startY + (numLevels - 1 - lvl) * (lvlRecH + spacing);
+        Rectangle r = { (float)lvlRecX, (float)lvlRecY, (float)lvlRecW, (float)lvlRecH };
+        DrawRectangleRounded(r, 0.2f, 4, LIGHTBURGUNDY);
 
-    // calculate the minimap offsets
+        // text on rect
+        static char lvlText[32];
+        snprintf(lvlText, sizeof(lvlText), "Lvl %d", (int)lvl);
+
+        int fontSize = 10;
+        int textWidth = MeasureText(lvlText, fontSize);
+        int textX = lvlRecX + (lvlRecW - textWidth) / 2;
+        int textY = lvlRecY + (lvlRecH - fontSize) / 2;
+
+        DrawText(lvlText, textX, textY, fontSize, LIGHTGRAY);
+
+        // selection indicator
+        if (lvl == currentLevel)
+            DrawRectangleRoundedLines(r, 0.2f, 4, LIGHTGRAY);
+    }
+
+    // draw the room layout
+    const auto [cols, rows] = game.currentDungeon->getSize();
+    size_t currentRoomIndex = game.currentDungeon->getCurrentRoomIndex();
+    const size_t cellWidth = (static_cast<size_t>(width) - 2 * border - (cols - 1) * spacing - offsetX) / cols;
+    const size_t cellHeight = (static_cast<size_t>(height) - 2 * border - (rows - 1) * spacing - offsetY) / rows;
+
+    // calculate the minimap offsets for the 4 doors
     // TODO: do I really need to recalculate this every frame?
     offsets[0].x = float(cellWidth);
     offsets[0].y = float(cellHeight / 2 - spacing / 2);
@@ -105,24 +137,23 @@ void MapUI::draw() {
     offsets[3].y = float(cellHeight);
 
     auto& minimaps = game.currentDungeon->minimapTextures;
-    size_t level = game.currentDungeon->getCurrentLevel(); // TODO make level selectable from within this menu
 
     for (size_t i = 0; i < cols * rows; ++i) {
         size_t col = i % cols;
         size_t row = i / cols;
-        size_t cellX = static_cast<size_t>(x) + border + col * (cellWidth + spacing);
-        size_t cellY = static_cast<size_t>(y) + border + row * (cellHeight + spacing);
+        size_t cellX = offsetX + static_cast<size_t>(x) + border + col * (cellWidth + spacing);
+        size_t cellY = offsetY + static_cast<size_t>(y) + border + row * (cellHeight + spacing);
         Color color = DARKGRAY;
         DrawRectangle(int(cellX), int(cellY), int(cellWidth), int(cellHeight), color);
 
-        if (i < minimaps[level].size() && game.currentDungeon->hasVisited(level, i)) {
-            const auto& tex = minimaps[level][i].texture;
+        if (i < minimaps[currentLevel].size() && game.currentDungeon->hasVisited(currentLevel, i)) {
+            const auto& tex = minimaps[currentLevel][i].texture;
             Rectangle src = { 0, 0, (float)tex.width, (float)tex.height };
             Rectangle dst = { (float)cellX, (float)cellY, (float)cellWidth, (float)cellHeight };
             DrawTexturePro(tex, src, dst, { 0, 0 }, 0.0f, WHITE);
 
             // indicate the connections between rooms
-            uint8_t doors = game.currentDungeon->getRoomDoors(level, i);
+            uint8_t doors = game.currentDungeon->getRoomDoors(currentLevel, i);
 
             for (int j = 3; j >= 0; j--) {
                 bool isDoor = (doors >> j) & 1;
@@ -137,10 +168,10 @@ void MapUI::draw() {
                 }
             }
 
-            if (i == currentRoomIndex && cursorOn && state == OPENED) {
+            if (i == currentRoomIndex && game.currentDungeon->getCurrentLevel() == currentLevel && cursorOn && state == OPENED) {
                 // draw a player as a blinking circle
                 const Vector2& pos = game.getPlayer()->position;
-                auto [roomW, roomH] = game.currentDungeon->getRoomSize(level, currentRoomIndex);
+                auto [roomW, roomH] = game.currentDungeon->getRoomSize(currentLevel, currentRoomIndex);
                 float u = pos.x / (float)roomW;
                 float v = pos.y / (float)roomH;
                 float px = cellX + u * cellWidth;
@@ -153,7 +184,10 @@ void MapUI::draw() {
     // help texts
     if (state == OPENED) {
         int fontSize = 6;
-        //const char* helpText = nullptr;
+
+        static char helpText[32];
+        snprintf(helpText, sizeof(helpText), "Level %d", (int)currentLevel);
+
         const char* textLeft = nullptr;
         //const char* textRight = nullptr; // TODO: draw dynamically if another screen exists
         if (WasGamepadUsedLast()) {
@@ -169,6 +203,8 @@ void MapUI::draw() {
         uint32_t txtL = int(x) + 4;
         //DrawText(textRight, txtR, helpTextY, fontSize, LIGHTGRAY); // TODO: draw dynamically if another screen exists
         DrawText(textLeft, txtL, helpTextY, fontSize, LIGHTGRAY);
+        uint32_t helpTextX = int(x) + (int(game.gameScreenWidth) - MeasureText(helpText, fontSize)) / 2;
+        DrawText(helpText, helpTextX, helpTextY, fontSize, LIGHTGRAY);
     }
 }
 

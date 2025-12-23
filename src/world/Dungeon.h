@@ -87,6 +87,7 @@ public:
     size_t getCurrentRoomIndex() const { return currentRoomIndex; }
     size_t getStartingRoomIndex() const { return startingRoomIndex; }
     size_t getCurrentLevel() const { return currentLevel; }
+    size_t getNumLevels() const { return levels.size(); }
     void setLevel(size_t level) { currentLevel = level; } // TODO check here if out of bounds?
 
     void advanceRoomState(); // advances the current room's state

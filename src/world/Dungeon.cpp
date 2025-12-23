@@ -119,7 +119,8 @@ const TileMap* Dungeon::loadTileMap()
 {
     Room* room = getRoomAt(currentLevel, currentRoomIndex);
     if (!room) {
-        TraceLog(LOG_ERROR, "loadTileMap(): No room on level %d at index %d", currentLevel, currentRoomIndex);
+        // TODO this prints indefinitely when entering a non-valid room 
+        //TraceLog(LOG_ERROR, "loadTileMap(): No room on level %d at index %d", currentLevel, currentRoomIndex);
         return nullptr;
     }
     setVisited(currentLevel, currentRoomIndex); // TODO: is it always correct to set this here?
