@@ -142,6 +142,12 @@ void Dungeon::insertRoom(size_t level, size_t row, size_t col, Room&& room)
     // check if there is a room already
     size_t index = row * roomsW + col;
 
+    // resize levels vector if necessary
+    if (level >= levels.size()) {
+        while (level >= levels.size())
+            levels.emplace_back(roomsW, roomsH);
+    }
+
     if (!getRoomAt(level, index)) {
         levels[level].insertRoom(index, std::move(room)); // TODO this room will be moved twice if I do it like this
     }
@@ -191,6 +197,8 @@ void Dungeon::makeMinimapTextures()
     constexpr int miniHeight = 24;
     constexpr int tileSize = 16;
 
+    minimapTextures.resize(levels.size());
+
     for (size_t level = 0; level < levels.size(); level++) {
         for (size_t i = 0; i < roomsW * roomsH; i++) {
             Room* room = getRoomAt(level, i);
@@ -200,7 +208,7 @@ void Dungeon::makeMinimapTextures()
                 BeginTextureMode(mini);
                 ClearBackground(BLANK);
                 EndTextureMode();
-                minimapTextures[level].push_back(mini);
+                minimapTextures[level].push_back(mini); // TODO crashes when loading a save
                 continue;
             }
             auto& tileMap = room->tilemap;
@@ -468,7 +476,14 @@ void Dungeon::generate(const std::string& dungeonKey)
                 if (obj.name == "chest") {
                     obj.properties["item"] = node->item.value();
                     obj.properties["amount"] = 1;
-                    break;
+
+                    // overwrite the object state
+                    // TODO unify this and the json data??
+                    auto& objectStates = rooms[node->id]->objectStates;
+                    objectStates[obj.id].itemName = node->item.value();
+                    objectStates[obj.id].itemAmount = 1;
+
+                    break; // chooses the first chest in this room
                 }
             }
         }

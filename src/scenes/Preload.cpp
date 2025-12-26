@@ -231,6 +231,21 @@ void Preload::startup() {
         l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_fight_0011.json");
         l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_fight_chest_0100.json");
         l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_final_boss_0001.json");
+        l.LoadtileMapFromTiled("./resources/tilemaps/room_0001.json");
+        l.LoadtileMapFromTiled("./resources/tilemaps/room_0010.json");
+        l.LoadtileMapFromTiled("./resources/tilemaps/room_0011.json");
+        l.LoadtileMapFromTiled("./resources/tilemaps/room_0100.json");
+        l.LoadtileMapFromTiled("./resources/tilemaps/room_0101.json");
+        l.LoadtileMapFromTiled("./resources/tilemaps/room_0110.json");
+        l.LoadtileMapFromTiled("./resources/tilemaps/room_0111.json");
+        l.LoadtileMapFromTiled("./resources/tilemaps/room_1000.json");
+        l.LoadtileMapFromTiled("./resources/tilemaps/room_1001.json");
+        l.LoadtileMapFromTiled("./resources/tilemaps/room_1010.json");
+        l.LoadtileMapFromTiled("./resources/tilemaps/room_1011.json");
+        l.LoadtileMapFromTiled("./resources/tilemaps/room_1100.json");
+        l.LoadtileMapFromTiled("./resources/tilemaps/room_1101.json");
+        l.LoadtileMapFromTiled("./resources/tilemaps/room_1110.json");
+        l.LoadtileMapFromTiled("./resources/tilemaps/room_1111.json");
         });
     // load the font
     loadQueue.emplace("Loading fonts", [&]() {

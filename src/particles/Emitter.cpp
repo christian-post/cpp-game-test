@@ -35,6 +35,8 @@ void Emitter::fromJSON(const nlohmann::json& data, const nlohmann::json& default
     startSizeVariance = getValue("startSizeVariance", 0.0f);
     endSizeVariance = getValue("endSizeVariance", 0.0f);
     spawnDelay = getValue("spawnDelay", 0.0f);
+    arcAngle = getValue("arcAngle", 0.0f);
+    arcSpread = getValue("arcSpread", 360.0f);
 
     // Handle gravity (check override first, then data)
     if (overrideData.contains("gravity")) {
@@ -172,14 +174,18 @@ Particle Emitter::createParticle(Particle p)
 {
     p = prototype;
 
-    std::uniform_real_distribution<float> angleDist(0.0f, 2.0f * PI);
     std::uniform_real_distribution<float> radiusOffset(-spawnRadiusVariance, spawnRadiusVariance);
     std::uniform_real_distribution<float> lifetimeOffset(-lifetimeVariance, lifetimeVariance);
     std::uniform_real_distribution<float> alphaOffset(-alphaVariance, alphaVariance);
     std::uniform_real_distribution<float> startSizeOffset(-startSizeVariance, startSizeVariance);
     std::uniform_real_distribution<float> endSizeOffset(-endSizeVariance, endSizeVariance);
 
+    // Calculate angle range in radians based on arc parameters
+    float arcMinRad = (arcAngle - arcSpread * 0.5f) * DEG2RAD;
+    float arcMaxRad = (arcAngle + arcSpread * 0.5f) * DEG2RAD;
+    std::uniform_real_distribution<float> angleDist(arcMinRad, arcMaxRad);
     float angle = angleDist(rng);
+
     float radius = spawnRadius + radiusOffset(rng);
     Vector2 offset = { std::cos(angle) * radius, std::sin(angle) * radius };
     p.position = Vector2Add(position, offset);

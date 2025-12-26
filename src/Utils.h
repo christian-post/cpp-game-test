@@ -40,7 +40,7 @@ struct CameraShake {
 
 inline std::string format(const char* fmt, ...) {
     // C-string formatting function
-    char buffer[256]; // adjust size if needed
+    char buffer[256];
     va_list args;
     va_start(args, fmt);
     std::vsnprintf(buffer, sizeof(buffer), fmt, args);

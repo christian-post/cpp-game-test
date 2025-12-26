@@ -26,7 +26,14 @@ Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this)
     TraceLog(LOG_INFO, settings->dump(2).c_str());
     SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT); // Enable config flags for resizable window and vsync
     // initialize the main window from the values found in settings.json
-    InitWindow(getSetting<int>("windowWidth"), getSetting<int>("windowHeight"), "My first game");
+    // fix the aspect ratio to 4:3 if necessary
+    // TODO do this after every resize?
+    int winW = getSetting<int>("windowWidth");
+    int winH = getSetting<int>("windowHeight");
+    if (float(winH) / float(winW) != 0.75f) {
+        winH = int(winW * 0.75f);
+    }
+    InitWindow(winW, winH, "My first game");
     SetWindowMinSize(320, 240);
     isFullscreen = getSetting("fullscreen", false);
     if (isFullscreen) 

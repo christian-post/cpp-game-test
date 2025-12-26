@@ -94,12 +94,13 @@ void MapUI::draw() {
     // draw the level indicators (bottom to top)
     size_t lvlRecW = offsetX - 8;
     size_t lvlRecH = 18;
-    size_t lvlRecX = x + 12;
+    size_t lvlRecX = static_cast<size_t>(x) + 12;
     size_t numLevels = game.currentDungeon->getNumLevels();
-    size_t totalHeight = numLevels * lvlRecH + (numLevels - 1) * spacing;
+    size_t lvlSpacing = 12;
+    size_t totalHeight = numLevels * lvlRecH + (numLevels - 1) * lvlSpacing;
     size_t startY = static_cast<size_t>(y) + (static_cast<size_t>(height) - totalHeight) / 2;
     for (size_t lvl = 0; lvl < numLevels; lvl++) {
-        size_t lvlRecY = startY + (numLevels - 1 - lvl) * (lvlRecH + spacing);
+        size_t lvlRecY = startY + (numLevels - 1 - lvl) * (lvlRecH + lvlSpacing);
         Rectangle r = { (float)lvlRecX, (float)lvlRecY, (float)lvlRecW, (float)lvlRecH };
         DrawRectangleRounded(r, 0.2f, 4, LIGHTBURGUNDY);
 
@@ -114,9 +115,26 @@ void MapUI::draw() {
 
         DrawText(lvlText, textX, textY, fontSize, LIGHTGRAY);
 
-        // selection indicator
-        if (lvl == currentLevel)
+        // selection indicator with arrows
+        if (lvl == currentLevel) {
             DrawRectangleRoundedLines(r, 0.2f, 4, LIGHTGRAY);
+
+            float centerX = lvlRecX + lvlRecW / 2.0f;
+            float arrowSize = 4.0f;
+
+            if (lvl < numLevels - 1) {
+                Vector2 v1 = { centerX, (float)lvlRecY - 8 };              // top point
+                Vector2 v2 = { centerX - arrowSize, (float)lvlRecY - 3 };  // bottom left
+                Vector2 v3 = { centerX + arrowSize, (float)lvlRecY - 3 };  // bottom right
+                DrawTriangle(v1, v2, v3, LIGHTGRAY);
+            }
+            if (lvl > 0) {
+                Vector2 v1 = { centerX, (float)lvlRecY + (float)lvlRecH + 8 };          // bottom point
+                Vector2 v2 = { centerX - arrowSize, (float)lvlRecY + (float)lvlRecH + 3 }; // top left
+                Vector2 v3 = { centerX + arrowSize, (float)lvlRecY + (float)lvlRecH + 3 }; // top right
+                DrawTriangle(v1, v3, v2, LIGHTGRAY);
+            }
+        }
     }
 
     // draw the room layout

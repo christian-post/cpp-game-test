@@ -29,33 +29,44 @@ void ChestBehavior::update(float deltaTime) {
             if (game.buttonsDown & CONTROL_ACTION1) {
                 triggered = true;
                 auto& itemData = game.inventory.getItemData();
-                const ItemData& data = itemData.at(itemName);  // TODO check for missing key
-                s->currentFrame = 2;
-                showItem = true;
-                game.playSound("doorOpen_2");
-                game.eventManager.pushDelayedEvent(UNNAMED, 2.0f, nullptr, [&]() {
-                    showItem = false;
-                    });
-
-                game.cutsceneManager.queueCommand(new Command_Wait(0.5f));
-                game.cutsceneManager.queueCommand(new Command_Callback([&]() {
-                    game.playSound("Rise03");
-                    }));
-                game.cutsceneManager.queueCommand(new Command_Wait(0.5f));
                 std::string message;
-                if (itemAmount == 1) {
-                    if (data.type == WEAPON) {
-                        message = format("You got the %s.\nOpen your inventory to equip it, then use with [P].", data.displayName.c_str());
-                    }
-                    else {
-                        message = format("You got a %s.", data.displayName.c_str());
-                    }
+
+                if (itemName.empty() or itemData.count(itemName) == 0) {
+                    // Failsafe, but this should not happen
+                    message = "You got nothing :(";
                 }
                 else {
-                    message = format("You got: %s x%u", data.displayName.c_str(), itemAmount);
+                    const ItemData& data = itemData.at(itemName);
+
+                    showItem = true;
+                    game.playSound("doorOpen_2");
+                    game.eventManager.pushDelayedEvent(UNNAMED, 2.0f, nullptr, [&]() {
+                        showItem = false;
+                        });
+
+                    game.cutsceneManager.queueCommand(new Command_Wait(0.5f));
+                    game.cutsceneManager.queueCommand(new Command_Callback([&]() {
+                        game.playSound("Rise03");
+                        }));
+                    game.cutsceneManager.queueCommand(new Command_Wait(0.5f));
+
+                    if (itemAmount == 1) {
+                        if (data.type == WEAPON) {
+                            message = format("You got the %s.\nOpen your inventory to equip it, then use with [P].", data.displayName.c_str());
+                        }
+                        else {
+                            message = format("You got a %s.", data.displayName.c_str());
+                        }
+                    }
+                    else {
+                        message = format("You got: %s x%u", data.displayName.c_str(), itemAmount);
+                    }
+                    game.eventManager.pushEvent(ADD_ITEM, std::make_any<std::pair<std::string, uint32_t>>(itemName, itemAmount));
                 }
+
                 game.cutsceneManager.queueCommand(new Command_Textbox(game, message));
-                game.eventManager.pushEvent(ADD_ITEM, std::make_any<std::pair<std::string, uint32_t>>(itemName, itemAmount));
+                s->currentFrame = 2;
+                // event individual to this chest instance
                 std::string eventStr = "chest_opened_" + std::to_string(s->tileMapID);
                 int eventKey = EventKeyRegistry::getEventKey(eventStr);
                 game.eventManager.pushEvent(eventKey, s->tileMapID);

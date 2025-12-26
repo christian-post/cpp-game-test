@@ -170,10 +170,10 @@
                         }],
                  "rotation":0,
                  "type":"sprite",
-                 "visible":false,
+                 "visible":true,
                  "width":16,
-                 "x":128,
-                 "y":240
+                 "x":100,
+                 "y":188
                 }, 
                 {
                  "height":16,

@@ -17,6 +17,9 @@ struct ObjectState {
     bool isOpened = false;
     bool isDefeated = false;
     size_t dialogIndex = 0;
+    // does this still carry an item? (e.g. a chest)
+    std::string itemName;
+    size_t itemAmount = 0;
     // TODO: tbc
 };
 
@@ -25,7 +28,9 @@ inline void to_json(nlohmann::json& jsonOutput, const ObjectState& state) {
     jsonOutput = {
         { "isOpened", state.isOpened },
         { "isDefeated", state.isDefeated },
-        { "dialogIndex", state.dialogIndex }
+        { "dialogIndex", state.dialogIndex },
+        { "itemName", state.itemName },
+        { "itemAmount", state.itemAmount },
     };
 }
 
@@ -33,6 +38,8 @@ inline void from_json(const nlohmann::json& jsonInput, ObjectState& state) {
     jsonInput.at("isOpened").get_to(state.isOpened);
     jsonInput.at("isDefeated").get_to(state.isDefeated);
     jsonInput.at("dialogIndex").get_to(state.dialogIndex);
+    jsonInput.at("itemName").get_to(state.itemName);
+    jsonInput.at("itemAmount").get_to(state.itemAmount);
 }
 
 

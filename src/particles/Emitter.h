@@ -47,9 +47,12 @@ struct Emitter {
     Vector2 gravity = { 0.0f, 0.0f }; // modifies velocity
     EasingType velocityEasing = EasingType::None; // can override easing of the particle velocity
 
-    // Radial velocity (all particles use this)
+    // Radial velocity
     float speed = 100.0f;
     float speedVariance = 0.0f;
+    // Arc spawning (defines the angular range for particle emission)
+    float arcAngle = 0.0f;        // center direction in degrees (0 = right, 90 = down)
+    float arcSpread = 360.0f;     // total arc width in degrees
 
     std::vector<Particle> particles;
     size_t maxParticles;

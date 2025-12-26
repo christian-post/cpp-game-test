@@ -214,12 +214,273 @@
           {
             "row": 0,
             "column": 2,
-            "tilemap": "test_map_2",
+            "tilemap": "room_1011",
+            "doors": "1011"
+          },
+          {
+            "row": 1,
+            "column": 2,
+            "tilemap": "room_1111",
             "doors": "1111"
+          },
+          {
+            "row": 0,
+            "column": 3,
+            "tilemap": "room_1010",
+            "doors": "1010"
+          },
+          {
+            "row": 0,
+            "column": 1,
+            "tilemap": "room_1010",
+            "doors": "1010"
+          },
+          {
+            "row": 1,
+            "column": 3,
+            "tilemap": "room_1011",
+            "doors": "1011"
+          },
+          {
+            "row": 1,
+            "column": 1,
+            "tilemap": "room_1011",
+            "doors": "1011"
+          },
+          {
+            "row": 2,
+            "column": 2,
+            "tilemap": "room_0101",
+            "doors": "0101"
+          },
+          {
+            "row": 0,
+            "column": 4,
+            "tilemap": "room_1010",
+            "doors": "1010"
+          },
+          {
+            "row": 0,
+            "column": 0,
+            "tilemap": "room_1000",
+            "doors": "1000"
+          },
+          {
+            "row": 1,
+            "column": 4,
+            "tilemap": "room_1011",
+            "doors": "1011"
+          },
+          {
+            "row": 2,
+            "column": 3,
+            "tilemap": "room_0101",
+            "doors": "0101"
+          },
+          {
+            "row": 2,
+            "column": 1,
+            "tilemap": "room_0111",
+            "doors": "0111"
+          },
+          {
+            "row": 3,
+            "column": 2,
+            "tilemap": "room_0101",
+            "doors": "0101"
+          },
+          {
+            "row": 0,
+            "column": 5,
+            "tilemap": "room_0010",
+            "doors": "0010"
+          },
+          {
+            "row": 2,
+            "column": 4,
+            "tilemap": "room_1101",
+            "doors": "1101"
+          },
+          {
+            "row": 1,
+            "column": 5,
+            "tilemap": "room_0010",
+            "doors": "0010"
+          },
+          {
+            "row": 3,
+            "column": 3,
+            "tilemap": "room_0101",
+            "doors": "0101"
+          },
+          {
+            "row": 2,
+            "column": 0,
+            "tilemap": "room_1001",
+            "doors": "1001"
+          },
+          {
+            "row": 3,
+            "column": 1,
+            "tilemap": "room_0100",
+            "doors": "0100"
+          },
+          {
+            "row": 4,
+            "column": 2,
+            "tilemap": "room_0110",
+            "doors": "0110"
+          },
+          {
+            "row": 3,
+            "column": 4,
+            "tilemap": "room_0100",
+            "doors": "0100"
+          },
+          {
+            "row": 2,
+            "column": 5,
+            "tilemap": "room_0011",
+            "doors": "0011"
+          },
+          {
+            "row": 4,
+            "column": 3,
+            "tilemap": "room_1100",
+            "doors": "1100"
+          },
+          {
+            "row": 3,
+            "column": 0,
+            "tilemap": "room_0100",
+            "doors": "0100"
+          },
+          {
+            "row": 4,
+            "column": 1,
+            "tilemap": "room_1010",
+            "doors": "1010"
+          },
+          {
+            "row": 3,
+            "column": 5,
+            "tilemap": "room_0101",
+            "doors": "0101"
+          },
+          {
+            "row": 4,
+            "column": 4,
+            "tilemap": "room_0010",
+            "doors": "0010"
+          },
+          {
+            "row": 4,
+            "column": 0,
+            "tilemap": "room_1000",
+            "doors": "1000"
+          },
+          {
+            "row": 4,
+            "column": 5,
+            "tilemap": "room_0100",
+            "doors": "0100"
+          },
+          {
+            "row": 1,
+            "column": 0,
+            "tilemap": "room_1000",
+            "doors": "1000"
           }
         ],
-        "edges": [],
-        "item_nodes": []
+        "edges": [
+          {
+            "from": [
+              1,
+              3
+            ],
+            "to": [
+              1,
+              4
+            ],
+            "required_items": [
+              "small_key"
+            ]
+          },
+          {
+            "from": [
+              1,
+              1
+            ],
+            "to": [
+              1,
+              0
+            ],
+            "required_items": [
+              "boss_key"
+            ]
+          },
+          {
+            "from": [
+              3,
+              3
+            ],
+            "to": [
+              4,
+              3
+            ],
+            "required_items": [
+              "small_key"
+            ]
+          },
+          {
+            "from": [
+              4,
+              3
+            ],
+            "to": [
+              4,
+              4
+            ],
+            "required_items": [
+              "small_key"
+            ]
+          },
+          {
+            "from": [
+              4,
+              1
+            ],
+            "to": [
+              4,
+              0
+            ],
+            "required_items": [
+              "small_key"
+            ]
+          }
+        ],
+        "item_nodes": [
+          [
+            2,
+            2
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            4,
+            2
+          ],
+          [
+            4,
+            0
+          ]
+        ]
       }
     ]
   }

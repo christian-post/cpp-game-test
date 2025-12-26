@@ -50,7 +50,7 @@ struct TileObject {
     uint32_t id;
     nlohmann::json properties;
 
-    TileObject() = default;
+    TileObject() = default;  // TODO
 
     TileObject(const nlohmann::json& objJson) :
         type(objJson["type"]),
@@ -95,7 +95,6 @@ public:
 
     size_t width, height, tileWidth, tileHeight;
     std::vector<TileLayer> layers;
-    std::vector<TileObject> objects;
     mutable std::vector<TileObject> dynamicObjects; // TileObjects that get added from somewhere else than the Tiled data
 
 private:
@@ -103,6 +102,7 @@ private:
     std::string tilesetName;
     std::string music;
     bool dark = false;
+    std::vector<TileObject> objects;
 };
 
 
