@@ -219,7 +219,7 @@
           {
             "row": 0,
             "column": 2,
-            "tilemap": "room_1011",
+            "tilemap": "room_1011_connection",
             "doors": "1011"
           },
           {

@@ -8,7 +8,8 @@
 #include "ChestBehavior.h"
 
 
-TileLayer::TileLayer(const nlohmann::json& layerJson) {
+TileLayer::TileLayer(const nlohmann::json& layerJson)
+{
     name = layerJson["name"];
     width = layerJson["width"];
     height = layerJson["height"];
@@ -21,15 +22,19 @@ TileLayer::TileLayer(const nlohmann::json& layerJson) {
     data.resize(height, std::vector<int>(width));
 
     // Convert 1D array into 2D
-    for (int y = 0; y < height; ++y) {
-        for (int x = 0; x < width; ++x) {
+    for (int y = 0; y < height; ++y) 
+    {
+        for (int x = 0; x < width; ++x) 
+        {
             data[y][x] = flatData[y * width + x];
         }
     }
 
     // Handle properties
-    if (layerJson.contains("properties")) {
-        for (const auto& prop : layerJson["properties"]) {
+    if (layerJson.contains("properties"))
+    {
+        for (const auto& prop : layerJson["properties"])
+        {
             properties[prop["name"]] = prop["value"].dump();
         }
     }
@@ -44,9 +49,12 @@ TileMap::TileMap(const nlohmann::json& jsonMap, std::string mapName)
     tileHeight = jsonMap["tileheight"];
 
     music = "";
-    if (jsonMap.contains("properties") && jsonMap["properties"].is_array()) {
-        for (const auto& prop : jsonMap["properties"]) {
-            if (prop.contains("name") && prop.contains("value")) {
+    if (jsonMap.contains("properties") && jsonMap["properties"].is_array())
+    {
+        for (const auto& prop : jsonMap["properties"])
+        {
+            if (prop.contains("name") && prop.contains("value"))
+            {
                 // overrides the dungeon music
                 if (prop["name"] == "music")
                     music = prop["value"];
@@ -59,13 +67,18 @@ TileMap::TileMap(const nlohmann::json& jsonMap, std::string mapName)
     std::string srcName = jsonMap["tilesets"][0]["source"];
     tilesetName = srcName.substr(0, srcName.size() - 4); // strip the ".tsj"
 
-    if (jsonMap.contains("layers")) {
-        for (const auto& layer : jsonMap["layers"]) {
-            if (layer["type"] == "tilelayer") {
+    if (jsonMap.contains("layers"))
+    {
+        for (const auto& layer : jsonMap["layers"])
+        {
+            if (layer["type"] == "tilelayer")
+            {
                 layers.emplace_back(layer);
             }
-            else if (layer["type"] == "objectgroup") {
-                for (const auto& obj : layer["objects"]) {
+            else if (layer["type"] == "objectgroup")
+            {
+                for (const auto& obj : layer["objects"])
+                {
                     objects.emplace_back(obj);
                 }
             }
@@ -73,8 +86,10 @@ TileMap::TileMap(const nlohmann::json& jsonMap, std::string mapName)
     }
 }
 
-const TileLayer& TileMap::getLayer(size_t index) const {
-    if (index >= layers.size()) throw std::out_of_range("Layer index out of bounds");
+const TileLayer& TileMap::getLayer(size_t index) const
+{
+    if (index >= layers.size()) 
+        throw std::out_of_range("Layer index out of bounds");
     return layers[index];
 }
 
@@ -98,48 +113,50 @@ void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, 
         // object does not spawn in the currentState
         return;
     // object type-specific code
-    if (obj.type == "wall") {
+    if (obj.type == "wall")
+    {
         int layer = obj.properties.value("layer", 0);
         game.walls.push_back(std::make_unique<CollisionObject>(
             CollisionObject{ layer, obj.x, obj.y, obj.width, obj.height })
         );
     }
-    else if (obj.type == "sprite") {
-        if (objectStates[obj.id].isDefeated) {
+    else if (obj.type == "sprite")
+    {
+        if (objectStates[obj.id].isDefeated)
             // this sprite is dead, skip it
             return;
-        }
         std::string spriteName = obj.properties.value("spriteName", "sprite_default");
         // get the data for this sprite from the JSON
         const auto& data = spriteData.contains(spriteName)
             ? spriteData.at(spriteName)
             : spriteData.at("sprite_default");
-        if (!spriteData.contains(spriteName)) {
+        if (!spriteData.contains(spriteName))
             TraceLog(LOG_WARNING, "Missing sprite data for %s, falling back to sprite_default", spriteName.c_str());
-        }
         // store default data separately to replace individual attributes
         const auto& defaultData = spriteData.at("sprite_default");
         std::vector<std::string> textureKeys;
-        if (data.contains("textures") && data.at("textures").is_array()) {
-            for (const auto& item : data.at("textures")) {
+        if (data.contains("textures") && data.at("textures").is_array())
+        {
+            for (const auto& item : data.at("textures"))
+            {
                 if (item.is_null())
                     textureKeys.push_back(""); // reads null as empty string (no animation frames for this state)
                 else
                     textureKeys.push_back(item.get<std::string>());
             }
         }
-        else {
+        else
+        {
             textureKeys = defaultData.at("textures").get<std::vector<std::string>>();
         }
+
         // get the hitbox dimensions for the constructor
         // if not specified in the JSON data, it takes the dimensions from the Tiled object data
         Vector2 hitbox = data.contains("hitbox") ?
             Vector2{ data.at("hitbox")[0].get<float>(), data.at("hitbox")[1].get<float>() } :
             Vector2{ obj.width, obj.height };
         // instanciate the sprite
-        auto sprite = std::make_shared<Sprite>(
-            game, obj.x, obj.y, hitbox.x, hitbox.y, obj.name
-        );
+        auto sprite = std::make_shared<Sprite>(game, obj.x, obj.y, hitbox.x, hitbox.y, obj.name);
         // generic attributes
         // from JSON data
         sprite->health = data.contains("health") ? data.at("health").get<int>() : defaultData.at("health").get<int>();
@@ -162,19 +179,17 @@ void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, 
         sprite->castsShadow = obj.properties.value("castsShadow", true);
         float hurtboxW = obj.properties.value("hurtboxW", 0.0f);
         float hurtboxH = obj.properties.value("hurtboxH", 0.0f);
-        if (hurtboxW != 0.0f && hurtboxH != 0.0f) {
+        if (hurtboxW != 0.0f && hurtboxH != 0.0f)
             sprite->setHurtbox(-1.0f, -1.0f, hurtboxW, hurtboxH);
-        }
 
         // collision
-        if (data.contains("collides")) {
+        if (data.contains("collides"))
             sprite->isColliding = static_cast<bool>(data.at("collides").get<int>()); //TODO shouldn't this also be a bool in the data?
-        }
-        
 
         // specific sprite attributes
         // TODO: for persistent sprites, check if they exist in the spriteMap
-        if (obj.name == "teleport") {
+        if (obj.name == "teleport")
+        {
             // when touched, changes the current index
             // TODO currently unused
             sprite->isColliding = false;
@@ -182,40 +197,40 @@ void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, 
             std::string targetMap = obj.properties.value("targetMap", "");
             float targetX = obj.properties.value("targetPosX", 0.0f);
             float targetY = obj.properties.value("targetPosY", 0.0f);
-            sprite->addBehavior(std::make_unique<TeleportBehavior>(
-                game, sprite, game.spriteMap["player"], targetMap,
-                Vector2{ targetX, targetY }
-            ));
+            sprite->addBehavior(std::make_unique<TeleportBehavior>(game, sprite, game.spriteMap["player"], targetMap, Vector2{ targetX, targetY }));
         }
-        else if (obj.name == "stairs") {
+        else if (obj.name == "stairs")
+        {
             // when touched, changes the dungeon level number
             sprite->isColliding = false;
-            sprite->visible = false;
+            sprite->castsShadow = false;
+            sprite->setTextures(textureKeys);
             int level = obj.properties.value("level", 0);
-            sprite->addBehavior(std::make_unique<StairsBehavior>(
-                game, sprite, game.spriteMap["player"], level
-            ));
+            sprite->addBehavior(std::make_unique<StairsBehavior>(game, sprite, game.spriteMap["player"], level));
         }
-        else if (obj.name == "npc") {
-            if (!game.spriteMap[spriteName]) {
-                // // TODO: handle this differently, this might create empty references
+        else if (obj.name == "npc")
+        {
+            if (!game.spriteMap[spriteName])
+                // TODO: handle this differently, this might create empty references
                 game.spriteMap[spriteName] = sprite;
-            }
             sprite->setTextures(textureKeys);
         }
-        else if (obj.name == "tradeItem") {
+        else if (obj.name == "tradeItem")
+        {
             sprite->setTextures(std::vector<std::string>{ spriteName });
             sprite->doesAnimate = false;
             uint32_t cost = obj.properties.value("cost", 999);
             std::string name = obj.properties.value("name", "error"); // TODO switch spriteName and Name
             sprite->addBehavior(std::make_unique<TradeItemBehavior>(game, sprite, game.spriteMap["player"], name, cost));
         }
-        else if (obj.name == "enemy") {
+        else if (obj.name == "enemy")
+        {
             sprite->canHurtPlayer = true;
             sprite->isEnemy = true;
             sprite->setTextures(textureKeys);
             // spawn the item drops if the enemy is defeated
-            if (data.contains("itemDrops")) {
+            if (data.contains("itemDrops"))
+            {
                 std::weak_ptr<Sprite> weakSprite = sprite;
                 std::string eventName = "killSprite_" + std::to_string(reinterpret_cast<uintptr_t>(sprite.get()));
                 int eventKey = EventKeyRegistry::getEventKey(eventName);
@@ -225,7 +240,8 @@ void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, 
                         return;
                     float rand = static_cast<float>(GetRandomValue(0, 10000)) / 10000.0f;
                     float accum = 0.0f;
-                    for (const auto& drop : data["itemDrops"]) {
+                    for (const auto& drop : data["itemDrops"])
+                    {
                         std::string itemId = drop.at(0);
                         float chance = drop.at(1);
                         accum += chance;
@@ -235,11 +251,13 @@ void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, 
                             );
                             auto& itemData = game.inventory.getItemData();
                             auto it = itemData.find(itemId);
-                            if (it != itemData.end()) {
+                            if (it != itemData.end())
+                            {
                                 const ItemData& data = it->second;
                                 item->setTextures(std::vector<std::string>{ data.textureKey });
                             }
-                            else {
+                            else
+                            {
                                 item->setTextures(std::vector<std::string>{ "sprite_default" }); // missing item data
                             }
                             item->drawLayer = 1;
@@ -253,7 +271,8 @@ void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, 
                     });
             }
         }
-        else if (obj.name == "door") {
+        else if (obj.name == "door")
+        {
             sprite->spriteName = spriteName;
             sprite->setTextures(textureKeys);
             sprite->doesAnimate = false;
@@ -264,15 +283,18 @@ void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, 
             int eventKey = EventKeyRegistry::getEventKey(eventStr);
 
             bool isAlreadyOpen = false; // check if this door already opened from another event
-            for (auto& ev : game.eventManager.peekEvents()) {
+            for (auto& ev : game.eventManager.peekEvents())
+            {
                 if (ev.first == eventKey)
                     isAlreadyOpen = true;
             }
 
-            if (currentState < openState && !objectStates[obj.id].isOpened && !isAlreadyOpen) {
+            if (currentState < openState && !objectStates[obj.id].isOpened && !isAlreadyOpen)
+            {
                 sprite->staticCollision = true;
                 bool locked = obj.properties.value("locked", false);
-                if (locked) {
+                if (locked)
+                {
                     sprite->currentFrame = 2;
                     sprite->addBehavior(std::make_unique<OpenLockBehavior>(game, sprite, game.spriteMap["player"], eventKey));
                 }
@@ -285,38 +307,41 @@ void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, 
                     // TODO open the door in the adjacent room
                     });
             }
-            else {
+            else
+            {
                 sprite->currentFrame = 1;
                 sprite->staticCollision = false;
                 objectStates[obj.id].isOpened = true;
             }
 
         }
-        else if (obj.name == "hurt") {
+        else if (obj.name == "hurt")
+        {
             // invisible sprite with hurtbox (e.g. floor spikes)
             sprite->canHurtPlayer = true;
             sprite->visible = false;
             sprite->isColliding = false;
         }
-        else if (obj.name == "chest") {
+        else if (obj.name == "chest")
+        {
             sprite->doesAnimate = false;
             sprite->staticCollision = true;
             sprite->setTextures({ spriteName });
 
-            if (objectStates[obj.id].isOpened) {
+            if (objectStates[obj.id].isOpened)
+            {
                 sprite->currentFrame = 2;
             }
-            else {
+            else
+            {
                 std::string eventStr = "chest_opened_" + std::to_string(obj.id);
                 int eventKey = EventKeyRegistry::getEventKey(eventStr);
                 game.eventManager.removeListeners(eventKey);
                 game.eventManager.addListener(eventKey, [&](std::any data) {
                     uint32_t eventId = std::any_cast<uint32_t>(data);
-                    if (eventId == obj.id) {
+                    if (eventId == obj.id)
                         objectStates[obj.id].isOpened = true;
-                    }
                     });
-                //sprite->addBehavior(std::make_unique<ChestBehavior>(game, sprite, game.spriteMap["player"], static_cast<std::string>(obj.properties.value("item", "coin")), static_cast<uint32_t>(obj.properties.value("amount", 10))));
                 sprite->addBehavior(std::make_unique<ChestBehavior>(game, sprite, game.spriteMap["player"], objectStates[obj.id].itemName, objectStates[obj.id].itemAmount));
             }
         }
@@ -327,18 +352,19 @@ void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, 
         game.eventManager.addListener(eventKey, [&](std::any data) {
             uint32_t eventId = std::any_cast<uint32_t>(data);
             auto& currentRoomObjectStates = game.currentDungeon->getCurrentRoomObjectStates();
-            if (eventId == obj.id) {
+            if (eventId == obj.id)
                 currentRoomObjectStates[obj.id].isDefeated = true;
-            }
             });
 
         // Check if sprite has a state machine definition
-        if (data.contains("stateMachine")) {
+        if (data.contains("stateMachine"))
+        {
             auto stateMachine = StateMachine::createFromJSON(
                 game, sprite, data["stateMachine"]);
             sprite->setStateMachine(std::move(stateMachine));
         }
-        else if (data.contains("behaviors")) {
+        else if (data.contains("behaviors"))
+        {
             // Use old behavior system as fallback
             addBehaviorsToSprite(game, sprite,
                 data.at("behaviors"),

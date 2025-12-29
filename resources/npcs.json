@@ -94,5 +94,15 @@
       "wall_fountain_mid"
     ],
     "collides": 0
+  },
+  "ladder_up": {
+    "textures": [
+      "ladder_up"
+    ]
+  },
+  "ladder_down": {
+    "textures": [
+      "ladder_down"
+    ]
   }
 }

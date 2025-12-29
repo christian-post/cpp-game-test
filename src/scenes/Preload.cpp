@@ -148,6 +148,8 @@ void Preload::startup() {
             },
             { "signpost", { "./resources/textures/sprites/signpost.png" }},
             { "blob", { "./resources/textures/sprites/blob.png" }},
+            { "ladder_up", { "./resources/textures/sprites/ladder_up.png" }},
+            { "ladder_down", { "./resources/textures/sprites/ladder_down.png" }},
 
             // inventory sprites
             {
@@ -246,6 +248,7 @@ void Preload::startup() {
         l.LoadtileMapFromTiled("./resources/tilemaps/room_1010_with_item.json");
         l.LoadtileMapFromTiled("./resources/tilemaps/room_1011.json");
         l.LoadtileMapFromTiled("./resources/tilemaps/room_1011_with_item.json");
+        l.LoadtileMapFromTiled("./resources/tilemaps/room_1011_connection.json");
         l.LoadtileMapFromTiled("./resources/tilemaps/room_1100.json");
         l.LoadtileMapFromTiled("./resources/tilemaps/room_1101.json");
         l.LoadtileMapFromTiled("./resources/tilemaps/room_1110.json");
