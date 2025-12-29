@@ -33,7 +33,7 @@
     "HurtboxOffsetY": 18.0,
     "HurtboxWidth": 16.0,
     "HurtboxHeight": 40.0,
-    "damage": 5,
+    "damage": 10,
     "lifetime": 0.5,
     "type": 0,
     "sound": "slash"

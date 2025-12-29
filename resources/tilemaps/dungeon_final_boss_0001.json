@@ -267,6 +267,28 @@
                  "width":24,
                  "x":232,
                  "y":20
+                }, 
+                {
+                 "height":16,
+                 "id":15,
+                 "name":"stairs",
+                 "properties":[
+                        {
+                         "name":"level",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"roomState",
+                         "type":"int",
+                         "value":4
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":16,
+                 "x":128,
+                 "y":64
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -275,7 +297,7 @@
          "y":0
         }],
  "nextlayerid":7,
- "nextobjectid":15,
+ "nextobjectid":16,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.11.2",

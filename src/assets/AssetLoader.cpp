@@ -61,6 +61,20 @@ AssetLoader::~AssetLoader() {
     }
 }
 
+void AssetLoader::loadAllFilesInDirectory(const std::string& directory, std::vector<std::string>& extensions)
+{
+    // TODO this is a mess rn
+    for (const auto& entry : fs::directory_iterator(directory)) {
+        auto ext = entry.path().extension();
+        if (ext == extensions[0]) {  // TODO check all extensions
+            std::string filename = entry.path().filename().string();
+
+            if (ext == ".json")
+                LoadtileMapFromTiled(filename);
+        }
+    }
+}
+
 void AssetLoader::loadTexturesFromDirectory(const std::string& directory) {
     // Looks for png files in a given directory that match the pattern key_n.png
     // and automatically groups and loads them
