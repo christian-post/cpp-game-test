@@ -12,12 +12,11 @@
 
 InGame::InGame(Game& game, const std::string& name) : Scene(game, name), tileMap(nullptr), tilemapRenderer(game), cameraController(game) {}
 
-void InGame::startup() {
+void InGame::startup()
+{
     // create the player sprite
     // the "spriteName" argument has to match the texture keys (the part before the "_")
-    player = std::make_shared<Sprite>(
-        game, 0.0f, 0.0f, 14.0f, 12.0f, "player"
-    );
+    player = std::make_shared<Sprite>(game, 0.0f, 0.0f, 14.0f, 12.0f, "player");
 
     game.spriteMap["player"] = player;
     player->health = game.getSetting<uint32_t>("playerStartingHealth");
@@ -36,13 +35,15 @@ void InGame::startup() {
     // check for existing loaded savegame data here
     // TODO put this in separate function for less spaghetti
     auto saveData = game.getSaveData();
-    if (saveData) {
+    if (saveData)
+    {
         loadWorldFromSave(saveData);
     }
-    else {
+    else
+    {
         // generate a fresh dungeon
-        // TODO get the size from data or dungeon generation manager
-        game.createDungeon(6, 5, 2);
+        std::string dungeonKey = game.getSetting<std::string>("first_dungeon");
+        game.createDungeon(dungeonKey);
     }
     // retrieve the tilemap
     // and set the player's position in the first room
@@ -64,7 +65,8 @@ void InGame::startup() {
     setupConditionalEvents(*this);
 }
 
-void InGame::setupEventListeners() {
+void InGame::setupEventListeners()
+{
     game.eventManager.addListener(SET_MUSIC_VOLUME, [this](std::any data) {
         if (music) 
             SetMusicVolume(*music, std::any_cast<float>(data));
@@ -72,9 +74,11 @@ void InGame::setupEventListeners() {
 
     game.eventManager.addListener(WEAPON_SET, [this](const std::any& data) {
         // assign a weapon to one of two buttons
-        if (data.has_value()) {
+        if (data.has_value())
+        {
             auto [weapon, index] = std::any_cast<std::pair<std::string, size_t>>(data);
-            if (index < currentWeapon.size()) {
+            if (index < currentWeapon.size())
+            {
                 currentWeapon[index] = weapon.empty() ? std::nullopt : std::make_optional(std::make_pair(weapon, false));
                 size_t otherIdx = (index + 1) % 2;
                 if (currentWeapon[otherIdx].has_value() && currentWeapon[otherIdx]->first == weapon) {
@@ -82,7 +86,8 @@ void InGame::setupEventListeners() {
                 }
             }
         }
-        else {
+        else
+        {
             for (auto& w : currentWeapon) 
                 w = std::nullopt;
         }
@@ -112,18 +117,22 @@ void InGame::setupEventListeners() {
 void InGame::handleDeadSprites()
 {
     // process sprites that are dead (from last frame)
-    for (const auto& sprite : game.sprites) {
-        if (sprite && sprite->health < 1 && !sprite->dying) {
+    for (const auto& sprite : game.sprites)
+    {
+        if (sprite && sprite->health < 1 && !sprite->dying)
+        {
             sprite->dying = true;
             // a sprite with a state machine is handled differently
-            if (sprite->stateMachine) {
+            if (sprite->stateMachine)
+            {
                 sprite->stateMachine->addBehavior("death", std::make_unique<DeathBehavior>(game, sprite, 2.0f));
                 auto state = std::make_unique<State>("dying");
                 state->activeBehaviorKeys.push_back("death");
                 sprite->stateMachine->addState(std::move(state));
                 sprite->stateMachine->transitionTo("dying");
             }
-            else {
+            else
+            {
                 sprite->removeAllBehaviors();
                 sprite->addBehavior(std::make_unique<DeathBehavior>(game, sprite, 2.0f));
             }
@@ -141,13 +150,14 @@ void InGame::handleDeadSprites()
     }
 }
 
-void InGame::setupInputCallbacks() {
+void InGame::setupInputCallbacks()
+{
     // Bind callbacks to specific buttons
     buttonCallbacks[CONTROL_ACTION2] = [this]() { onActionButton2(); };
     buttonCallbacks[CONTROL_ACTION3] = [this]() { onActionButton3(); };
     buttonCallbacks[CONTROL_CONFIRM] = [this]() { onInventoryButton(); };
     buttonCallbacks[CONTROL_CANCEL] = [this]() { onMenuButton(); };
-    // debug stuff
+    // debug functions
     buttonCallbacks[CONTROL_DEBUG2] = [this]() { onDebugMenuButton(); };
     buttonCallbacks[CONTROL_DEBUG_K1] = [this]() { onDebugButton1(); };
     buttonCallbacks[CONTROL_DEBUG_K3] = [this]() { onDebugButton3(); };
@@ -156,7 +166,8 @@ void InGame::setupInputCallbacks() {
 void InGame::onActionButton2()
 {
     // primary weapon
-    if (currentWeapon[0] && !getSprite(currentWeapon[0]->first)) {
+    if (currentWeapon[0] && !getSprite(currentWeapon[0]->first))
+    {
         // spawn the weapon next to the player if not already there
         // This needs to be inside of a delayed event because of the quirks of the button polling...
         game.eventManager.pushDelayedEvent(UNNAMED, 0.0f, nullptr, [&]() {
@@ -169,7 +180,8 @@ void InGame::onActionButton2()
 void InGame::onActionButton3()
 {
     // secondary weapon
-    if (currentWeapon[1] && !getSprite(currentWeapon[1]->first)) {
+    if (currentWeapon[1] && !getSprite(currentWeapon[1]->first))
+    {
         game.eventManager.pushDelayedEvent(UNNAMED, 0.0f, nullptr, [&]() {
             spawnWeapon(1);
             currentWeapon[1]->second = true;
@@ -238,13 +250,13 @@ void InGame::onDebugButton3()
 
 void InGame::handlePlayerInput(float deltaTime)
 {
-    if (game.cutsceneManager.isActive()) {
+    if (game.cutsceneManager.isActive())
         return;
-    }
-    for (const auto& [button, callback] : buttonCallbacks) {
-        if (game.buttonsPressed & button) {
+
+    for (const auto& [button, callback] : buttonCallbacks)
+    {
+        if (game.buttonsPressed & button)
             callback();
-        }
     }
 
     // Don't allow movement if player is locked
@@ -273,7 +285,8 @@ void InGame::loadWorldFromSave(std::shared_ptr<SaveGame> save)
     // TODO: is it worth it to give the TileMap a mutable member?
     tileMap = game.currentDungeon->loadTileMap();
 
-    for (auto& sName : save->spritesFollowingPlayer) {
+    for (auto& sName : save->spritesFollowingPlayer)
+    {
         TileObject npc = TileObject();
         npc.name = "npc";
         npc.type = "sprite";
@@ -298,15 +311,15 @@ void InGame::loadWorldFromSave(std::shared_ptr<SaveGame> save)
 
 Sprite* InGame::getSprite(const std::string& name) {
     auto it = game.spriteMap.find(name);
-    if (it != game.spriteMap.end() && it->second) {
+    if (it != game.spriteMap.end() && it->second)
         return it->second.get();
-    }
     return nullptr;
 }
 
 void InGame::spawnWeapon(size_t index)
 {
-    if (index >= currentWeapon.size() || !currentWeapon[index]) {
+    if (index >= currentWeapon.size() || !currentWeapon[index])
+    {
         TraceLog(LOG_WARNING, "No weapon equipped in slot %zu", index);
         return;
     }
@@ -316,7 +329,8 @@ void InGame::spawnWeapon(size_t index)
     // Get pre-built item data
     auto& itemData = game.inventory.getItemData();
     auto it = itemData.find(weaponKey);
-    if (it == itemData.end() || !it->second.weaponBehavior.has_value()) {
+    if (it == itemData.end() || !it->second.weaponBehavior.has_value())
+    {
         TraceLog(LOG_WARNING, "Invalid weapon in slot %zu: %s", index, weaponKey.c_str());
         return;
     }
@@ -358,15 +372,18 @@ void InGame::checkRoomTransition()
     // returns an offset which can be used to displace the map index
     int8_t offset = 0;
     auto [cols, _] = game.currentDungeon->getSize();
-    if (player->rect.x < 0.0f) {
+    if (player->rect.x < 0.0f)
+    {
         offset = -1;
         player->moveTo(tilemapRenderer.getWorldWidth() * tilemapRenderer.getTileSize() - player->rect.width * 1.5f, player->position.y);
     }
-    else if (player->rect.x + player->rect.width > tilemapRenderer.getWorldWidth() * tilemapRenderer.getTileSize()) {
+    else if (player->rect.x + player->rect.width > tilemapRenderer.getWorldWidth() * tilemapRenderer.getTileSize())
+    {
         offset = 1;
         player->moveTo(player->rect.width * 0.5f, player->position.y);
     }
-    else if (player->rect.y < 0.0f) {
+    else if (player->rect.y < 0.0f)
+    {
         offset = int8_t(cols) * -1;
         player->moveTo(player->position.x, tilemapRenderer.getWorldHeight() * tilemapRenderer.getTileSize() - player->rect.height * 1.5f);
     }
@@ -375,7 +392,8 @@ void InGame::checkRoomTransition()
         player->moveTo(player->position.x, player->rect.height * 0.5f);
     }
     // change the room if the offset is some value
-    if (offset != 0) {
+    if (offset != 0)
+    {
         // load the new room, also make sure that the new index is not negative
         size_t newIndex = std::max(0, static_cast<int8_t>(game.currentDungeon->getCurrentRoomIndex()) + offset);
         game.currentDungeon->setCurrentRoomIndex(newIndex);
@@ -385,7 +403,8 @@ void InGame::checkRoomTransition()
     }
 }
 
-void InGame::loadTilemap() {
+void InGame::loadTilemap()
+{
     tileMap = game.currentDungeon->loadTileMap();
     // remove static and dynamic (non-persistent) objects
     game.walls.clear();
@@ -411,37 +430,41 @@ void InGame::loadTilemap() {
     game.sprites.reserve(spritesLen);
 
     // build objects from map data
-    for (const auto& obj : tileMap->getObjects()) {
+    for (const auto& obj : tileMap->getObjects())
+    {
         processTileObject(game, obj, currentState, objectStates, spriteData);
     }
     // build objects that were placed in the data later on
-    for (const auto& obj : tileMap->dynamicObjects) {
+    for (const auto& obj : tileMap->dynamicObjects)
+    {
         processTileObject(game, obj, currentState, objectStates, spriteData);
     }
 
     // check if a different music track should be played
     const std::string musicKey = tileMap->getMusicKey();
-    if (!musicKey.empty() && musicKey != currentMusicKey) {
+    if (!musicKey.empty() && musicKey != currentMusicKey)
+    {
         currentMusicKey = tileMap->getMusicKey();
         music = &const_cast<Music&>(game.loader.getMusic(currentMusicKey));
         PlayMusicStream(*music);
     }
     // check for NPCs that follow the player
-    for (const auto& sprite : game.sprites) {
-        if (sprite->followsPlayer) {
+    for (const auto& sprite : game.sprites)
+    {
+        if (sprite->followsPlayer)
             sprite->moveTo(player->position.x, player->position.y);
-        }
     }
     // TODO check if the player holds a weapon
-    for (size_t wpnIdx = 0; wpnIdx < 2; wpnIdx++) {
-        if (currentWeapon[wpnIdx].has_value() && currentWeapon[wpnIdx]->second == true) {
+    for (size_t wpnIdx = 0; wpnIdx < 2; wpnIdx++)
+    {
+        if (currentWeapon[wpnIdx].has_value() && currentWeapon[wpnIdx]->second == true)
             spawnWeapon(wpnIdx);
-        }
     }
 }
 
 
-void InGame::update(float deltaTime) {
+void InGame::update(float deltaTime)
+{
     // control the sprites and apply physics
     handleDeadSprites();
     // if a cutscene is active, it takes control over the player
@@ -450,8 +473,10 @@ void InGame::update(float deltaTime) {
     handlePlayerInput(deltaTime);
 
     // update the sprites
-    for (const auto& sprite : game.sprites) {
-        if (sprite) {
+    for (const auto& sprite : game.sprites)
+    {
+        if (sprite)
+        {
             if (!game.cutsceneManager.isActive())
                 sprite->executeBehavior(deltaTime);
             sprite->update(deltaTime);
@@ -465,55 +490,63 @@ void InGame::update(float deltaTime) {
     // TODO: put these in the config
     //const float lightRadius = (lampIsOn) ? 180.0f : 24.0f;
 
-    for (int i = 0; i < MAX_LIGHTS; i++) {
+    for (int i = 0; i < MAX_LIGHTS; i++)
+    {
         lights[i].active = false;
     }
 
     // animate always, regardless of cutscene
-    for (const auto& sprite : game.sprites) {
+    for (const auto& sprite : game.sprites)
+    {
         // progress the animation index and change the textures if necessary
         sprite->animate(deltaTime);
         // check if the sprite emits light in dark rooms
         // and give it a light cone
-        if (game.currentDungeon->isRoomDark() && sprite->emitsLight && currentLightIndex < MAX_LIGHTS) {
+        if (game.currentDungeon->isRoomDark() && sprite->emitsLight && currentLightIndex < MAX_LIGHTS)
+        {
             lights[currentLightIndex].center = GetWorldToScreen2D(GetRectCenter(sprite->rect), cameraController.getCamera());
             lights[currentLightIndex].center.y += sprite->z; // apply jump height
-            if (lampIsOn) {
+            if (lampIsOn)
+            {
                 if (sprite == player)
                     lights[currentLightIndex].radius = 200.0f; // TODO get values from settings
                 else
                     lights[currentLightIndex].radius = 0.0f;
             }
-            else {
+            else 
+            {
                 lights[currentLightIndex].radius = 24.0f;
             }
             lights[currentLightIndex].active = true;
             currentLightIndex++;
         }
     }
-    for (const auto& sprite : game.sprites) {
+    for (const auto& sprite : game.sprites)
+    {
         // collision of sprites with static objects (walls)
         // TODO: make this a method of Sprite?
         // 
         // resolve collision in the X direction
         sprite->rect.x = sprite->position.x;
-        for (const auto& wall : game.walls) {
+        for (const auto& wall : game.walls)
+        {
             resolveAxisX(sprite, wall->getRect());
         }
-        for (const auto& other : game.sprites) {
-            if (other != sprite && other->staticCollision) {
+        for (const auto& other : game.sprites)
+        {
+            if (other != sprite && other->staticCollision)
                 resolveAxisX(sprite, other->rect);
-            }
         }
 
         sprite->rect.y = sprite->position.y;
-        for (const auto& wall : game.walls) {
+        for (const auto& wall : game.walls)
+        {
             resolveAxisY(sprite, wall->getRect());
         }
-        for (const auto& other : game.sprites) {
-            if (other != sprite && other->staticCollision) {
+        for (const auto& other : game.sprites)
+        {
+            if (other != sprite && other->staticCollision)
                 resolveAxisY(sprite, other->rect);
-            }
         }
 
         // hurtbox centering midbottom
@@ -521,13 +554,13 @@ void InGame::update(float deltaTime) {
         sprite->hurtbox.y = sprite->rect.y + (sprite->rect.height - sprite->hurtbox.height) + sprite->hurtboxOffset.y;
 
         // player damage
-        if (sprite->canHurtPlayer && player->iFrameTimer < 0.001f && CheckCollisionRecs(sprite->hurtbox, player->rect)) {
-            if (sprite->damage < player->health) {
+        if (sprite->canHurtPlayer && player->iFrameTimer < 0.001f && CheckCollisionRecs(sprite->hurtbox, player->rect))
+        {
+            if (sprite->damage < player->health)
                 player->health -= sprite->damage;
-            }
-            else {
+            else
                 player->health = 0;
-            }
+
             player->iFrameTimer = game.getSetting<float>("PlayeriFrames");
             applyKnockback(*sprite, *player, sprite->knockback);
             game.eventManager.pushEvent(SCREEN_SHAKE, std::make_tuple(0.2f, 4.0f, 0.0f));
@@ -535,10 +568,13 @@ void InGame::update(float deltaTime) {
         }
 
         // damage enemies
-        if (sprite->canHurtEnemies) {
-            for (const auto& target : game.sprites) {
+        if (sprite->canHurtEnemies)
+        {
+            for (const auto& target : game.sprites)
+            {
                 if (target->isEnemy && target != sprite && target->iFrameTimer < 0.001f &&
-                    target->health > 0 && CheckCollisionRecs(sprite->hurtbox, target->rect)) {
+                    target->health > 0 && CheckCollisionRecs(sprite->hurtbox, target->rect))
+                {
 
                     target->health = (sprite->damage > target->health) ? 0 : target->health - sprite->damage;
                     target->iFrameTimer = 0.5f;
@@ -557,11 +593,14 @@ void InGame::update(float deltaTime) {
         }
 
         // weapon damage (TODO obsolete with projectile damage?)
-        for (size_t wpnIdx = 0; wpnIdx < 2; wpnIdx++) {
-            if (sprite->isEnemy && currentWeapon[wpnIdx].has_value()) {
+        for (size_t wpnIdx = 0; wpnIdx < 2; wpnIdx++)
+        {
+            if (sprite->isEnemy && currentWeapon[wpnIdx].has_value())
+            {
                 Sprite* weapon = getSprite(currentWeapon[wpnIdx]->first);
                 if (weapon && sprite->iFrameTimer < 0.001f && sprite->health > 0 &&
-                    CheckCollisionRecs(weapon->hurtbox, sprite->rect)) {
+                    CheckCollisionRecs(weapon->hurtbox, sprite->rect))
+                {
                     sprite->health = (weapon->damage > sprite->health) ? 0 : sprite->health - weapon->damage;
                     sprite->iFrameTimer = 0.5f;
                     
@@ -583,7 +622,8 @@ void InGame::update(float deltaTime) {
     }
 
     // handle the particle effects
-    for (auto& emitter : game.emitters) {
+    for (auto& emitter : game.emitters)
+    {
         emitter->update(deltaTime);
     }
     // clean up finished emitters
@@ -598,20 +638,23 @@ void InGame::update(float deltaTime) {
         checkRoomTransition();
 
     // update the camera controller to follow the player
-    if (cameraHasBounds) {
+    if (cameraHasBounds)
+    {
         cameraController.setWorldBounds(
             tilemapRenderer.getWorldWidth() * tilemapRenderer.getTileSize(),
             tilemapRenderer.getWorldHeight() * tilemapRenderer.getTileSize()
         );
     }
-    else {
+    else
+    {
         // only used in debugging
         cameraController.setWorldBounds(-1.0f, -1.0f);
     }
     cameraController.update(deltaTime);
 
     // player dies, GameOver scene starts
-    if (player->health < 1) {
+    if (player->health < 1)
+    {
         game.pauseScene(getName());
         if (music) StopMusicStream(*music);
         game.stopScene("HUD");
@@ -619,20 +662,22 @@ void InGame::update(float deltaTime) {
     }
 }
 
-void InGame::draw() {
+void InGame::draw()
+{
     ClearBackground(BLACK);
  
     // draw the textures that are affected by the camera
     BeginMode2D(cameraController.getCamera());
     // draw each tilemap layer except the top one
-    if (tileMap) {
+    if (tileMap)
         tilemapRenderer.drawAllLayersExceptTop(cameraController.getCamera());
-    }
+
     // Draw the sprites after sorting them by their bottom y position, also respect the drawing layer of each sprite (fixed)
     // TODO add a flag to sprite that makes an exception from this sorting
     std::vector<Sprite*> drawOrder;
     drawOrder.reserve(game.sprites.size());
-    for (const auto& sprite : game.sprites) {
+    for (const auto& sprite : game.sprites)
+    {
         drawOrder.push_back(sprite.get());
     }
     std::sort(drawOrder.begin(), drawOrder.end(), [](Sprite* a, Sprite* b) {
@@ -640,29 +685,35 @@ void InGame::draw() {
             return a->drawLayer < b->drawLayer;
         return (a->rect.y + a->rect.height) < (b->rect.y + b->rect.height);
         });
-    for (Sprite* sprite : drawOrder) {
+
+    for (Sprite* sprite : drawOrder)
+    {
         sprite->draw();
         sprite->drawBehavior();
     }
     // draw particles
-    for (auto& emitter : game.emitters) {
+    for (auto& emitter : game.emitters)
+    {
         emitter->draw();
     }
 
     // now draw the top layer above the sprites
-    if (tileMap) {
+    if (tileMap)
         tilemapRenderer.drawTopLayer(cameraController.getCamera());
-    }
 
     // debug information that is affected by the camera (hitboxes etc)
-    if (game.debug) {
-        for (const auto& wall : game.walls) {
+    if (game.debug)
+    {
+        for (const auto& wall : game.walls)
+        {
             DrawRectangleLines((int)wall->x, (int)wall->y, (int)wall->width, (int)wall->height, BLUE);
         }
-        for (const auto& sprite : game.sprites) {
+        for (const auto& sprite : game.sprites)
+        {
             DrawRectangleLines((int)sprite->rect.x, (int)sprite->rect.y, (int)sprite->rect.width, (int)sprite->rect.height, GREEN);
         }
-        for (const auto& sprite : game.sprites) {
+        for (const auto& sprite : game.sprites)
+        {
             DrawRectangleLines((int)sprite->hurtbox.x, (int)sprite->hurtbox.y, (int)sprite->hurtbox.width, (int)sprite->hurtbox.height, RED);
         }
     }
@@ -677,7 +728,9 @@ void InGame::draw() {
     DrawVignette(game.target.texture, game.loader.getShader("vignette"), game.getSetting<float>("vignetteIntensity"), game.getSetting<float>("vignetteSmoothness"), static_cast<float>(game.gameScreenWidth), static_cast<float>(game.gameScreenHeight));
 
     // draw an effect when the player if low on health
-    if (player->health < 5) {
+    // TODO hardcoded values
+    if (player->health < 5)
+    {
         float modifier = (1.0f - static_cast<float>(player->health) / 4);
         float freq = 0.6f + modifier;  // gets faster with lower health
         float intensity = 0.2f + modifier;
@@ -689,7 +742,8 @@ void InGame::draw() {
     game.cutsceneManager.draw();
 }
 
-void InGame::end() {
+void InGame::end()
+{
     // wait for a split second
     WaitTime(0.25);
     // stop the ingame music track

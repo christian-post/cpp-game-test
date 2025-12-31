@@ -49,23 +49,25 @@ class WorldGraph
 public:
     std::unordered_map<std::string, std::shared_ptr<Node>> nodes;
     std::shared_ptr<Node> start;
-    std::unordered_set<std::string> owned_items;
-    std::vector<std::string> item_pool;
+    std::unordered_set<std::string> ownedItems;
+    std::vector<std::string> itemPool;
 
     WorldGraph();
 
-    std::shared_ptr<Node> add_node(const std::string& name, const size_t id, const bool canHaveItem);
-    void add_edge(const std::string& from, const std::string& to, const std::unordered_set<std::string>& requirements);
+    std::shared_ptr<Node> addNode(const std::string& name, const size_t id, const bool canHaveItem);
+    void addEdge(const std::string& from, const std::string& to, const std::unordered_set<std::string>& requirements);
 
-    void set_start(const std::string& name);
-    void initialize_items(const std::vector<std::string>& items);
+    void setStart(const std::string& name);
+    void initializeItems(const std::vector<std::string>& items);
 
-    void forward_fill();
+    void forwardFill();
 
-    void log_debug() const; // TODO just for testing
+    void logDebug() const; // TODO just for testing
     bool testReachability();
 
 private:
+    bool isFilled = false; // store whether the forwardFill function was called
+    int totalNumItems = 0; // just for debugging
     std::unordered_set<std::shared_ptr<Node>> getReachableNodes();
     bool hasNullNode() const; // are there any nodes that could have an item, but haven't gotten one yet?
     void search();

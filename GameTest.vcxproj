@@ -263,7 +263,6 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <ClInclude Include="src\scenes\StartMenu.h" />
     <ClInclude Include="src\scenes\TitleScreen.h" />
     <ClInclude Include="src\scenes\WriteSavegameMenu.h" />
-    <ClInclude Include="src\tests\TestWorldGraph.h" />
     <ClInclude Include="src\ui\MenuSelect.h" />
     <ClInclude Include="src\ui\TextBox.h" />
     <ClInclude Include="src\Utils.h" />

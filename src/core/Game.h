@@ -38,6 +38,8 @@ public:
     bool isFullscreen = false;  // start in windowed mode, TODO put this in settings.json
     int lastWindowX = 0;
     int lastWindowY = 0; // store the position in windowed mode to return to after fullscreen
+    int lastWindowW = 0;
+    int lastWindowH = 0;
 
     RenderTexture2D target; // texture surface for the ingame graphics
 
@@ -120,7 +122,7 @@ public:
 
     // Dungeon management
     std::unique_ptr<Dungeon> currentDungeon = nullptr; 
-    void createDungeon(size_t roomsW, size_t roomsH, size_t numLevels);
+    void createDungeon(std::string& key);
 
     // World bounds (set by InGame when loading tilemap)
     // TODO these need to be here (and not in CameraController.h) because behaviors need to have access to this information 

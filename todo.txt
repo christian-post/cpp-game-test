@@ -2,8 +2,6 @@
 ## BUGS
 - projectiles only create an impact emitter on the target and on walls, not on other sprites
 - RELOAD_ROOM event crashes in combination with emitters
-- "fullscreen" property in settings.json doesn't get properly saved
-- make sure that windowW and windowH are not out of bounds when not in fullscreen
 
 ## FEATURES/REFACTORS:
 - Core

@@ -30,17 +30,34 @@ Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this)
     // TODO do this after every resize?
     int winW = getSetting<int>("windowWidth");
     int winH = getSetting<int>("windowHeight");
-    if (float(winH) / float(winW) != 0.75f) {
+
+    if (float(winH) / float(winW) != 0.75f)
         winH = int(winW * 0.75f);
-    }
+
     InitWindow(winW, winH, "My first game");
+
+    // clamp window size if needed
+    int maxW = GetMonitorWidth(0);
+    int maxH = GetMonitorHeight(0);
+    if (winW > maxW || winH > maxH)
+    {
+        winW = std::min(winW, maxW);
+        winH = std::min(winH, maxH);
+        SetWindowSize(winW, winH);
+    }
+    SetWindowMaxSize(maxW, maxH);
     SetWindowMinSize(320, 240);
     isFullscreen = getSetting("fullscreen", false);
-    if (isFullscreen) 
+    if (isFullscreen)
+    {
         ToggleFullscreen();
-    int x = getSetting("windowX", GetWindowPosition().x);
-    int y = getSetting("windowY", GetWindowPosition().y);
-    SetWindowPosition(x, y);
+    }
+    else
+    {
+        int x = getSetting("windowX", GetWindowPosition().x);
+        int y = getSetting("windowY", GetWindowPosition().y);
+        SetWindowPosition(x, y);
+    }
 
     // window event callbacks
     windowEvents.onResize = [&](int width, int height) {
@@ -115,23 +132,27 @@ nlohmann::json Game::getSetting(const std::string& key, nlohmann::json defaultVa
 void Game::writeSetting(const std::string& key, nlohmann::json value)
 {
     loader.writeSetting(key, value);
+    TraceLog(LOG_INFO, "%s: %s", key.c_str(), value.dump().c_str());
 }
 
 void Game::saveSettings()
 {
-    if (settings) {
+    if (settings)
+    {
         std::ofstream file("./resources/settings.json");
         file << settings->dump(2);
         TraceLog(LOG_INFO, "Settings have been saved.");
     }
-    else {
+    else
+    {
         TraceLog(LOG_ERROR, "Settings object not initialized or null.");
     }
 }
 
 void Game::startScene(const std::string& name) 
 {
-    if (sceneRegistry.count(name)) {
+    if (sceneRegistry.count(name))
+    {
         scenes[name] = sceneRegistry[name](name);
 
         if (scenePriorities.count(name))
@@ -140,14 +161,16 @@ void Game::startScene(const std::string& name)
             scenes[name]->setDrawPriority(0); // default
 
         // transfer the onComplete callback to this scene
-        if (sceneCallbacks.count(name)) {
+        if (sceneCallbacks.count(name))
+        {
             scenes[name]->setOnComplete(sceneCallbacks[name]);
             sceneCallbacks.erase(name);
         }
 
         scenes[name]->markForStarting();
     }
-    else {
+    else
+    {
         TraceLog(LOG_ERROR, "Scene not registered: %s", name.c_str());
         throw std::invalid_argument("No scene with this name. See console for details.");
     }
@@ -157,7 +180,8 @@ void Game::startScene(const std::string& name)
 void Game::stopScene(const std::string& name) 
 {
     // Marks the scene for removal
-    if (scenes.count(name)) {
+    if (scenes.count(name)) 
+    {
         scenes[name]->markForDeletion(); 
         scenes[name]->complete();
     }
@@ -165,7 +189,8 @@ void Game::stopScene(const std::string& name)
 
 void Game::setSceneState(const std::string& name, bool active, bool paused) 
 {
-    if (scenes.count(name)) {  // Check if the scene exists
+    if (scenes.count(name)) 
+    {  
         scenes[name]->setActive(active);
         scenes[name]->setPaused(paused);
     }
@@ -173,26 +198,31 @@ void Game::setSceneState(const std::string& name, bool active, bool paused)
 
 void Game::toggleFullscreen()
 {
-    if (isFullscreen) {
+    if (isFullscreen) 
+    {
         // go back to windowed mode
-        SetWindowSize(getSetting<int>("windowWidth"), getSetting<int>("windowHeight"));
-        // restore the old position 
+        SetWindowSize(lastWindowW, lastWindowH);
         SetWindowPosition(lastWindowX, lastWindowY);
         ShowCursor();
     }
-    else {
+    else 
+    {
         // some manual adjustment is needed here because raylib doesn't handle changing aspect ratios well
-        int width = GetMonitorWidth(0);
-        int height = GetMonitorHeight(0);
-        SetWindowSize(width, height);
-        // store the window pos
+        // Store current windowed size and position
+        lastWindowW = GetScreenWidth();
+        lastWindowH = GetScreenHeight();
         auto [x, y] = GetWindowPosition();
         lastWindowX = static_cast<int>(x);
         lastWindowY = static_cast<int>(y);
+
+        // Set to fullscreen size
+        int width = GetMonitorWidth(0);
+        int height = GetMonitorHeight(0);
+        SetWindowSize(width, height);
         HideCursor();
     }
-    writeSetting("fullscreen", isFullscreen);
     isFullscreen = !isFullscreen;
+    writeSetting("fullscreen", isFullscreen);
     ToggleFullscreen();
 }
 
@@ -203,24 +233,30 @@ void Game::resumeScene(const std::string& name) { setSceneState(name, true, fals
 
 void Game::resetScenes() 
 {
-    for (const auto& [name, scene] : scenes) {
+    for (const auto& [name, scene] : scenes) 
+    {
         stopScene(name);
     }
 }
 
 void Game::processMarkedScenes() 
 {
-    for (auto it = scenes.begin(); it != scenes.end(); ) {
-        if (it->second->ismarkedForStarting()) {
+    for (auto it = scenes.begin(); it != scenes.end(); ) 
+    {
+        if (it->second->ismarkedForStarting())
+        {
             TraceLog(LOG_INFO, "starting scene %s", it->second->getName().c_str());
             it->second->markedForStarting = false;
             it->second->startup();
             it->second->setActive(true);
         }
-        else if (it->second->isMarkedForDeletion()) {
+        else if (it->second->isMarkedForDeletion())
+        {
             it->second->end();
             it = scenes.erase(it);
-        } else {
+        } 
+        else
+        {
             ++it;
         }
     }
@@ -240,7 +276,8 @@ void Game::save(std::string& filename)
     if (inGame->currentWeapon[1])
         save.currentWeapons[1] = inGame->currentWeapon[1]->first;
 
-    for (auto& sprite : sprites) {
+    for (auto& sprite : sprites)
+    {
         // check if a sprite follows the player.
         // That sprite should be spawned again after loading
         if (sprite->followsPlayer && sprite->persistent)
@@ -249,8 +286,10 @@ void Game::save(std::string& filename)
 
     save.items = {}; 
     auto& invItems = inventory.getItems();
-    for (size_t type = 0; type < NUM_ITEM_TYPES; type++) {
-        for (auto& item : invItems[type]) {
+    for (size_t type = 0; type < NUM_ITEM_TYPES; type++)
+    {
+        for (auto& item : invItems[type])
+        {
             save.items.push_back({ item.first, item.second.second }); // key, quantity
         }
     }
@@ -300,18 +339,25 @@ std::shared_ptr<SaveGame> Game::getSaveData()
 
 std::shared_ptr<Sprite> Game::createSprite(std::string spriteName, Rectangle& rect)
 {
-    auto sprite = std::make_shared<Sprite>(
-        *this, rect.x, rect.y, rect.width, rect.height, spriteName
-    );
+    auto sprite = std::make_shared<Sprite>(*this, rect.x, rect.y, rect.width, rect.height, spriteName);
     // delay the addition to the sprites vector until the end of the loop
     spritesToAdd.push_back(sprite);
     return sprite;
 }
 
-void Game::createDungeon(size_t roomsW, size_t roomsH, size_t numLevels)
+void Game::createDungeon(std::string& key)
 {
+    const auto& allDungeons = loader.getDungeonData();
+    if (!allDungeons.contains(key))
+        throw std::runtime_error("Dungeon '" + key + "' not found in dungeons.json");
+    const auto& dungeonData = allDungeons[key];
+
+    size_t roomsW = dungeonData["rooms_w"];
+    size_t roomsH = dungeonData["rooms_h"];
+    size_t numLevels = dungeonData["num_levels"];
+
     currentDungeon = std::make_unique<Dungeon>(*this, roomsW, roomsH, numLevels); // TODO num. of levels
-    currentDungeon->generate("first_dungeon");
+    currentDungeon->generate(dungeonData);
     // create the minimap images from the tilemap data
     currentDungeon->makeMinimapTextures();
 }
@@ -319,7 +365,8 @@ void Game::createDungeon(size_t roomsW, size_t roomsH, size_t numLevels)
 void Game::killSprite(const std::shared_ptr<Sprite>& sprite) 
 {
     auto it = std::find(sprites.begin(), sprites.end(), sprite);
-    if (it != sprites.end()) {
+    if (it != sprites.end())
+    {
         *it = std::move(sprites.back());
         sprites.pop_back();
     }
@@ -329,8 +376,10 @@ void Game::clearSprites(bool clearPersistent)
 {
     // removes all current sprites
     // keeps the ones with the "persistent" flag, if not stated otherwise
-    for (auto& sprite: sprites) {
-        if (!sprite->persistent) {
+    for (auto& sprite: sprites)
+    {
+        if (!sprite->persistent)
+        {
             sprite->markForDeletion();
             TraceLog(LOG_INFO, "deleting Sprite %s", sprite->spriteName.c_str());
         }
@@ -340,8 +389,10 @@ void Game::clearSprites(bool clearPersistent)
 void Game::processMarkedSprites() 
 {
     // Remove marked sprites from spriteMap first
-    for (auto& sprite : sprites) {
-        if (sprite->isMarkedForDeletion()) {
+    for (auto& sprite : sprites)
+    {
+        if (sprite->isMarkedForDeletion())
+        {
             auto it = spriteMap.find(sprite->spriteName);
             if (it != spriteMap.end() && it->second == sprite)
                 spriteMap.erase(it);
@@ -355,7 +406,8 @@ void Game::processMarkedSprites()
         }), sprites.end());
 
     // add any new sprites to the vector
-    for (auto& s : spritesToAdd) {
+    for (auto& s : spritesToAdd)
+    {
         sprites.push_back(s);
     }
     spritesToAdd.clear();
@@ -372,15 +424,18 @@ void Game::clearEmitters(bool clearPersistent)
 Sprite* Game::getPlayer() 
 {
     InGame* inGame = dynamic_cast<InGame*>(getScene("InGame"));
-    if (!inGame) return nullptr;
+    if (!inGame)
+        return nullptr;
     auto it = spriteMap.find("player");
-    if (it != spriteMap.end()) return it->second.get();
+    if (it != spriteMap.end())
+        return it->second.get();
     return nullptr;
 }
 
 void Game::playSound(const std::string& key)
 {
-    if (!soundOn || !sfxOn) return;
+    if (!soundOn || !sfxOn)
+        return;
     PlaySound(loader.getSound(key));
 }
 
@@ -389,8 +444,10 @@ void Game::update(float deltaTime)
     eventManager.update(deltaTime);
     windowEvents.update();
 
-    for (auto& [name, scene] : scenes) {
-        if (scene && scene->isActive() && !scene->isPaused()) {
+    for (auto& [name, scene] : scenes)
+    {
+        if (scene && scene->isActive() && !scene->isPaused())
+        {
             scene->update(deltaTime);
         }
     }
@@ -398,10 +455,15 @@ void Game::update(float deltaTime)
 
 void Game::playMusic()
 {
-    if (!soundOn || !musicOn) return;
-    for (auto& [name, scene] : scenes) {
-        if (scene && scene->isActive()) {
-            if (scene->music) {
+    if (!soundOn || !musicOn)
+        return;
+
+    for (auto& [name, scene] : scenes)
+    {
+        if (scene && scene->isActive())
+        {
+            if (scene->music)
+            {
                 UpdateMusicStream(*scene->music);
                 //return; // TODO prevent multiple scenes from playing music?
             }
@@ -418,17 +480,18 @@ void Game::draw()
     // All the actual drawing logic is handled by each scene
     BeginTextureMode(target);
         std::vector<Scene*> activeScenes;
-        for (auto& [name, scene] : scenes) {
-            if (scene && scene->isActive()) {
+        for (auto& [name, scene] : scenes)
+        {
+            if (scene && scene->isActive())
                 activeScenes.push_back(scene.get());
-            }
         }
         // Sort active scenes by draw priority
         std::sort(activeScenes.begin(), activeScenes.end(),
             [](Scene* a, Scene* b) {
                 return a->getDrawPriority() < b->getDrawPriority();
             });
-        for (Scene* scene : activeScenes) {
+        for (Scene* scene : activeScenes)
+        {
             scene->draw();
         }
     EndTextureMode();
@@ -452,7 +515,8 @@ void Game::draw()
             0.0f,
             WHITE);
 
-        if (debug) {
+        if (debug)
+        {
             DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Fade(BLACK, 0.25f));
             // show the state of the scenes
             int fontSize = 24;
@@ -462,19 +526,24 @@ void Game::draw()
             std::string s_inactiveScenes = "Scenes inactive:\n";
             std::string s_drawOrder = "Draw Order:\n";
 
-            for (auto& [name, scene] : scenes) {
+            for (auto& [name, scene] : scenes)
+            {
                 std::string stateInfo = " (" + std::to_string(static_cast<int>(scene->getState())) + ")";
-                if (scene && scene->isActive() && !scene->isPaused()) {
+                if (scene && scene->isActive() && !scene->isPaused())
+                {
                     s_activeScenes += scene->getName() + stateInfo + "\n";
                 }
-                else if (scene && scene->isActive() && scene->isPaused()) {
+                else if (scene && scene->isActive() && scene->isPaused())
+                {
                     s_pausedScenes += scene->getName() + stateInfo + "\n";
                 }
-                else if (scene && !scene->isActive()) {
+                else if (scene && !scene->isActive())
+                {
                     s_inactiveScenes += scene->getName() + stateInfo + "\n";
                 }
             }
-            for (Scene* scene : activeScenes) {
+            for (Scene* scene : activeScenes)
+            {
                 s_drawOrder += scene->getName() + " (Priority: " + std::to_string(scene->getDrawPriority()) + ")\n";
             }
 
@@ -485,21 +554,25 @@ void Game::draw()
 
             // TODO: create another function to get the current Tilemap data that doesn't log constantly on error
             size_t maxIndex = currentDungeon->getSize().first * currentDungeon->getSize().second;
-            if (currentDungeon->getCurrentRoomIndex() < maxIndex) {
+            if (currentDungeon->getCurrentRoomIndex() < maxIndex)
+            {
                 std::ostringstream ss;
                 const TileMap* tm = currentDungeon->loadTileMap();
                 size_t roomIndex = currentDungeon->getCurrentRoomIndex();
-                if (tm) {
+                if (tm)
+                {
                     std::string roomName = tm->getName();
                     uint8_t roomState = currentDungeon->getCurrentRoomState();
                     ss << "Room: " << roomName << " (" << roomIndex << "); state: " << int(roomState);
                 }
-                else {
+                else
+                {
                     ss << "no room at index " << roomIndex;
                 }
                 DrawText(ss.str().c_str(), 4, int(GetScreenHeight() * 0.8f), fontSize, WHITE);
             }
-            else {
+            else
+            {
                 DrawText("invalid room index", 4, int(GetScreenHeight() * 0.8f), fontSize, WHITE);
             }
         }
@@ -524,8 +597,9 @@ void Game::run()
         std::string str = std::any_cast<std::string>(data);
         load(str);
         });
-    
-    while (running && !WindowShouldClose()) {
+    // main game loop
+    while (running && !WindowShouldClose())
+    {
         // show FPS in title
         snprintf(title, sizeof(title), "My Game - FPS: %d", GetFPS());
         SetWindowTitle(title);
@@ -537,10 +611,10 @@ void Game::run()
         if (buttonsPressed & CONTROL_DEBUG)
             debug = !debug; 
         // specific debug functions
-        if (debug) {
-            if (buttonsPressed & CONTROL_DEBUG_K2) {
+        if (debug)
+        {
+            if (buttonsPressed & CONTROL_DEBUG_K2)
                 soundOn = !soundOn;
-            }
         }
 
         // --- main game loop ---
@@ -552,15 +626,13 @@ void Game::run()
         draw();
 
         // toggle fullscreen
-        if (IsKeyPressed(KEY_F4)) {
+        if (IsKeyPressed(KEY_F4))
             toggleFullscreen();
-        }
 
         // restart the game 
         // TODO: this is just for faster debugging, will be removed in the final version
-        if (IsKeyPressed(KEY_F5)) {
+        if (IsKeyPressed(KEY_F5))
             restart();
-        }
 
         // safely clean up sprites and scenes after the other logic is done
         processMarkedSprites();

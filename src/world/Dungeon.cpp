@@ -330,12 +330,12 @@ WorldGraph Dungeon::buildGraphFromDungeon(const std::string& start, const std::v
                 size_t col = i % roomsW;
                 std::string roomId = std::to_string(level) + "_" + std::to_string(row) + "_" + std::to_string(col);
                 bool canHaveItem = itemNodes.count(roomId) > 0;
-                graph.add_node(roomId, i, canHaveItem);
+                graph.addNode(roomId, i, canHaveItem);
             }
         }
     }
 
-    graph.set_start(start);
+    graph.setStart(start);
 
     // Helper to get requirements for a specific edge from edges parameter
     auto get_requirements = [&](const std::string& from, const std::string& to)
@@ -370,7 +370,7 @@ WorldGraph Dungeon::buildGraphFromDungeon(const std::string& start, const std::v
                     if (Room* right = getRoomAt(level, i + 1))
                     {
                         std::string toId = std::to_string(level) + "_" + std::to_string(row) + "_" + std::to_string(col + 1);
-                        graph.add_edge(fromId, toId, get_requirements(fromId, toId));
+                        graph.addEdge(fromId, toId, get_requirements(fromId, toId));
                     }
                 }
                 // UP
@@ -379,7 +379,7 @@ WorldGraph Dungeon::buildGraphFromDungeon(const std::string& start, const std::v
                     if (Room* up = getRoomAt(level, i - roomsW))
                     {
                         std::string toId = std::to_string(level) + "_" + std::to_string(row - 1) + "_" + std::to_string(col);
-                        graph.add_edge(fromId, toId, get_requirements(fromId, toId));
+                        graph.addEdge(fromId, toId, get_requirements(fromId, toId));
                     }
                 }
                 // LEFT
@@ -388,7 +388,7 @@ WorldGraph Dungeon::buildGraphFromDungeon(const std::string& start, const std::v
                     if (Room* left = getRoomAt(level, i - 1))
                     {
                         std::string toId = std::to_string(level) + "_" + std::to_string(row) + "_" + std::to_string(col - 1);
-                        graph.add_edge(fromId, toId, get_requirements(fromId, toId));
+                        graph.addEdge(fromId, toId, get_requirements(fromId, toId));
                     }
                 }
                 // DOWN
@@ -397,7 +397,7 @@ WorldGraph Dungeon::buildGraphFromDungeon(const std::string& start, const std::v
                     if (Room* down = getRoomAt(level, i + roomsW))
                     {
                         std::string toId = std::to_string(level) + "_" + std::to_string(row + 1) + "_" + std::to_string(col);
-                        graph.add_edge(fromId, toId, get_requirements(fromId, toId));
+                        graph.addEdge(fromId, toId, get_requirements(fromId, toId));
                     }
                 }
             }
@@ -408,21 +408,14 @@ WorldGraph Dungeon::buildGraphFromDungeon(const std::string& start, const std::v
     for (const auto& [from, to, requirements] : edges)
     {
         std::unordered_set<std::string> reqs(requirements.begin(), requirements.end());
-        graph.add_edge(from, to, reqs);
+        graph.addEdge(from, to, reqs);
     }
 
     return graph;
 }
 
-void Dungeon::generate(const std::string& dungeonKey)
+void Dungeon::generate(const nlohmann::json& dungeonData)
 {
-    const auto& allDungeons = game.loader.getDungeonData();
-
-    if (!allDungeons.contains(dungeonKey))
-        throw std::runtime_error("Dungeon '" + dungeonKey + "' not found in dungeons.json");
-
-    const auto& dungeonData = allDungeons[dungeonKey];
-
     // Set starting room from coordinates
     size_t startingLevel = dungeonData["starting_level"];
     std::vector<int> startCoords = dungeonData["starting_room"];
@@ -500,15 +493,15 @@ void Dungeon::generate(const std::string& dungeonKey)
 
     do 
     {
-        G.initialize_items(itemPool);
-        G.forward_fill();
+        G.initializeItems(itemPool);
+        G.forwardFill();
         attempts++;
-    } while (!G.item_pool.empty() && attempts < max_attempts);
+    } while (!G.itemPool.empty() && attempts < max_attempts);
 
-    if (!G.item_pool.empty())
+    if (!G.itemPool.empty())
     {
         // TODO help finding the reason why the generation failed
-        G.log_debug();
+        G.logDebug();
 
         TraceLog(LOG_INFO, "Dungeon Size");
         for (size_t lvl = 0; lvl < levels.size(); lvl++)
@@ -518,7 +511,7 @@ void Dungeon::generate(const std::string& dungeonKey)
 
         G.testReachability();
 
-        size_t numItemsLeft = G.item_pool.size();
+        size_t numItemsLeft = G.itemPool.size();
         TraceLog(LOG_INFO, "There are still %d items in the pool.", numItemsLeft);
 
         throw std::runtime_error("Failed to place all items after " + std::to_string(max_attempts) + " attempts");
@@ -557,5 +550,5 @@ void Dungeon::generate(const std::string& dungeonKey)
         }
     }
     // print Dungeon graph to the console
-    G.log_debug();
+    G.logDebug();
 }

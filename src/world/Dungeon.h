@@ -119,5 +119,5 @@ public:
         const std::vector<std::tuple<std::string, std::string, std::vector<std::string>>>& edges,
         const std::unordered_set<std::string>& itemNodes
     ); // TODO strings should be changed to indices later
-    void generate(const std::string& dungeonKey);
+    void generate(const nlohmann::json& dungeonData);
 };

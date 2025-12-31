@@ -61,16 +61,13 @@ AssetLoader::~AssetLoader() {
     }
 }
 
-void AssetLoader::loadAllFilesInDirectory(const std::string& directory, std::vector<std::string>& extensions)
+void AssetLoader::loadTilemapsFromDirectory(const std::string& directory)
 {
-    // TODO this is a mess rn
     for (const auto& entry : fs::directory_iterator(directory)) {
         auto ext = entry.path().extension();
-        if (ext == extensions[0]) {  // TODO check all extensions
-            std::string filename = entry.path().filename().string();
-
-            if (ext == ".json")
-                LoadtileMapFromTiled(filename);
+        if (entry.path().extension() == ".json") {
+            std::string filename = directory + "/" + entry.path().filename().string();
+            LoadtileMapFromTiled(filename);
         }
     }
 }

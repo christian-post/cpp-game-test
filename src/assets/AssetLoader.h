@@ -30,7 +30,7 @@ public:
     AssetLoader();
     ~AssetLoader();
     // TODO change inconsistent Capital letters!
-    void loadAllFilesInDirectory(const std::string& directory, std::vector<std::string>& extensions);
+    void loadTilemapsFromDirectory(const std::string& directory);
     void loadTexturesFromDirectory(const std::string& directory);
     void loadTextures(const std::unordered_map<std::string, std::vector<std::string>>& textureMap);
     void loadSpritesheet(const std::string& filename, int frameWidth, int frameHeight, const std::string& key = "");

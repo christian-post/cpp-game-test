@@ -13,7 +13,7 @@ Node::Node(const std::string& name) : name{ name }{}
 
 WorldGraph::WorldGraph(){}
 
-std::shared_ptr<Node> WorldGraph::add_node(const std::string& name, const size_t id, const bool canHaveItem)
+std::shared_ptr<Node> WorldGraph::addNode(const std::string& name, const size_t id, const bool canHaveItem)
 {
     auto node = std::make_shared<Node>(name);
     nodes[name] = node;
@@ -22,7 +22,7 @@ std::shared_ptr<Node> WorldGraph::add_node(const std::string& name, const size_t
     return node;
 }
 
-void WorldGraph::add_edge(
+void WorldGraph::addEdge(
     const std::string& from,
     const std::string& to,
     const std::unordered_set<std::string>& requirements
@@ -42,26 +42,28 @@ void WorldGraph::add_edge(
     from_it->second->edges.emplace_back(to_it->second, requirements);
 }
 
-void WorldGraph::set_start(const std::string& name)
+void WorldGraph::setStart(const std::string& name)
 {
     start = nodes[name];
     nodes[name]->isStart = true;
 }
 
-void WorldGraph::initialize_items(const std::vector<std::string>& items)
+void WorldGraph::initializeItems(const std::vector<std::string>& items)
 {
+    totalNumItems = items.size();
+
     for (auto& [_, node] : nodes) 
     {
         node->item.reset();
     }
-    item_pool = items;
-    std::shuffle(std::begin(item_pool), std::end(item_pool), rng);
-    owned_items.clear();
+    itemPool = items;
+    std::shuffle(std::begin(itemPool), std::end(itemPool), rng);
+    ownedItems.clear();
 }
 
-void WorldGraph::forward_fill()
+void WorldGraph::forwardFill()
 {
-    while (hasNullNode() && !item_pool.empty()) 
+    while (hasNullNode() && !itemPool.empty())
     {
         // get all nodes that don't have an item yet, 
         // that aren't the start or boss room
@@ -81,23 +83,32 @@ void WorldGraph::forward_fill()
         size_t randomIdx = dist(rng);
         const std::shared_ptr<Node>& chosenNode = nullNodes[randomIdx];
         // pick an item
-        std::string item = item_pool.back();;
-        item_pool.pop_back();
+        std::string item = itemPool.back();;
+        itemPool.pop_back();
         chosenNode->item = item;
-        owned_items.insert(item);
+        ownedItems.insert(item);
         // update the list of reachable items
         search();
     }
+    isFilled = true;
 }
 
-void WorldGraph::log_debug() const
+void WorldGraph::logDebug() const
 {
+    size_t numItemNodes = 0; // count the nodes that can have items
+
+    TraceLog(LOG_INFO, "###### Dungeon Graph ######");
     for (const auto& [name, node] : nodes) 
     {
-        if (node->item.has_value())
+        if (node->item.has_value()) 
+        {
             TraceLog(LOG_INFO, "[%s] item: %s", name.c_str(), node->item->c_str());
+            numItemNodes++;
+        }
         else
+        {
             TraceLog(LOG_INFO, "[%s] item: None", name.c_str());
+        }
 
         if (node->isStart)
             TraceLog(LOG_INFO, "This is the starting room");
@@ -117,15 +128,28 @@ void WorldGraph::log_debug() const
             TraceLog(LOG_INFO, "  -> %s [%s]", edge.target->name.c_str(), reqs.c_str());
         }
     }
+    if (isFilled)
+    {
+        if (numItemNodes > totalNumItems)
+        {
+            // there are more item nodes than items
+            TraceLog(LOG_WARNING, "The dungeon contains more item nodes than items to place (%d vs. %d).", numItemNodes, totalNumItems);
+        }
+        else if (numItemNodes < totalNumItems)
+        {
+            TraceLog(LOG_WARNING, "Not all items have been placed (too few item nodes).");
+        }
+    }
+    TraceLog(LOG_INFO, "###########################");
 }
 
 bool WorldGraph::testReachability()
 {
     // test if all nodes can be reached if the player has all item
     // TODO currently, all required items have to be in the dungeon's item_pool
-    for (auto& item : item_pool)
+    for (auto& item : itemPool)
     {
-        owned_items.insert(item);
+        ownedItems.insert(item);
     }
     size_t numRNodes = getReachableNodes().size();
     // check if those are all nodes
@@ -161,12 +185,12 @@ void WorldGraph::search()
         while (!queue.empty()) 
         {
             const std::shared_ptr<Node>& node = queue.front();
-            if (node->item.has_value() && owned_items.find(*node->item) == owned_items.end())
+            if (node->item.has_value() && ownedItems.find(*node->item) == ownedItems.end())
                 // if this node has an item and it's not in owned_items, add it to the newly aquired items
                 newlyAquired.insert(*node->item);
             for (auto& edge : node->edges) 
             {
-                if (isSubset(edge.requirements, owned_items) && visited.find(edge.target) == visited.end()) 
+                if (isSubset(edge.requirements, ownedItems) && visited.find(edge.target) == visited.end())
                 {
                     queue.push_back(edge.target);
                     visited.insert(edge.target);
@@ -179,7 +203,7 @@ void WorldGraph::search()
             break;
 
         // merge the aquired items into the owned items set
-        owned_items.insert(newlyAquired.begin(), newlyAquired.end());
+        ownedItems.insert(newlyAquired.begin(), newlyAquired.end());
     }
 }
 
@@ -203,7 +227,7 @@ std::unordered_set<std::shared_ptr<Node>> WorldGraph::getReachableNodes()
             bool all_requirements_met = true;
             for (const auto& req : edge.requirements)
             {
-                if (owned_items.count(req) == 0)
+                if (ownedItems.count(req) == 0)
                 {
                     // you don't have the necessary item(s)
                     all_requirements_met = false;
