@@ -14,10 +14,13 @@ const int WeaponBehavior::controlBindings[2] = { CONTROL_ACTION2, CONTROL_ACTION
 WeaponBehavior::WeaponBehavior(Game& game, std::shared_ptr<Sprite> sprite, std::shared_ptr<Sprite> ownerSprite, weaponData data, size_t slot)
     : game{ game }, self{ sprite }, owner{ ownerSprite }, data{ data }, lifetime{ data.lifetime }, originalLifetime{ data.lifetime }, slot{ slot }
 {
+    // a -1 indicates weapons that stay indefinitely (until manually unequipped)
     if (lifetime == -1.0f)
         lifetime = std::numeric_limits<float>::infinity();
 
-    if (auto s = self.lock(), o = owner.lock(); s && o) {
+    if (auto s = self.lock(), o = owner.lock(); s && o)
+    {
+        // change some variables based on the sprite that holds this weapon
         s->lastDirection = o->lastDirection;
         s->hurtboxOffset.x *= (s->lastDirection == LEFT) ? -1.0f : 1.0f;
         s->drawLayer = (s->lastDirection == LEFT) ? 1 : -1;
@@ -26,10 +29,12 @@ WeaponBehavior::WeaponBehavior(Game& game, std::shared_ptr<Sprite> sprite, std::
 
 void WeaponBehavior::update(float deltaTime) 
 {
-    if (auto s = self.lock(), o = owner.lock(); s && o) {
+    if (auto s = self.lock(), o = owner.lock(); s && o
+        ) {
         lifetime -= deltaTime;
         // weapon is done
-        if (lifetime < originalLifetime * -0.2f && !done) {
+        if (lifetime < originalLifetime * -0.2f && !done)
+        {
             int eventKey = EventKeyRegistry::getIndexedEventKey(KILL_WEAPON, slot);
             s->game.eventManager.pushEvent(eventKey);
             done = true;
@@ -42,16 +47,20 @@ void WeaponBehavior::update(float deltaTime)
         float progress = 1.0f - (lifetime / originalLifetime);
         if (lifetime < 0.0f)
             return;
-        switch (data.type) {
+        // weapon specific behavior
+        switch (data.type)
+        {
         case SWING:
             s->rotationAngle = (s->lastDirection == RIGHT) ? 180.0f * progress : -180.0f * progress;
             break;
         case WHACK:
         {
+            // does a quarter rotation and then shakes the screen
             float angle = std::sin(progress * 3.14159f);
             s->rotationAngle = (s->lastDirection == RIGHT) ? 90.0f * angle : -90.0f * angle;
 
-            if (!shaken && progress > 0.5f) {
+            if (!shaken && progress > 0.5f)
+            {
                 s->game.eventManager.pushEvent(SCREEN_SHAKE, std::make_tuple(0.1f, 0.0f, 10.0f));
                 s->game.playSound("hammer");
                 o->jump();
@@ -62,11 +71,13 @@ void WeaponBehavior::update(float deltaTime)
         case POKE:
         {
             float offset = std::sin(progress * 3.14159f) * 10.0f;
-            if (o->lastDirection == RIGHT) {
+            if (o->lastDirection == RIGHT)
+            {
                 s->position.x += offset;
                 s->rotationAngle = 90;
             }
-            else {
+            else
+            {
                 s->position.x -= offset;
                 s->rotationAngle = -90;
             }
@@ -76,7 +87,8 @@ void WeaponBehavior::update(float deltaTime)
             if (game.buttonsPressed & controlBindings[slot])
                 lifetime = 0.0f;
 
-            if (!switchedOn) {
+            if (!switchedOn)
+            {
                 if (data.onCreate)
                     data.onCreate();
                 switchedOn = true;
@@ -84,17 +96,19 @@ void WeaponBehavior::update(float deltaTime)
             break;
         case BOW :
         {
-            if (!isNotched && controlBindings[slot]) {
-                // First press - enter aim mode
+            if (!isNotched && controlBindings[slot])
+            {
+                // first press enters aim mode
                 isNotched = true;
-                aimDirection = { o->lastDirection == RIGHT ? 1.0f : -1.0f, 0.0f };  // Initialize from current direction
+                aimDirection = { o->lastDirection == RIGHT ? 1.0f : -1.0f, 0.0f };  // initialize from current direction
                 //o->setAnimState(CHARGE, true); // TODO
                 game.eventManager.pushEvent(LOCK_PLAYER_MOVEMENT);
             }
-            else if (isNotched) {
+            else if (isNotched)
+            {
                 timer += deltaTime;
 
-                // Update aim direction based on input
+                // update aim direction based on input
                 Vector2 inputDir = { 0.0f, 0.0f };
                 if (game.buttonsDown & CONTROL_RIGHT)
                     inputDir.x = 1.0f;
@@ -105,40 +119,45 @@ void WeaponBehavior::update(float deltaTime)
                 if (game.buttonsDown & CONTROL_UP)
                     inputDir.y = -1.0f;
 
-                // If player is inputting a direction, update aim
-                if (inputDir.x != 0.0f || inputDir.y != 0.0f) {
+                // if player is inputting a direction, update aim
+                if (inputDir.x != 0.0f || inputDir.y != 0.0f)
+                {
                     float length = std::sqrt(inputDir.x * inputDir.x + inputDir.y * inputDir.y);
                     aimDirection.x = inputDir.x / length;
                     aimDirection.y = inputDir.y / length;
-                    // DON'T touch o->lastDirection anymore!
                 }
 
-                // Update weapon rotation to match aim direction
+                // update weapon rotation to match aim direction
                 s->rotationAngle = std::atan2(aimDirection.y, aimDirection.x) * RAD2DEG;
-                // Adjust position based on rotation to keep bow at player's hand
+                // adjust position based on rotation to keep bow at player's hand
                 float offsetX = 0.0f;
                 float offsetY = 0.0f;
-                if (std::abs(aimDirection.x) > std::abs(aimDirection.y)) {
-                    // Horizontal aim
-                    if (aimDirection.x > 0.0f) {
-                        // Aiming RIGHT
-                        // do nothing
+                if (std::abs(aimDirection.x) > std::abs(aimDirection.y))
+                {
+                    // horizontal aim
+                    if (aimDirection.x > 0.0f)
+                    {
+                        // aiming RIGHT, do nothing
                     }
-                    else {
+                    else
+                    {
                         // Aiming LEFT
                         offsetX = -10.0f;
                         offsetY = -1.0f * static_cast<float>(o->frames[o->currentAnimState][o->currentFrame].height);
                     }
                 }
-                else {
-                    // Vertical aim
-                    if (aimDirection.y > 0.0f) {
-                        // Aiming DOWN
+                else
+                {
+                    // vertical aim
+                    if (aimDirection.y > 0.0f)
+                    {
+                        // DOWN
                         offsetX = -16.0f;
                         offsetY = -6.0f;
                     }
-                    else {
-                        // Aiming UP
+                    else
+                    {
+                        // UP
                         offsetX = 8.0f;
                         offsetY = -18.0f;
                     }
@@ -146,34 +165,35 @@ void WeaponBehavior::update(float deltaTime)
                 s->position.x = s->position.x + offsetX;
                 s->position.y = s->position.y + offsetY + o->z;
 
-                // Second press - fire the arrow
-                if (game.buttonsPressed & controlBindings[slot]) {
-                    // Calculate projectile spawn position using same logic as draw()
+                // second press fires the arrow
+                if (game.buttonsPressed & controlBindings[slot])
+                {
+                    // calculate projectile spawn position using same logic as draw()
                     const auto& weaponTextures = s->frames[s->currentAnimState];
                     float wpnTexHeight = weaponTextures.empty() ? s->rect.height : static_cast<float>(weaponTextures[s->currentFrame].height);
 
-                    // Calculate the rotation pivot (center-bottom of weapon texture)
+                    // calculate the rotation pivot (center-bottom of weapon texture)
                     Vector2 rotationPivot = {
                         s->position.x + s->rect.width / 2.0f + s->hitboxOffset.x,
                         s->position.y + s->rect.height + s->hitboxOffset.y + o->z
                     };
 
-                    // The visual center is offset from the pivot before rotation
+                    // the visual center is offset from the pivot before rotation
                     float localOffsetX = 0.0f;
                     float localOffsetY = -wpnTexHeight / 2.0f;
 
-                    // Apply rotation to this offset
+                    // apply rotation to this offset
                     float angleRad = s->rotationAngle * DEG2RAD;
                     float rotatedOffsetX = localOffsetX * std::cos(angleRad) - localOffsetY * std::sin(angleRad);
                     float rotatedOffsetY = localOffsetX * std::sin(angleRad) + localOffsetY * std::cos(angleRad);
 
-                    // Calculate the actual visual center after rotation
+                    // calculate the actual visual center after rotation
                     Vector2 weaponVisualCenter = {
                         rotationPivot.x + rotatedOffsetX,
                         rotationPivot.y + rotatedOffsetY
                     };
 
-                    // Place projectile along the aim direction from the visual center
+                    // place projectile along the aim direction from the visual center
                     float arrowDistance = 8.0f;
                     Vector2 projectileSpawnPos = {
                         weaponVisualCenter.x + aimDirection.x * arrowDistance,
@@ -221,7 +241,7 @@ void WeaponBehavior::draw()
     if (!s || !o)
         return;
 
-    // Draw the projectile at the weapon's position
+    // draw the projectile at the weapon's position
     const auto& projectileTextures = game.loader.getTextures(data.projectileKey);
     if (!projectileTextures.empty()) {
         const Texture2D& projectileTex = projectileTextures[0];
@@ -232,29 +252,29 @@ void WeaponBehavior::draw()
         const Texture2D& weaponTex = weaponTextures[s->currentFrame];
         float wpnTexHeight = static_cast<float>(weaponTex.height);
 
-        // Calculate the rotation pivot (center-bottom of weapon texture)
+        // calculate the rotation pivot (center-bottom of weapon texture)
         Vector2 rotationPivot = {
             s->position.x + s->rect.width / 2.0f + s->hitboxOffset.x,
             s->position.y + s->rect.height + s->hitboxOffset.y + o->z
         };
 
-        // The visual center is offset from the pivot before rotation
-        // Offset from center-bottom to center is (0, -height/2)
+        // the visual center is offset from the pivot before rotation
+        // offset from center-bottom to center is (0, -height/2)
         float localOffsetX = 0.0f;
         float localOffsetY = -wpnTexHeight / 2.0f;
 
-        // Apply rotation to this offset
+        // apply rotation to this offset
         float angleRad = s->rotationAngle * DEG2RAD;
         float rotatedOffsetX = localOffsetX * std::cos(angleRad) - localOffsetY * std::sin(angleRad);
         float rotatedOffsetY = localOffsetX * std::sin(angleRad) + localOffsetY * std::cos(angleRad);
 
-        // Calculate the actual visual center after rotation
+        // calculate the actual visual center after rotation
         Vector2 weaponVisualCenter = {
             rotationPivot.x + rotatedOffsetX,
             rotationPivot.y + rotatedOffsetY
         };
 
-        // Place arrow along the aim direction from the visual center
+        // place arrow along the aim direction from the visual center
         float arrowDistance = 8.0f;
         Vector2 arrowPos = {
             weaponVisualCenter.x + aimDirection.x * arrowDistance,
@@ -273,39 +293,40 @@ void WeaponBehavior::draw()
         DrawTexturePro(projectileTex, source, dest, origin, s->rotationAngle + 90.0f, WHITE);
     }
 
-    // Draw aim line with moving dashes
+    // draw aim line with moving dashes
     Vector2 ownerCenter = GetRectCenter(o->rect);
-    ownerCenter.y += o->z;  // Account for potential jumping
+    ownerCenter.y += o->z;  // account for potential jumping
 
     float lineLength = 200.0f;
 
-    // Animated pulsing effect
+    // animated pulsing effect
     float pulse = (std::sin(timer * 5.0f) + 1.0f) * 0.5f;  // 0.0 to 1.0
     float alpha = 0.1f + pulse * 0.5f;
 
-    // Dash parameters
+    // dash parameters
     float dashLength = 12.0f;
     float gapLength = 2.0f;
     float segmentLength = dashLength + gapLength;
 
-    // Animate the dashes moving forward
+    // animate the dashes moving forward
     float animationSpeed = 20.0f;
     float offset = fmod(timer * animationSpeed, segmentLength);
 
-    // Calculate number of segments needed
+    // calculate number of segments needed
     float totalLength = lineLength;
     int numSegments = (int)(totalLength / segmentLength) + 2;
 
-    // Draw each dash
-    for (int i = 0; i < numSegments; i++) {
+    // draw each dash
+    for (int i = 0; i < numSegments; i++)
+    {
         float startDist = i * segmentLength + offset;
         float endDist = startDist + dashLength;
 
-        // Skip if segment is completely before or after the line
+        // skip if segment is completely before or after the line
         if (endDist < 0.0f || startDist > totalLength)
             continue;
 
-        // Clamp to line bounds
+        // clamp to line bounds
         startDist = fmax(startDist, 0.0f);
         endDist = fmin(endDist, totalLength);
 

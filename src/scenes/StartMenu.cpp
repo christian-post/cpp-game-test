@@ -35,6 +35,9 @@ void StartMenu::startup() {
             "Settings",
             MenuItemType::Action,
             [&]() {
+                game.setOnSceneComplete("SettingsMenu", [&game = game]() {
+                    game.startScene("StartMenu");
+                });
                 game.startScene("SettingsMenu");
                 game.stopScene(getName());
             }

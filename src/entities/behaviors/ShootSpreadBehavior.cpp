@@ -9,16 +9,19 @@
 #include <cmath>
 
 ShootSpreadBehavior::ShootSpreadBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, shootingConfig config, uint32_t projectileCount, float spreadAngle)
-    : game{ game }, self{ self }, target{ target }, config{ config }, projectileCount{ projectileCount }, spreadAngle{ spreadAngle }, hasFired{ false } {
-}
+    : game{ game }, self{ self }, target{ target }, config{ config }, projectileCount{ projectileCount }, spreadAngle{ spreadAngle }, hasFired{ false }
+{}
 
-void ShootSpreadBehavior::update(float deltaTime) {
-    if (hasFired) {
+void ShootSpreadBehavior::update(float deltaTime)
+{
+    if (hasFired)
+    {
         done = true;
         return;
     }
 
-    if (auto s = self.lock(), t = target.lock(); s && t) {
+    if (auto s = self.lock(), t = target.lock(); s && t)
+    {
         game.playSound(config.sound);
         Vector2 sCenter = GetRectCenter(s->rect);
         Vector2 tCenter = GetRectCenter(t->rect);
@@ -27,18 +30,8 @@ void ShootSpreadBehavior::update(float deltaTime) {
         float startAngle = baseAngle - spreadAngle / 2.0f;
         float angleStep = (projectileCount > 1) ? spreadAngle / (projectileCount - 1) : 0.0f;
 
-        /*const auto& particlesData = game.loader.getParticleData();
-
-        if (particlesData.find("defaultEmitter") == particlesData.end() || particlesData.find("defaultParticle") == particlesData.end()) {
-            TraceLog(LOG_ERROR, "Missing 'defaultEmitter' or 'defaultParticle' in particles.json");
-            hasFired = true;
-            return;
-        }
-
-        const auto& defaultEmitterData = particlesData.at("defaultEmitter");
-        const auto& defaultParticleData = particlesData.at("defaultParticle");*/
-
-        for (uint32_t i = 0; i < projectileCount; i++) {
+        for (uint32_t i = 0; i < projectileCount; i++)
+        {
             float currentAngle = startAngle + angleStep * i;
 
             Rectangle sRect = { sCenter.x - config.hitboxSize / 2.0f, sCenter.y - config.hitboxSize / 2.0f, config.hitboxSize, config.hitboxSize };
@@ -59,7 +52,8 @@ void ShootSpreadBehavior::update(float deltaTime) {
     }
 }
 
-void ShootSpreadBehavior::reset() {
+void ShootSpreadBehavior::reset()
+{
     Behavior::reset();
     hasFired = false;
 }

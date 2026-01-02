@@ -90,7 +90,7 @@ public:
         return (it != scenes.end()) ? it->second.get() : nullptr;
     }
 
-    using SceneCallback = std::function<void()>;
+    using SceneCallback = std::function<void()>;  // custom behavior that is executed when stopScene() is called
     void setOnSceneComplete(const std::string& sceneName, SceneCallback callback) {
         sceneCallbacks[sceneName] = callback;
     }

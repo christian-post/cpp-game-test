@@ -6,7 +6,8 @@
 class Game;
 class Sprite;
 
-class ShootBurstBehavior : public Behavior {
+class ShootBurstBehavior : public Behavior
+{
 public:
     ShootBurstBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, shootingConfig config, uint32_t burstCount, float burstDelay);
     void update(float deltaTime) override;

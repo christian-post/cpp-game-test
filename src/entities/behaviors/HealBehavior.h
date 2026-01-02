@@ -6,7 +6,8 @@
 class Game;
 class Sprite;
 
-class HealBehavior : public Behavior {
+class HealBehavior : public Behavior
+{
 public:
     HealBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> other, uint32_t amount);
     void update(float deltaTime) override;

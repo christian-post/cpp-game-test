@@ -35,7 +35,8 @@ struct weaponData {
 };
 
 
-class WeaponBehavior : public Behavior {
+class WeaponBehavior : public Behavior
+{
 public:
     WeaponBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> owner, weaponData data, size_t slot);
     void update(float deltaTime) override;

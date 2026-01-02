@@ -7,23 +7,30 @@
 #include <algorithm>
 
 TradeItemBehavior::TradeItemBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> player, std::string name, uint32_t price)
-    : game{ game }, self{ self }, player{ player }, name{ name }, price{ price } {
-}
+    : game{ game }, self{ self }, player{ player }, name{ name }, price{ price }
+{}
 
-void TradeItemBehavior::update(float deltaTime) {
+void TradeItemBehavior::update(float deltaTime)
+{
     if (triggered)
         return;
-    if (auto s = self.lock(), p = player.lock(); s && p) {
-        if (CheckCollisionRecs(s->rect, p->rect)) {
-            if (!collided) {
+
+    if (auto s = self.lock(), p = player.lock(); s && p)
+    {
+        if (CheckCollisionRecs(s->rect, p->rect))
+        {
+            if (!collided)
+            {
                 game.eventManager.pushEvent(SHOW_COIN_AMOUNT);
                 collided = true;
             }
-            if (game.buttonsDown & CONTROL_ACTION1) {
+            if (game.buttonsDown & CONTROL_ACTION1)
+            {
                 triggered = true;
                 uint32_t qty = game.inventory.getItemQuantity("coin");
 
-                if (qty >= price) {
+                if (qty >= price)
+                {
                     game.eventManager.pushEvent(ADD_ITEM, std::make_any<std::pair<std::string, uint32_t>>(name, 1));
                     game.eventManager.pushEvent(REMOVE_ITEM, std::make_any<std::pair<std::string, uint32_t>>("coin", price));
                     done = true;
@@ -35,7 +42,8 @@ void TradeItemBehavior::update(float deltaTime) {
                             });
                         }));
                 }
-                else {
+                else
+                {
                     game.cutsceneManager.queueCommand(new Command_Textbox(game, "You can't afford this item."));
                     game.cutsceneManager.queueCommand(new Command_Callback([this]() {
                         game.eventManager.pushDelayedEvent(UNNAMED, 0.2f, nullptr, [this]() {
@@ -45,8 +53,10 @@ void TradeItemBehavior::update(float deltaTime) {
                 }
             }
         }
-        else {
-            if (collided) {
+        else
+        {
+            if (collided)
+            {
                 collided = false;
                 done = false;
                 game.eventManager.pushEvent(HIDE_COIN_AMOUNT);
@@ -55,14 +65,17 @@ void TradeItemBehavior::update(float deltaTime) {
     }
 }
 
-void TradeItemBehavior::reset() {
+void TradeItemBehavior::reset()
+{
     Behavior::reset();
     triggered = false;
     collided = false;
 }
 
-void TradeItemBehavior::draw() {
-    if (auto s = self.lock()) {
+void TradeItemBehavior::draw()
+{
+    if (auto s = self.lock())
+    {
         int x = (int)s->position.x - 4;
         int y = (int)s->position.y + 16;
         const auto& coinTex = game.loader.getTextures("itemDropCoin")[0];

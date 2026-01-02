@@ -1,6 +1,5 @@
 #include <any>
 #include <tuple>
-
 #include "ChestBehavior.h"
 #include "Sprite.h"
 #include "Game.h"
@@ -11,31 +10,39 @@
 #include "Utils.h"
 
 ChestBehavior::ChestBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> player, const std::string& itemName, uint32_t itemAmount)
-    : game{ game }, self{ self }, player{ player }, itemName{ itemName }, itemAmount{ itemAmount } {}
+    : game{ game }, self{ self }, player{ player }, itemName{ itemName }, itemAmount{ itemAmount }
+{}
 
-void ChestBehavior::update(float deltaTime) {
-    if (auto s = self.lock(), p = player.lock(); s && p) {
+void ChestBehavior::update(float deltaTime)
+{
+    if (auto s = self.lock(), p = player.lock(); s && p)
+    {
         interactionRect.x = s->rect.x;
         interactionRect.y = s->rect.y;
         interactionRect.width = s->rect.width;
         interactionRect.height = s->rect.height + 4.0f;
-        if (CheckCollisionRecs(interactionRect, p->rect)) {
+        if (CheckCollisionRecs(interactionRect, p->rect))
+        {
             if (triggered)
                 return;
-            if (!collided) {
+            if (!collided)
+            {
                 game.eventManager.pushEvent(SHOW_HELP_TEXT, std::make_any<std::tuple<std::string, char, int>>(std::tuple<std::string, char, int>{"OPEN", 'O', 9}));
                 collided = true;
             }
-            if (game.buttonsDown & CONTROL_ACTION1) {
+            if (game.buttonsDown & CONTROL_ACTION1)
+            {
                 triggered = true;
                 auto& itemData = game.inventory.getItemData();
                 std::string message;
 
-                if (itemName.empty() or itemData.count(itemName) == 0) {
+                if (itemName.empty() or itemData.count(itemName) == 0)
+                {
                     // Failsafe, but this should not happen
                     message = "You got nothing :(";
                 }
-                else {
+                else
+                {
                     const ItemData& data = itemData.at(itemName);
 
                     showItem = true;
@@ -50,15 +57,19 @@ void ChestBehavior::update(float deltaTime) {
                         }));
                     game.cutsceneManager.queueCommand(new Command_Wait(0.5f));
 
-                    if (itemAmount == 1) {
-                        if (data.type == WEAPON) {
+                    if (itemAmount == 1)
+                    {
+                        if (data.type == WEAPON)
+                        {
                             message = format("You got the %s.\nOpen your inventory to equip it, then use with [P].", data.displayName.c_str());
                         }
-                        else {
+                        else
+                        {
                             message = format("You got a %s.", data.displayName.c_str());
                         }
                     }
-                    else {
+                    else
+                    {
                         message = format("You got: %s x%u", data.displayName.c_str(), itemAmount);
                     }
                     game.eventManager.pushEvent(ADD_ITEM, std::make_any<std::pair<std::string, uint32_t>>(itemName, itemAmount));
@@ -72,8 +83,10 @@ void ChestBehavior::update(float deltaTime) {
                 game.eventManager.pushEvent(eventKey, s->tileMapID);
             }
         }
-        else {
-            if (collided) {
+        else
+        {
+            if (collided)
+            {
                 game.eventManager.pushEvent(HIDE_HELP_TEXT);
                 collided = false;
             }
@@ -81,16 +94,19 @@ void ChestBehavior::update(float deltaTime) {
     }
 }
 
-void ChestBehavior::draw() {
+void ChestBehavior::draw()
+{
     if (!showItem)
         return;
-    if (auto s = self.lock()) {
+    if (auto s = self.lock())
+    {
         int x = (int)s->position.x;
         int y = (int)s->position.y - 16;
         auto& itemData = game.inventory.getItemData();
         const ItemData& data = itemData.at(itemName);
         const auto& textures = game.loader.getTextures(data.textureKey);
-        if (textures.size() == 0) {
+        if (textures.size() == 0)
+        {
             TraceLog(LOG_ERROR, "No texture found for %s", data.textureKey.c_str());
             return;
         }
@@ -101,7 +117,8 @@ void ChestBehavior::draw() {
     }
 }
 
-void ChestBehavior::reset() {
+void ChestBehavior::reset()
+{
     Behavior::reset();
     triggered = false;
     collided = false;

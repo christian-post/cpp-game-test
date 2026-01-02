@@ -50,7 +50,6 @@ public:
     void update();
     void draw();
     void addItem(MenuItem item);
-    //void addItem(const std::string& displayName, std::function<void()> callback); // overload for different action type
     void setItems(std::vector<MenuItem> items); // sets all MenuItems at once
     void updateItemText(size_t index, std::string txt); // just changes the text, TODO: do I also need to update the callback?
     size_t getCurrentIndex() const { return menuIndex; }
@@ -74,8 +73,7 @@ private:
     bool heightLimited = false;
     size_t yOffset = 0; // only used when height is limited
     size_t heightLimit = 0; // only used when height is limited
-    size_t yMargin = 20; // space between elements
+    size_t yMargin = 12; // space between elements
     size_t xMargin = 40; // only used when aliged LEFT or RIGHT
     MenuPosition position = MenuPosition::CENTER;
-    
 };

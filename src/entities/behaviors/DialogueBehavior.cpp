@@ -15,15 +15,18 @@ void DialogueBehavior::update(float deltaTime)
 {
     if (triggered)
         return;
-    if (auto s = self.lock(), p = player.lock(); s && p) {
-        if (CheckCollisionRecs(s->rect, p->rect)) {
-            if (!collided) {
+    if (auto s = self.lock(), p = player.lock(); s && p)
+    {
+        if (CheckCollisionRecs(s->rect, p->rect))
+        {
+            if (!collided)
+            {
                 game.eventManager.pushEvent(SHOW_HELP_TEXT, std::make_any<std::tuple<std::string, char, int>>(std::tuple<std::string, char, int>{"TALK", 'O', 9}));
                 collided = true;
             }
-            if (game.buttonsDown & CONTROL_ACTION1 && !Command_Textbox::isTextboxCooldown()) {
+            if (game.buttonsDown & CONTROL_ACTION1 && !Command_Textbox::isTextboxCooldown())
+            {
                 triggered = true;
-                //if (auto scene = dynamic_cast<InGame*>(game.getScene("InGame"))) {
                 bool pitch = (voice == "tone") ? false : true;
                 game.cutsceneManager.queueCommand(new Command_LookTowards(*s, *p));
                 game.cutsceneManager.queueCommand(new Command_Textbox(game, dialogTexts[currentTextIndex], voice, pitch));
@@ -34,11 +37,12 @@ void DialogueBehavior::update(float deltaTime)
                         triggered = false;
                         });
                     }));
-                //}
             }
         }
-        else {
-            if (collided) {
+        else
+        {
+            if (collided)
+            {
                 collided = false;
                 game.eventManager.pushEvent(HIDE_HELP_TEXT);
             }

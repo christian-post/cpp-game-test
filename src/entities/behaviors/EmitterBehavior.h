@@ -6,7 +6,8 @@ class Game;
 class Sprite;
 struct Emitter;
 
-class EmitterBehavior : public Behavior {
+class EmitterBehavior : public Behavior
+{
 public:
     EmitterBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Emitter> emitter);
     void update(float deltaTime) override;

@@ -42,6 +42,7 @@ void WriteSavegameMenu::startup()
         game.eventManager.pushEvent(SELECT_MENU_DONE);
         game.stopScene(getName());
         } });
+
     // go back to the start menu
     menu.addItem({ "Back", MenuItemType::Action, [&]() {
         game.startScene("SelectMenu");

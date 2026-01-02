@@ -5,7 +5,8 @@
 
 class Sprite;
 
-class RandomWalkBehavior : public Behavior {
+class RandomWalkBehavior : public Behavior
+{
 public:
     RandomWalkBehavior(std::shared_ptr<Sprite> self);
     void update(float deltaTime) override;

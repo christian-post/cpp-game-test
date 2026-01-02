@@ -7,7 +7,8 @@
 class Game;
 class Sprite;
 
-class StairsBehavior : public Behavior {
+class StairsBehavior : public Behavior
+{
 public:
     StairsBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> other, const int level);
     void update(float deltaTime) override;

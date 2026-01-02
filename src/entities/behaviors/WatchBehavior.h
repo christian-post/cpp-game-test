@@ -4,7 +4,8 @@
 
 class Sprite;
 
-class WatchBehavior : public Behavior {
+class WatchBehavior : public Behavior
+{
 public:
     WatchBehavior(std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target);
     void update(float deltaTime) override;

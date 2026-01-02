@@ -7,7 +7,8 @@
 class Game;
 class Sprite;
 
-class TeleportBehavior : public Behavior {
+class TeleportBehavior : public Behavior
+{
 public:
     TeleportBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> other, const std::string& targetMap, Vector2 targetPos);
     void update(float deltaTime) override;

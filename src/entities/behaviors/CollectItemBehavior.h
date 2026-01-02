@@ -7,7 +7,8 @@
 class Game;
 class Sprite;
 
-class CollectItemBehavior : public Behavior {
+class CollectItemBehavior : public Behavior
+{
 public:
     CollectItemBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> other, const std::string& name, uint32_t amount);
     void update(float deltaTime) override;

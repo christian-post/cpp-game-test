@@ -97,9 +97,7 @@ void SettingsMenu::startup()
 
     // Last item: go back to the previous menu
     menu.addItem({ "Back", MenuItemType::Action, [&]() {
-        // TODO go back to wherever you came from
-        //game.eventManager.pushEvent(SELECT_MENU_DONE);
-        game.startScene("StartMenu");
+        // The scene that calls the settings menu has to handle what happens here with setOnSceneComplete() 
         game.stopScene(getName());
         } });
 }

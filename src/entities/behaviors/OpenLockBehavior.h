@@ -6,7 +6,8 @@
 class Game;
 class Sprite;
 
-class OpenLockBehavior : public Behavior {
+class OpenLockBehavior : public Behavior
+{
 public:
     OpenLockBehavior(Game& game, std::shared_ptr<Sprite> door, std::shared_ptr<Sprite> player, const int triggerKey);
     void update(float deltaTime) override;

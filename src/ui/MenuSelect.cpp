@@ -16,15 +16,6 @@ void MenuSelect::addItem(MenuItem item)
     menuItems.push_back(item);
 }
 
-//void MenuSelect::addItem(const std::string& displayName, std::function<void()> callback)
-//{
-//    MenuItem item;
-//    item.displayName = displayName;
-//    item.type = MenuItemType::Action;
-//    item.callback = callback;
-//    menuItems.push_back(item);
-//}
-
 void MenuSelect::updateItemText(size_t index, std::string txt)
 {
     menuItems[index].displayName = txt;
@@ -45,22 +36,26 @@ void MenuSelect::update()
     MenuItem& currentItem = menuItems[menuIndex];
 
     // Handle Number type when active (editing mode)
-    if (currentItem.type == MenuItemType::Number && currentItem.isActive) {
-        // In edit mode, up/down change the value
-        if (game.buttonsPressed & CONTROL_UP) {
+    if (currentItem.type == MenuItemType::Number && currentItem.isActive)
+    {
+        // In edit mode, up/down or left/right to change the value
+        if (game.buttonsPressed & (CONTROL_UP | CONTROL_LEFT))
+        {
             currentItem.numberValue = std::min(currentItem.numberValue + currentItem.step, currentItem.maxValue);
             if (currentItem.numberCallback)
                 currentItem.numberCallback(currentItem.numberValue);
             game.playSound("menuCursor");
         }
-        if (game.buttonsPressed & CONTROL_DOWN) {
+        if (game.buttonsPressed & (CONTROL_DOWN | CONTROL_RIGHT))
+        {
             currentItem.numberValue = std::max(currentItem.numberValue - currentItem.step, currentItem.minValue);
             if (currentItem.numberCallback)
                 currentItem.numberCallback(currentItem.numberValue);
             game.playSound("menuCursor");
         }
-        // Confirm or cancel exits edit mode
-        if (game.buttonsPressed & (CONTROL_CONFIRM | CONTROL_CANCEL)) {
+        // button exits edit mode
+        if (game.buttonsPressed & (CONTROL_ACTION1 | CONTROL_CONFIRM | CONTROL_CANCEL))
+        {
             currentItem.isActive = false;
             game.playSound("menuCursor");
         }
@@ -68,24 +63,29 @@ void MenuSelect::update()
     }
 
     // Normal navigation with up/down
-    if (game.buttonsPressed & CONTROL_DOWN) {
+    if (game.buttonsPressed & CONTROL_DOWN)
+    {
         menuIndex = (menuIndex + 1) % menuItems.size();
         game.playSound("menuCursor");
     }
-    if (game.buttonsPressed & CONTROL_UP) {
+    if (game.buttonsPressed & CONTROL_UP)
+    {
         menuIndex = (menuIndex + menuItems.size() - 1) % menuItems.size();
         game.playSound("menuCursor");
     }
 
     // Handle left/right for Cycle type
-    if (currentItem.type == MenuItemType::Cycle) {
-        if (game.buttonsPressed & CONTROL_LEFT) {
+    if (currentItem.type == MenuItemType::Cycle)
+    {
+        if (game.buttonsPressed & CONTROL_LEFT)
+        {
             currentItem.currentOption = (currentItem.currentOption + currentItem.options.size() - 1) % currentItem.options.size();
             if (currentItem.cycleCallback)
                 currentItem.cycleCallback(currentItem.currentOption);
             game.playSound("menuCursor");
         }
-        if (game.buttonsPressed & CONTROL_RIGHT) {
+        if (game.buttonsPressed & CONTROL_RIGHT)
+        {
             currentItem.currentOption = (currentItem.currentOption + 1) % currentItem.options.size();
             if (currentItem.cycleCallback)
                 currentItem.cycleCallback(currentItem.currentOption);
@@ -94,10 +94,13 @@ void MenuSelect::update()
     }
 
     // Handle confirm button based on type
-    if (game.buttonsPressed & (CONTROL_CONFIRM | CONTROL_ACTION1)) {
-        switch (currentItem.type) {
+    if (game.buttonsPressed & (CONTROL_CONFIRM | CONTROL_ACTION1))
+    {
+        switch (currentItem.type)
+        {
         case MenuItemType::Action:
-            if (!currentItem.callback) {
+            if (!currentItem.callback)
+            {
                 TraceLog(LOG_ERROR, "No Callback set for this menu item.");
                 return;
             }
@@ -130,14 +133,19 @@ void MenuSelect::draw()
     size_t totalHeight = menuItems.size() * rowHeight;
     size_t startY = 0;
     if (totalHeight <= height)
-        if (heightLimited) {
+    {
+        if (heightLimited)
+        {
             height = heightLimit;
             startY += yOffset + (height - totalHeight) / 2;
         }
-        else {
+        else
+        {
             startY = (height - totalHeight) / 2;
         }
-    else {
+    }
+    else
+    {
         // the menu does not fit on the screen
         startY = yMargin;
         // check if the currently selected index points to an item below the screen
@@ -147,15 +155,18 @@ void MenuSelect::draw()
             startY -= ((menuIndex + 1) - (itemsOnScreen - itemScrollStart)) * rowHeight; // shift top of the list. e.g., if 10 items fit on the screen and the selected index is 12, shift up by 3
     }
 
-    for (size_t i = 0; i < menuItems.size(); i++) {
+    for (size_t i = 0; i < menuItems.size(); i++)
+    {
         const MenuItem& item = menuItems[i];
         std::string displayText = item.displayName;
 
         // Append current value/option for Cycle and Number types
-        if (item.type == MenuItemType::Cycle && !item.options.empty()) {
+        if (item.type == MenuItemType::Cycle && !item.options.empty()) 
+        {
             displayText += ": < " + item.options[item.currentOption] + " >";
         }
-        else if (item.type == MenuItemType::Number) {
+        else if (item.type == MenuItemType::Number)
+        {
             displayText += ": " + std::to_string(item.numberValue);
             if (item.isActive)
                 displayText += " [EDIT]";
@@ -168,7 +179,8 @@ void MenuSelect::draw()
         int textWidth = MeasureText(displayText.c_str(), static_cast<int>(fontsize));
         // menu x position depending on the setting
         int x = 0;
-        switch (position) {
+        switch (position)
+        {
         case MenuPosition::CENTER:
             x = (width - textWidth) / 2;
             break;

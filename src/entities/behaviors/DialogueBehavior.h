@@ -7,7 +7,8 @@
 class Game;
 class Sprite;
 
-class DialogueBehavior : public Behavior {
+class DialogueBehavior : public Behavior
+{
 public:
     DialogueBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> player, std::vector<std::string> dialogTexts, std::string voice);
     void update(float deltaTime) override;

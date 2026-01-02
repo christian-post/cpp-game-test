@@ -8,8 +8,10 @@ StairsBehavior::StairsBehavior(Game& game, std::shared_ptr<Sprite> self, std::sh
 
 void StairsBehavior::update(float deltaTime)
 {
-    if (auto s = self.lock(), o = other.lock(); s && o && !done) {
-        if (CheckCollisionRecs(s->rect, o->rect)) {
+    if (auto s = self.lock(), o = other.lock(); s && o && !done)
+    {
+        if (CheckCollisionRecs(s->rect, o->rect))
+        {
             done = true;
             game.eventManager.pushDelayedEvent(UNNAMED, 0.0f, nullptr, [this]() {
                 int change = static_cast<int>(game.currentDungeon->getCurrentLevel()) + levelChange;

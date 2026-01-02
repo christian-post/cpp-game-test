@@ -9,8 +9,10 @@ TeleportBehavior::TeleportBehavior(Game& game, std::shared_ptr<Sprite> self, std
 
 void TeleportBehavior::update(float deltaTime) 
 {
-    if (auto s = self.lock(), o = other.lock(); s && o && !done) {
-        if (CheckCollisionRecs(s->rect, o->rect)) {
+    if (auto s = self.lock(), o = other.lock(); s && o && !done)
+    {
+        if (CheckCollisionRecs(s->rect, o->rect))
+        {
             done = true;
             game.eventManager.pushDelayedEvent(UNNAMED, 0.0f, nullptr, [this]() {
                 game.eventManager.pushEvent(TELEPORT, std::any(TeleportEvent{ targetMap, targetPos }));

@@ -6,7 +6,8 @@
 class Game;
 class Sprite;
 
-class DeathBehavior : public Behavior {
+class DeathBehavior : public Behavior
+{
 public:
     DeathBehavior(Game& game, std::shared_ptr<Sprite> self, float lifetime);
     void update(float deltaTime) override;

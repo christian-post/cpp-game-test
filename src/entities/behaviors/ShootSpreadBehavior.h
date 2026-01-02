@@ -6,7 +6,8 @@
 class Game;
 class Sprite;
 
-class ShootSpreadBehavior : public Behavior {
+class ShootSpreadBehavior : public Behavior
+{
 public:
     ShootSpreadBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, shootingConfig config, uint32_t projectileCount, float spreadAngle);
     void update(float deltaTime) override;

@@ -135,7 +135,7 @@ nlohmann::json Game::getSetting(const std::string& key, nlohmann::json defaultVa
 void Game::writeSetting(const std::string& key, nlohmann::json value)
 {
     loader.writeSetting(key, value);
-    TraceLog(LOG_INFO, "%s: %s", key.c_str(), value.dump().c_str());
+    //TraceLog(LOG_INFO, "%s: %s", key.c_str(), value.dump().c_str());
 }
 
 void Game::saveSettings()

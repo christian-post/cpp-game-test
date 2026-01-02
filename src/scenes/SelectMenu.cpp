@@ -27,6 +27,17 @@ void SelectMenu::startup()
             }
         },
         {
+            "Settings",
+            MenuItemType::Action,
+            [&]() {
+                game.setOnSceneComplete("SettingsMenu", [&game = game]() {
+                    game.eventManager.pushEvent(SELECT_MENU_DONE);
+                });
+                game.startScene("SettingsMenu");
+                game.stopScene(getName());
+            }
+        },
+        {
             "Restart Game", MenuItemType::Action, [&]() {
                 game.restart();
             }

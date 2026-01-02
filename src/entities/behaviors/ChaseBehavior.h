@@ -5,7 +5,8 @@
 class Game;
 class Sprite;
 
-class ChaseBehavior : public Behavior {
+class ChaseBehavior : public Behavior
+{
 public:
     ChaseBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> other, float minDist);
     void update(float deltaTime) override;

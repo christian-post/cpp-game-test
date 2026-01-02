@@ -6,7 +6,8 @@
 class Game;
 class Sprite;
 
-class KiteBehavior : public Behavior {
+class KiteBehavior : public Behavior
+{
 public:
     KiteBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, float orbitDistance, float moveSpeed);
     void update(float deltaTime) override;

@@ -9,7 +9,8 @@
 class Game;
 class Sprite;
 
-class ChestBehavior : public Behavior {
+class ChestBehavior : public Behavior
+{
 public:
     ChestBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> player, const std::string& itemName, uint32_t itemAmount);
     void update(float deltaTime) override;

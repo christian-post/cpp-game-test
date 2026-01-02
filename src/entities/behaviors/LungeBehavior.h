@@ -7,7 +7,8 @@
 class Game;
 class Sprite;
 
-class LungeBehavior : public Behavior {
+class LungeBehavior : public Behavior
+{
 public:
     LungeBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, float lungeSpeed, uint32_t jumpForce);
     void update(float deltaTime) override;

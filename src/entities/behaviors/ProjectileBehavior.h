@@ -8,7 +8,8 @@ class Game;
 class Sprite;
 struct Emitter;
 
-class ProjectileBehavior : public Behavior {
+class ProjectileBehavior : public Behavior
+{
 public:
     ProjectileBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> target, bool steer = false, std::optional<Vector2> customDirection = std::nullopt, std::string trailEmitterKey = "", std::string impactEmitterKey = "");
     void update(float deltaTime) override;
