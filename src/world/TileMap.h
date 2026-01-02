@@ -90,6 +90,7 @@ public:
     std::vector<TileObject>& getObjects() { return objects; } // non-const overload for modifications
     const std::string& getName() const { return mapName; }
     const std::string& getTilesetName() const { return tilesetName; }
+    const std::string& getRoomID() const { return roomID; }
     const std::string& getMusicKey() const { return music; }
     bool isDark() const { return dark; }
 
@@ -103,6 +104,7 @@ private:
     std::string music;
     bool dark = false;
     std::vector<TileObject> objects;
+    std::string roomID; // used for room-individual triggers
 };
 
 

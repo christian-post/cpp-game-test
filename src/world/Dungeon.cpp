@@ -119,7 +119,7 @@ std::unordered_map<uint32_t, ObjectState>& Dungeon::getRoomObjectStates(size_t l
     return room->objectStates;
 }
 
-const TileMap* Dungeon::loadTileMap()
+const TileMap* Dungeon::loadTileMap(bool setRoomVisited)
 {
     Room* room = getRoomAt(currentLevel, currentRoomIndex);
     if (!room)
@@ -128,7 +128,8 @@ const TileMap* Dungeon::loadTileMap()
         //TraceLog(LOG_ERROR, "loadTileMap(): No room on level %d at index %d", currentLevel, currentRoomIndex);
         return nullptr;
     }
-    setVisited(currentLevel, currentRoomIndex); // TODO: is it always correct to set this here?
+    if (setRoomVisited)
+        setVisited(currentLevel, currentRoomIndex); // TODO: is it too obscure to set this here?
     return &room->tilemap;
 }
 

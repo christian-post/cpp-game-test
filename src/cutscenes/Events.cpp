@@ -30,9 +30,8 @@ void setupConditionalEvents(InGame& inGame) {
     game.eventManager.pushConditionalEvent(
         [&]() {
             // this happens in the first room after the player obtained the sword from another room
-            if (!inGame.tileMap) 
-                return false;
-            return (inGame.tileMap->getName() == "dungeon001" && game.inventory.getItemQuantity("weapon_sword") > 0);
+            const std::string& roomID = game.currentDungeon->loadTileMap()->getRoomID();
+            return (roomID == "starting_room" && game.inventory.getItemQuantity("weapon_sword") > 0);
             },
         [&]() {
             if (game.spriteMap.find("elfCompanion2") == game.spriteMap.end() || game.currentDungeon->getCurrentRoomState() >= 6)

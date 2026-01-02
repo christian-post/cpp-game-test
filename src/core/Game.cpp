@@ -552,7 +552,6 @@ void Game::draw()
             DrawText(s_inactiveScenes.c_str(), int(GetScreenWidth() * 0.6f), 4, fontSize, WHITE);
             DrawText(s_drawOrder.c_str(), 4, int(GetScreenHeight() * 0.6f), fontSize, WHITE); // lower part of screen
 
-            // TODO: create another function to get the current Tilemap data that doesn't log constantly on error
             size_t maxIndex = currentDungeon->getSize().first * currentDungeon->getSize().second;
             if (currentDungeon->getCurrentRoomIndex() < maxIndex)
             {

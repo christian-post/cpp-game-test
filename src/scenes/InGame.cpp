@@ -405,7 +405,7 @@ void InGame::checkRoomTransition()
 
 void InGame::loadTilemap()
 {
-    tileMap = game.currentDungeon->loadTileMap();
+    tileMap = game.currentDungeon->loadTileMap(true);
     // remove static and dynamic (non-persistent) objects
     game.walls.clear();
     game.clearEmitters();

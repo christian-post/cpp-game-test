@@ -208,52 +208,7 @@ void Preload::startup() {
     // load the tile maps from text files
     loadQueue.emplace("Loading tilemaps", [&]() {
         l.loadTilemapsFromDirectory("./resources/tilemaps");
-        //l.LoadtileMapFromTiled("./resources/tilemaps/test_map_small.json");
-        //l.LoadtileMapFromTiled("./resources/tilemaps/test_map_2.json");
-        //l.LoadtileMapFromTiled("./resources/tilemaps/dungeon001.json");
-        //l.LoadtileMapFromTiled("./resources/tilemaps/dungeon002.json");
-        //l.LoadtileMapFromTiled("./resources/tilemaps/dungeon003.json");
-        //l.LoadtileMapFromTiled("./resources/tilemaps/dungeon004.json");
-        //l.LoadtileMapFromTiled("./resources/tilemaps/dungeon005.json");
-        //l.LoadtileMapFromTiled("./resources/tilemaps/dungeon006.json");
-        //l.LoadtileMapFromTiled("./resources/tilemaps/dungeon007.json");
-        //l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_shop.json");
-        //l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_2skelets_1010.json");
-        //l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_hallway_1101.json");
-        //l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_turrets_1010.json");
-        //l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_turrets_0101.json");
-        //l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_hallway_1100.json");
-        //l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_spikes_1010.json");
-        //l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_spikes_0101.json");
-        //l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_spikes_1011.json");
-        //l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_4skelets_1010.json");
-        //l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_before_boss_0110.json");
-        //l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_empty_1110.json");
-        //l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_empty_1101.json");
-        //l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_chest_0010.json");
-        //l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_fight_0011.json");
-        //l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_fight_chest_0100.json");
-        //l.LoadtileMapFromTiled("./resources/tilemaps/dungeon_final_boss_0001.json");
-        //l.LoadtileMapFromTiled("./resources/tilemaps/room_0001.json");
-        //l.LoadtileMapFromTiled("./resources/tilemaps/room_0010.json");
-        //l.LoadtileMapFromTiled("./resources/tilemaps/room_0011.json");
-        //l.LoadtileMapFromTiled("./resources/tilemaps/room_0011_with_item.json");
-        //l.LoadtileMapFromTiled("./resources/tilemaps/room_0100.json");
-        //l.LoadtileMapFromTiled("./resources/tilemaps/room_0101.json");
-        //l.LoadtileMapFromTiled("./resources/tilemaps/room_0110.json");
-        //l.LoadtileMapFromTiled("./resources/tilemaps/room_0111.json");
-        //l.LoadtileMapFromTiled("./resources/tilemaps/room_1000.json");
-        //l.LoadtileMapFromTiled("./resources/tilemaps/room_1000_with_item.json");
-        //l.LoadtileMapFromTiled("./resources/tilemaps/room_1001.json");
-        //l.LoadtileMapFromTiled("./resources/tilemaps/room_1010.json");
-        //l.LoadtileMapFromTiled("./resources/tilemaps/room_1010_with_item.json");
-        //l.LoadtileMapFromTiled("./resources/tilemaps/room_1011.json");
-        //l.LoadtileMapFromTiled("./resources/tilemaps/room_1011_with_item.json");
-        //l.LoadtileMapFromTiled("./resources/tilemaps/room_1011_connection.json");
-        //l.LoadtileMapFromTiled("./resources/tilemaps/room_1100.json");
-        //l.LoadtileMapFromTiled("./resources/tilemaps/room_1101.json");
-        //l.LoadtileMapFromTiled("./resources/tilemaps/room_1110.json");
-        //l.LoadtileMapFromTiled("./resources/tilemaps/room_1111.json");
+        l.loadTilemapsFromDirectory("./resources/tilemaps/generated");
         });
     // load the font
     loadQueue.emplace("Loading fonts", [&]() {

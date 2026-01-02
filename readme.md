@@ -158,4 +158,4 @@ Roguelike/RPG Items by [@JoeCreates}(https://opengameart.org/content/roguelikerp
 "80 CC0 RPG SFX" by [rubberduck](https://opengameart.org/content/80-cc0-rpg-sfx)</br>
 "Level up, power up, Coin get (13 Sounds)" by [wobblebox](https://opengameart.org/content/level-up-power-up-coin-get-13-sounds)</br>
 "XBOX UI Prompt Pack" by [actuallyKron](https://actuallykron.itch.io/xbox-ui-prompts)</br>
-"top-down-dungeon-tileset" by [Buch]https://opengameart.org/users/buch, sponsored by Abram Connelly
+"top-down-dungeon-tileset" by [Buch](https://opengameart.org/users/buch), sponsored by Abram Connelly

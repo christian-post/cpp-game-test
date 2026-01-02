@@ -204,8 +204,9 @@ void AssetLoader::LoadtileMapFromTiled(const std::string& filename) {
     file >> j;
 
     std::string baseName = std::filesystem::path(filename).stem().string();
+    TraceLog(LOG_INFO, "Loading Tilemap: %s", baseName.c_str());
     tileMaps[baseName] = std::make_unique<TileMap>(j, baseName);
-    TraceLog(LOG_INFO, "Tilemap file loaded successfully: %s", baseName.c_str());
+    //TraceLog(LOG_INFO, "Tilemap file loaded successfully: %s", baseName.c_str());
 }
 
 void  AssetLoader::LoadFont(const std::string& filename) {

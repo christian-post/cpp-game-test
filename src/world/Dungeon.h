@@ -105,7 +105,7 @@ public:
     uint8_t getRoomDoors(size_t level, size_t index);
     std::unordered_map<uint32_t, ObjectState>& getCurrentRoomObjectStates();
     std::unordered_map<uint32_t, ObjectState>& getRoomObjectStates(size_t level, size_t index);
-    const TileMap* loadTileMap(); // TODO: does this "load" or "get"? should it be renamed?
+    const TileMap* loadTileMap(bool setRoomVisited = false); // TODO: does this "load" or "get"? should it be renamed?
     const TileMap* loadTileMap(size_t level, size_t index);
     void insertRoom(size_t level, size_t row, size_t col, Room&& room);
     std::pair<size_t, size_t> getSize() const;  // gets ( rooms wide, rooms high )
