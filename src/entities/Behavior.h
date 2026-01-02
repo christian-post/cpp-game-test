@@ -13,14 +13,16 @@ class Sprite;
 struct Emitter;
 struct Particle;
 
-enum direction {
+enum direction
+{
     RIGHT,
     UP,
     LEFT,
     DOWN
 };
 
-struct shootingConfig {
+struct shootingConfig
+{
     // a copy is passed to ShootBehavior's constructor
     // sprite (main projectile)
     std::string projectileKey = "sprite_default";
@@ -36,14 +38,16 @@ struct shootingConfig {
     // particle effect (in addition to the projectile)
 };
 
-struct TeleportEvent {
+struct TeleportEvent
+{
     std::string targetMap;
     Vector2 targetPos;
 };
 
 
 // Behavior base class
-class Behavior {
+class Behavior
+{
 public:
     virtual ~Behavior() = default;
     virtual void update(float deltaTime) = 0;
@@ -52,7 +56,8 @@ public:
 
     // Reset the behavior to its initial state
     // Override this in child classes that need to reset additional state beyond timer
-    virtual void reset() {
+    virtual void reset()
+    {
         done = false;
         timer = 0.0f;
     }

@@ -97,7 +97,7 @@ Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this)
     registerScene<GameOver>("GameOver", 2);
 
     // seed the rng
-    srand(time(nullptr));
+    srand(static_cast<uint32_t>(time(nullptr)));
 }
 
 Game::~Game() 

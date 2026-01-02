@@ -4,7 +4,8 @@
 #include <vector>
 
 LoadSavegameMenu::LoadSavegameMenu(Game& game, const std::string& name)
-    : Scene(game, name), menu(MenuSelect(game)) {
+    : Scene(game, name), menu(MenuSelect(game))
+{
     // menu config
     menu.setFontSize(8);
     menu.setYMargin(6);
@@ -21,19 +22,22 @@ LoadSavegameMenu::LoadSavegameMenu(Game& game, const std::string& name)
 void LoadSavegameMenu::startup()
 {
     std::vector<std::string> files = listFiles("./savegames");
-    if (files.size() == 0) {
+    if (files.size() == 0)
+    {
         // TODO: this should not be necessary to check, but whatever
         menu.addItem({
-            "No files", nullptr
+            "No files", MenuItemType::Action, nullptr
             });
         return;
     }
 
-    for (auto& entry : fs::directory_iterator("./savegames")) {
-        if (entry.path().extension() == ".json") {
+    for (auto& entry : fs::directory_iterator("./savegames"))
+    {
+        if (entry.path().extension() == ".json")
+        {
             // extract the basename to display as the menu item
             std::string substr = entry.path().stem().string();
-            menu.addItem({ substr, [this, substr]() {
+            menu.addItem({ substr, MenuItemType::Action, [this, substr]() {
                 game.eventManager.pushEvent(LOAD_GAME, std::any(substr));
                 }
                 });
@@ -43,7 +47,7 @@ void LoadSavegameMenu::startup()
     }
 
     // go back to the start menu
-    menu.addItem({ "Back", [&]() {
+    menu.addItem({ "Back", MenuItemType::Action, [&]() {
         game.startScene("StartMenu");
         game.stopScene(getName());
         } });
@@ -59,7 +63,8 @@ void LoadSavegameMenu::draw()
     menu.draw();
 
     size_t idx = menu.getCurrentIndex();
-    if (idx < fileInfo.size()) {
+    if (idx < fileInfo.size())
+    {
         std::string& infoStr = fileInfo[idx];
         // TODO place text depending on the size of the string
         int x = static_cast<int>(game.gameScreenWidth * 0.4);

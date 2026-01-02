@@ -13,31 +13,38 @@ class Behavior;
 class Game;
 
 // Represents a condition that can trigger a state transition
-struct TransitionCondition {
+struct TransitionCondition
+{
     std::function<bool(Sprite&)> check;
     std::string description; // For debugging
 };
 
 // Represents a transition from one state to another
-struct StateTransition {
+struct StateTransition
+{
     std::string targetState;
     std::vector<TransitionCondition> conditions;
     float weight = 1.0f;
     bool requiresAll = true; // If true, ALL conditions must be met; if false, ANY condition
 
-    bool canTransition(Sprite& sprite) const {
+    bool canTransition(Sprite& sprite) const
+    {
         if (conditions.empty())
             return false;
 
-        if (requiresAll) {
-            for (const auto& condition : conditions) {
+        if (requiresAll)
+        {
+            for (const auto& condition : conditions)
+            {
                 if (!condition.check(sprite))
                     return false;
             }
             return true;
         }
-        else {
-            for (const auto& condition : conditions) {
+        else
+        {
+            for (const auto& condition : conditions)
+            {
                 if (condition.check(sprite))
                     return true;
             }
@@ -47,7 +54,8 @@ struct StateTransition {
 };
 
 // Represents a single state in the state machine
-struct State {
+struct State
+{
     std::string name;
     std::vector<std::string> activeBehaviorKeys; // Behaviors that should be active in this state
     std::vector<StateTransition> transitions;
@@ -62,7 +70,8 @@ struct State {
 };
 
 // The state machine that manages states and transitions
-class StateMachine {
+class StateMachine
+{
 public:
     StateMachine(Game& game, std::shared_ptr<Sprite> owner);
 
@@ -85,17 +94,20 @@ public:
     void transitionTo(const std::string& stateName);
 
     // Get current state name
-    const std::string& getCurrentStateName() const {
+    const std::string& getCurrentStateName() const
+    {
         return currentState ? currentState->name : emptyString;
     }
 
     // get the time spent in current state
-    float getCurrentStateTimer() const {
+    float getCurrentStateTimer() const
+    {
         return currentState ? currentState->timer : 0.0f;
     }
 
     // Check if in a specific state
-    bool isInState(const std::string& stateName) const {
+    bool isInState(const std::string& stateName) const
+    {
         return currentState && currentState->name == stateName;
     }
 
@@ -116,7 +128,8 @@ public:
     std::vector<std::string> getAllStateNames() const;
 
     using StateChangeCallback = std::function<void(const std::string& from, const std::string& to)>;
-    void setStateChangeCallback(StateChangeCallback callback) {
+    void setStateChangeCallback(StateChangeCallback callback)
+    {
         onStateChange = callback;
     }
 
@@ -136,7 +149,8 @@ private:
 };
 
 // Helper functions to create common transition conditions
-namespace TransitionConditions {
+namespace TransitionConditions
+{
     // Distance-based conditions
     TransitionCondition PlayerInRange(float distance);
     TransitionCondition PlayerOutOfRange(float distance);

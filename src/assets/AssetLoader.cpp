@@ -20,7 +20,8 @@ nlohmann::json resolveInheritance(const std::unordered_map<std::string, nlohmann
 
     nlohmann::json child = it->second;
 
-    if (child.contains("inherits")) {
+    if (child.contains("inherits"))
+    {
         std::string parentKey = child["inherits"];
         // resolve the data recursively for the parent
         nlohmann::json parent = resolveInheritance(allData, parentKey, visited);
@@ -37,51 +38,64 @@ AssetLoader::AssetLoader() : fallbackTexture({ 0 })
     std::filesystem::create_directories("./savegames/thumbs");
 }
 
-AssetLoader::~AssetLoader() {
+AssetLoader::~AssetLoader()
+{
     // textures
-    for (auto& it : textureGroups) {
-        for (Texture2D& texture : it.second) {
+    for (auto& it : textureGroups)
+    {
+        for (Texture2D& texture : it.second)
+        {
             UnloadTexture(texture);
         }
     }
     // shaders
-    for (auto& it : shaders) {
+    for (auto& it : shaders)
+    {
         UnloadShader(*it.second);
     }
     // fonts
-    for (auto& it : fonts) {
+    for (auto& it : fonts)
+    {
         UnloadFont(it.second);
     }
     // unload the music and sounds
-    for (auto& it : musicTracks) {
+    for (auto& it : musicTracks)
+    {
         UnloadMusicStream(it.second);
     }
-    for (auto& it : sounds) {
+    for (auto& it : sounds)
+    {
         UnloadSound(it.second);
     }
 }
 
 void AssetLoader::loadTilemapsFromDirectory(const std::string& directory)
 {
-    for (const auto& entry : fs::directory_iterator(directory)) {
+    for (const auto& entry : fs::directory_iterator(directory))
+    {
         auto ext = entry.path().extension();
-        if (entry.path().extension() == ".json") {
+        if (entry.path().extension() == ".json")
+        {
             std::string filename = directory + "/" + entry.path().filename().string();
             LoadtileMapFromTiled(filename);
         }
     }
 }
 
-void AssetLoader::loadTexturesFromDirectory(const std::string& directory) {
+void AssetLoader::loadTexturesFromDirectory(const std::string& directory)
+{
     // Looks for png files in a given directory that match the pattern key_n.png
     // and automatically groups and loads them
     // TODO: currently unused
-    for (const auto& entry : fs::directory_iterator(directory)) {
-        if (entry.path().extension() == ".png") {
+    for (const auto& entry : fs::directory_iterator(directory))
+    {
+        if (entry.path().extension() == ".png")
+        {
             std::string filename = entry.path().filename().string();
 
             size_t pos = filename.find('_');
-            if (pos != std::string::npos) {
+            if (pos != std::string::npos) 
+            {
                 std::string key = filename.substr(0, pos);
                 textureGroups[key].push_back(LoadTexture(entry.path().string().c_str()));
             }
@@ -89,7 +103,8 @@ void AssetLoader::loadTexturesFromDirectory(const std::string& directory) {
     }
 }
 
-void AssetLoader::loadTextures(const std::unordered_map<std::string, std::vector<std::string>>& textureMap) {
+void AssetLoader::loadTextures(const std::unordered_map<std::string, std::vector<std::string>>& textureMap)
+{
     // loads textures by filenames
     /*  Example:
     assetLoader.loadTextures({
@@ -99,23 +114,25 @@ void AssetLoader::loadTextures(const std::unordered_map<std::string, std::vector
     */
     namespace fs = std::filesystem;
 
-    for (const auto& pair : textureMap) {
+    for (const auto& pair : textureMap)
+    {
         const std::string& key = pair.first;
-        for (const std::string& filename : pair.second) {
+        for (const std::string& filename : pair.second)
+        {
             // TODO: maybe raylib does check this internally?
-            if (fs::exists(filename)) {
+            if (fs::exists(filename))
                 textureGroups[key].emplace_back(LoadTexture(filename.c_str()));
-            }
-            else {
+            else
                 TraceLog(LOG_ERROR, "ERROR: File not found:  %s", filename.c_str());
-            }
         }
     }
 }
 
-void AssetLoader::loadSpritesheet(const std::string& filename, int frameWidth, int frameHeight, const std::string& key) {
+void AssetLoader::loadSpritesheet(const std::string& filename, int frameWidth, int frameHeight, const std::string& key)
+{
     namespace fs = std::filesystem;
-    if (!fs::exists(filename)) {
+    if (!fs::exists(filename))
+    {
         TraceLog(LOG_ERROR, "ERROR: File not found:  %s", filename.c_str());
         return;
     }
@@ -123,8 +140,10 @@ void AssetLoader::loadSpritesheet(const std::string& filename, int frameWidth, i
     Texture2D sheet = LoadTexture(filename.c_str());
     int columns = sheet.width / frameWidth;
     int rows = sheet.height / frameHeight;
-    for (int y = 0; y < rows; ++y) {
-        for (int x = 0; x < columns; ++x) {
+    for (int y = 0; y < rows; ++y)
+    {
+        for (int x = 0; x < columns; ++x)
+        {
             Image subImage = LoadImageFromTexture(sheet);
             Rectangle src = { (float)(x * frameWidth), (float)(y * frameHeight), (float)frameWidth, (float)frameHeight };
             ImageCrop(&subImage, src);
@@ -136,20 +155,22 @@ void AssetLoader::loadSpritesheet(const std::string& filename, int frameWidth, i
 }
 
 
-void AssetLoader::Loadtileset(const std::string& filename, int tileSize) {
+void AssetLoader::Loadtileset(const std::string& filename, int tileSize)
+{
     // Loads the tiles directly from an image, give the correct tile size
     std::vector<Texture2D> tiles;
     Image tilesetImg = LoadImage(filename.c_str());
 
-    if (tilesetImg.width == 0 || tilesetImg.height == 0) {
+    if (tilesetImg.width == 0 || tilesetImg.height == 0)
         return; // Return if loading failed
-    }
 
     int tilesX = tilesetImg.width / tileSize;
     int tilesY = tilesetImg.height / tileSize;
 
-    for (int y = 0; y < tilesY; y++) {
-        for (int x = 0; x < tilesX; x++) {
+    for (int y = 0; y < tilesY; y++)
+    {
+        for (int x = 0; x < tilesX; x++)
+        {
             Rectangle tileRect = { float(x * tileSize), float(y * tileSize), float(tileSize), float(tileSize) };
             Image tileImg = ImageFromImage(tilesetImg, tileRect);
             tiles.emplace_back(LoadTextureFromImage(tileImg));
@@ -163,17 +184,20 @@ void AssetLoader::Loadtileset(const std::string& filename, int tileSize) {
     TraceLog(LOG_INFO, "Tileset loaded successfully: %s", baseName.c_str());
 }
 
-void AssetLoader::LoadtilesetFromTiled(const std::string& filename) {
+void AssetLoader::LoadtilesetFromTiled(const std::string& filename)
+{
     // loads a Tiled tileset file (.json or .tsj)
     std::ifstream file(filename); // Open JSON file
-    if (!file) {
+    if (!file)
+    {
         TraceLog(LOG_ERROR, "Failed to open tileset file %s", filename.c_str());
         return;
     }
     nlohmann::json j;
     file >> j; // construct a json-like object from the file data
 
-    if (!j.contains("image") || !j.contains("tilewidth")) {
+    if (!j.contains("image") || !j.contains("tilewidth"))
+    {
         TraceLog(LOG_ERROR, "Invalid tileset format: missing 'image' or 'tilewidth'.");
         return;
     }
@@ -191,12 +215,14 @@ void AssetLoader::LoadtilesetFromTiled(const std::string& filename) {
     tilesets.emplace(baseName, Tileset(j));
 }
 
-void AssetLoader::LoadtileMapFromTiled(const std::string& filename) {
+void AssetLoader::LoadtileMapFromTiled(const std::string& filename)
+{
     // Loads a Tiled map file (json or tsj)
     // a TileMap is a class that stores collections of TileLayer (2D arrays of tile indices)
     // and TileObjects (contains information to construct game entities)
     std::ifstream file(filename);
-    if (!file) {
+    if (!file)
+    {
         TraceLog(LOG_ERROR, "Failed to open tilemap file %s", filename.c_str());
         return;
     }
@@ -209,7 +235,8 @@ void AssetLoader::LoadtileMapFromTiled(const std::string& filename) {
     //TraceLog(LOG_INFO, "Tilemap file loaded successfully: %s", baseName.c_str());
 }
 
-void  AssetLoader::LoadFont(const std::string& filename) {
+void  AssetLoader::LoadFont(const std::string& filename)
+{
     Font fontTtf = LoadFontEx(filename.c_str(), 32, NULL, 0);
     std::string baseName = std::filesystem::path(filename).stem().string();
     fonts[baseName] = fontTtf;
@@ -217,32 +244,39 @@ void  AssetLoader::LoadFont(const std::string& filename) {
     // TODO: still no idea how to disable anti-aliasing
 }
 
-void AssetLoader::LoadShaderFile(const std::string& filename) {
+void AssetLoader::LoadShaderFile(const std::string& filename)
+{
     auto shader = std::make_shared<Shader>(LoadShader(0, filename.c_str()));
     std::string baseName = std::filesystem::path(filename).stem().string();
     shaders[baseName] = shader;
 }
 
-void AssetLoader::loadSettings(const std::string& filename) {
+void AssetLoader::loadSettings(const std::string& filename)
+{
     std::ifstream file(filename);
-    if (!file) {
+    if (!file)
+    {
         TraceLog(LOG_ERROR, "Failed to open settings file %s", filename.c_str());
         return;
     }
     file >> settings;
 }
 
-nlohmann::json& AssetLoader::getSettings() {
+nlohmann::json& AssetLoader::getSettings()
+{
     return settings;
 }
 
-void AssetLoader::writeSetting(const std::string& key, nlohmann::json value) {
+void AssetLoader::writeSetting(const std::string& key, nlohmann::json value)
+{
     settings[key] = value;
 }
 
-void AssetLoader::loadSpriteData(const std::string& filename) {
+void AssetLoader::loadSpriteData(const std::string& filename)
+{
     std::ifstream file(filename);
-    if (!file) {
+    if (!file)
+    {
         TraceLog(LOG_ERROR, "Failed to open sprite data file %s", filename.c_str());
         return;
     }
@@ -250,7 +284,8 @@ void AssetLoader::loadSpriteData(const std::string& filename) {
     nlohmann::json newData;
     file >> newData;
 
-    for (auto& [key, value] : newData.items()) {
+    for (auto& [key, value] : newData.items())
+    {
         spriteData[key] = std::move(value); // overwrite if the data already exists
     }
 }
@@ -258,7 +293,8 @@ void AssetLoader::loadSpriteData(const std::string& filename) {
 void AssetLoader::loadParticleData(const std::string& filename)
 {
     std::ifstream file(filename);
-    if (!file) {
+    if (!file)
+    {
         TraceLog(LOG_ERROR, "Failed to open particle data file %s", filename.c_str());
         return;
     }
@@ -268,7 +304,8 @@ void AssetLoader::loadParticleData(const std::string& filename)
 void AssetLoader::loadDungeonData(const std::string& filename)
 {
     std::ifstream file(filename);
-    if (!file) {
+    if (!file)
+    {
         TraceLog(LOG_ERROR, "Failed to open dungeon data file %s", filename.c_str());
         return;
     }
@@ -283,18 +320,21 @@ void AssetLoader::postprocessSpriteData()
         throw std::runtime_error("'sprite_default' key missing in spriteData");
 
     std::unordered_map<std::string, nlohmann::json> rawData;
-    for (const auto& item : spriteData.items()) {
+    for (const auto& item : spriteData.items())
+    {
         rawData[item.key()] = item.value();
     }
 
     std::unordered_map<std::string, nlohmann::json> resolvedData;
-    for (const auto& item : rawData) {
+    for (const auto& item : rawData)
+    {
         std::unordered_map<std::string, bool> visited;
         resolvedData[item.first] = resolveInheritance(rawData, item.first, visited);
     }
 
     spriteData.clear();
-    for (const auto& item : resolvedData) {
+    for (const auto& item : resolvedData)
+    {
         spriteData[item.first] = item.second;
     }
 }
@@ -302,18 +342,21 @@ void AssetLoader::postprocessSpriteData()
 void AssetLoader::loadtextData(const std::string& filename)
 {
     std::ifstream file(filename);
-    if (!file) {
+    if (!file)
+    {
         TraceLog(LOG_ERROR, "Failed to open text data file %s", filename.c_str());
         return;
     }
     nlohmann::json j;
     file >> j;
-    for (auto& el : j.items()) {
+    for (auto& el : j.items())
+    {
         textData[el.key()] = el.value().get<std::vector<std::string>>();
     }
 }
 
-const nlohmann::json& AssetLoader::getSpriteData() {
+const nlohmann::json& AssetLoader::getSpriteData()
+{
     return spriteData;
 }
 
@@ -337,13 +380,16 @@ const std::vector<std::string>& AssetLoader::getText(std::string& key)
 }
 
 
-const std::vector<Texture2D>& AssetLoader::getTextures(const std::string& key) {
+const std::vector<Texture2D>& AssetLoader::getTextures(const std::string& key)
+{
     return textureGroups[key]; // Returns and empty vector if key doesn't exist
 }
 
-const TileMap& AssetLoader::getTilemap(const std::string& key) {
+const TileMap& AssetLoader::getTilemap(const std::string& key)
+{
     auto it = tileMaps.find(key);
-    if (it != tileMaps.end()) {
+    if (it != tileMaps.end())
+    {
         return *it->second;
     }
     throw std::out_of_range("TileMap key not found: " + key);
@@ -354,39 +400,48 @@ const Tileset& AssetLoader::getTileset(const std::string& key)
     return tilesets.at(key);
 }
 
-const Font& AssetLoader::getFont(const std::string& key) {
+const Font& AssetLoader::getFont(const std::string& key)
+{
     return fonts.at(key);
 }
 
-const Shader& AssetLoader::getShader(const std::string& key) {
+const Shader& AssetLoader::getShader(const std::string& key)
+{
     auto it = shaders.find(key);
-    if (it == shaders.end()) {
+
+    if (it == shaders.end())
         throw std::runtime_error("Shader not found: " + key);
-    }
+
     return *(it->second);
 }
 
-void AssetLoader::LoadMusicFile(const std::string& filename, const float volume, const std::string& key) {
+void AssetLoader::LoadMusicFile(const std::string& filename, const float volume, const std::string& key)
+{
     Music music = LoadMusicStream(filename.c_str());
     SetMusicVolume(music, volume);
     std::string id = key.empty() ? std::filesystem::path(filename).stem().string() : key;
     musicTracks[id] = music;
 }
 
-const Music& AssetLoader::getMusic(const std::string& key) {
+const Music& AssetLoader::getMusic(const std::string& key)
+{
     return musicTracks.at(key);
 }
 
-void AssetLoader::LoadSoundFile(const std::string& filename, const float volume, const std::string& key) {
+void AssetLoader::LoadSoundFile(const std::string& filename, const float volume, const std::string& key)
+{
     Sound sound = LoadSound(filename.c_str());
     SetSoundVolume(sound, volume);
     std::string id = key.empty() ? std::filesystem::path(filename).stem().string() : key;
     sounds[id] = sound;
 }
 
-void AssetLoader::LoadSavegameThumbnails(const std::string& filepath) {
-    for (auto& entry : fs::directory_iterator(filepath)) {
-        if (entry.path().extension() == ".png") {
+void AssetLoader::LoadSavegameThumbnails(const std::string& filepath)
+{
+    for (auto& entry : fs::directory_iterator(filepath))
+    {
+        if (entry.path().extension() == ".png")
+        {
             // TODO create a separate map to avoid single-element vectors?
             std::string key = entry.path().stem().string();
             Texture2D tex = LoadTexture(entry.path().string().c_str());
@@ -395,7 +450,8 @@ void AssetLoader::LoadSavegameThumbnails(const std::string& filepath) {
     }
 }
 
-Sound& AssetLoader::getSound(const std::string& key) {
+Sound& AssetLoader::getSound(const std::string& key)
+{
     return sounds.at(key);
 }
 

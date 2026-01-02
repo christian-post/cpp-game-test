@@ -9,7 +9,8 @@
 // any InGame events (like cutscenes) that are triggered by some condition
 // once triggered, they never trigger again
 
-void setupConditionalEvents(InGame& inGame) {
+void setupConditionalEvents(InGame& inGame)
+{
     auto& game = inGame.getGame();
 
     game.eventManager.pushConditionalEvent(
@@ -77,7 +78,8 @@ void setupConditionalEvents(InGame& inGame) {
                 Sprite& npcRef = *game.spriteMap["elfCompanion2"];
                 Vector2 playerPos = game.getPlayer()->position;
                 npcRef.moveTo(playerPos.x - 16.0f, playerPos.y);
-                if (!npcRef.persistent) {
+                if (!npcRef.persistent)
+                {
                     npcRef.persistent = true;
                     npcRef.followsPlayer = true;
                     npcRef.speed = 16;
@@ -116,7 +118,7 @@ void setupConditionalEvents(InGame& inGame) {
                     game.cutsceneManager.setCameraControl(false);
                     game.currentDungeon->advanceRoomState();
                     }));
-                });      
+                });
         }
     );
 
@@ -264,7 +266,8 @@ void setupConditionalEvents(InGame& inGame) {
                     }));
                 game.cutsceneManager.queueCommand(new Command_Wait(1.5f));
 
-                if (!(game.spriteMap.find("elfCompanion2") == game.spriteMap.end())) {
+                if (!(game.spriteMap.find("elfCompanion2") == game.spriteMap.end()))
+                {
                     Sprite& npcRef = *game.spriteMap["elfCompanion2"];
                     Vector2 playerPos = game.getPlayer()->position;
                     game.cutsceneManager.queueCommand(new Command_CameraPan(game, playerPos.x, playerPos.y, 0.5f));

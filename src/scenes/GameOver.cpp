@@ -11,6 +11,7 @@ void GameOver::startup() {
     menu.setItems({
         {
             "Save and Try Again",
+            MenuItemType::Action,
             [&]() {
                 game.stopScene(getName());
                 game.setOnSceneComplete("WriteSavegameMenu", [&game = game]() {
@@ -21,6 +22,7 @@ void GameOver::startup() {
         },
         {
             "Quit without saving",
+            MenuItemType::Action,
             [&]() {
                 game.restart();
             }

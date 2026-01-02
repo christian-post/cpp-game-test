@@ -1,7 +1,8 @@
 #pragma once
 #include <cstdint>
 
-enum Controls : uint32_t {
+enum Controls : uint32_t
+{
     // creates Bitmasks for each of the buttons
     CONTROL_NONE = 0,
     CONTROL_UP = 1 << 0,

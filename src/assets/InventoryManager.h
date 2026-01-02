@@ -13,19 +13,24 @@
 class Game;
 using InventoryItem = std::pair<const ItemData*, uint32_t>; // second item of pair is quantity
 
-class InventoryManager {
+class InventoryManager
+{
 public:
     InventoryManager(Game& game);
     void initialize();
 
-    const std::array<std::map<std::string, InventoryItem>, NUM_ITEM_TYPES>& getItems() const {
+    const std::array<std::map<std::string, InventoryItem>, NUM_ITEM_TYPES>& getItems() const
+    {
         return items;
     }
-    std::map<std::string, ItemData>& getItemData() {
+    std::map<std::string, ItemData>& getItemData()
+    {
         return itemData;
     }
-    uint32_t getItemQuantity(const std::string& key) const {
-        for (const auto& typeItems : items) {
+    uint32_t getItemQuantity(const std::string& key) const
+    {
+        for (const auto& typeItems : items)
+        {
             auto it = typeItems.find(key);
             if (it != typeItems.end()) return it->second.second;
         }

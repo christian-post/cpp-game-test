@@ -9,6 +9,7 @@ void SelectMenu::startup()
     menu.setItems({
         {
             "Back to Game",
+            MenuItemType::Action,
             [&]() {
                 game.eventManager.pushEvent(SELECT_MENU_DONE);
                 game.stopScene(getName());
@@ -16,6 +17,7 @@ void SelectMenu::startup()
         },
         {
             "Save Game",
+            MenuItemType::Action,
             [&]() {
                 game.stopScene(getName());
                 game.setOnSceneComplete("WriteSavegameMenu", [&game = game]() {
@@ -25,11 +27,11 @@ void SelectMenu::startup()
             }
         },
         {
-            "Restart Game", [&]() {
+            "Restart Game", MenuItemType::Action, [&]() {
                 game.restart();
             }
         },
-        { "Quit to Desktop", [&]() { game.end(); }}
+        { "Quit to Desktop", MenuItemType::Action, [&]() { game.end(); }}
     });
 }
 

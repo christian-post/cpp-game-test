@@ -3,48 +3,62 @@
 
 static bool lastWasGamepad = false;
 
-bool WasGamepadUsedLast() {
+bool WasGamepadUsedLast()
+{
     return lastWasGamepad;
 }
 
-static bool keyDown(int key) {
+static bool keyDown(int key)
+{
     bool down = IsKeyDown(key);
-    if (down) lastWasGamepad = false;
+    if (down) 
+        lastWasGamepad = false;
     return down;
 }
 
-static bool keyPressed(int key) {
+static bool keyPressed(int key)
+{
     bool pressed = IsKeyPressed(key);
-    if (pressed) lastWasGamepad = false;
+    if (pressed)
+        lastWasGamepad = false;
     return pressed;
 }
 
-static bool keyReleased(int key) {
+static bool keyReleased(int key)
+{
     bool released = IsKeyReleased(key);
-    if (released) lastWasGamepad = false;
+    if (released)
+        lastWasGamepad = false;
     return released;
 }
 
-static bool gamepadDown(int gamepad, int button) {
+static bool gamepadDown(int gamepad, int button)
+{
     bool down = IsGamepadButtonDown(gamepad, button);
-    if (down) lastWasGamepad = true;
+    if (down)
+        lastWasGamepad = true;
     return down;
 }
 
-static bool gamepadPressed(int gamepad, int button) {
+static bool gamepadPressed(int gamepad, int button)
+{
     bool pressed = IsGamepadButtonPressed(gamepad, button);
-    if (pressed) lastWasGamepad = true;
+    if (pressed)
+        lastWasGamepad = true;
     return pressed;
 }
 
-static bool gamepadReleased(int gamepad, int button) {
+static bool gamepadReleased(int gamepad, int button)
+{
     bool released = IsGamepadButtonReleased(gamepad, button);
-    if (released) lastWasGamepad = true;
+    if (released)
+        lastWasGamepad = true;
     return released;
 }
 
 
-uint32_t GetControls(KeyCheckFunc keyFunc, GamepadCheckFunc gamepadFunc) {
+uint32_t GetControls(KeyCheckFunc keyFunc, GamepadCheckFunc gamepadFunc)
+{
     uint32_t controls = CONTROL_NONE;
 
     if (keyFunc(KEY_UP) || keyFunc(KEY_W)) controls |= CONTROL_UP;
@@ -65,7 +79,8 @@ uint32_t GetControls(KeyCheckFunc keyFunc, GamepadCheckFunc gamepadFunc) {
     if (keyFunc(KEY_KP_2)) controls |= CONTROL_DEBUG_K2; // debug function
     if (keyFunc(KEY_KP_3)) controls |= CONTROL_DEBUG_K3; // debug function
 
-    if (IsGamepadAvailable(0)) {
+    if (IsGamepadAvailable(0))
+    {
         if (gamepadFunc(0, GAMEPAD_BUTTON_LEFT_FACE_UP)) controls |= CONTROL_UP;
         if (gamepadFunc(0, GAMEPAD_BUTTON_LEFT_FACE_DOWN)) controls |= CONTROL_DOWN;
         if (gamepadFunc(0, GAMEPAD_BUTTON_LEFT_FACE_LEFT)) controls |= CONTROL_LEFT;
@@ -83,18 +98,22 @@ uint32_t GetControls(KeyCheckFunc keyFunc, GamepadCheckFunc gamepadFunc) {
     return controls;
 }
 
-uint32_t GetControlsDown() {
+uint32_t GetControlsDown()
+{
     return GetControls(keyDown, gamepadDown);
 }
 
-uint32_t GetControlsPressed() {
+uint32_t GetControlsPressed()
+{
     return GetControls(keyPressed, gamepadPressed);
 }
 
-uint32_t GetControlsUp() {
+uint32_t GetControlsUp()
+{
     return GetControls(keyReleased, gamepadReleased);
 }
 
-bool AnyKeyPressed(uint32_t controls) {
+bool AnyKeyPressed(uint32_t controls)
+{
     return controls != CONTROL_NONE;
 }

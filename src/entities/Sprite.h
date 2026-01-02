@@ -11,14 +11,16 @@
 
 class Game;
 
-struct ShaderState {
+struct ShaderState
+{
     const Shader* shader = nullptr;
     float time = 0.0f;
     float duration = 2.0f;
     int flipX = 0;
 };
 
-enum AnimState {
+enum AnimState
+{
     IDLE,
     RUN,
     HIT,
@@ -27,7 +29,8 @@ enum AnimState {
 };
 
 
-class Sprite {
+class Sprite
+{
 public:
     Game& game;
     std::vector<std::vector<Texture2D>> frames; // outer index refers to currentAnimState; inner index refers to currentFrame
@@ -101,11 +104,14 @@ public:
     void markForDeletion() { markedForDeletion = true; }
 
     // behavior methods
-    void addBehavior(std::unique_ptr<Behavior> behavior) {
+    void addBehavior(std::unique_ptr<Behavior> behavior)
+    {
         behaviors.push_back(std::move(behavior));
     };
-    void removeAllBehaviors() {
-        for (auto& behavior : behaviors) {
+    void removeAllBehaviors()
+    {
+        for (auto& behavior : behaviors)
+        {
             if (behavior)
                 behavior->onDeactivate();
         }
@@ -118,11 +124,13 @@ public:
     std::unique_ptr<StateMachine> stateMachine = nullptr;
 
     // Add method to set up state machine
-    void setStateMachine(std::unique_ptr<StateMachine> sm) {
+    void setStateMachine(std::unique_ptr<StateMachine> sm)
+    {
         stateMachine = std::move(sm);
     }
 
-    bool hasStateMachine() const {
+    bool hasStateMachine() const
+    {
         return stateMachine != nullptr;
     }
 

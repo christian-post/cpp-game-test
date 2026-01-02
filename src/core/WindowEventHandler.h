@@ -3,20 +3,20 @@
 #include <raylib.h>
 #include <raymath.h>
 
-class WindowEventHandler {
+class WindowEventHandler
+{
 public:
     std::function<void(int, int)> onResize;
     std::function<void(Vector2)> onReposition;
 
-    void update() {
-        if (IsWindowResized())
-            if (onResize)
-                onResize(GetScreenWidth(), GetScreenHeight());
+    void update()
+    {
+        if (IsWindowResized() && onResize)
+            onResize(GetScreenWidth(), GetScreenHeight());
 
         Vector2 pos = GetWindowPosition();
-        if (pos.x != lastPos.x || pos.y != lastPos.y)
-            if (onReposition)
-                onReposition(pos);
+        if ((pos.x != lastPos.x || pos.y != lastPos.y) && onReposition)
+            onReposition(pos);
         lastPos = pos;
     }
 

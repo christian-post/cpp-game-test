@@ -25,7 +25,7 @@ void WriteSavegameMenu::startup()
                     fileIndex = idx;
             }
 
-            menu.addItem({ substr, [this, substr]() {
+            menu.addItem({ substr, MenuItemType::Action, [this, substr]() {
                 // save the game under this filename
                 game.eventManager.pushEvent(SAVE_GAME, std::any(substr));
                 game.eventManager.pushEvent(SELECT_MENU_DONE);
@@ -35,7 +35,7 @@ void WriteSavegameMenu::startup()
         }
     }
 
-    menu.addItem({ "New Save", [this, fileIndex]() {
+    menu.addItem({ "New Save", MenuItemType::Action, [this, fileIndex]() {
         // create a new save
         std::string s = "save_" + std::to_string(fileIndex + 1);
         game.eventManager.pushEvent(SAVE_GAME, std::any(s));
@@ -43,7 +43,7 @@ void WriteSavegameMenu::startup()
         game.stopScene(getName());
         } });
     // go back to the start menu
-    menu.addItem({ "Back", [&]() {
+    menu.addItem({ "Back", MenuItemType::Action, [&]() {
         game.startScene("SelectMenu");
         game.stopScene(getName());
         } });

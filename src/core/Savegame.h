@@ -8,7 +8,8 @@
 #include <cstdint>
 
 
-struct RoomData {
+struct RoomData
+{
     // persistent data for a single room
     // see Dungeon.h
     bool visited = false;
@@ -19,7 +20,8 @@ struct RoomData {
     std::string tilemapKey;
 };
 
-struct SaveGame {
+struct SaveGame
+{
     // all the data that should be saved between games
     uint32_t playerHealth = 3;
     uint32_t playerMaxHealth = 3;

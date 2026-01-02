@@ -8,26 +8,50 @@
 Menu that lets the player select various items
 mostly used in dedicated menu scenes
 */
-enum class MenuPosition {
+enum class MenuPosition
+{
     CENTER,
     LEFT,
     RIGHT
 };
 
+enum class MenuItemType
+{
+    Action,   // Normal callback on confirm
+    Cycle,    // Cycle through string options
+    Number    // Increment/decrement number
+};
 
-struct MenuItem {
+struct MenuItem
+{
     std::string displayName;
-    std::function<void()> callback;
+    MenuItemType type = MenuItemType::Action;
+    std::function<void()> callback;  // for Action type
+
+    // For Cycle type
+    std::vector<std::string> options;
+    size_t currentOption = 0;
+    std::function<void(size_t)> cycleCallback;  // receives selected index
+
+    // For Number type
+    int numberValue = 0;
+    int minValue = 0;
+    int maxValue = 100;
+    int step = 1;
+    std::function<void(int)> numberCallback;  // receives current value
+    bool isActive = false;  // whether we're editing the number
 };
 
 
-class MenuSelect {
+class MenuSelect
+{
 public:
     // TODO: optimize memory management
     void update();
     void draw();
-    void setItems(std::vector<MenuItem> items); // sets all MenuItems at once
     void addItem(MenuItem item);
+    //void addItem(const std::string& displayName, std::function<void()> callback); // overload for different action type
+    void setItems(std::vector<MenuItem> items); // sets all MenuItems at once
     void updateItemText(size_t index, std::string txt); // just changes the text, TODO: do I also need to update the callback?
     size_t getCurrentIndex() const { return menuIndex; }
     MenuItem getCurrentItem() const { return menuItems[menuIndex]; }

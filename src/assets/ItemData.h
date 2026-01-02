@@ -8,7 +8,8 @@
 
 class Game;
 
-enum ItemType {
+enum ItemType
+{
     CONSUMABLE,
     WEAPON,
     PASSIVE,
@@ -17,7 +18,8 @@ enum ItemType {
     NUM_ITEM_TYPES // last type used for array size
 };
 
-struct ItemData {
+struct ItemData
+{
     ItemType type;
     std::string displayName;
     std::string textureKey;

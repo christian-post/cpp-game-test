@@ -27,31 +27,39 @@ Sprite::Sprite(Game& game, float x, float y, float w, float h, const std::string
     frames[CHARGE] = { game.loader.fallbackTexture };
 }
 
-Sprite::~Sprite() {
+Sprite::~Sprite()
+{
     // TODO: just for debugging
     TraceLog(LOG_INFO, "Sprite destroyed: %s at %p", spriteName.c_str(), this);
 }
 
-void Sprite::setTextures(std::vector<std::string> keys) {
+void Sprite::setTextures(std::vector<std::string> keys)
+{
     frames.clear();
-    for (size_t i = 0; i < NUM_ANIM_STATES; i++) {
-        if (i < keys.size() && !keys[i].empty()) {
+    for (size_t i = 0; i < NUM_ANIM_STATES; i++)
+    {
+        if (i < keys.size() && !keys[i].empty())
+        {
             const auto& textures = game.loader.getTextures(keys[i]);
             if (textures.empty())
                 TraceLog(LOG_ERROR, "Missing texture for key: %s", keys[i].c_str());
             frames.push_back(textures);
         }
         else
+        {
             frames.push_back({}); // Push empty vector for skipped states
+        }
     }
 }
 
-void Sprite::animate(float deltaTime) {
+void Sprite::animate(float deltaTime)
+{
     if (!doesAnimate)
         return;
 
     elapsedtime += deltaTime;
-    if (elapsedtime >= frameTime && !frames[currentAnimState].empty()) {
+    if (elapsedtime >= frameTime && !frames[currentAnimState].empty())
+    {
         elapsedtime = 0.0f;
         currentFrame = (currentFrame + 1) % frames[currentAnimState].size();
     }
@@ -61,18 +69,19 @@ void Sprite::animate(float deltaTime) {
         return;
 
     // latch the last direction (used for animation)
-    if (vel.x == 0.0f && vel.y == 0.0f) {
+    if (vel.x == 0.0f && vel.y == 0.0f)
+    {
         currentAnimState = IDLE;
     }
-    else {
+    else
+    {
         if (frames.size() > 1)
             currentAnimState = RUN;
-        if (vel.x > 0.0f) {
+
+        if (vel.x > 0.0f)
             lastDirection = RIGHT;
-        }
-        else if (vel.x < 0.0f) {
+        else if (vel.x < 0.0f)
             lastDirection = LEFT;
-        }
     }
 }
 
@@ -83,7 +92,8 @@ void Sprite::setAnimState(AnimState state, bool lockState)
     currentFrame = 0;
 }
 
-void Sprite::setHurtbox(float x, float y, float width, float height, bool center) {
+void Sprite::setHurtbox(float x, float y, float width, float height, bool center)
+{
     if (x != -1.0f) 
         hurtbox.x = x;
     if (y != -1.0f) 
@@ -92,8 +102,10 @@ void Sprite::setHurtbox(float x, float y, float width, float height, bool center
         hurtbox.width = width;
     if (height != -1.0f) 
         hurtbox.height = height;
+
     // center on hitbox
-    if (center) {
+    if (center)
+    {
         float w = (width != -1.0f) ? width : hurtbox.width;
         float h = (height != -1.0f) ? height : hurtbox.height;
         hurtbox.x = rect.x + (rect.width - w) / 2;
@@ -104,15 +116,18 @@ void Sprite::setHurtbox(float x, float y, float width, float height, bool center
     hurtbox.y += hurtboxOffset.y;
 }
 
-void Sprite::getControls() {
+void Sprite::getControls()
+{
     // calculate acceleration vector from player input
     acc.x = static_cast<float>((bool)(game.buttonsDown & CONTROL_RIGHT) - (bool)(game.buttonsDown & CONTROL_LEFT));
     acc.y = static_cast<float>((bool)(game.buttonsDown & CONTROL_DOWN) - (bool)(game.buttonsDown & CONTROL_UP));
 }
 
-void Sprite::executeBehavior(float deltaTime) {
+void Sprite::executeBehavior(float deltaTime)
+{
     // If sprite has a state machine, let it control behaviors
-    if (stateMachine) {
+    if (stateMachine)
+    {
         stateMachine->update(deltaTime);
         return;
     }
@@ -120,25 +135,30 @@ void Sprite::executeBehavior(float deltaTime) {
     // runs update() on the behaviors in the order that they were given
     if (behaviors.empty()) 
         return;
-    for (auto& behavior : behaviors) {
+    for (auto& behavior : behaviors)
+    {
         behavior->update(deltaTime);
     }
 }
 
-void Sprite::drawBehavior() {
-    if (stateMachine) {
+void Sprite::drawBehavior()
+{
+    if (stateMachine)
+    {
         stateMachine->draw();
         return;
     }
 
     if (behaviors.empty()) 
         return;
-    for (auto& behavior : behaviors) {
+    for (auto& behavior : behaviors)
+    {
         behavior->draw();
     }
 }
 
-void Sprite::moveTo(float x, float y) {
+void Sprite::moveTo(float x, float y)
+{
     // moves the sprite instantly, without applying physics
     // makes sure all the rects are placed accordingly
     position = { x, y };
@@ -155,7 +175,8 @@ void Sprite::jump(uint32_t force)
     az = -1.0f;
 }
 
-void Sprite::update(float deltaTime) {
+void Sprite::update(float deltaTime)
+{
     if (markedForDeletion)
         return;
     // applies laws of motion according to the acceleration that was
@@ -183,14 +204,14 @@ void Sprite::update(float deltaTime) {
     vz *= friction;
     z += vz;
 
-    if (z > 0.0f) {
+    if (z > 0.0f)
+    {
         z = 0.0f;
         vz = 0.0f;
     }
     // prevent jitter
-    if (vz * vz < 2.5e-3f) {
+    if (vz * vz < 2.5e-3f)
         vz = 0.0f;
-    }
 
     position = Vector2Add(position, vel);
 
@@ -199,22 +220,22 @@ void Sprite::update(float deltaTime) {
     az = 0.0f;
 
     // damage handling
-    if (iFrameTimer > 0.0f) {
+    if (iFrameTimer > 0.0f)
         // sprite is invincible
         iFrameTimer -= deltaTime;
-    }
     // enemies that are already dead can't hurt the player any more
-    if (health < 1) {
+    if (health < 1)
         canHurtPlayer = false;
-    }
 }
 
-void Sprite::draw() {
+void Sprite::draw()
+{
     if (!visible || markedForDeletion) 
         return;
     // look for textures that belong the current anim state
     auto& textures = frames[currentAnimState];
-    if (currentFrame >= textures.size()) {
+    if (currentFrame >= textures.size())
+    {
         // show that something went wrong
         DrawRectangleRec(rect, BLUE);
         return;
@@ -222,7 +243,8 @@ void Sprite::draw() {
     Texture2D& texture = textures[currentFrame];
 
     // Draw shadow if enabled
-    if (castsShadow) {
+    if (castsShadow)
+    {
         // Shadow position at ground level
         float shadowX = position.x + rect.width / 2.0f + hitboxOffset.x;
         float shadowY = position.y + rect.height + hitboxOffset.y;
@@ -253,7 +275,8 @@ void Sprite::draw() {
     };
     Vector2 origin = { static_cast<float>(texture.width) / 2.0f, static_cast<float>(texture.height)};
 
-    if (game.debug) {
+    if (game.debug)
+    {
         Rectangle debugRect = { 
             dest.x - origin.x, 
             dest.y - origin.y, 
@@ -264,18 +287,20 @@ void Sprite::draw() {
     }
 
     // Flip horizontally if lastDirection is LEFT
-    if (lastDirection == LEFT) {
+    if (lastDirection == LEFT)
         source.width = -source.width;
-    }
+
     Color currentTint = tint;
-    if (iFrameTimer > 0.0f && !dying) {
+    if (iFrameTimer > 0.0f && !dying)
+    {
         bool flicker = ((int)(iFrameTimer * 10) % 2) == 0;
         currentTint = flicker ? Fade(tint, 0.5f) : tint;
     }
     // draw the texture (change the tint if the sprite has been hit)
     // also rotate around the bottom center
     // and apply a shader, if set
-    if (activeShader) {
+    if (activeShader)
+    {
         int timeLoc = GetShaderLocation(*activeShader->shader, "time");
         int flipXLoc = GetShaderLocation(*activeShader->shader, "flipX");
         int durationLoc = GetShaderLocation(*activeShader->shader, "duration");
@@ -285,6 +310,7 @@ void Sprite::draw() {
         BeginShaderMode(*activeShader->shader);
     }
     DrawTexturePro(texture, source, dest, origin, rotationAngle, currentTint);
-    if (activeShader) EndShaderMode();
+    if (activeShader)
+        EndShaderMode();
 }
 

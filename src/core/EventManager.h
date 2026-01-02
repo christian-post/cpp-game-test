@@ -10,7 +10,8 @@
 #include <optional>
 
 
-class EventManager {
+class EventManager
+{
 private:
     // store a list of events (key : data), data can be of any type or NULL
     std::unordered_map<int, std::any> events;
@@ -19,7 +20,8 @@ private:
     // a list of previous events
 
     // callbacks that fire after a given amount of time
-    struct TimedEvent {
+    struct TimedEvent
+    {
         int key;
         float timeRemaining;
         std::any value;
@@ -28,14 +30,16 @@ private:
     std::vector<TimedEvent> delayedEvents;
 
     // events that allow for arbitrary conditions to be checked
-    struct ConditionalEvent {
+    struct ConditionalEvent
+    {
         std::function<bool()> condition;
         std::function<void()> callback;
     };
     std::vector<ConditionalEvent> conditionalEvents;
 
     // events that repeat
-    struct RepeatedEvent {
+    struct RepeatedEvent
+    {
         int key;
         float interval;
         float timeRemaining;
@@ -59,17 +63,20 @@ public:
     void clearAll();
 
     // Get all events (for direct iteration in the scene)
-    const std::unordered_map<int, std::any>& peekEvents() const {
+    const std::unordered_map<int, std::any>& peekEvents() const
+    {
         return events;
     }
 
-    std::unordered_map<int, std::any> popEvents() {
+    std::unordered_map<int, std::any> popEvents()
+    {
         std::unordered_map<int, std::any> popped = std::move(events);
         events.clear();
         return popped;
     } // currently unused
 
-    void clearEvent(const int key) {
+    void clearEvent(const int key)
+    {
         events.erase(key);
     } // currently unused
 };

@@ -5,6 +5,15 @@
 #include <array>
 #include <memory>
 
+enum class MenuType {
+    Main,
+    RoomSelect,
+    LevelSelect,
+    ItemCheat,
+    TestMenu,
+    Count
+};
+
 class DebugMenu : public Scene {
 public:
     DebugMenu(Game& game, const std::string& name);
@@ -14,7 +23,9 @@ public:
     void end() override;
 
 private:
-    static const size_t numSubMenus = 4;
-    size_t activeMenu = 0;
+    static const size_t numSubMenus = static_cast<size_t>(MenuType::Count);
+    MenuType activeMenu = MenuType::Main;
     std::array<std::unique_ptr<MenuSelect>, numSubMenus> menus;
+
+    size_t menuIndex() const { return static_cast<size_t>(activeMenu); }
 };

@@ -3,29 +3,35 @@
 #include "TextBox.h"
 #include "raylib.h"
 
-Command_Wait::Command_Wait(float duration) : duration(duration) {
+Command_Wait::Command_Wait(float duration) : duration(duration)
+{
     started = true; name = "wait";
 }
 
-void Command_Wait::update(float deltaTime) {
+void Command_Wait::update(float deltaTime)
+{
     timer += deltaTime;
     if (timer >= duration) 
         done = true;
 }
 
 Command_MoveTo::Command_MoveTo(Sprite& target, float posX, float posY, float duration)
-    : target(target), finalPosX(posX), finalPosY(posY), duration(duration) {
+    : target(target), finalPosX(posX), finalPosY(posY), duration(duration)
+{
     name = "MoveTo";
 }
 
-void Command_MoveTo::update(float deltaTime) {
-    if (!started) {
+void Command_MoveTo::update(float deltaTime)
+{
+    if (!started)
+    {
         startX = target.position.x; 
         startY = target.position.y;
         started = true;
     }
     timer += deltaTime;
-    if (timer >= duration) {
+    if (timer >= duration)
+    {
         target.position.x = finalPosX; 
         target.position.y = finalPosY;
         target.vel = { 0.0f, 0.0f }; 
@@ -40,11 +46,13 @@ void Command_MoveTo::update(float deltaTime) {
     target.vel.y = (newY - target.position.y) / target.friction;
 }
 
-Command_Look::Command_Look(Sprite& target, direction dir) : target(target), dir(dir) {
+Command_Look::Command_Look(Sprite& target, direction dir) : target(target), dir(dir)
+{
     name = "Look";
 }
 
-void Command_Look::update(float deltaTime) {
+void Command_Look::update(float deltaTime)
+{
     if (!started) { 
         target.lastDirection = dir; 
         started = true; 
@@ -53,19 +61,23 @@ void Command_Look::update(float deltaTime) {
 }
 
 Command_LookTowards::Command_LookTowards(Sprite& target, Sprite& other)
-    : target(target), other(other) {
+    : target(target), other(other)
+{
     name = "LookTowards";
 }
 
-void Command_LookTowards::update(float deltaTime) {
-    if (!started) {
+void Command_LookTowards::update(float deltaTime)
+{
+    if (!started)
+    {
         target.lastDirection = (other.position.x > target.position.x) ? RIGHT : LEFT;
         started = true; 
         done = true;
     }
 }
 
-Command_Textbox::Command_Textbox(Game& game, std::string text, std::string voice, bool pitch) : textToDisplay{ text }, voice{ voice } {
+Command_Textbox::Command_Textbox(Game& game, std::string text, std::string voice, bool pitch) : textToDisplay{ text }, voice{ voice }
+{
     float w = game.gameScreenWidth * 0.9f;
     float x = game.gameScreenWidth * 0.05f;
     float h = game.getSetting<float>("textboxHeight");
@@ -77,58 +89,82 @@ Command_Textbox::Command_Textbox(Game& game, std::string text, std::string voice
     name = "TextBox";
 }
 
-Command_Textbox::~Command_Textbox() { 
+Command_Textbox::~Command_Textbox()
+{ 
     delete textbox; 
 }
 
-void Command_Textbox::updateCooldown(float deltaTime) {
-    if (textboxCooldown) {
+void Command_Textbox::updateCooldown(float deltaTime)
+{
+    if (textboxCooldown)
+    {
         textboxCooldownTimer -= deltaTime;
-        if (textboxCooldownTimer <= 0.0f) {
+        if (textboxCooldownTimer <= 0.0f)
+        {
             textboxCooldown = false;
             textboxCooldownTimer = 0.0f;
         }
     }
 }
 
-void Command_Textbox::update(float deltaTime) {
-    if (!started) { 
+void Command_Textbox::update(float deltaTime)
+{
+    if (!started)
+    { 
         textbox->setTextContent(textToDisplay); 
         started = true; 
     }
     textbox->update(deltaTime);
     done = textbox->isFinished();
-    if (done) {
+    if (done)
+    {
         textboxCooldown = true;
         textboxCooldownTimer = 1.0f;
     }
 }
 
-void Command_Textbox::draw() {
-    if (textboxCooldown) return;
+void Command_Textbox::draw()
+{
+    if (textboxCooldown)
+        return;
     textbox->draw(); 
 }
 
-Command_Callback::Command_Callback(std::function<void()> callback) : callback(callback) {
+Command_Callback::Command_Callback(std::function<void()> callback) : callback(callback)
+{
     name = "Callback";
 }
 
-void Command_Callback::update(float deltaTime) {
-    if (!started) { callback(); started = true; done = true; }
+void Command_Callback::update(float deltaTime)
+{
+    if (!started)
+    { 
+        callback(); 
+        started = true; 
+        done = true;
+    }
 }
 
 Command_Letterbox::Command_Letterbox(float screenWidth, float screenHeight, float duration)
-    : screenWidth(screenWidth), screenHeight(screenHeight), speed(24.0f / duration) {
-    started = true; name = "Letterbox"; persistent = true;
+    : screenWidth(screenWidth), screenHeight(screenHeight), speed(24.0f / duration)
+{
+    started = true; 
+    name = "Letterbox"; 
+    persistent = true;
 }
 
-void Command_Letterbox::update(float deltaTime) {
-    if (barHeight < 24.0f) barHeight = std::min(24.0f, barHeight + deltaTime * speed);
-    else done = true;
+void Command_Letterbox::update(float deltaTime)
+{
+    if (barHeight < 24.0f) 
+        barHeight = std::min(24.0f, barHeight + deltaTime * speed);
+    else 
+        done = true;
 }
 
-void Command_Letterbox::draw() {
-    if (barHeight > 0.0f) {
+void Command_Letterbox::draw()
+{
+    if (barHeight > 0.0f)
+    {
         DrawRectangle(0, 0, (int)screenWidth, (int)barHeight, BLACK);
         DrawRectangle(0, (int)(screenHeight - barHeight), (int)screenWidth, (int)barHeight, BLACK);
     }
@@ -142,14 +178,17 @@ Command_CameraPan::Command_CameraPan(Game& game, float targetX, float targetY, f
     game.cutsceneManager.setCameraControl(true);
 }
 
-void Command_CameraPan::update(float deltaTime) {
-    if (started) {
+void Command_CameraPan::update(float deltaTime)
+{
+    if (started)
+    {
         elapsed += deltaTime;
         float t = std::min(elapsed / duration, 1.0f);
         float newX = startX + t * (targetX - startX);
         float newY = startY + t * (targetY - startY);
         game.eventManager.pushEvent(MOVE_CAMERA, std::make_any<std::pair<float, float>>(newX, newY));
-        if (t >= 1.0f) {
+        if (t >= 1.0f)
+        {
             started = false;
             done = true;
         }

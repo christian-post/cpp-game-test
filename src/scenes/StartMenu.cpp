@@ -9,7 +9,8 @@ StartMenu::StartMenu(Game& game, const std::string& name)
 
 void StartMenu::startup() {
     menu.addItem({
-            "New Game",
+            "New Game", 
+            MenuItemType::Action,
             [&]() {
                 // starts a new game
                 game.startScene("InGame");
@@ -21,6 +22,7 @@ void StartMenu::startup() {
     if (listFiles("./savegames").size()) {
         menu.addItem({
                 "Load Game",
+                MenuItemType::Action,
                 [&]() {
                 // TODO: Transition to another menu that lets you select a file
                 game.startScene("LoadSavegameMenu");
@@ -31,6 +33,7 @@ void StartMenu::startup() {
 
     menu.addItem({
             "Sound Test",
+            MenuItemType::Action,
             [&]() {
                 game.startScene("SoundTest");
                 game.stopScene(getName());
@@ -38,7 +41,7 @@ void StartMenu::startup() {
         });
 
     menu.addItem({
-            "Quit", [&]() { game.end(); }
+            "Quit", MenuItemType::Action, [&]() { game.end(); }
         });
 }
 

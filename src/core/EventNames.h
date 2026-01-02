@@ -5,7 +5,8 @@
 // Event key aliases to make the code more maintainable
 // TODO: add a comment to each event describing what it does and how it's used
 
-enum EventName {
+enum EventName
+{
     SAVE_GAME,
     LOAD_GAME,
     ADD_ITEM,
@@ -37,12 +38,14 @@ enum EventName {
 };
 
 
-class EventKeyRegistry {
+class EventKeyRegistry
+{
     // allows for event strings (from JSON data) to be registered as EventNames
     // TODO: call it either "EventName" or "EventKey" consistently...
     // TODO: idk if I can avoid using strings altogether...
 public:
-    static int getEventKey(const std::string& name) {
+    static int getEventKey(const std::string& name)
+    {
         auto& map = nameToId();
         auto it = map.find(name);
         if (it != map.end())
@@ -53,7 +56,8 @@ public:
         return id;
     }
 
-    static int getIndexedEventKey(EventName base, int index) {
+    static int getIndexedEventKey(EventName base, int index)
+    {
         std::string key = std::to_string(base) + "_" + std::to_string(index);
         auto& map = nameToId();
         auto it = map.find(key);
@@ -65,11 +69,13 @@ public:
         return id;
     }
 
-    static int getNewKey() {
+    static int getNewKey()
+    {
         return nextId++;
     }
 private:
-    static std::unordered_map<std::string, int>& nameToId() {
+    static std::unordered_map<std::string, int>& nameToId()
+    {
         static std::unordered_map<std::string, int> map;
         return map;
     }

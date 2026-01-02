@@ -15,7 +15,7 @@ void SoundTest::startup() {
         size_t pos = file.find("sfx") + 4;
         std::string substr = file.substr(pos);
         TraceLog(LOG_INFO, "%s", substr.c_str());
-        menu.addItem({ substr, [this, file]() {
+        menu.addItem({ substr, MenuItemType::Action, [this, file]() {
             UnloadSound(currentSound);
             currentSound = LoadSound(file.c_str());
             PlaySound(currentSound);
@@ -23,7 +23,7 @@ void SoundTest::startup() {
         });
     }
     // go back to the start menu
-    menu.addItem({ "Back", [&]() { 
+    menu.addItem({ "Back", MenuItemType::Action, [&]() {
         game.startScene("StartMenu");
         game.stopScene(getName());
         } });

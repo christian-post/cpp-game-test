@@ -11,7 +11,8 @@ namespace fs = std::filesystem;
 
 nlohmann::json resolveInheritance(const std::unordered_map<std::string, nlohmann::json>& allData, const std::string& key, std::unordered_map<std::string, bool>& visited); // merges inherited JSON sprite data recursively
 
-class AssetLoader {
+class AssetLoader
+{
 private:
     std::unordered_map<std::string, std::vector<Texture2D>> textureGroups; // animation frames are grouped together
     std::unordered_map<std::string, Tileset> tilesets;

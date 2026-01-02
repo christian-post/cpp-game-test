@@ -40,19 +40,23 @@ void InventoryManager::initialize()
         });
 }
 
-void InventoryManager::addItem(const std::string& key, uint32_t amount) {
+void InventoryManager::addItem(const std::string& key, uint32_t amount)
+{
     auto it = itemData.find(key);
-    if (it == itemData.end()) {
+    if (it == itemData.end())
+    {
         TraceLog(LOG_ERROR, "No data exists for item with key %s", key.c_str());
         return;
     }
 
     const ItemData* data = &it->second;
-    if (data->type == IMMEDIATE) {
+    if (data->type == IMMEDIATE)
+    {
         // don't add the item and execute the callback once
         data->onConsume();
     }
-    else {
+    else
+    {
         auto& bucket = items[static_cast<size_t>(data->type)];
         auto& item = bucket[key];
         if (!item.first) 
@@ -61,20 +65,21 @@ void InventoryManager::addItem(const std::string& key, uint32_t amount) {
     }
 }
 
-void InventoryManager::removeItem(const std::string& key, uint32_t amount) {
+void InventoryManager::removeItem(const std::string& key, uint32_t amount)
+{
     auto it = itemData.find(key);
-    if (it == itemData.end()) return;
+    if (it == itemData.end())
+        return;
 
     const ItemData* data = &it->second;
     auto& bucket = items[static_cast<size_t>(data->type)];
 
     auto itemIt = bucket.find(key);
-    if (itemIt == bucket.end()) return;
+    if (itemIt == bucket.end())
+        return;
 
-    if (itemIt->second.second <= amount) {
+    if (itemIt->second.second <= amount)
         bucket.erase(itemIt);
-    }
-    else {
+    else
         itemIt->second.second -= amount;
-    }
 }

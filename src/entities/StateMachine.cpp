@@ -7,19 +7,22 @@
 
 const std::string StateMachine::emptyString = "";
 
-StateMachine::StateMachine(Game& game, std::shared_ptr<Sprite> owner) : game(game), owner(owner) {
-}
+StateMachine::StateMachine(Game& game, std::shared_ptr<Sprite> owner) : game(game), owner(owner)
+{}
 
-void StateMachine::addState(std::unique_ptr<State> state) {
+void StateMachine::addState(std::unique_ptr<State> state)
+{
     std::string name = state->name;
     states[name] = std::move(state);
 }
 
-void StateMachine::addBehavior(const std::string& key, std::unique_ptr<Behavior> behavior) {
+void StateMachine::addBehavior(const std::string& key, std::unique_ptr<Behavior> behavior)
+{
     behaviors[key] = std::move(behavior);
 }
 
-void StateMachine::setInitialState(const std::string& stateName) {
+void StateMachine::setInitialState(const std::string& stateName)
+{
     auto it = states.find(stateName);
     if (it != states.end())
         enterState(it->second.get());
@@ -27,7 +30,8 @@ void StateMachine::setInitialState(const std::string& stateName) {
         TraceLog(LOG_ERROR, "Initial state not found: %s", stateName.c_str());
 }
 
-void StateMachine::update(float deltaTime) {
+void StateMachine::update(float deltaTime)
+{
     if (!currentState)
         return;
 
@@ -42,21 +46,26 @@ void StateMachine::update(float deltaTime) {
     std::vector<const StateTransition*> validTransitions;
     float totalWeight = 0.0f;
 
-    for (const auto& transition : currentState->transitions) {
-        if (transition.canTransition(*sprite)) {
+    for (const auto& transition : currentState->transitions)
+    {
+        if (transition.canTransition(*sprite))
+        {
             validTransitions.push_back(&transition);
             totalWeight += transition.weight;
         }
     }
 
     // If we have valid transitions, use weighted random selection
-    if (!validTransitions.empty()) {
+    if (!validTransitions.empty())
+    {
         float randomValue = static_cast<float>(GetRandomValue(0, 10000)) / 10000.0f * totalWeight;
         float cumulative = 0.0f;
 
-        for (const auto* transition : validTransitions) {
+        for (const auto* transition : validTransitions)
+        {
             cumulative += transition->weight;
-            if (randomValue <= cumulative) {
+            if (randomValue <= cumulative)
+            {
                 transitionTo(transition->targetState);
                 return; // Only one transition per frame
             }
@@ -68,7 +77,8 @@ void StateMachine::update(float deltaTime) {
     }
 
     // Update only the ACTIVE behaviors
-    for (const auto& key : activeBehaviorKeys) {
+    for (const auto& key : activeBehaviorKeys)
+    {
         auto it = behaviors.find(key);
         if (it != behaviors.end())
             it->second->update(deltaTime);
@@ -79,18 +89,22 @@ void StateMachine::update(float deltaTime) {
         currentState->onUpdate(*sprite, deltaTime);
 }
 
-void StateMachine::draw() {
+void StateMachine::draw()
+{
     // TODO is this unecessarily slow? Most behaviors don't have a draw method...
-    for (const auto& key : activeBehaviorKeys) {
+    for (const auto& key : activeBehaviorKeys)
+    {
         auto it = behaviors.find(key);
         if (it != behaviors.end())
             it->second->draw();
     }
 }
 
-void StateMachine::transitionTo(const std::string& stateName) {
+void StateMachine::transitionTo(const std::string& stateName)
+{
     auto it = states.find(stateName);
-    if (it == states.end()) {
+    if (it == states.end())
+    {
         TraceLog(LOG_ERROR, "Target state not found: %s", stateName.c_str());
         return;
     }
@@ -113,7 +127,8 @@ void StateMachine::transitionTo(const std::string& stateName) {
         onStateChange(oldStateName, newState->name);
 }
 
-void StateMachine::enterState(State* state) {
+void StateMachine::enterState(State* state)
+{
     if (!state)
         return;
 
@@ -133,7 +148,8 @@ void StateMachine::enterState(State* state) {
     state->timer = 0.0f; // reset the timer
 }
 
-void StateMachine::exitState(State* state) {
+void StateMachine::exitState(State* state)
+{
     if (!state)
         return;
 
@@ -146,13 +162,16 @@ void StateMachine::exitState(State* state) {
         state->onExit(*sprite);
 }
 
-void StateMachine::activateBehaviors(const std::vector<std::string>& keys) {
+void StateMachine::activateBehaviors(const std::vector<std::string>& keys)
+{
     // Identify newly activated behaviors
     std::unordered_set<std::string> newKeys(keys.begin(), keys.end());
 
     // Call onDeactivate for old behaviors being deactivated
-    for (const auto& oldKey : activeBehaviorKeys) {
-        if (newKeys.find(oldKey) == newKeys.end()) {
+    for (const auto& oldKey : activeBehaviorKeys)
+    {
+        if (newKeys.find(oldKey) == newKeys.end())
+        {
             auto it = behaviors.find(oldKey);
             if (it != behaviors.end())
                 it->second->onDeactivate();
@@ -160,16 +179,16 @@ void StateMachine::activateBehaviors(const std::vector<std::string>& keys) {
     }
 
     // Reset behaviors that are being newly activated (weren't active before)
-    for (const auto& key : newKeys) {
-        if (activeBehaviorKeys.find(key) == activeBehaviorKeys.end()) {
+    for (const auto& key : newKeys)
+    {
+        if (activeBehaviorKeys.find(key) == activeBehaviorKeys.end())
+        {
             // This behavior is being activated for the first time or after being inactive
             auto it = behaviors.find(key);
-            if (it != behaviors.end()) {
+            if (it != behaviors.end())
                 it->second->reset(); // Reset the behavior to initial state
-            }
-            else {
+            else
                 TraceLog(LOG_WARNING, "Behavior not found: %s", key.c_str());
-            }
         }
     }
 
@@ -184,18 +203,21 @@ std::unique_ptr<StateMachine> StateMachine::createFromJSON(
 {
     auto stateMachine = std::make_unique<StateMachine>(game, owner);
 
-    if (!data.contains("states")) {
+    if (!data.contains("states"))
+    {
         TraceLog(LOG_ERROR, "State machine data is missing 'states' field");
         return stateMachine;
     }
 
     // Create states and their behaviors
-    for (const auto& stateData : data["states"]) {
+    for (const auto& stateData : data["states"])
+    {
         std::string stateName = stateData["name"];
         auto state = std::make_unique<State>(stateName);
 
         // Check for animation state override
-        if (stateData.contains("animState")) {
+        if (stateData.contains("animState"))
+        {
             std::string animStateStr = stateData["animState"];
             AnimState animState = IDLE; // default
 
@@ -220,14 +242,17 @@ std::unique_ptr<StateMachine> StateMachine::createFromJSON(
         nlohmann::json behaviorData = stateData.value("behaviorData", nlohmann::json::object());
 
         // Create behaviors for this specific state
-        if (stateData.contains("behaviors")) {
-            for (const auto& behaviorKey : stateData["behaviors"]) {
+        if (stateData.contains("behaviors"))
+        {
+            for (const auto& behaviorKey : stateData["behaviors"])
+            {
                 std::string behaviorKeyStr = behaviorKey.get<std::string>();
 
                 // Use the creation function from Behavior.h
                 auto behavior = createBehaviorFromJSON(game, owner, behaviorKeyStr, behaviorData);
 
-                if (behavior) {
+                if (behavior)
+                {
                     // Create unique key: "stateName_behaviorType"
                     std::string uniqueKey = stateName + "_" + behaviorKeyStr;
                     behavior->onDeactivate(); // make sure all behaviors start inactive, if needed
@@ -241,62 +266,77 @@ std::unique_ptr<StateMachine> StateMachine::createFromJSON(
     }
 
     // Add transitions (unchanged)
-    for (const auto& stateData : data["states"]) {
+    for (const auto& stateData : data["states"])
+    {
         std::string stateName = stateData["name"];
         State* state = stateMachine->states[stateName].get();
 
         if (!stateData.contains("transitions"))
             continue;
 
-        for (const auto& transData : stateData["transitions"]) {
+        for (const auto& transData : stateData["transitions"])
+        {
             StateTransition transition;
             transition.targetState = transData["to"];
             transition.requiresAll = transData.value("requiresAll", true);
 
-            if (transData.contains("conditions")) {
-                for (const auto& condData : transData["conditions"]) {
+            if (transData.contains("conditions"))
+            {
+                for (const auto& condData : transData["conditions"])
+                {
                     std::string type = condData["type"];
 
-                    if (type == "playerInRange") {
+                    if (type == "playerInRange")
+                    {
                         float distance = condData["distance"];
                         transition.conditions.push_back(TransitionConditions::PlayerInRange(distance));
                     }
-                    else if (type == "playerOutOfRange") {
+                    else if (type == "playerOutOfRange")
+                    {
                         float distance = condData["distance"];
                         transition.conditions.push_back(TransitionConditions::PlayerOutOfRange(distance));
                     }
-                    else if (type == "healthBelow") {
+                    else if (type == "healthBelow")
+                    {
                         uint32_t threshold = condData["threshold"];
                         transition.conditions.push_back(TransitionConditions::HealthBelow(threshold));
                     }
-                    else if (type == "healthBelowPercent") {
+                    else if (type == "healthBelowPercent")
+                    {
                         float percent = condData["percent"];
                         transition.conditions.push_back(TransitionConditions::HealthBelowPercent(percent));
                     }
-                    else if (type == "hasLineOfSight") {
+                    else if (type == "hasLineOfSight")
+                    {
                         transition.conditions.push_back(TransitionConditions::HasLineOfSightToPlayer());
                     }
-                    else if (type == "lostLineOfSight") {
+                    else if (type == "lostLineOfSight")
+                    {
                         transition.conditions.push_back(TransitionConditions::LostLineOfSightToPlayer());
                     }
-                    else if (type == "timeInStateExceeds") {
+                    else if (type == "timeInStateExceeds")
+                    {
                         float seconds = condData["seconds"];
-                        if (condData.contains("variance")) {
+                        if (condData.contains("variance"))
+                        {
                             float variance = condData["variance"];
                             float randomOffset = ((float)rand() / RAND_MAX) * (2 * variance) - variance;
                             seconds += randomOffset;
                         }
                         transition.conditions.push_back(TransitionConditions::TimeInStateExceeds(seconds));
                     }
-                    else if (type == "healthAbove") {
+                    else if (type == "healthAbove")
+                    {
                         uint32_t threshold = condData["threshold"];
                         transition.conditions.push_back(TransitionConditions::HealthAbove(threshold));
                     }
-                    else if (type == "healthAbovePercent") {
+                    else if (type == "healthAbovePercent")
+                    {
                         float percent = condData["percent"];
                         transition.conditions.push_back(TransitionConditions::HealthAbovePercent(percent));
                     }
-                    else {
+                    else
+                    {
                         TraceLog(LOG_WARNING, "Unknown condition type: %s", type.c_str());
                     }
                 }
@@ -313,7 +353,8 @@ std::unique_ptr<StateMachine> StateMachine::createFromJSON(
 }
 
 // Implementation of transition condition helpers
-namespace TransitionConditions {
+namespace TransitionConditions
+{
     TransitionCondition PlayerInRange(float distance) {
         return TransitionCondition{
             [distance](Sprite& sprite) {
@@ -334,7 +375,8 @@ namespace TransitionConditions {
         };
     }
 
-    TransitionCondition PlayerOutOfRange(float distance) {
+    TransitionCondition PlayerOutOfRange(float distance)
+    {
         return TransitionCondition{
             [distance](Sprite& sprite) {
                 auto& game = sprite.game;
@@ -354,7 +396,8 @@ namespace TransitionConditions {
         };
     }
 
-    TransitionCondition HealthBelow(uint32_t threshold) {
+    TransitionCondition HealthBelow(uint32_t threshold)
+    {
         return TransitionCondition{
             [threshold](Sprite& sprite) {
                 return sprite.health < threshold;
@@ -363,7 +406,8 @@ namespace TransitionConditions {
         };
     }
 
-    TransitionCondition HealthAbove(uint32_t threshold) {
+    TransitionCondition HealthAbove(uint32_t threshold)
+    {
         return TransitionCondition{
             [threshold](Sprite& sprite) {
                 return sprite.health >= threshold;
@@ -372,7 +416,8 @@ namespace TransitionConditions {
         };
     }
 
-    TransitionCondition HealthBelowPercent(float percent) {
+    TransitionCondition HealthBelowPercent(float percent)
+    {
         return TransitionCondition{
             [percent](Sprite& sprite) {
                 if (sprite.maxHealth == 0)
@@ -386,7 +431,8 @@ namespace TransitionConditions {
         };
     }
 
-    TransitionCondition HealthAbovePercent(float percent) {
+    TransitionCondition HealthAbovePercent(float percent)
+    {
         return TransitionCondition{
             [percent](Sprite& sprite) {
                 if (sprite.maxHealth == 0)
@@ -400,7 +446,8 @@ namespace TransitionConditions {
         };
     }
 
-    TransitionCondition HasLineOfSightToPlayer() {
+    TransitionCondition HasLineOfSightToPlayer()
+    {
         return TransitionCondition{
             [](Sprite& sprite) {
                 auto& game = sprite.game;
@@ -415,7 +462,8 @@ namespace TransitionConditions {
         };
     }
 
-    TransitionCondition LostLineOfSightToPlayer() {
+    TransitionCondition LostLineOfSightToPlayer()
+    {
         return TransitionCondition{
             [](Sprite& sprite) {
                 auto& game = sprite.game;
@@ -430,7 +478,8 @@ namespace TransitionConditions {
         };
     }
 
-    TransitionCondition TimeInStateExceeds(float seconds) {
+    TransitionCondition TimeInStateExceeds(float seconds)
+    {
         // Transition after time spent in state exceeds "seconds"
         return TransitionCondition{
             [seconds](Sprite& sprite) {
@@ -442,7 +491,8 @@ namespace TransitionConditions {
         };
     }
 
-    TransitionCondition Custom(std::function<bool(Sprite&)> func, const std::string& desc) {
+    TransitionCondition Custom(std::function<bool(Sprite&)> func, const std::string& desc)
+    {
         return TransitionCondition{
             func,
             desc
@@ -451,19 +501,25 @@ namespace TransitionConditions {
 }
 
 // Debug and helper methods
-std::vector<std::string> StateMachine::getActiveBehaviorKeys() const {
+std::vector<std::string> StateMachine::getActiveBehaviorKeys() const
+{
     return std::vector<std::string>(activeBehaviorKeys.begin(), activeBehaviorKeys.end());
 }
 
-std::vector<std::string> StateMachine::getAllStateNames() const {
+std::vector<std::string> StateMachine::getAllStateNames() const
+{
     std::vector<std::string> names;
     for (const auto& [name, state] : states)
+    {
         names.push_back(name);
+    }
     return names;
 }
 
-void StateMachine::drawDebugInfo(int x, int y, int fontSize) const {
-    if (!currentState) {
+void StateMachine::drawDebugInfo(int x, int y, int fontSize) const
+{
+    if (!currentState)
+    {
         DrawText("No active state", x, y, fontSize, RED);
         return;
     }
@@ -486,11 +542,13 @@ void StateMachine::drawDebugInfo(int x, int y, int fontSize) const {
     currentY += lineHeight;
 
     // Draw active behaviors
-    if (!activeBehaviorKeys.empty()) {
+    if (!activeBehaviorKeys.empty())
+    {
         DrawText("Active Behaviors:", x, currentY, fontSize, LIGHTGRAY);
         currentY += lineHeight;
 
-        for (const auto& key : activeBehaviorKeys) {
+        for (const auto& key : activeBehaviorKeys)
+        {
             std::string behaviorText = "  - " + key;
             DrawText(behaviorText.c_str(), x, currentY, fontSize, GREEN);
             currentY += lineHeight;
@@ -498,11 +556,13 @@ void StateMachine::drawDebugInfo(int x, int y, int fontSize) const {
     }
 
     // Draw all behaviors (for debugging)
-    if (sprite->game.debug) {
+    if (sprite->game.debug)
+    {
         DrawText("All Behaviors:", x, currentY, fontSize - 2, DARKGRAY);
         currentY += lineHeight - 2;
 
-        for (const auto& [key, behavior] : behaviors) {
+        for (const auto& [key, behavior] : behaviors)
+        {
             bool isActive = activeBehaviorKeys.find(key) != activeBehaviorKeys.end();
             Color color = isActive ? GREEN : DARKGRAY;
             std::string text = "  " + key + (isActive ? " (active)" : " (inactive)");
@@ -513,19 +573,23 @@ void StateMachine::drawDebugInfo(int x, int y, int fontSize) const {
     }
 
     // Draw possible transitions
-    if (!currentState->transitions.empty()) {
+    if (!currentState->transitions.empty())
+    {
         DrawText("Transitions:", x, currentY, fontSize, LIGHTGRAY);
         currentY += lineHeight;
 
-        for (const auto& transition : currentState->transitions) {
+        for (const auto& transition : currentState->transitions)
+        {
             Color color = transition.canTransition(*sprite) ? GREEN : DARKGRAY;
             std::string transText = "  -> " + transition.targetState;
             DrawText(transText.c_str(), x, currentY, fontSize, color);
             currentY += lineHeight;
 
             // Draw conditions if in debug mode
-            if (sprite->game.debug) {
-                for (const auto& condition : transition.conditions) {
+            if (sprite->game.debug)
+            {
+                for (const auto& condition : transition.conditions)
+                {
                     bool met = condition.check(*sprite);
                     Color condColor = met ? GREEN : RED;
                     std::string condText = "     " + condition.description;

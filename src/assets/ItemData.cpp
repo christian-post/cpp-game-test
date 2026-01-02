@@ -3,14 +3,16 @@
 #include "WeaponBehavior.h"
 
 
-static weaponData createWeaponDataFromJSON(const nlohmann::json& weaponJSON, const std::string& weaponKey) {
+static weaponData createWeaponDataFromJSON(const nlohmann::json& weaponJSON, const std::string& weaponKey)
+{
     // Helper function to create weaponData from JSON
     // Get the JSON data with fallback
     const auto& data = weaponJSON.contains(weaponKey)
         ? weaponJSON.at(weaponKey)
         : weaponJSON.at("weapon_default");
 
-    if (!weaponJSON.contains(weaponKey)) {
+    if (!weaponJSON.contains(weaponKey))
+    {
         TraceLog(LOG_WARNING, "Missing weapon data for %s, falling back to weapon_default", weaponKey.c_str());
     }
 
@@ -26,7 +28,8 @@ static weaponData createWeaponDataFromJSON(const nlohmann::json& weaponJSON, con
     wpnData.HurtboxWidth = data.at("HurtboxWidth");
     wpnData.HurtboxHeight = data.at("HurtboxHeight");
     wpnData.soundKey = data.at("sound");
-    if (wpnData.type == SHOOT || wpnData.type == BOW) {
+    if (wpnData.type == SHOOT || wpnData.type == BOW)
+    {
         wpnData.projectileKey = data.at("projectile");
         wpnData.projectileTrailEmitterKey = data.at("projectileTrailEmitter");
         wpnData.projectileImpactEmitterKey = data.at("projectileImpactEmitter");
@@ -36,7 +39,8 @@ static weaponData createWeaponDataFromJSON(const nlohmann::json& weaponJSON, con
 }
 
 
-std::map<std::string, ItemData> createItemData(Game& game) {
+std::map<std::string, ItemData> createItemData(Game& game)
+{
     std::map<std::string, ItemData> data;
 
     data["weapon_sword"] = ItemData{ WEAPON, "Sword", "weapon_sword" };
@@ -106,13 +110,16 @@ std::map<std::string, ItemData> createItemData(Game& game) {
     // weapon-specific data
     const auto& weaponJSON = game.loader.getSpriteData();
 
-    for (auto& [key, item] : data) {
-        if (item.type == WEAPON) {
+    for (auto& [key, item] : data)
+    {
+        if (item.type == WEAPON)
+        {
             // Create weaponData from JSON
             weaponData wpnData = createWeaponDataFromJSON(weaponJSON, key);
 
             // Add weapon-specific callbacks
-            if (key == "item_lamp") {
+            if (key == "item_lamp")
+            {
                 wpnData.onCreate = [&game]() {
                     game.eventManager.pushEvent(LAMP_ON);
                     };

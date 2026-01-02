@@ -6,12 +6,14 @@
 #include <string>
 
 
-struct QueuedCommand {
+struct QueuedCommand
+{
     Command* cmd;
     bool blocking;
 };
 
-class CutsceneManager {
+class CutsceneManager
+{
     std::queue<QueuedCommand> commands;
     std::vector<Command*> nonBlocking;
     bool active = false;
@@ -25,10 +27,10 @@ public:
     bool hasCameraControl() const { return controlsCamera; }
     void setCameraControl(bool set) { controlsCamera = set; }
 
-    std::string currentCommandName() const {
-        if (!commands.empty()) {
+    std::string currentCommandName() const
+    {
+        if (!commands.empty())
             return commands.front().cmd->name;
-        }
         return "empty";
     }
 };

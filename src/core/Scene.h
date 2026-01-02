@@ -7,7 +7,8 @@
 
 class Game;
 
-enum inventoryState {
+enum inventoryState
+{
     NONE,
     OPENING,
     OPENED,
@@ -16,7 +17,8 @@ enum inventoryState {
     SLIDING_RIGHT
 };
 
-class Scene {
+class Scene
+{
     // scene base class
 public:
     Scene(Game& game, std::string sceneName) : game{ game }, name(std::move(sceneName)) {}
@@ -47,10 +49,12 @@ public:
 
 
     using CompletionCallback = std::function<void()>;
-    void setOnComplete(CompletionCallback callback) {
+    void setOnComplete(CompletionCallback callback)
+    {
         onComplete = callback;
     }
-    void complete() {
+    void complete()
+    {
         if (onComplete) 
             onComplete();
     }

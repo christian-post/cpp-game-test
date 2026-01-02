@@ -7,7 +7,8 @@
 class Game;
 class TextBox;
 
-class Command {
+class Command
+{
     // base class for cutscene commands
 public:
     virtual ~Command() = default;
@@ -23,7 +24,8 @@ protected:
     bool done = false;
 };
 
-class Command_Wait : public Command {
+class Command_Wait : public Command
+{
     // does nothing for a given amount of time.
     // blocks all following commands
 public:
@@ -35,7 +37,8 @@ private:
     float timer = 0.0f;
 };
 
-class Command_MoveTo : public Command {
+class Command_MoveTo : public Command
+{
     // > makes the target sprite walk to a given destination.
     // > plays the RUN state animation while the timer is > 0.
     // > Use duration = 0.0f to teleport a sprite instantly
@@ -48,7 +51,8 @@ private:
     float startX = 0.0f, startY = 0.0f, finalPosX, finalPosY, duration, timer = 0.0f;
 };
 
-class Command_Look : public Command {
+class Command_Look : public Command
+{
     // target sprite looks in a fixed direction (LEFT or RIGHT)
 public:
     Command_Look(Sprite& target, direction dir);
@@ -59,7 +63,8 @@ private:
     direction dir;
 };
 
-class Command_LookTowards : public Command {
+class Command_LookTowards : public Command
+{
     // direction depends on the difference between two sprites' x positions
 public:
     Command_LookTowards(Sprite& target, Sprite& other);
@@ -70,7 +75,8 @@ private:
     Sprite& other;
 };
 
-class Command_Textbox : public Command {
+class Command_Textbox : public Command
+{
     // displays some text
     // the "pitch" argument controls whether the tone should be slightly shifted based on the length of each word
 public:
@@ -91,7 +97,8 @@ public:
     static bool isTextboxCooldown() { return textboxCooldown; }
 };
 
-class Command_Callback : public Command {
+class Command_Callback : public Command
+{
     // executes arbitrary code during a cutscene
 public:
     Command_Callback(std::function<void()> callback);
@@ -101,7 +108,8 @@ private:
     std::function<void()> callback;
 };
 
-class Command_Letterbox : public Command {
+class Command_Letterbox : public Command
+{
     // displays black bars on the top and bottom of the screen
     // the "duration" argument controls how long it takes the bars to move to their final position
     // TODO: make a function to fade out the letterbox
@@ -114,7 +122,8 @@ private:
     float screenWidth, screenHeight, barHeight = 0.0f, speed;
 };
 
-class Command_CameraPan : public Command {
+class Command_CameraPan : public Command
+{
     // moves the camera towards a given position
     // TODO: ease in/out
 public:
