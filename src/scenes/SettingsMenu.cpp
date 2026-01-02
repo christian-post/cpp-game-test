@@ -89,7 +89,9 @@ void SettingsMenu::startup()
     textSpeedItem.currentOption = (currentSpeed > speeds[1]) ? 0 : (currentSpeed < speeds[1]) ? 2 : 1;
 
     textSpeedItem.cycleCallback = [&, speeds](size_t index) {
-        game.writeSetting("textDelay", speeds[index]);
+        double rounded = std::round(speeds[index] * 100.0) / 100.0;
+        game.writeSetting("textDelay", rounded);
+        //game.writeSetting("textDelay", speeds[index]);
         };
     menu.addItem(textSpeedItem);
 

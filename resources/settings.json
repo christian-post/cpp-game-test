@@ -26,13 +26,13 @@
   "sfxVolume": 70,
   "soundOn": true,
   "targetFPS": 120,
-  "textDelay": 0.019999999552965164,
+  "textDelay": 0.05,
   "textboxHeight": 64,
   "tileChunkSize": 256,
   "vignetteIntensity": 0.3,
   "vignetteSmoothness": 0.5,
   "windowHeight": 805,
   "windowWidth": 1074,
-  "windowX": 426.0,
-  "windowY": 103.0
+  "windowX": 682.0,
+  "windowY": 84.0
 }
