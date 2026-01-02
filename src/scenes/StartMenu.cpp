@@ -32,6 +32,15 @@ void StartMenu::startup() {
     }
 
     menu.addItem({
+            "Settings",
+            MenuItemType::Action,
+            [&]() {
+                game.startScene("SettingsMenu");
+                game.stopScene(getName());
+            }
+        });
+
+    menu.addItem({
             "Sound Test",
             MenuItemType::Action,
             [&]() {

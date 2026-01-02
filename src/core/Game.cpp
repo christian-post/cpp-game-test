@@ -3,6 +3,7 @@
 #include "Preload.h"
 #include "TitleScreen.h"
 #include "StartMenu.h"
+#include "SettingsMenu.h"
 #include "SoundTest.h"
 #include "DebugMenu.h"
 #include "SelectMenu.h"
@@ -54,8 +55,8 @@ Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this)
     }
     else
     {
-        int x = getSetting("windowX", GetWindowPosition().x);
-        int y = getSetting("windowY", GetWindowPosition().y);
+        int x = getSetting("windowX", static_cast<int>(GetWindowPosition().x));
+        int y = getSetting("windowY", static_cast<int>(GetWindowPosition().y));
         SetWindowPosition(x, y);
     }
 
@@ -71,6 +72,7 @@ Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this)
 
     InitAudioDevice();
     soundOn = getSetting<bool>("soundOn");
+    SetMasterVolume(getSetting<float>("masterVolume") / 100.0f);
 
     // Render texture initialization, used to hold the rendering result so we can easily resize it
     // see https://github.com/raysan5/raylib/blob/master/examples/core/core_window_letterbox.c
@@ -87,6 +89,7 @@ Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this)
     registerScene<StartMenu>("StartMenu", 0);
     registerScene<LoadSavegameMenu>("LoadSavegameMenu", 0);
     registerScene<WriteSavegameMenu>("WriteSavegameMenu", 1);
+    registerScene<SettingsMenu>("SettingsMenu", 0);
     registerScene<SoundTest>("SoundTest", 0);
     registerScene<DebugMenu>("DebugMenu", 2);
     registerScene<SelectMenu>("SelectMenu", 0);
@@ -436,7 +439,9 @@ void Game::playSound(const std::string& key)
 {
     if (!soundOn || !sfxOn)
         return;
-    PlaySound(loader.getSound(key));
+    Sound sound = loader.getSound(key);
+    SetSoundVolume(sound, getSetting<float>("sfxVolume") / 100.0f);
+    PlaySound(sound);
 }
 
 void Game::update(float deltaTime)
@@ -464,8 +469,8 @@ void Game::playMusic()
         {
             if (scene->music)
             {
+                SetMusicVolume(*scene->music, getSetting<float>("musicVolume") / 100.0f);
                 UpdateMusicStream(*scene->music);
-                //return; // TODO prevent multiple scenes from playing music?
             }
         }
     }

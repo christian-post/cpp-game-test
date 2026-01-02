@@ -22,6 +22,9 @@
 -- dialogue options
 -- create a Sprite.fromJson() method to avoid duplications in InGame.cpp
 
+- UI
+-- MenuSelect: Add Section headers that divide the menu items, but can't be selected themselves
+
 # NOT SO IMPORTANT:
 ## FEATURES/REFACTORS:
 - add a "persistent" property to event listeners (non-persistent listeners are removed after one event)

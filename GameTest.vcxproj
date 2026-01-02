@@ -196,6 +196,7 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <ClCompile Include="src\scenes\MapUI.cpp" />
     <ClCompile Include="src\scenes\Preload.cpp" />
     <ClCompile Include="src\scenes\SelectMenu.cpp" />
+    <ClCompile Include="src\scenes\SettingsMenu.cpp" />
     <ClCompile Include="src\scenes\SoundTest.cpp" />
     <ClCompile Include="src\scenes\StartMenu.cpp" />
     <ClCompile Include="src\scenes\TitleScreen.cpp" />
@@ -259,6 +260,7 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <ClInclude Include="src\scenes\MapUI.h" />
     <ClInclude Include="src\scenes\Preload.h" />
     <ClInclude Include="src\scenes\SelectMenu.h" />
+    <ClInclude Include="src\scenes\SettingsMenu.h" />
     <ClInclude Include="src\scenes\SoundTest.h" />
     <ClInclude Include="src\scenes\StartMenu.h" />
     <ClInclude Include="src\scenes\TitleScreen.h" />
