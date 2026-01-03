@@ -117,53 +117,82 @@ void TilemapRenderer::generateChunkForLayer(size_t layerIndex) {
     }
 
     // Get tileset information
-    const Tileset& tileset = game.loader.getTileset(currentTilemap->getTilesetName());
-    const Texture2D& tilesetTexture = game.loader.getTextures(tileset.name)[0];
-    const size_t tilesPerRow = tileset.columns;
+    const auto& tilesetInfos = currentTilemap->getTilesetNames();
 
-    for (size_t chunkY = 0; chunkY < numChunksY; chunkY++) {
-        for (size_t chunkX = 0; chunkX < numChunksX; chunkX++) {
+    std::vector<TilesetData> tilesetCache;
+    for (const auto& info : tilesetInfos)
+    {
+        const Tileset& tileset = game.loader.getTileset(info.first);
+        TilesetData data;
+        data.name = info.first;
+        data.tileset = &tileset;
+        data.texture = &game.loader.getTextures(tileset.name)[0];
+        data.tilesPerRow = tileset.columns;
+        data.firstGid = info.second;
+        tilesetCache.push_back(data);
+    }
+
+    for (size_t chunkY = 0; chunkY < numChunksY; chunkY++)
+    {
+        for (size_t chunkX = 0; chunkX < numChunksX; chunkX++)
+        {
             size_t chunkIndex = chunkY * numChunksX + chunkX;
 
-            // Create render texture for this chunk
+            // create render texture for this chunk
             tilemapChunks[layerIndex][chunkIndex] = LoadRenderTexture(
                 static_cast<int>(tileChunkSize),
                 static_cast<int>(tileChunkSize)
             );
 
-            // Begin rendering to this chunk
+            // begin rendering to this chunk
             BeginTextureMode(tilemapChunks[layerIndex][chunkIndex]);
             ClearBackground(BLANK);
 
-            // Calculate tile boundaries for this chunk
+            // calculate tile boundaries for this chunk
             size_t startTileX = (chunkX * tileChunkSize) / tileSize;
             size_t startTileY = (chunkY * tileChunkSize) / tileSize;
             size_t endTileX = std::min(((chunkX + 1) * tileChunkSize) / tileSize, worldWidth);
             size_t endTileY = std::min(((chunkY + 1) * tileChunkSize) / tileSize, worldHeight);
 
-            // Render tiles in this chunk
-            for (size_t tileY = startTileY; tileY < endTileY; tileY++) {
-                for (size_t tileX = startTileX; tileX < endTileX; tileX++) {
-                    if (tileY >= layer.data.size() || tileX >= layer.data[tileY].size()) {
+            // render tiles in this chunk
+            for (size_t tileY = startTileY; tileY < endTileY; tileY++)
+            {
+                for (size_t tileX = startTileX; tileX < endTileX; tileX++)
+                {
+                    if (tileY >= layer.data.size() || tileX >= layer.data[tileY].size())
                         continue;
-                    }
 
                     int tileId = layer.data[tileY][tileX];
+                    if (tileId == 0)
+                        continue;
 
-                    if (tileId == 0) {
-                        continue; // 0 means transparent/empty tile
+                    // find which tileset this tile belongs to
+                    const TilesetData* tilesetData = nullptr;
+                    int tileIndex = 0;
+
+                    for (size_t i = 0; i < tilesetCache.size(); i++)
+                    {
+                        int currentFirstGid = tilesetCache[i].firstGid;
+                        int nextFirstGid = (i + 1 < tilesetCache.size()) ? tilesetCache[i + 1].firstGid : INT_MAX;
+
+                        if (tileId >= currentFirstGid && tileId < nextFirstGid)
+                        {
+                            tilesetData = &tilesetCache[i];
+                            tileIndex = tileId - currentFirstGid;
+                            break;
+                        }
                     }
 
-                    // Convert to 0-based index
-                    int tileIndex = tileId - 1;
+                    if (!tilesetData)
+                        continue;
 
-                    // Calculate position within chunk
+                    // calculate position within chunk
                     int drawX = static_cast<int>((tileX * tileSize) - (chunkX * tileChunkSize));
                     int drawY = static_cast<int>((tileY * tileSize) - (chunkY * tileChunkSize));
 
-                    // Calculate source rectangle from tileset
-                    size_t srcTileX = (static_cast<size_t>(tileIndex) % tilesPerRow) * tileSize;
-                    size_t srcTileY = (static_cast<size_t>(tileIndex) / tilesPerRow) * tileSize;
+                    // calculate source rectangle from tileset
+                    size_t srcTileX = (static_cast<size_t>(tileIndex) % tilesetData->tilesPerRow) * tileSize;
+                    size_t srcTileY = (static_cast<size_t>(tileIndex) / tilesetData->tilesPerRow) * tileSize;
 
                     Rectangle sourceRect = {
                         static_cast<float>(srcTileX),
@@ -179,7 +208,7 @@ void TilemapRenderer::generateChunkForLayer(size_t layerIndex) {
                         static_cast<float>(tileSize)
                     };
 
-                    DrawTexturePro(tilesetTexture, sourceRect, destRect, { 0, 0 }, 0.0f, WHITE);
+                    DrawTexturePro(*tilesetData->texture, sourceRect, destRect, { 0, 0 }, 0.0f, WHITE);
                 }
             }
 

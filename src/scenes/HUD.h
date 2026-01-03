@@ -12,7 +12,6 @@ public:
     void startup() override;
     void update(float deltaTime) override;
     void draw() override;
-    void end() override;
 
 private:
     std::vector<Texture2D> heartImages;

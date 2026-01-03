@@ -8,6 +8,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <utility>
 
 
 class Game;
@@ -89,7 +90,7 @@ public:
     const std::vector<TileObject>& getObjects() const { return objects; }
     std::vector<TileObject>& getObjects() { return objects; } // non-const overload for modifications
     const std::string& getName() const { return mapName; }
-    const std::string& getTilesetName() const { return tilesetName; }
+    const std::vector<std::pair<std::string, int>>& getTilesetNames() const { return tilesetNames; }
     const std::string& getRoomID() const { return roomID; }
     const std::string& getMusicKey() const { return music; }
     bool isDark() const { return dark; }
@@ -100,7 +101,7 @@ public:
 
 private:
     std::string mapName;
-    std::string tilesetName;
+    std::vector<std::pair<std::string, int>> tilesetNames;  // Tiled allows a map to have multiple tilesets. First is the file id, sectond is the firstgid
     std::string music;
     bool dark = false;
     std::vector<TileObject> objects;

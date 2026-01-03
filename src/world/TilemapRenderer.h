@@ -6,6 +6,15 @@
 
 class Game;
 
+struct TilesetData {
+    std::string name;
+    const Tileset* tileset;
+    const Texture2D* texture;
+    size_t tilesPerRow;
+    int firstGid;
+}; // encapsulates Tileset info read from TileMap
+// TODO maybe I can put this in TileMap directly
+
 class TilemapRenderer {
 public:
     TilemapRenderer(Game& game);

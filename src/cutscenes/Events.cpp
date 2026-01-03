@@ -55,7 +55,7 @@ void setupConditionalEvents(InGame& inGame)
                     if (!npcRef.persistent) {
                         npcRef.persistent = true;
                         npcRef.followsPlayer = true;
-                        npcRef.speed = 16;
+                        npcRef.speed = game.getSetting<float>("npcFollowSpeed");
                         npcRef.addBehavior(std::make_unique<ChaseBehavior>(game, game.spriteMap["elfCompanion2"], game.spriteMap["player"], 20.0f));
                     }
                     }));
@@ -66,9 +66,8 @@ void setupConditionalEvents(InGame& inGame)
     game.eventManager.pushConditionalEvent(
         [&]() {
             // this event sets the position of the elf companion next to the player after loading the first room
-            if (!inGame.tileMap)
-                return false;
-            return (inGame.tileMap->getName() == "dungeon001" && game.currentDungeon->getCurrentRoomState() >= 6);
+            const std::string& roomID = game.currentDungeon->loadTileMap()->getRoomID();
+            return (roomID == "starting_room" && game.currentDungeon->getCurrentRoomState() >= 6);
         },
         [&]() {
             if (game.spriteMap.find("elfCompanion2") == game.spriteMap.end())
@@ -82,7 +81,7 @@ void setupConditionalEvents(InGame& inGame)
                 {
                     npcRef.persistent = true;
                     npcRef.followsPlayer = true;
-                    npcRef.speed = 16;
+                    npcRef.speed = game.getSetting<float>("npcFollowSpeed");
                     npcRef.addBehavior(std::make_unique<ChaseBehavior>(game, game.spriteMap["elfCompanion2"], game.spriteMap["player"], 20.0f));
                 }
                 });

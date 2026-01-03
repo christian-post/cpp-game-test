@@ -21,6 +21,7 @@
   },
   "masterVolume": 60,
   "musicVolume": 100,
+  "npcFollowSpeed": 18.0,
   "playerStartingHealth": 10,
   "playerStartingMaxHealth": 10,
   "sfxVolume": 70,

@@ -49,6 +49,7 @@ TileMap::TileMap(const nlohmann::json& jsonMap, std::string mapName)
     tileHeight = jsonMap["tileheight"];
 
     music = "";
+
     if (jsonMap.contains("properties") && jsonMap["properties"].is_array())
     {
         for (const auto& prop : jsonMap["properties"])
@@ -66,8 +67,14 @@ TileMap::TileMap(const nlohmann::json& jsonMap, std::string mapName)
         }
     }
 
-    std::string srcName = jsonMap["tilesets"][0]["source"];
-    tilesetName = srcName.substr(0, srcName.size() - 4); // strip the ".tsj"
+    for (auto& t : jsonMap["tilesets"])
+    {
+        // strip the ".tsj" from the filename
+        std::string srcName = t["source"];
+        tilesetNames.push_back(std::make_pair(srcName.substr(0, srcName.size() - 4), t["firstgid"])); 
+    }
+    //std::string srcName = jsonMap["tilesets"][0]["source"];
+    //tilesetName = srcName.substr(0, srcName.size() - 4); // strip the ".tsj"
 
     if (jsonMap.contains("layers"))
     {

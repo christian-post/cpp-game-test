@@ -10,7 +10,7 @@ enum class MenuType {
     RoomSelect,
     LevelSelect,
     ItemCheat,
-    TestMenu,
+    NoClip,
     Count
 };
 

@@ -6,7 +6,8 @@
 #include "Controls.h"
 #include <cstdint>
 
-HUD::HUD(Game& game, const std::string& name) : Scene(game, name), heartImages{} {
+HUD::HUD(Game& game, const std::string& name) : Scene(game, name), heartImages{}
+{
     // event listeners
     game.eventManager.addListener(HIDE_HUD, [this](std::any) {
         // start hiding the HUD
@@ -60,29 +61,34 @@ HUD::HUD(Game& game, const std::string& name) : Scene(game, name), heartImages{}
         });
 }
 
-void HUD::startup() {
+void HUD::startup()
+{
     width = float(game.gameScreenWidth);
     heartImages = game.loader.getTextures("hearts");
     height = game.getSetting<float>("HudHeight");
 }
 
-void HUD::update(float deltaTime) {
-    if (retracting && y > -height) {
+void HUD::update(float deltaTime)
+{
+    if (retracting && y > -height)
+    {
         y = std::max(-height, y - deltaTime * height);
-        if (y == -height) visible = false;
+        if (y == -height) 
+            visible = false;
     }
-    else if (!retracting && y < 0.0f) {
+    else if (!retracting && y < 0.0f)
+    {
         y = std::min(0.0f, y + deltaTime * height);
     }
     // oscillate the item display
     collectedItemY = 8 + static_cast<int>(4.0f * std::sin(collectedItemTimer * 8.0f));
     collectedItemTimer += deltaTime;
-    if (collectedItemTimer >= 2.0f) {
+    if (collectedItemTimer >= 2.0f)
         showCollectedItem = false;
-    }
 }
 
-void HUD::draw() {
+void HUD::draw()
+{
     if (!visible) 
         return;
 
@@ -91,11 +97,13 @@ void HUD::draw() {
     // draw player health as hearts
     // TODO draw the hearts ON the reactangle as a texture?
     Sprite* player = game.getPlayer();
-    if (player) {
+    if (player)
+    {
         int spacing = heartImages[0].width + 2;
         int totalHearts = player->maxHealth / 2;
         int hp = player->health;
-        for (int i = 0; i < totalHearts; i++) {
+        for (int i = 0; i < totalHearts; i++)
+        {
             int imgIndex = (hp >= 2) ? 2 : (hp == 1 ? 1 : 0);
             DrawTexture(heartImages[imgIndex], 8 + spacing * i, int(y) + 8, WHITE);
             hp -= 2;
@@ -106,22 +114,26 @@ void HUD::draw() {
     const size_t weaponSlotMargin = static_cast<size_t>(frameTex.width) + 8;
     int weaponX = int(x) + int(static_cast<float>(game.gameScreenWidth) * 0.6); // TODO calculate this once instead of every frame
     const int weaponY = int(y) + 16;
-    for (size_t slot = 0; slot < 2; slot++) {
+    for (size_t slot = 0; slot < 2; slot++)
+    {
         // draw background
         weaponX += int(slot * weaponSlotMargin);
         DrawTexture(frameTex, weaponX - frameTex.width / 2, weaponY - frameTex.height / 2, WHITE);
         // draw weapon
         auto& textures = game.loader.getTextures(equippedWeapons[slot]);
-        if (!textures.empty()) {
+        if (!textures.empty())
+        {
             const auto& wpnTex = textures[0];
             DrawTexture(wpnTex, weaponX - wpnTex.width / 2, weaponY - wpnTex.height / 2, WHITE);
         }
         // show the corresponding button or key
-        if (WasGamepadUsedLast()) {
+        if (WasGamepadUsedLast())
+        {
             const auto& buttonTex = game.loader.getTextures("xbox_buttons")[slot];
             DrawTexture(buttonTex, weaponX + frameTex.width / 2 - 12, weaponY, WHITE);
         }
-        else {
+        else
+        {
             std::string btnText = slot == 0 ? "P" : "L";
             DrawText(btnText.c_str(), weaponX + frameTex.width / 2 - 6, weaponY + 8, 10, LIGHTGRAY);
         }
@@ -135,25 +147,31 @@ void HUD::draw() {
     const int cellHeight = 4;
     const int mapX = static_cast<int>(game.gameScreenWidth) - static_cast<int>(cols) * (cellWidth + spacing) - 6;
     const int mapY = static_cast<int>(y) + 6;
-    for (size_t i = 0; i < cols * rows; ++i) {
+    for (size_t i = 0; i < cols * rows; ++i)
+    {
         int col = static_cast<int>(i % cols);
         int row = static_cast<int>(i / cols);
         int cellX = mapX + col * (cellWidth + spacing);
         int cellY = mapY + row * (cellHeight + spacing);
-        Color color = DARKGRAY;
-        if (i == currentRoomIndex) {
+        Color color = { 0 };
+        if (i == currentRoomIndex)
             color = WHITE;
-        }
+        else if (game.currentDungeon->hasVisited(game.currentDungeon->getCurrentLevel(), i))
+            color = GRAY;
+        else
+            color = DARKGRAY;
         DrawRectangle(cellX, cellY, cellWidth, cellHeight, color);
     }
 
     // whenever a collectable item is picked up
-    if (showCollectedItem) {
+    if (showCollectedItem)
+    {
         auto& itemData = game.inventory.getItemData();
         auto& invItems = game.inventory.getItems();
         const ItemData& data = itemData.at(collectedItem);
         ItemType type = data.type;
-        if (data.type != IMMEDIATE) {
+        if (data.type != IMMEDIATE)
+        {
             const Texture2D& itemTex = game.loader.getTextures(data.textureKey)[0];
             int itemX = 112;
             DrawTexture(itemTex, itemX, collectedItemY, WHITE);
@@ -162,7 +180,9 @@ void HUD::draw() {
             DrawText(qtyText.c_str(), itemX + 8, collectedItemY, 10, LIGHTGRAY);
         }
     }
-    if (showCoinAmount) {
+
+    if (showCoinAmount)
+    {
         // TODO get rid of repeated code
         const auto& coinTex = game.loader.getTextures("itemDropCoin")[0];
         int coinX = weaponX + 36;
@@ -171,7 +191,9 @@ void HUD::draw() {
         std::string qtyText = "x" + std::to_string(qty);
         DrawText(qtyText.c_str(), coinX + 8, 8, 10, LIGHTGRAY);
     }
-    if (showHelpText) {
+
+    if (showHelpText)
+    {
         // context sensitive help text at the bottom of the screen
         const char* ht = helpText.c_str();
         int fontSize = 10;
@@ -179,7 +201,8 @@ void HUD::draw() {
         int txtPosX = 12;
         int txtPosY = static_cast<int>(game.gameScreenHeight) - 2 * margin - fontSize;
         int txtH = fontSize + 2 * margin;
-        if (WasGamepadUsedLast()) {
+        if (WasGamepadUsedLast())
+        {
             // show the respective button texture
             const auto& buttonTex = game.loader.getTextures("xbox_buttons")[helpTextButtonIndex];
             int txtW = MeasureText(ht, fontSize) + 2 * margin + buttonTex.width;
@@ -188,7 +211,8 @@ void HUD::draw() {
             txtPosX += buttonTex.width;
             DrawText(ht, txtPosX + margin, txtPosY + margin, fontSize, LIGHTGRAY);
         }
-        else {
+        else
+        {
             // show a text with the respective key
             std::string displayText = helpText;
             displayText = "[" + std::string(1, helpTextKey) + "]: " + helpText;
@@ -197,8 +221,4 @@ void HUD::draw() {
             DrawText(displayText.c_str(), txtPosX + margin, txtPosY + margin, fontSize, LIGHTGRAY);
         }
     }
-}
-
-void HUD::end() {
-    // TODO
 }

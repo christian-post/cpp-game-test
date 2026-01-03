@@ -2,6 +2,7 @@
 ## BUGS
 - projectiles only create an impact emitter on the target and on walls, not on other sprites
 - RELOAD_ROOM event crashes in combination with emitters
+- Tilemap should support multiple tilesets
 
 ## FEATURES/REFACTORS:
 - Core

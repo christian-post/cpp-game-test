@@ -31,11 +31,24 @@ void DebugMenu::startup()
             activeMenu = MenuType::ItemCheat;
         }
         });
-    menus[static_cast<size_t>(MenuType::Main)]->addItem({ "Test Menu", MenuItemType::Action, [&]() {
-            activeMenu = MenuType::TestMenu;
-        }
-        });
-    // go back to the InGame Scene from the main menu
+    MenuItem noClip;
+    noClip.displayName = "No Clip";
+    noClip.type = MenuItemType::Cycle;
+    noClip.options = { "Off", "On" };
+    noClip.currentOption = game.getPlayer()->isColliding ? 0 : 1;
+    noClip.cycleCallback = [&](size_t index) {
+        Sprite* player = game.getPlayer();
+        if (!player)
+            return;
+
+        player->isColliding = !player->isColliding;
+        if (player->iFrameTimer == 0)
+            player->iFrameTimer = FLT_MAX; // basically infinite
+        else
+            player->iFrameTimer = 0;
+        };
+    menus[static_cast<size_t>(MenuType::Main)]->addItem(noClip);
+
     menus[static_cast<size_t>(MenuType::Main)]->addItem({ "Back to Game", MenuItemType::Action, [&]() {
             game.eventManager.pushEvent(SELECT_MENU_DONE);
             game.stopScene(getName());
@@ -99,64 +112,7 @@ void DebugMenu::startup()
         });
 
     // submenu 4 (test menu for new item types)
-    // Test Action type
-    menus[static_cast<size_t>(MenuType::TestMenu)]->addItem({ "Action Test", MenuItemType::Action, [&]() {
-            TraceLog(LOG_INFO, "Action button pressed!");
-        }
-        });
 
-    // Test Cycle type
-    MenuItem cycleItem;
-    cycleItem.displayName = "Sound Mode";
-    cycleItem.type = MenuItemType::Cycle;
-    cycleItem.options = { "Off", "Low", "Medium", "High" };
-    cycleItem.currentOption = 2;
-    cycleItem.cycleCallback = [&](size_t index) {
-        TraceLog(LOG_INFO, "Sound mode changed to index: %zu", index);
-        };
-    menus[static_cast<size_t>(MenuType::TestMenu)]->addItem(cycleItem);
-
-    // Test another Cycle type
-    MenuItem difficultyItem;
-    difficultyItem.displayName = "Difficulty";
-    difficultyItem.type = MenuItemType::Cycle;
-    difficultyItem.options = { "Easy", "Normal", "Hard", "Expert" };
-    difficultyItem.currentOption = 1;
-    difficultyItem.cycleCallback = [&](size_t index) {
-        TraceLog(LOG_INFO, "Difficulty changed to index: %zu", index);
-        };
-    menus[static_cast<size_t>(MenuType::TestMenu)]->addItem(difficultyItem);
-
-    // Test Number type
-    MenuItem volumeItem;
-    volumeItem.displayName = "Volume";
-    volumeItem.type = MenuItemType::Number;
-    volumeItem.numberValue = 50;
-    volumeItem.minValue = 0;
-    volumeItem.maxValue = 100;
-    volumeItem.step = 5;
-    volumeItem.numberCallback = [&](int value) {
-        TraceLog(LOG_INFO, "Volume changed to: %d", value);
-        };
-    menus[static_cast<size_t>(MenuType::TestMenu)]->addItem(volumeItem);
-
-    // Test another Number type with different range
-    MenuItem speedItem;
-    speedItem.displayName = "Game Speed";
-    speedItem.type = MenuItemType::Number;
-    speedItem.numberValue = 100;
-    speedItem.minValue = 50;
-    speedItem.maxValue = 200;
-    speedItem.step = 10;
-    speedItem.numberCallback = [&](int value) {
-        TraceLog(LOG_INFO, "Game speed changed to: %d", value);
-        };
-    menus[static_cast<size_t>(MenuType::TestMenu)]->addItem(speedItem);
-
-    menus[static_cast<size_t>(MenuType::TestMenu)]->addItem({ "Back", MenuItemType::Action, [&]() {
-            activeMenu = MenuType::Main;
-        }
-        });
 }
 
 void DebugMenu::update(float deltaTime)
