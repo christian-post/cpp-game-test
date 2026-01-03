@@ -42,6 +42,7 @@ public:
     int lastWindowH = 0;
 
     void toggleFullscreen();
+    void toggleVsync();
 
     RenderTexture2D target; // texture surface for the ingame graphics
 

@@ -71,7 +71,7 @@ void SettingsMenu::startup()
     fpsItem.type = MenuItemType::Number;
     fpsItem.numberValue = game.getSetting<int>("targetFPS");
     fpsItem.minValue = 10;
-    fpsItem.maxValue = 240;
+    fpsItem.maxValue = 1000;
     fpsItem.step = 10;
     fpsItem.numberCallback = [&](int value) {
         SetTargetFPS(value);
@@ -94,6 +94,19 @@ void SettingsMenu::startup()
         //game.writeSetting("textDelay", speeds[index]);
         };
     menu.addItem(textSpeedItem);
+
+    MenuItem vsyncItem;
+    vsyncItem.displayName = "V-Sync";
+    vsyncItem.type = MenuItemType::Cycle;
+    vsyncItem.options = { "On", "Off" };
+
+    vsyncItem.currentOption = game.getSetting<bool>("vsync") ? 1 : 0;
+
+    vsyncItem.cycleCallback = [&](size_t index) {
+        game.toggleVsync();
+        //game.writeSetting("textDelay", speeds[index]);
+        };
+    menu.addItem(vsyncItem);
 
     // Last item: go back to the previous menu
     menu.addItem({ "Back", MenuItemType::Action, [&]() {

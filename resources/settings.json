@@ -32,6 +32,7 @@
   "tileChunkSize": 256,
   "vignetteIntensity": 0.3,
   "vignetteSmoothness": 0.5,
+  "vsync": true,
   "windowHeight": 805,
   "windowWidth": 1074,
   "windowX": 448.0,

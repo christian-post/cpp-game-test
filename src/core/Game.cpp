@@ -25,7 +25,14 @@ Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this)
     loader.loadSettings("./resources/settings.json");
     settings = &loader.getSettings();
     TraceLog(LOG_INFO, settings->dump(2).c_str());
-    SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT); // Enable config flags for resizable window and vsync
+    // set window flags (might depend on config)
+    int flags = FLAG_WINDOW_RESIZABLE;
+
+    if (getSetting<bool>("vsync"))
+        flags |= FLAG_VSYNC_HINT;
+    
+    SetConfigFlags(flags);
+
     // initialize the main window from the values found in settings.json
     // fix the aspect ratio to 4:3 if necessary
     // TODO do this after every resize?
@@ -227,6 +234,20 @@ void Game::toggleFullscreen()
     isFullscreen = !isFullscreen;
     writeSetting("fullscreen", isFullscreen);
     ToggleFullscreen();
+}
+
+void Game::toggleVsync()
+{
+    if (IsWindowState(FLAG_VSYNC_HINT))
+    {
+        ClearWindowState(FLAG_VSYNC_HINT);
+        writeSetting("vsync", false);
+    }
+    else
+    {
+        SetWindowState(FLAG_VSYNC_HINT);
+        writeSetting("vsync", true);
+    }
 }
 
 void Game::sleepScene(const std::string& name) { setSceneState(name, false, false); }
