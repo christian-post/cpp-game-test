@@ -9,6 +9,7 @@
 #include "SelectMenu.h"
 #include "LoadSavegameMenu.h"
 #include "WriteSavegameMenu.h"
+#include "KeyBindingMenu.h"
 #include "InGame.h"
 #include "HUD.h"
 #include "InventoryUI.h"
@@ -89,6 +90,18 @@ Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this)
 
     SetTargetFPS(getSetting<int>("targetFPS"));
 
+    // initialize key bindings
+    if (settings->contains("keyBindings"))
+        InitializeKeyBindings((*settings)["keyBindings"]);
+    else
+        SetDefaultKeyBindings();
+
+    // initialize gamepad bindings
+    if (settings->contains("gamepadBindings"))
+        InitializeGamepadBindings((*settings)["gamepadBindings"]);
+    else
+        SetDefaultGamepadBindings();
+
     // define all Scenes as factory functions
     // the second argument is priority for the drawing order
     registerScene<Preload>("Preload", 0);
@@ -97,6 +110,7 @@ Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this)
     registerScene<LoadSavegameMenu>("LoadSavegameMenu", 0);
     registerScene<WriteSavegameMenu>("WriteSavegameMenu", 1);
     registerScene<SettingsMenu>("SettingsMenu", 0);
+    registerScene<KeyBindingMenu>("KeyBindingMenu", 2);
     registerScene<SoundTest>("SoundTest", 0);
     registerScene<DebugMenu>("DebugMenu", 2);
     registerScene<SelectMenu>("SelectMenu", 0);
@@ -578,27 +592,30 @@ void Game::draw()
             DrawText(s_inactiveScenes.c_str(), int(GetScreenWidth() * 0.6f), 4, fontSize, WHITE);
             DrawText(s_drawOrder.c_str(), 4, int(GetScreenHeight() * 0.6f), fontSize, WHITE); // lower part of screen
 
-            size_t maxIndex = currentDungeon->getSize().first * currentDungeon->getSize().second;
-            if (currentDungeon->getCurrentRoomIndex() < maxIndex)
+            if (currentDungeon)
             {
-                std::ostringstream ss;
-                const TileMap* tm = currentDungeon->loadTileMap();
-                size_t roomIndex = currentDungeon->getCurrentRoomIndex();
-                if (tm)
+                size_t maxIndex = currentDungeon->getSize().first * currentDungeon->getSize().second;
+                if (currentDungeon->getCurrentRoomIndex() < maxIndex)
                 {
-                    std::string roomName = tm->getName();
-                    uint8_t roomState = currentDungeon->getCurrentRoomState();
-                    ss << "Room: " << roomName << " (" << roomIndex << "); state: " << int(roomState);
+                    std::ostringstream ss;
+                    const TileMap* tm = currentDungeon->loadTileMap();
+                    size_t roomIndex = currentDungeon->getCurrentRoomIndex();
+                    if (tm)
+                    {
+                        std::string roomName = tm->getName();
+                        uint8_t roomState = currentDungeon->getCurrentRoomState();
+                        ss << "Room: " << roomName << " (" << roomIndex << "); state: " << int(roomState);
+                    }
+                    else
+                    {
+                        ss << "no room at index " << roomIndex;
+                    }
+                    DrawText(ss.str().c_str(), 4, int(GetScreenHeight() * 0.8f), fontSize, WHITE);
                 }
                 else
                 {
-                    ss << "no room at index " << roomIndex;
+                    DrawText("invalid room index", 4, int(GetScreenHeight() * 0.8f), fontSize, WHITE);
                 }
-                DrawText(ss.str().c_str(), 4, int(GetScreenHeight() * 0.8f), fontSize, WHITE);
-            }
-            else
-            {
-                DrawText("invalid room index", 4, int(GetScreenHeight() * 0.8f), fontSize, WHITE);
             }
         }
     EndDrawing();

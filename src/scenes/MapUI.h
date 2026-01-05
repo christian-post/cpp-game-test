@@ -29,7 +29,7 @@ private:
     float speed = 0.0f;
     float slideDuration = 0.5f;
     float blinkTimer = 0.0f;
-    float blinkSpeed = 0.5f;
+    float blinkSpeed = 0.5f; // default value, gets overwritten
     bool cursorOn = false;
     size_t currentLevel = 0;  // which level of the Dungeon to display
     std::array<Vector2, 4> offsets; // used for minimap formatting

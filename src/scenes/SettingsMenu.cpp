@@ -108,6 +108,15 @@ void SettingsMenu::startup()
         };
     menu.addItem(vsyncItem);
 
+    // key bindings menu
+    menu.addItem({ "Key Bindings", MenuItemType::Action, [&]() {
+        game.setOnSceneComplete("KeyBindingMenu", [&]() {
+            game.wakeScene("SettingsMenu");
+            });
+        game.sleepScene("SettingsMenu");
+        game.startScene("KeyBindingMenu");
+        } });
+
     // Last item: go back to the previous menu
     menu.addItem({ "Back", MenuItemType::Action, [&]() {
         // The scene that calls the settings menu has to handle what happens here with setOnSceneComplete() 

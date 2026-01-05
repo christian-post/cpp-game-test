@@ -19,7 +19,8 @@ enum class MenuItemType
 {
     Action,   // Normal callback on confirm
     Cycle,    // Cycle through string options
-    Number    // Increment/decrement number
+    Number,    // Increment/decrement number
+    KeyBind   // Capture key/button press
 };
 
 struct MenuItem
@@ -40,6 +41,10 @@ struct MenuItem
     int step = 1;
     std::function<void(int)> numberCallback;  // receives current value
     bool isActive = false;  // whether we're editing the number
+
+    // For KeyBind type
+    int boundKey = 0;  // the currently bound keycode
+    std::function<void(int)> keyBindCallback;  // receives the new keycode
 };
 
 

@@ -192,6 +192,7 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <ClCompile Include="src\scenes\HUD.cpp" />
     <ClCompile Include="src\scenes\InGame.cpp" />
     <ClCompile Include="src\scenes\InventoryUI.cpp" />
+    <ClCompile Include="src\scenes\KeyBindingMenu.cpp" />
     <ClCompile Include="src\scenes\LoadSavegameMenu.cpp" />
     <ClCompile Include="src\scenes\MapUI.cpp" />
     <ClCompile Include="src\scenes\Preload.cpp" />
@@ -256,6 +257,7 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <ClInclude Include="src\scenes\InventoryUI.h" />
     <ClInclude Include="src\scenes\GameOver.h" />
     <ClInclude Include="src\scenes\InGame.h" />
+    <ClInclude Include="src\scenes\KeyBindingMenu.h" />
     <ClInclude Include="src\scenes\LoadSavegameMenu.h" />
     <ClInclude Include="src\scenes\MapUI.h" />
     <ClInclude Include="src\scenes\Preload.h" />

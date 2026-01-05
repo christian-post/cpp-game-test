@@ -1,4 +1,5 @@
 #pragma once
+#include "json.hpp"
 #include <cstdint>
 
 enum Controls : uint32_t
@@ -37,3 +38,9 @@ uint32_t GetControlsPressed();  // if that key or button is pressed once
 uint32_t GetControlsUp(); // you get the idea
 
 bool AnyKeyPressed(uint32_t controls);
+
+void InitializeKeyBindings(const nlohmann::json& keyBindings);
+void SetDefaultKeyBindings(); // fallback if JSON is missing/corrupted
+
+void InitializeGamepadBindings(const nlohmann::json& gamepadBindings);
+void SetDefaultGamepadBindings();

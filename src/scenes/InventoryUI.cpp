@@ -14,6 +14,7 @@ void InventoryUI::startup()
     width = game.gameScreenWidth;
     height = game.gameScreenHeight - game.getSetting<uint32_t>("HudHeight");
     // set the sliding speed so that it takes "slideDuration" seconds to expand the inventory
+    slideDuration = game.getSetting<float>("menuSlidingDuration");
     speed = height / slideDuration;
     state = OPENING;
     game.playSound("menuOpen");
