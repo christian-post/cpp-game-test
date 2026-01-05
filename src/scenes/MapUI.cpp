@@ -210,8 +210,15 @@ void MapUI::draw() {
         const char* textLeft = nullptr;
         //const char* textRight = nullptr; // TODO: draw dynamically if another screen exists
         if (WasGamepadUsedLast()) {
-            textLeft = "<< LB";
+            textLeft = "<<";
             //textRight = "RB >>";
+
+            // show the button texture
+            int button = game.getGamepadButtonForControl(CONTROL_ACTIONL);
+            const auto& buttonTex = game.loader.getTextures("xbox_buttons_sorted")[button];
+            uint32_t buttonX = int(x) + 16;
+            uint32_t buttonY = int(y) + int(game.gameScreenHeight - topY) - 20;
+            DrawTexture(buttonTex, buttonX, buttonY, WHITE);
         }
         else {
             textLeft = "<< N";

@@ -375,6 +375,23 @@ std::shared_ptr<SaveGame> Game::getSaveData()
     return savegame;
 }
 
+int Game::getGamepadButtonForControl(uint32_t control)
+{
+    auto it = controlGamepadMap.find(control);
+    if (it != controlGamepadMap.end() && !it->second.empty())
+        return it->second[0];
+
+    return -1;
+}
+
+int Game::getKeyForControl(uint32_t control)
+{
+    auto it = controlKeyMap.find(control);
+    if (it != controlKeyMap.end() && !it->second.empty())
+        return it->second[0];
+
+    return -1;
+}
 std::shared_ptr<Sprite> Game::createSprite(std::string spriteName, Rectangle& rect)
 {
     auto sprite = std::make_shared<Sprite>(*this, rect.x, rect.y, rect.width, rect.height, spriteName);

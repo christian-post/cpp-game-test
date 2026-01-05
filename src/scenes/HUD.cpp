@@ -129,7 +129,8 @@ void HUD::draw()
         // show the corresponding button or key
         if (WasGamepadUsedLast())
         {
-            const auto& buttonTex = game.loader.getTextures("xbox_buttons")[slot];
+            int button = game.getGamepadButtonForControl((slot == 0) ? CONTROL_ACTION4 : CONTROL_ACTION3);
+            const auto& buttonTex = game.loader.getTextures("xbox_buttons_sorted")[button];
             DrawTexture(buttonTex, weaponX + frameTex.width / 2 - 12, weaponY, WHITE);
         }
         else
@@ -204,10 +205,10 @@ void HUD::draw()
         if (WasGamepadUsedLast())
         {
             // show the respective button texture
-            const auto& buttonTex = game.loader.getTextures("xbox_buttons")[helpTextButtonIndex];
+            const auto& buttonTex = game.loader.getTextures("xbox_buttons_sorted")[helpTextButtonIndex];
             int txtW = MeasureText(ht, fontSize) + 2 * margin + buttonTex.width;
             DrawRectangle(txtPosX, txtPosY, txtW, txtH, BLACK);
-            DrawTexture(buttonTex, txtPosX, txtPosY, WHITE);
+            DrawTexture(buttonTex, txtPosX, txtPosY - 2, WHITE);
             txtPosX += buttonTex.width;
             DrawText(ht, txtPosX + margin, txtPosY + margin, fontSize, LIGHTGRAY);
         }

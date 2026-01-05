@@ -281,7 +281,14 @@ void InventoryUI::draw()
         if (WasGamepadUsedLast()) {
             helpText = index < weaponsSize ? "Equip with [X] or [Y]" : "Use with [A]"; // TODO draw a sprite that shows the gamepad buttons
             //textLeft = "<< LB";
-            textRight = "RB >>";
+            textRight = ">>";
+
+            // show the button texture
+            int button = game.getGamepadButtonForControl(CONTROL_ACTIONR);
+            const auto& buttonTex = game.loader.getTextures("xbox_buttons_sorted")[button];
+            uint32_t buttonX = int(x) + int(game.gameScreenWidth) - 32;
+            uint32_t buttonY = int(y) + int(game.gameScreenHeight - topY) - 20;
+            DrawTexture(buttonTex, buttonX, buttonY, WHITE);
         }
         else {
             helpText = index < weaponsSize ? "Equip with [P] or [L]" : "Use with [O}";

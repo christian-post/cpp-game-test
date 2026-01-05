@@ -116,6 +116,10 @@ public:
     uint32_t buttonsPressed;
     uint32_t buttonsDown;
 
+    // control binding queries
+    int getGamepadButtonForControl(uint32_t control);
+    int getKeyForControl(uint32_t control);
+
     // game objects
     std::vector<std::unique_ptr<CollisionObject>> walls; // everything with static collision
     std::vector<std::shared_ptr<Sprite>> sprites; // dynamic objects

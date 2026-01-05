@@ -21,7 +21,9 @@ void DialogueBehavior::update(float deltaTime)
         {
             if (!collided)
             {
-                game.eventManager.pushEvent(SHOW_HELP_TEXT, std::make_any<std::tuple<std::string, char, int>>(std::tuple<std::string, char, int>{"TALK", 'O', 9}));
+                // TODO get correct key char from mapping
+                int button = game.getGamepadButtonForControl(CONTROL_ACTION1);
+                game.eventManager.pushEvent(SHOW_HELP_TEXT, std::make_any<std::tuple<std::string, char, int>>(std::tuple<std::string, char, int>{"TALK", 'O', button}));
                 collided = true;
             }
             if (game.buttonsDown & CONTROL_ACTION1 && !Command_Textbox::isTextboxCooldown())

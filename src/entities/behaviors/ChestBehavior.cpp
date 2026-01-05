@@ -27,7 +27,8 @@ void ChestBehavior::update(float deltaTime)
                 return;
             if (!collided)
             {
-                game.eventManager.pushEvent(SHOW_HELP_TEXT, std::make_any<std::tuple<std::string, char, int>>(std::tuple<std::string, char, int>{"OPEN", 'O', 9}));
+                int button = game.getGamepadButtonForControl(CONTROL_ACTION1);
+                game.eventManager.pushEvent(SHOW_HELP_TEXT, std::make_any<std::tuple<std::string, char, int>>(std::tuple<std::string, char, int>{"OPEN", 'O', button}));
                 collided = true;
             }
             if (game.buttonsDown & CONTROL_ACTION1)

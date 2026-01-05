@@ -2,8 +2,8 @@
 #include "raylib.h"
 
 static bool lastWasGamepad = false;
-static std::unordered_map<uint32_t, std::vector<int>> controlKeyMap;
-static std::unordered_map<uint32_t, std::vector<int>> controlGamepadMap;
+std::unordered_map<uint32_t, std::vector<int>> controlKeyMap;
+std::unordered_map<uint32_t, std::vector<int>> controlGamepadMap;
 
 bool WasGamepadUsedLast()
 {

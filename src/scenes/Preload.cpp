@@ -195,6 +195,7 @@ void Preload::startup() {
             l.loadSpritesheet("./resources/textures/sprites/fireball_16x4.png", 16, 16, "fireball");
             l.loadSpritesheet("./resources/textures/sprites/smoke_16x6.png", 16, 16, "smoke");
             l.loadSpritesheet("./resources/textures/sprites/xbox_buttons_16x16.png", 16, 16, "xbox_buttons");
+            l.loadSpritesheet("./resources/textures/sprites/xbox_buttons_sorted.png", 16, 16, "xbox_buttons_sorted");
             l.loadSpritesheet("./resources/textures/sprites/lantern-Sheet.png", 16, 16, "item_lamp");
         });
 

@@ -39,6 +39,9 @@ uint32_t GetControlsUp(); // you get the idea
 
 bool AnyKeyPressed(uint32_t controls);
 
+extern std::unordered_map<uint32_t, std::vector<int>> controlKeyMap;
+extern std::unordered_map<uint32_t, std::vector<int>> controlGamepadMap;
+
 void InitializeKeyBindings(const nlohmann::json& keyBindings);
 void SetDefaultKeyBindings(); // fallback if JSON is missing/corrupted
 
