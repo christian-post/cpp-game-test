@@ -25,7 +25,7 @@ Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this)
 {
     loader.loadSettings("./resources/settings.json");
     settings = &loader.getSettings();
-    TraceLog(LOG_INFO, settings->dump(2).c_str());
+
     // set window flags (might depend on config)
     int flags = FLAG_WINDOW_RESIZABLE;
 

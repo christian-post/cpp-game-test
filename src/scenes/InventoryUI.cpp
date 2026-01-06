@@ -272,32 +272,64 @@ void InventoryUI::draw()
     }
 
     // help texts
-    if (state == OPENED) {
+    if (state == OPENED)
+    {
         fontSize = 6;
         const char* helpText = nullptr;
         //const char* textLeft = nullptr; // TODO: draw dynamically if another screen exists
         const char* textRight = nullptr;
+
+        // define positions first
+        uint32_t helpTextY = int(y) + int(game.gameScreenHeight - topY) - fontSize - 8;
+
         // TODO get key layout from config
-        if (WasGamepadUsedLast()) {
-            helpText = index < weaponsSize ? "Equip with [X] or [Y]" : "Use with [A]"; // TODO draw a sprite that shows the gamepad buttons
-            //textLeft = "<< LB";
+        if (WasGamepadUsedLast())
+        {
+            std::string baseText = index < weaponsSize ? "Equip with " : "Use with ";
+            // measure text to position buttons inline
+            uint32_t helpTextX = int(x) + (int(game.gameScreenWidth) - MeasureText(baseText.c_str(), fontSize)) / 2;
+            int textWidth = MeasureText(baseText.c_str(), fontSize);
+            DrawText(baseText.c_str(), helpTextX, helpTextY, fontSize, WHITE);
+            int currentX = helpTextX + textWidth;
+            if (index < weaponsSize) {
+                // draw X button
+                int buttonX = game.getGamepadButtonForControl(CONTROL_ACTION2);
+                const auto& buttonTexX = game.loader.getTextures("xbox_buttons_sorted")[buttonX];
+                DrawTexture(buttonTexX, currentX, helpTextY + (fontSize - 16) / 2, WHITE);
+                currentX += 16;
+                // draw " or "
+                int orWidth = MeasureText(" or ", fontSize);
+                DrawText(" or ", currentX, helpTextY, fontSize, WHITE);
+                currentX += orWidth;
+                // draw Y button
+                int buttonY = game.getGamepadButtonForControl(CONTROL_ACTION3);
+                const auto& buttonTexY = game.loader.getTextures("xbox_buttons_sorted")[buttonY];
+                DrawTexture(buttonTexY, currentX, helpTextY + (fontSize - 16) / 2, WHITE);
+            }
+            else
+            {
+                // draw A button
+                int buttonA = game.getGamepadButtonForControl(CONTROL_ACTION1);
+                const auto& buttonTexA = game.loader.getTextures("xbox_buttons_sorted")[buttonA];
+                DrawTexture(buttonTexA, currentX, helpTextY + (fontSize - 16) / 2, WHITE);
+            }
             textRight = ">>";
 
-            // show the button texture
+            // show the CONTROL_ACTIONR button
             int button = game.getGamepadButtonForControl(CONTROL_ACTIONR);
             const auto& buttonTex = game.loader.getTextures("xbox_buttons_sorted")[button];
             uint32_t buttonX = int(x) + int(game.gameScreenWidth) - 32;
             uint32_t buttonY = int(y) + int(game.gameScreenHeight - topY) - 20;
             DrawTexture(buttonTex, buttonX, buttonY, WHITE);
         }
-        else {
+        else
+        {
             helpText = index < weaponsSize ? "Equip with [P] or [L]" : "Use with [O}";
             //textLeft = "<< N";
             textRight = "M >>";
+            uint32_t helpTextX = int(x) + (int(game.gameScreenWidth) - MeasureText(helpText, fontSize)) / 2;
+            DrawText(helpText, helpTextX, helpTextY, fontSize, LIGHTGRAY);
         }
-        uint32_t helpTextX = int(x) + (int(game.gameScreenWidth) - MeasureText(helpText, fontSize)) / 2;
-        uint32_t helpTextY = int(y) + int(game.gameScreenHeight - topY) - fontSize - 8;
-        DrawText(helpText, helpTextX, helpTextY, fontSize, LIGHTGRAY);
 
         uint32_t txtR = int(x) + int(game.gameScreenWidth) - MeasureText(textRight, fontSize) - 4;
         //uint32_t txtL = int(x) + 4;

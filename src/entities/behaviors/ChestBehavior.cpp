@@ -62,7 +62,20 @@ void ChestBehavior::update(float deltaTime)
                     {
                         if (data.type == WEAPON)
                         {
-                            message = format("You got the %s.\nOpen your inventory to equip it, then use with [P].", data.displayName.c_str());
+                            if (WasGamepadUsedLast())
+                            {
+                                int buttonX = game.getGamepadButtonForControl(CONTROL_ACTION2);
+                                int buttonY = game.getGamepadButtonForControl(CONTROL_ACTION3);
+                                message = format("You got the %s. Open the inventory and equip it with [TEX:xbox_buttons_sorted:%d] or [TEX:xbox_buttons_sorted:%d].", data.displayName.c_str(), buttonX, buttonY);
+                            }
+                            else
+                            {
+                                char key1 = game.getKeyForControl(CONTROL_ACTION2); // for P
+                                char key2 = game.getKeyForControl(CONTROL_ACTION3); // for L
+
+                                message = format("You got the %s.\nOpen your inventory to equip it, then use with [%c] or [%c].",
+                                    data.displayName.c_str(), key1, key2);
+                            }
                         }
                         else
                         {

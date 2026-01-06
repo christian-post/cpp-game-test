@@ -9,6 +9,7 @@
 #include <unordered_set>
 
 class Sprite;
+class Game;
 struct CollisionObject;
 
 Vector2 GetRectCenter(Rectangle rect);
@@ -26,7 +27,8 @@ void resolveAxisX(const std::shared_ptr<Sprite>& sprite, const Rectangle& obstac
 void resolveAxisY(const std::shared_ptr<Sprite>& sprite, const Rectangle& obstacle);
 bool isSubset(const std::unordered_set<std::string>& subset, const std::unordered_set<std::string>& superset);
 
-struct CameraShake {
+struct CameraShake
+{
     float duration = 0.0f;
     float baseDuration = 0.0f;
     float xMagnitude = 0.0f;
@@ -38,7 +40,8 @@ struct CameraShake {
     bool isActive() const { return duration > 0.0f; }
 };
 
-inline std::string format(const char* fmt, ...) {
+inline std::string format(const char* fmt, ...)
+{
     // C-string formatting function
     char buffer[256];
     va_list args;
@@ -47,3 +50,6 @@ inline std::string format(const char* fmt, ...) {
     va_end(args);
     return std::string(buffer);
 }
+
+void DrawTextWithSprites(const char* text, int x, int y, int fontSize, Color color, Game& game);
+int MeasureTextWithSprites(const char* text, int fontSize, Game& game);

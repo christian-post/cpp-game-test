@@ -360,119 +360,6 @@ void Dungeon::makeMinimapTextures()
     }
 }
 
-//void Dungeon::makeMinimapTextures()
-//{
-//    // creates downscaled images of the rooms for the mini map
-//    constexpr int miniWidth = 36;
-//    constexpr int miniHeight = 24;
-//    constexpr int tileSize = 16;
-//
-//    minimapTextures.resize(levels.size());
-//
-//    for (size_t level = 0; level < levels.size(); level++)
-//    {
-//        for (size_t i = 0; i < roomsW * roomsH; i++)
-//        {
-//            Room* room = getRoomAt(level, i);
-//            if (!room)
-//            {
-//                // store an empty texture for nonexistent rooms
-//                RenderTexture2D mini = LoadRenderTexture(miniWidth, miniHeight);
-//                BeginTextureMode(mini);
-//                ClearBackground(BLANK);
-//                EndTextureMode();
-//                minimapTextures[level].push_back(mini); // TODO crashes when loading a save
-//                continue;
-//            }
-//            auto& tileMap = room->tilemap;
-//            const Tileset& tileset = game.loader.getTileset(tileMap.getTilesetName());
-//            const Texture2D& texture = game.loader.getTextures(tileset.name)[0];
-//            const size_t tilesPerRow = tileset.columns;
-//            std::pair<size_t, size_t> tilemapSize = getRoomSize(level, i);
-//            size_t tilesX = tilemapSize.first / tileSize;
-//            size_t tilesY = tilemapSize.second / tileSize;
-//
-//            // NEW: scaling down the room image AFTER all tiles have been drawn
-//            RenderTexture2D normal = LoadRenderTexture(static_cast<int>(tilemapSize.first), static_cast<int>(tilemapSize.second)); // 1:1 size
-//            RenderTexture2D mini = LoadRenderTexture(miniWidth, miniHeight); // downscaled room texture
-//            BeginTextureMode(normal);
-//            ClearBackground(BLANK);
-//            for (size_t layerIndex = 0; layerIndex < tileMap.layers.size(); ++layerIndex)
-//            {
-//                const auto& layer = tileMap.getLayer(layerIndex);
-//                if (!layer.visible) continue;
-//                for (size_t y = 0; y < tileMap.height; ++y)
-//                {
-//                    for (size_t x = 0; x < tileMap.width; ++x)
-//                    {
-//                        if (!layer.data[y][x]) 
-//                            continue;
-//                        // sample the source rect from the normally sized Tilemap
-//                        size_t tileIndex = static_cast<size_t>(layer.data[y][x] - 1);
-//                        float tileX = static_cast<float>(tileIndex % tilesPerRow) * tileSize;
-//                        float tileY = (static_cast<float>(tileIndex) / static_cast<float>(tilesPerRow)) * tileSize;
-//                        Rectangle src = { tileX, tileY, (float)tileSize, (float)tileSize };
-//
-//                        float px = static_cast<float>(x) * static_cast<float>(tileSize);
-//                        float py = static_cast<float>(y) * static_cast<float>(tileSize);
-//                        Rectangle dst = { px, py, tileSize, tileSize };
-//                        // draw the tile
-//                        DrawTexturePro(texture, src, dst, { 0, 0 }, 0.0f, WHITE);
-//                    }
-//                }
-//            }
-//            EndTextureMode();
-//            // draw to the small surface
-//            BeginTextureMode(mini);
-//            // TODO: testing mode filtering for less noisy images
-//            Image fullImg = LoadImageFromTexture(normal.texture);
-//            Color* pixels = LoadImageColors(fullImg);
-//
-//            BeginTextureMode(mini);
-//            ClearBackground(BLANK);
-//            for (size_t ty = 0; ty < tilesY; ++ty)
-//            {
-//                for (size_t tx = 0; tx < tilesX; ++tx)
-//                {
-//                    std::unordered_map<unsigned int, int> colorCount; // hash table that counts pixel colors
-//                    for (size_t py = 0; py < tileSize; ++py)
-//                    {
-//                        for (size_t px = 0; px < tileSize; ++px)
-//                        {
-//                            size_t ix = tx * tileSize + px;
-//                            size_t iy = ty * tileSize + py;
-//                            Color c = pixels[iy * fullImg.width + ix];
-//                            uint32_t key = *(uint32_t*)&c; // use raw bytes of color as hash
-//                            colorCount[key]++;
-//                        }
-//                    }
-//                    // find most frequent color in hash table
-//                    int maxCount = 0;
-//                    Color mode = BLANK;
-//                    for (const auto& [key, count] : colorCount)
-//                    {
-//                        if (count > maxCount)
-//                        {
-//                            maxCount = count;
-//                            mode = *(Color*)&key;
-//                        }
-//                    }
-//                    float sx = static_cast<float>(tx) * (static_cast<float>(mini.texture.width) / static_cast<float>(tilesX));
-//                    float sy = static_cast<float>(ty) * (static_cast<float>(mini.texture.height) / static_cast<float>(tilesY));
-//                    float sw = static_cast<float>(mini.texture.width) / static_cast<float>(tilesX);
-//                    float sh = static_cast<float>(mini.texture.height) / static_cast<float>(tilesY);
-//                    DrawRectangleRec({ sx, sy, sw, sh }, mode);
-//                }
-//            }
-//            EndTextureMode();
-//            UnloadImageColors(pixels);
-//            UnloadImage(fullImg);
-//
-//            minimapTextures[level].push_back(mini);
-//        }
-//    }
-//}
-
 WorldGraph Dungeon::buildGraphFromDungeon(const std::string& start, const std::vector<std::tuple<std::string, std::string, std::vector<std::string>>>& edges, const std::unordered_set<std::string>& itemNodes)
 {
     WorldGraph graph;
@@ -692,7 +579,9 @@ void Dungeon::generate(const nlohmann::json& dungeonData)
             std::vector<TileObject>& objects = roomData.getObjects();
             for (auto& obj : objects)
             {
-                if (obj.name == "chest")
+                // replace empty chests with items
+                if (obj.name == "chest" && obj.properties["item"] == "")
+                //if (obj.name == "chest")
                 {
                     obj.properties["item"] = node->item.value();
                     obj.properties["amount"] = 1;

@@ -129,7 +129,7 @@ void HUD::draw()
         // show the corresponding button or key
         if (WasGamepadUsedLast())
         {
-            int button = game.getGamepadButtonForControl((slot == 0) ? CONTROL_ACTION4 : CONTROL_ACTION3);
+            int button = game.getGamepadButtonForControl((slot == 0) ? CONTROL_ACTION2 : CONTROL_ACTION3);
             const auto& buttonTex = game.loader.getTextures("xbox_buttons_sorted")[button];
             DrawTexture(buttonTex, weaponX + frameTex.width / 2 - 12, weaponY, WHITE);
         }

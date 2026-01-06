@@ -62,7 +62,7 @@
     "behaviors": [ "Dialogue" ],
     "behaviorData": {
       "voice": "tone",
-      "dialogue": "testLongText"
+      "dialogue": "testTextures"
     },
     "collides": 0
   },

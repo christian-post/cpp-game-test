@@ -57,7 +57,8 @@ public:
     {}
 };
 
-class Level {
+class Level 
+{
     // Encapsulates a single floor of a dungeon, which is a grid of Room objects.
     // A dungeon can have any number of floors
 public:

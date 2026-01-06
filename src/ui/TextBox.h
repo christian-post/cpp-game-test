@@ -5,7 +5,8 @@
 
 class Game;
 
-class TextBox {
+class TextBox
+{
 public:
     Game& game;
     TextBox(Game& game, float x, float y, float width, float height, int fontSize, std::string voice);
@@ -19,6 +20,8 @@ public:
     void setVoicePitch(bool set) { pitchVoice = set; }
 
 private:
+    void endPage(size_t index); // helper function
+
     float x, y, width, height;
     std::string_view textContent;
     std::string formattedtext;  // Stores text with line breaks
@@ -33,5 +36,5 @@ private:
     float textSpeed = 0.005f;  // how often a new char appears, in ms
     std::string voice = "tone";  // key for the sound that is played at each word
     bool pitchVoice = true;
-    void endPage(size_t index);
+    bool hasTokens = false; // if the text has tokens that need to be replaced
 };

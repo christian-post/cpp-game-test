@@ -337,6 +337,13 @@ void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, 
             sprite->staticCollision = true;
             sprite->setTextures({ spriteName });
 
+            // initialize objectStates from Tiled data if not already set
+            if (objectStates[obj.id].itemName.empty())
+            {
+                objectStates[obj.id].itemName = obj.properties.value("item", "");
+                objectStates[obj.id].itemAmount = obj.properties.value("amount", 0);
+            }
+
             if (objectStates[obj.id].isOpened)
             {
                 sprite->currentFrame = 2;

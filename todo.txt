@@ -2,7 +2,7 @@
 ## BUGS
 - projectiles only create an impact emitter on the target and on walls, not on other sprites
 - RELOAD_ROOM event crashes in combination with emitters
-- Tilemap should support multiple tilesets
+- Signpost "dialogue" property does not overwrite npcs.json
 
 ## FEATURES/REFACTORS:
 - Core
@@ -10,7 +10,6 @@
 -- do I need a base GameObject class? Or is that too much overhead for too little gain?
 -- collision objects should be able to span multiple layers
 -- auto load most of the assets instead of manually adding them to Preload.cpp
--- custom keyboard keys and gamepad buttons from settings.json
 
 - Dungeon
 -- procedural room generation
@@ -39,8 +38,7 @@
 - Error check for a wrong emitter texture key
 - Sprite.jump() method: add argument "jumpHeight" that roughly corresponds to the number of pixels
 - talking to an NPC should have the least priority when pressing the "interact" button and two or more interactibles are within reach
-- don't show the "<<" and ">>" help texts in the menu if there is no next screen to that side
-- add xbox button textures to the inventory/menus when using a gamepad
+- show the "<<" and ">>" help texts in the menu dynamically depedning if there is a menu next to it
 - check for hard-coded display texts in code and move them to texts.json
 - give the Signpost some collision
 - add a light cone to items that come from chests (if in a dark room) (or maybe draw them over the darkness layer?)
@@ -49,10 +47,9 @@
 - the shader keys should be hardcoded in the functions in CircleOverlay.cpp
 - Music/Sounds:
 -- Inventory select item --> different sound
-- TileMap: add support for multiple tilemaps (and respect the "firstgid" attribute)
 - reconsider use of size_t in UI scenes (maybe use ints or floats instead)
 
-## BUGS:
+## OTHER BUGS:
 - RandomWalkBehavior: choose new target after some time if the current target can't be reached
 - save game thumbnail is broken after saving in GameOver scene
 
@@ -61,4 +58,3 @@
 - hand painted title image
 - consistent source code formatting (brackets!)
 -- should all enums be UPPERCASE?
-- test xbox controller

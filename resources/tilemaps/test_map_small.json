@@ -328,6 +328,33 @@
                  "width":16,
                  "x":208,
                  "y":144
+                }, 
+                {
+                 "height":16,
+                 "id":60,
+                 "name":"npc",
+                 "properties":[
+                        {
+                         "name":"dialogue",
+                         "type":"string",
+                         "value":"gotWeapon"
+                        }, 
+                        {
+                         "name":"roomState",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"spriteName",
+                         "type":"string",
+                         "value":"signpost"
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":16,
+                 "x":224,
+                 "y":64
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -516,7 +543,7 @@
          "y":0
         }],
  "nextlayerid":6,
- "nextobjectid":60,
+ "nextobjectid":61,
  "orientation":"orthogonal",
  "properties":[
         {

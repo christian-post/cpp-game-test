@@ -12,7 +12,7 @@ DebugMenu::DebugMenu(Game& game, const std::string& name) : Scene(game, name) {
     for (size_t i = 0; i < numSubMenus; i++) {
         menus[i] = std::make_unique<MenuSelect>(game);
         menus[i]->setFontSize(6);
-        menus[i]->setYMargin(12);
+        menus[i]->setYMargin(8);
     }
 }
 
