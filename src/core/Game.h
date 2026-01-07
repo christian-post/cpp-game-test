@@ -6,7 +6,7 @@
 #include "WindowEventHandler.h"
 #include "CutsceneManager.h"
 #include "InventoryManager.h"
-#include "Dungeon.h"
+#include "World.h"
 #include "Savegame.h"
 #include "json.hpp"
 #include "raylib.h"
@@ -127,9 +127,9 @@ public:
     std::vector<std::shared_ptr<Emitter>> emitters;  // particle emitters
     std::shared_ptr<Sprite> createSprite(std::string spriteName, Rectangle& rect); // TODO: return a shared pointer, or a reference to the sprite?
 
-    // Dungeon management
-    std::unique_ptr<Dungeon> currentDungeon = nullptr; 
-    void createDungeon(std::string& key);
+    // World management
+    std::unique_ptr<World> currentWorld = nullptr; 
+    void createWorld(std::string& key, bool isDungeon = true);
 
     // World bounds (set by InGame when loading tilemap)
     // TODO these need to be here (and not in CameraController.h) because behaviors need to have access to this information 

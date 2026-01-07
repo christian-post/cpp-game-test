@@ -56,14 +56,14 @@ void DebugMenu::startup()
         });
 
     // submenu 1 (room selection)
-    const std::pair<size_t, size_t> size = game.currentDungeon->getSize();
+    const std::pair<size_t, size_t> size = game.currentWorld->getSize();
     for (size_t i = 0; i < size.first * size.second; i++) {
-        size_t level = game.currentDungeon->getCurrentLevel();
-        Room* room = game.currentDungeon->getRoomAt(level, i);
+        size_t level = game.currentWorld->currentLevel;
+        Room* room = game.currentWorld->getRoomAt(level, i);
         if (room) {
             menus[static_cast<size_t>(MenuType::RoomSelect)]->addItem({ std::to_string(i) + " : " + room->tilemap.getName(), MenuItemType::Action, [&, i]() {
                 // change to this room
-                game.currentDungeon->setCurrentRoomIndex(i);
+                game.currentWorld->currentRoomIndex = i;
                 game.eventManager.pushEvent(RELOAD_ROOM);
                 game.eventManager.pushEvent(SELECT_MENU_DONE);
                 game.stopScene(getName());
@@ -78,12 +78,12 @@ void DebugMenu::startup()
         });
 
     // submenu 2 (level select)
-    size_t numLevels = game.currentDungeon->getNumLevels();
+    size_t numLevels = game.currentWorld->getNumLevels();
     for (size_t i = 0; i < numLevels; i++)
     {
         menus[static_cast<size_t>(MenuType::LevelSelect)]->addItem({ "Level: " + std::to_string(i), MenuItemType::Action, [&, i]() {
             // change to this room
-            game.currentDungeon->setLevel(i);
+            game.currentWorld->currentLevel = i;
             game.eventManager.pushEvent(RELOAD_ROOM);
             game.eventManager.pushEvent(SELECT_MENU_DONE);
             game.stopScene(getName());

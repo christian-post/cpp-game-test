@@ -206,8 +206,10 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <ClCompile Include="src\ui\TextBox.cpp" />
     <ClCompile Include="src\Utils.cpp" />
     <ClCompile Include="src\world\Dungeon.cpp" />
+    <ClCompile Include="src\world\Overworld.cpp" />
     <ClCompile Include="src\world\TileMap.cpp" />
     <ClCompile Include="src\world\TilemapRenderer.cpp" />
+    <ClCompile Include="src\world\World.cpp" />
     <ClCompile Include="src\world\WorldGraph.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -271,8 +273,10 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <ClInclude Include="src\ui\TextBox.h" />
     <ClInclude Include="src\Utils.h" />
     <ClInclude Include="src\world\Dungeon.h" />
+    <ClInclude Include="src\world\Overworld.h" />
     <ClInclude Include="src\world\TileMap.h" />
     <ClInclude Include="src\world\TilemapRenderer.h" />
+    <ClInclude Include="src\world\World.h" />
     <ClInclude Include="src\world\WorldGraph.h" />
   </ItemGroup>
   <ItemGroup>

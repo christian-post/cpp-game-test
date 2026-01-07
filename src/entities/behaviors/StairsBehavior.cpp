@@ -14,9 +14,9 @@ void StairsBehavior::update(float deltaTime)
         {
             done = true;
             game.eventManager.pushDelayedEvent(UNNAMED, 0.0f, nullptr, [this]() {
-                int change = static_cast<int>(game.currentDungeon->getCurrentLevel()) + levelChange;
+                int change = static_cast<int>(game.currentWorld->currentLevel) + levelChange;
                 size_t newLevel = static_cast<size_t>(std::max(0, change)); // ensure positive numbers
-                game.currentDungeon->setLevel(newLevel);
+                game.currentWorld->currentLevel = newLevel;
                 game.eventManager.pushEvent(RELOAD_ROOM);
                 //game.playSound("bookPlace1"); // TODO stairs sound
                 });

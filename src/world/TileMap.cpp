@@ -7,6 +7,28 @@
 #include "OpenLockBehavior.h"
 #include "ChestBehavior.h"
 
+Level::Level(size_t roomsW, size_t roomsH) : roomsW{ roomsW }, roomsH{ roomsH }
+{
+    rooms.resize(roomsW * roomsH);
+}
+
+std::vector<std::optional<Room>>& Level::getRooms()
+{
+    return rooms;
+}
+
+Room* Level::getRoomAt(size_t index)
+{
+    if (index >= rooms.size())
+        return nullptr;
+
+    return rooms[index].has_value() ? &*rooms[index] : nullptr;
+}
+
+void Level::insertRoom(size_t index, Room&& room)
+{
+    rooms[index] = std::move(room);
+}
 
 TileLayer::TileLayer(const nlohmann::json& layerJson)
 {
@@ -367,7 +389,7 @@ void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, 
         game.eventManager.removeListeners(eventKey);
         game.eventManager.addListener(eventKey, [&](std::any data) {
             uint32_t eventId = std::any_cast<uint32_t>(data);
-            auto& currentRoomObjectStates = game.currentDungeon->getCurrentRoomObjectStates();
+            auto& currentRoomObjectStates = game.currentWorld->getCurrentRoom()->objectStates;
             if (eventId == obj.id)
                 currentRoomObjectStates[obj.id].isDefeated = true;
             });

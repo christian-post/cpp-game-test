@@ -1,4 +1,6 @@
 ﻿#include "Game.h"
+#include "Overworld.h"
+#include "Dungeon.h"
 #include "Controls.h"
 #include "Preload.h"
 #include "TitleScreen.h"
@@ -333,8 +335,9 @@ void Game::save(std::string& filename)
     }
 
     // serialize the dungeon room data
+    // TODO create a structure that encapsulate the whole world map as well as all dungeons
     save.DungeonRooms = {};
-    saveDungeon(save, *currentDungeon);
+    //saveDungeon(save, *currentWorld);
 
     auto j = writeDataToJSON(save);
 
@@ -400,21 +403,32 @@ std::shared_ptr<Sprite> Game::createSprite(std::string spriteName, Rectangle& re
     return sprite;
 }
 
-void Game::createDungeon(std::string& key)
+void Game::createWorld(std::string& key, bool isDungeon)
 {
-    const auto& allDungeons = loader.getDungeonData();
-    if (!allDungeons.contains(key))
-        throw std::runtime_error("Dungeon '" + key + "' not found in dungeons.json");
-    const auto& dungeonData = allDungeons[key];
+    if (isDungeon)
+    {
+        const auto& allDungeons = loader.getDungeonData();
+        if (!allDungeons.contains(key))
+            throw std::runtime_error("Dungeon '" + key + "' not found in dungeons.json");
+        const auto& dungeonData = allDungeons[key];
 
-    size_t roomsW = dungeonData["rooms_w"];
-    size_t roomsH = dungeonData["rooms_h"];
-    size_t numLevels = dungeonData["num_levels"];
+        size_t roomsW = dungeonData["rooms_w"];
+        size_t roomsH = dungeonData["rooms_h"];
+        size_t numLevels = dungeonData["num_levels"];
 
-    currentDungeon = std::make_unique<Dungeon>(*this, roomsW, roomsH, numLevels); // TODO num. of levels
-    currentDungeon->generate(dungeonData);
-    // create the minimap images from the tilemap data
-    currentDungeon->makeMinimapTextures();
+        auto dungeon = std::make_unique<Dungeon>(*this, roomsW, roomsH, numLevels);
+        dungeon->generate(dungeonData);
+        dungeon->makeMinimapTextures();
+        currentWorld = std::move(dungeon);
+    }
+    else
+    {
+        // TODO: load overworld data
+        auto overworld = std::make_unique<Overworld>(*this, 10, 10);  // placeholder size
+        // overworld->generate(overworldData);
+        // overworld->makeMinimapTextures();
+        currentWorld = std::move(overworld);
+    }
 }
 
 void Game::killSprite(const std::shared_ptr<Sprite>& sprite) 
@@ -609,18 +623,20 @@ void Game::draw()
             DrawText(s_inactiveScenes.c_str(), int(GetScreenWidth() * 0.6f), 4, fontSize, WHITE);
             DrawText(s_drawOrder.c_str(), 4, int(GetScreenHeight() * 0.6f), fontSize, WHITE); // lower part of screen
 
-            if (currentDungeon)
+            if (currentWorld)
             {
-                size_t maxIndex = currentDungeon->getSize().first * currentDungeon->getSize().second;
-                if (currentDungeon->getCurrentRoomIndex() < maxIndex)
+                size_t maxIndex = currentWorld->getSize().first * currentWorld->getSize().second;
+                if (currentWorld->currentRoomIndex < maxIndex)
                 {
                     std::ostringstream ss;
-                    const TileMap* tm = currentDungeon->loadTileMap();
-                    size_t roomIndex = currentDungeon->getCurrentRoomIndex();
-                    if (tm)
+
+                    size_t roomIndex = currentWorld->currentRoomIndex;
+
+                    Room* room = currentWorld->getCurrentRoom();
+                    if (room)
                     {
-                        std::string roomName = tm->getName();
-                        uint8_t roomState = currentDungeon->getCurrentRoomState();
+                        std::string roomName = room->tilemap.getName();
+                        uint8_t roomState = room->state;
                         ss << "Room: " << roomName << " (" << roomIndex << "); state: " << int(roomState);
                     }
                     else

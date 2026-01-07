@@ -43,7 +43,7 @@ void InGame::startup()
     {
         // generate a fresh dungeon
         std::string dungeonKey = game.getSetting<std::string>("first_dungeon");
-        game.createDungeon(dungeonKey);
+        game.createWorld(dungeonKey);
     }
     // retrieve the tilemap
     // and set the player's position in the first room
@@ -230,9 +230,9 @@ void InGame::onDebugButton1()
     if (!game.debug)
         return;
     // advance room the index and immediately change the room 
-    size_t maxIndex = game.currentDungeon->getSize().first * game.currentDungeon->getSize().second;
-    size_t newIndex = (game.currentDungeon->getCurrentRoomIndex() + 1) % maxIndex;
-    game.currentDungeon->setCurrentRoomIndex(newIndex);
+    size_t maxIndex = game.currentWorld->getSize().first * game.currentWorld->getSize().second;
+    size_t newIndex = (game.currentWorld->currentRoomIndex + 1) % maxIndex;
+    game.currentWorld->currentRoomIndex = newIndex;
     game.eventManager.pushDelayedEvent(UNNAMED, 0.0f, nullptr, [&]() {
         loadTilemap();
         });
@@ -279,11 +279,11 @@ void InGame::loadWorldFromSave(std::shared_ptr<SaveGame> save)
         this->game.eventManager.pushEvent(WEAPON_SET, std::pair<std::string, size_t>(save->currentWeapons[1], 1));
         });
 
-    game.currentDungeon = loadDungeon(*save, game);
+    game.currentWorld = loadDungeon(*save, game);
 
     // add NPCs that follow the player to the current room's data
     // TODO: is it worth it to give the TileMap a mutable member?
-    tileMap = game.currentDungeon->loadTileMap();
+    tileMap = game.currentWorld->getCurrentTileMap();
 
     for (auto& sName : save->spritesFollowingPlayer)
     {
@@ -371,7 +371,7 @@ void InGame::checkRoomTransition()
     // tests if the player rect is outside of the world bounds
     // returns an offset which can be used to displace the map index
     int8_t offset = 0;
-    auto [cols, _] = game.currentDungeon->getSize();
+    auto [cols, _] = game.currentWorld->getSize();
     if (player->rect.x < 0.0f)
     {
         offset = -1;
@@ -395,8 +395,8 @@ void InGame::checkRoomTransition()
     if (offset != 0)
     {
         // load the new room, also make sure that the new index is not negative
-        size_t newIndex = std::max(0, static_cast<int8_t>(game.currentDungeon->getCurrentRoomIndex()) + offset);
-        game.currentDungeon->setCurrentRoomIndex(newIndex);
+        size_t newIndex = std::max(0, static_cast<int8_t>(game.currentWorld->currentRoomIndex) + offset);
+        game.currentWorld->currentRoomIndex = newIndex;
         game.eventManager.pushDelayedEvent(UNNAMED, 0.0f, nullptr, [&]() {
             loadTilemap();
             });
@@ -405,7 +405,10 @@ void InGame::checkRoomTransition()
 
 void InGame::loadTilemap()
 {
-    tileMap = game.currentDungeon->loadTileMap(true);
+    Room* room = game.currentWorld->getCurrentRoom();
+    room->visited = true;
+
+    tileMap = game.currentWorld->getCurrentTileMap();
     // remove static and dynamic (non-persistent) objects
     game.walls.clear();
     game.clearEmitters();
@@ -423,8 +426,8 @@ void InGame::loadTilemap()
 
     // the room state controls how objects are spawned
     // room states start with 1
-    uint8_t currentState = game.currentDungeon->getCurrentRoomState();
-    auto& objectStates = game.currentDungeon->getCurrentRoomObjectStates();
+    uint8_t currentState = room->state;
+    auto& objectStates = room->objectStates;
     const auto& spriteData = game.loader.getSpriteData();
     size_t spritesLen = tileMap->getObjects().size();
     game.sprites.reserve(spritesLen);
@@ -495,6 +498,8 @@ void InGame::update(float deltaTime)
         lights[i].active = false;
     }
 
+    bool isDark = game.currentWorld->getCurrentRoom()->dark;
+
     // animate always, regardless of cutscene
     for (const auto& sprite : game.sprites)
     {
@@ -502,7 +507,7 @@ void InGame::update(float deltaTime)
         sprite->animate(deltaTime);
         // check if the sprite emits light in dark rooms
         // and give it a light cone
-        if (game.currentDungeon->isRoomDark() && sprite->emitsLight && currentLightIndex < MAX_LIGHTS)
+        if (isDark && sprite->emitsLight && currentLightIndex < MAX_LIGHTS)
         {
             lights[currentLightIndex].center = GetWorldToScreen2D(GetRectCenter(sprite->rect), cameraController.getCamera());
             lights[currentLightIndex].center.y += sprite->z; // apply jump height
@@ -721,7 +726,7 @@ void InGame::draw()
 
     // draw lighting in dark rooms
     // TODO: should game.target be passed as an argument to scene.draw() instead of being indirectly accessible to the scenes?
-    if (game.currentDungeon->isRoomDark())
+    if (game.currentWorld->getCurrentRoom()->dark)
         DrawLightOverlay(game.target.texture, game.loader.getShader("light_mask_flicker"), lights, lightCount, static_cast<float>(game.gameScreenWidth), static_cast<float>(game.gameScreenHeight));
 
     // draw a vignette

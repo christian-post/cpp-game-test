@@ -1,210 +1,154 @@
 #include "Dungeon.h"
 #include "Game.h"
 #include "WorldGraph.h"
+#include "TilemapRenderer.h"
 
-Level::Level(size_t roomsW, size_t roomsH) : roomsW { roomsW }, roomsH{ roomsH }
+Dungeon::Dungeon(Game& game, size_t roomsW, size_t roomsH, size_t numLevels)
+    : World(game, roomsW, roomsH, numLevels)
 {
-    rooms.resize(roomsW * roomsH);
-}
-
-std::vector<std::optional<Room>>& Level::getRooms()
-{
-    return rooms;
-}
-
-Room* Level::getRoomAt(size_t index)
-{
-    if (index >= rooms.size())
-        return nullptr;
-
-    return rooms[index].has_value() ? &*rooms[index] : nullptr;
-}
-
-void Level::insertRoom(size_t index, Room&& room) 
-{
-    rooms[index] = std::move(room);
-}
-
-
-// DUNGEON 
-
-Dungeon::Dungeon(Game& game, size_t roomsW, size_t roomsH, size_t numLevels) : game{ game }, roomsW{ roomsW }, roomsH{ roomsH } 
-{
-    levels.reserve(numLevels);
-    for (size_t i = 0; i < numLevels; ++i)
-        levels.emplace_back(roomsW, roomsH);
-
     minimapTextures.resize(numLevels);
 }
 
-std::vector<std::optional<Room>>& Dungeon::getRooms() 
+void Dungeon::generate(const nlohmann::json& dungeonData)
 {
-    return levels[currentLevel].getRooms();
-}
+    // set starting room from coordinates
+    size_t startingLevel = dungeonData["starting_level"];
+    std::vector<int> startCoords = dungeonData["starting_room"];
+    size_t startIndex = startCoords[0] * roomsW + startCoords[1];
+    setStartingRoomIndex(startIndex);
+    currentLevel = startingLevel;
 
-std::vector<std::optional<Room>>& Dungeon::getRooms(size_t level) 
-{
-    return levels[level].getRooms();
-}
+    // get item pool for this dungeon
+    std::vector<std::string> itemPool = dungeonData["item_pool"];
 
-Room* Dungeon::getRoomAt(size_t level, size_t index) 
-{
-    return levels[level].getRoomAt(index);
-}
+    // collect edges and item nodes across all levels
+    std::vector<std::tuple<std::string, std::string, std::vector<std::string>>> edges;
+    std::unordered_set<std::string> itemNodes;
 
-void Dungeon::setStartingRoomIndex(size_t index)
-{
-    startingRoomIndex = index;
-    if (!playerHasBeenPlaced)
+    // process each level
+    for (size_t levelIndex = 0; levelIndex < dungeonData["levels"].size(); ++levelIndex)
     {
-        playerHasBeenPlaced = true;
-        currentRoomIndex = index;
-    }
-}
+        const auto& levelData = dungeonData["levels"][levelIndex];
 
-void Dungeon::advanceRoomState() 
-{
-    advanceRoomState(currentLevel, currentRoomIndex);
-}
+        // insert all rooms for this level
+        for (const auto& roomData : levelData["rooms"])
+        {
+            size_t row = roomData["row"];
+            size_t column = roomData["column"];
+            std::string tilemapName = roomData["tilemap"];
+            std::string doorsStr = roomData["doors"];
+            uint8_t doors = static_cast<uint8_t>(std::stoi(doorsStr, nullptr, 2));
 
-void Dungeon::advanceRoomState(size_t level, size_t index) 
-{
-    Room* room = getRoomAt(level, index);
+            insertRoom(levelIndex, row, column, Room{ game.loader.getTilemap(tilemapName), doors });
+        }
 
-    if (!room)
-    {
-        TraceLog(LOG_ERROR, "advanceRoomState(): No room on level %d at index %d", level, index);
-        return;
-    }
-    // make sure the room state is at least 1
-    (room->state <<= 1) || (room->state = 1);
-    TraceLog(LOG_INFO, "Room state of %s is now %d", room->tilemap.getName().c_str(), room->state);
-}
+        // collect edges with item requirements from this level
+        for (const auto& edge : levelData["edges"])
+        {
+            std::vector<int> fromCoords = edge["from"];
+            std::vector<int> toCoords = edge["to"];
+            std::vector<std::string> requiredItems = edge["required_items"];
+            std::string fromId = std::to_string(levelIndex) + "_" + std::to_string(fromCoords[0]) + "_" + std::to_string(fromCoords[1]);
+            std::string toId = std::to_string(levelIndex) + "_" + std::to_string(toCoords[0]) + "_" + std::to_string(toCoords[1]);
 
-uint8_t Dungeon::getCurrentRoomState()
-{
-    return levels[currentLevel].getRoomAt(currentRoomIndex)->state;
-}
+            edges.emplace_back(fromId, toId, requiredItems);
+        }
 
-bool Dungeon::isRoomDark()
-{
-    Room* room = getRoomAt(currentLevel, currentRoomIndex);
-    return room ? room->dark : false;
-}
-
-uint8_t Dungeon::getRoomDoors(size_t level, size_t index)
-{
-    Room* room = getRoomAt(level, index);
-    if (!room)
-    {
-        TraceLog(LOG_ERROR, "getRoomDoors(): No room on level %d at index %d", level, index);
-        return 0;
-    }
-    return room->doors;
-}
-
-std::unordered_map<uint32_t, ObjectState>& Dungeon::getCurrentRoomObjectStates()
-{
-    Room* room = getRoomAt(currentLevel, currentRoomIndex);
-    return room->objectStates;
-}
-
-std::unordered_map<uint32_t, ObjectState>& Dungeon::getRoomObjectStates(size_t level, size_t index)
-{
-    Room* room = getRoomAt(level, index);
-    if (!room)
-    {
-        throw std::runtime_error("getRoomObjectStates(): No room on level" + std::to_string(level) + "at index" + std::to_string(index));  // TODO can I handle this elegantly, or should the game always crash?
-    }
-    return room->objectStates;
-}
-
-const TileMap* Dungeon::loadTileMap(bool setRoomVisited)
-{
-    Room* room = getRoomAt(currentLevel, currentRoomIndex);
-    if (!room)
-    {
-        // TODO this prints indefinitely when entering a non-valid room 
-        //TraceLog(LOG_ERROR, "loadTileMap(): No room on level %d at index %d", currentLevel, currentRoomIndex);
-        return nullptr;
-    }
-    if (setRoomVisited)
-        setVisited(currentLevel, currentRoomIndex); // TODO: is it too obscure to set this here?
-    return &room->tilemap;
-}
-
-const TileMap* Dungeon::loadTileMap(size_t level, size_t index)
-{
-    Room* room = getRoomAt(level, index);
-    if (!room)
-    {
-        TraceLog(LOG_ERROR, "loadTileMap(): No room on level %d at index %d", level, index);
-        return nullptr;
-    }
-    return &room->tilemap;
-}
-
-void Dungeon::insertRoom(size_t level, size_t row, size_t col, Room&& room) 
-{
-    // check if there is a room already
-    size_t index = row * roomsW + col;
-
-    // resize levels vector if necessary
-    if (level >= levels.size())
-    {
-        while (level >= levels.size())
-            levels.emplace_back(roomsW, roomsH);
+        // collect item nodes from this level
+        for (const auto& coords : levelData["item_nodes"])
+        {
+            std::vector<int> coordPair = coords;
+            std::string roomId = std::to_string(levelIndex) + "_" + std::to_string(coordPair[0]) + "_" + std::to_string(coordPair[1]);
+            itemNodes.insert(roomId);
+        }
     }
 
-    if (!getRoomAt(level, index))
+    // add level connections (bidirectional)
+    for (const auto& conn : dungeonData["level_connections"])
     {
-        levels[level].insertRoom(index, std::move(room)); // TODO this room will be moved twice if I do it like this
+        size_t fromLevel = conn["from"];
+        size_t toLevel = conn["to"];
+        std::vector<int> roomCoords = conn["room"];
+
+        std::string fromId = std::to_string(fromLevel) + "_" + std::to_string(roomCoords[0]) + "_" + std::to_string(roomCoords[1]);
+        std::string toId = std::to_string(toLevel) + "_" + std::to_string(roomCoords[0]) + "_" + std::to_string(roomCoords[1]);
+
+        edges.emplace_back(fromId, toId, std::vector<std::string>{});
+        edges.emplace_back(toId, fromId, std::vector<std::string>{});
     }
-    else
+
+    // build starting room identifier
+    std::string startingRoomId = std::to_string(startingLevel) + "_" + std::to_string(startCoords[0]) + "_" + std::to_string(startCoords[1]);
+
+    // build and fill world graph
+    WorldGraph G = buildGraphFromDungeon(startingRoomId, edges, itemNodes);
+    int attempts = 0;
+    const int max_attempts = 100;
+
+    do
     {
-        TraceLog(LOG_WARNING, "insertRoom(): A room already exists on level %d at index %s", level, index);
-    }
-}
+        G.initializeItems(itemPool);
+        G.forwardFill();
+        attempts++;
+    } while (!G.itemPool.empty() && attempts < max_attempts);
 
-std::pair<size_t, size_t> Dungeon::getSize() const
-{
-    return { roomsW, roomsH };
-}
-
-std::pair<size_t, size_t> Dungeon::getRoomSize(size_t level, size_t index)
-{
-    Room* room = getRoomAt(level, index);
-    if (!room)
+    if (!G.itemPool.empty())
     {
-        TraceLog(LOG_ERROR, "getRoomSize(): No room on level %d at index %d", level, index);
-        return { 0, 0 };
+        G.logDebug();
+
+        TraceLog(LOG_INFO, "Dungeon Size");
+        for (size_t lvl = 0; lvl < levels.size(); lvl++)
+        {
+            TraceLog(LOG_INFO, "Level %zu: %zu rooms.", lvl, levels[lvl].getRooms().size());
+        }
+
+        G.testReachability();
+
+        size_t numItemsLeft = G.itemPool.size();
+        TraceLog(LOG_INFO, "There are still %zu items in the pool.", numItemsLeft);
+
+        throw std::runtime_error("Failed to place all items after " + std::to_string(max_attempts) + " attempts");
     }
-    size_t w = room->tilemap.width;
-    size_t h = room->tilemap.height;
-    size_t ts = room->tilemap.tileWidth;
-    return { w * ts, h * ts };
-}
 
-bool Dungeon::hasVisited(size_t level, size_t index)
-{
-    Room* room = getRoomAt(level, index);
-    return room? room->visited : false;
-}
-
-void Dungeon::setVisited(size_t level, size_t index)
-{
-    Room* room = getRoomAt(level, index);
-    if (!room)
+    // place items into Tiled data
+    for (const auto& [roomId, node] : G.nodes)
     {
-        TraceLog(LOG_ERROR, "setVisited(): No room on level %d at index %d", level, index);
-        return;
+        if (node->item.has_value())
+        {
+            TraceLog(LOG_INFO, "[%s] placed item: %s", roomId.c_str(), node->item->c_str());
+
+            // parse level from roomId string "level_row_col"
+            size_t firstUnderscore = roomId.find('_');
+            size_t level = std::stoi(roomId.substr(0, firstUnderscore));
+
+            Room* room = getRoomAt(level, node->id);
+            if (!room)
+                continue;
+
+            TileMap& roomData = room->tilemap;
+            std::vector<TileObject>& objects = roomData.getObjects();
+            for (auto& obj : objects)
+            {
+                if (obj.name == "chest")
+                {
+                    obj.properties["item"] = node->item.value();
+                    obj.properties["amount"] = 1;
+
+                    // overwrite the object state
+                    room->objectStates[obj.id].itemName = node->item.value();
+                    room->objectStates[obj.id].itemAmount = 1;
+
+                    break;
+                }
+            }
+        }
     }
-    room->visited = true;
+    // print Dungeon graph to the console
+    G.logDebug();
 }
 
 void Dungeon::makeMinimapTextures()
 {
-    // creates downscaled images of the rooms for the mini map
     constexpr int miniWidth = 36;
     constexpr int miniHeight = 24;
     constexpr int tileSize = 16;
@@ -218,27 +162,19 @@ void Dungeon::makeMinimapTextures()
             Room* room = getRoomAt(level, i);
             if (!room)
             {
-                // store an empty texture for nonexistent rooms
                 RenderTexture2D mini = LoadRenderTexture(miniWidth, miniHeight);
                 BeginTextureMode(mini);
                 ClearBackground(BLANK);
                 EndTextureMode();
-                minimapTextures[level].push_back(mini); // TODO crashes when loading a save
+                minimapTextures[level].push_back(mini);
                 continue;
             }
             auto& tileMap = room->tilemap;
 
-            // get all tileset information and prepare lookup cache
+            // Get all tileset information
             const auto& tilesetInfos = tileMap.getTilesetNames();
 
-            struct TilesetData {
-                std::string name;
-                const Tileset* tileset;
-                const Texture2D* texture;
-                size_t tilesPerRow;
-                int firstGid;
-            };
-
+            // Use the existing TilesetData struct - no redefinition!
             std::vector<TilesetData> tilesetCache;
             for (const auto& info : tilesetInfos)
             {
@@ -252,13 +188,15 @@ void Dungeon::makeMinimapTextures()
                 tilesetCache.push_back(data);
             }
 
-            std::pair<size_t, size_t> tilemapSize = getRoomSize(level, i);
-            size_t tilesX = tilemapSize.first / tileSize;
-            size_t tilesY = tilemapSize.second / tileSize;
+            size_t tilemapWidth = tileMap.width * tileSize;
+            size_t tilemapHeight = tileMap.height * tileSize;
+            size_t tilesX = tileMap.width;
+            size_t tilesY = tileMap.height;
 
-            // NEW: scaling down the room image AFTER all tiles have been drawn
-            RenderTexture2D normal = LoadRenderTexture(static_cast<int>(tilemapSize.first), static_cast<int>(tilemapSize.second)); // 1:1 size
-            RenderTexture2D mini = LoadRenderTexture(miniWidth, miniHeight); // downscaled room texture
+            // render at full size first
+            RenderTexture2D normal = LoadRenderTexture(static_cast<int>(tilemapWidth), static_cast<int>(tilemapHeight));
+            RenderTexture2D mini = LoadRenderTexture(miniWidth, miniHeight);
+
             BeginTextureMode(normal);
             ClearBackground(BLANK);
             for (size_t layerIndex = 0; layerIndex < tileMap.layers.size(); ++layerIndex)
@@ -295,7 +233,7 @@ void Dungeon::makeMinimapTextures()
                         if (!tilesetData)
                             continue;
 
-                        // sample the source rect from the normally sized tilemap
+                        // sample the source rect from the tileset
                         float tileX = static_cast<float>(tileIndex % tilesetData->tilesPerRow) * tileSize;
                         float tileY = (static_cast<float>(tileIndex) / static_cast<float>(tilesetData->tilesPerRow)) * tileSize;
                         Rectangle src = { tileX, tileY, (float)tileSize, (float)tileSize };
@@ -303,15 +241,14 @@ void Dungeon::makeMinimapTextures()
                         float px = static_cast<float>(x) * static_cast<float>(tileSize);
                         float py = static_cast<float>(y) * static_cast<float>(tileSize);
                         Rectangle dst = { px, py, tileSize, tileSize };
-                        // draw the tile
+
                         DrawTexturePro(*tilesetData->texture, src, dst, { 0, 0 }, 0.0f, WHITE);
                     }
                 }
             }
             EndTextureMode();
-            // draw to the small surface
-            BeginTextureMode(mini);
-            // TODO: testing mode filtering for less noisy images
+
+            // downsample to minimap size using mode filter
             Image fullImg = LoadImageFromTexture(normal.texture);
             Color* pixels = LoadImageColors(fullImg);
 
@@ -321,7 +258,7 @@ void Dungeon::makeMinimapTextures()
             {
                 for (size_t tx = 0; tx < tilesX; ++tx)
                 {
-                    std::unordered_map<unsigned int, int> colorCount; // hash table that counts pixel colors
+                    std::unordered_map<unsigned int, int> colorCount;
                     for (size_t py = 0; py < tileSize; ++py)
                     {
                         for (size_t px = 0; px < tileSize; ++px)
@@ -329,11 +266,12 @@ void Dungeon::makeMinimapTextures()
                             size_t ix = tx * tileSize + px;
                             size_t iy = ty * tileSize + py;
                             Color c = pixels[iy * fullImg.width + ix];
-                            uint32_t key = *(uint32_t*)&c; // use raw bytes of color as hash
+                            uint32_t key = *(uint32_t*)&c;
                             colorCount[key]++;
                         }
                     }
-                    // find most frequent color in hash table
+
+                    // find most frequent color
                     int maxCount = 0;
                     Color mode = BLANK;
                     for (const auto& [key, count] : colorCount)
@@ -344,6 +282,7 @@ void Dungeon::makeMinimapTextures()
                             mode = *(Color*)&key;
                         }
                     }
+
                     float sx = static_cast<float>(tx) * (static_cast<float>(mini.texture.width) / static_cast<float>(tilesX));
                     float sy = static_cast<float>(ty) * (static_cast<float>(mini.texture.height) / static_cast<float>(tilesY));
                     float sw = static_cast<float>(mini.texture.width) / static_cast<float>(tilesX);
@@ -352,10 +291,122 @@ void Dungeon::makeMinimapTextures()
                 }
             }
             EndTextureMode();
+
             UnloadImageColors(pixels);
             UnloadImage(fullImg);
+            UnloadRenderTexture(normal);
 
             minimapTextures[level].push_back(mini);
+        }
+    }
+}
+
+void Dungeon::renderMinimap(float hudY, float gameScreenWidth)
+{
+    auto [cols, rows] = getSize();
+    const size_t currentRoomIdx = currentRoomIndex;
+    const int spacing = 1;
+    const int cellWidth = 6;
+    const int cellHeight = 4;
+    const int mapX = static_cast<int>(gameScreenWidth) - static_cast<int>(cols) * (cellWidth + spacing) - 6;
+    const int mapY = static_cast<int>(hudY) + 6;
+
+    for (size_t i = 0; i < cols * rows; ++i)
+    {
+        int col = static_cast<int>(i % cols);
+        int row = static_cast<int>(i / cols);
+        int cellX = mapX + col * (cellWidth + spacing);
+        int cellY = mapY + row * (cellHeight + spacing);
+
+        Color color = { 0 };
+        if (i == currentRoomIdx)
+        {
+            color = WHITE;
+        }
+        else
+        {
+            Room* room = getRoomAt(currentLevel, i);
+            if (room && room->visited)
+            {
+                color = GRAY;
+            }
+            else
+            {
+                color = DARKGRAY;
+            }
+        }
+
+        DrawRectangle(cellX, cellY, cellWidth, cellHeight, color);
+    }
+}
+
+void Dungeon::renderMapScreen(const MapRenderParams& params)
+{
+    const auto [cols, rows] = getSize();
+    size_t currentRoomIdx = currentRoomIndex;
+
+    const size_t cellWidth = (static_cast<size_t>(params.width) - 2 * params.border - (cols - 1) * params.spacing - params.offsetX) / cols;
+    const size_t cellHeight = (static_cast<size_t>(params.height) - 2 * params.border - (rows - 1) * params.spacing - params.offsetY) / rows;
+
+    // calculate door offsets for minimap
+    std::array<Vector2, 4> offsets;
+    offsets[0].x = float(cellWidth);
+    offsets[0].y = float(cellHeight / 2 - params.spacing / 2);
+    offsets[1].x = float(cellWidth / 2 - params.spacing / 2);
+    offsets[1].y = -1.0f * float(params.spacing);
+    offsets[2].x = -1.0f * float(params.spacing);
+    offsets[2].y = float(cellHeight / 2 - params.spacing / 2);
+    offsets[3].x = float(cellWidth / 2 - params.spacing / 2);
+    offsets[3].y = float(cellHeight);
+
+    for (size_t i = 0; i < cols * rows; ++i)
+    {
+        size_t col = i % cols;
+        size_t row = i / cols;
+        size_t cellX = params.offsetX + static_cast<size_t>(params.x) + params.border + col * (cellWidth + params.spacing);
+        size_t cellY = params.offsetY + static_cast<size_t>(params.y) + params.border + row * (cellHeight + params.spacing);
+        Color color = DARKGRAY;
+        DrawRectangle(int(cellX), int(cellY), int(cellWidth), int(cellHeight), color);
+
+        Room* room = getRoomAt(params.displayLevel, i);
+        if (room && room->visited && i < minimapTextures[params.displayLevel].size())
+        {
+            const auto& tex = minimapTextures[params.displayLevel][i].texture;
+            Rectangle src = { 0, 0, (float)tex.width, (float)tex.height };
+            Rectangle dst = { (float)cellX, (float)cellY, (float)cellWidth, (float)cellHeight };
+            DrawTexturePro(tex, src, dst, { 0, 0 }, 0.0f, WHITE);
+
+            // indicate connections between rooms
+            uint8_t doors = room->doors;
+
+            for (int j = 3; j >= 0; j--)
+            {
+                bool isDoor = (doors >> j) & 1;
+                if (isDoor)
+                {
+                    Rectangle r = {
+                        dst.x + offsets[3 - j].x,
+                        dst.y + offsets[3 - j].y,
+                        float(params.spacing),
+                        float(params.spacing)
+                    };
+                    DrawRectangleRec(r, color);
+                }
+            }
+
+            if (i == currentRoomIdx && currentLevel == params.displayLevel && params.showCursor)
+            {
+                // draw player as blinking sprite
+                const Vector2& pos = game.getPlayer()->position;
+                size_t roomW = room->tilemap.width * room->tilemap.tileWidth;
+                size_t roomH = room->tilemap.height * room->tilemap.tileHeight;
+                float u = pos.x / (float)roomW;
+                float v = pos.y / (float)roomH;
+                float px = cellX + u * cellWidth;
+                float py = cellY + v * cellHeight;
+                const auto& tex = game.loader.getTextures("knight_map_mini")[0];
+                DrawTexture(tex, (int)px, (int)py, WHITE);
+            }
         }
     }
 }
@@ -364,7 +415,7 @@ WorldGraph Dungeon::buildGraphFromDungeon(const std::string& start, const std::v
 {
     WorldGraph graph;
 
-    // Turn each room from each level into a node
+    // turn each room from each level into a node
     for (size_t level = 0; level < levels.size(); ++level)
     {
         for (size_t i = 0; i < roomsW * roomsH; i++)
@@ -383,22 +434,22 @@ WorldGraph Dungeon::buildGraphFromDungeon(const std::string& start, const std::v
 
     graph.setStart(start);
 
-    // Helper to get requirements for a specific edge from edges parameter
+    // helper to get requirements for a specific edge
     auto get_requirements = [&](const std::string& from, const std::string& to)
         {
-        std::unordered_set<std::string> reqs;
-        for (const auto& [f, t, items] : edges)
-        {
-            if (f == from && t == to)
+            std::unordered_set<std::string> reqs;
+            for (const auto& [f, t, items] : edges)
             {
-                reqs.insert(items.begin(), items.end());
-                break;
+                if (f == from && t == to)
+                {
+                    reqs.insert(items.begin(), items.end());
+                    break;
+                }
             }
-        }
-        return reqs;
-    };
+            return reqs;
+        };
 
-    // Add edges based on doors for all levels
+    // add edges based on doors for all levels
     for (size_t level = 0; level < levels.size(); ++level)
     {
         for (size_t i = 0; i < roomsW * roomsH; i++)
@@ -450,7 +501,7 @@ WorldGraph Dungeon::buildGraphFromDungeon(const std::string& start, const std::v
         }
     }
 
-    // Add custom edges (level connections and edges without corresponding doors)
+    // add custom edges (level connections and edges without corresponding doors)
     for (const auto& [from, to, requirements] : edges)
     {
         std::unordered_set<std::string> reqs(requirements.begin(), requirements.end());
@@ -458,145 +509,4 @@ WorldGraph Dungeon::buildGraphFromDungeon(const std::string& start, const std::v
     }
 
     return graph;
-}
-
-void Dungeon::generate(const nlohmann::json& dungeonData)
-{
-    // Set starting room from coordinates
-    size_t startingLevel = dungeonData["starting_level"];
-    std::vector<int> startCoords = dungeonData["starting_room"];
-    size_t startIndex = startCoords[0] * roomsW + startCoords[1];
-    setStartingRoomIndex(startIndex);
-    currentLevel = startingLevel;
-
-    // Get item pool for this dungeon
-    std::vector<std::string> itemPool = dungeonData["item_pool"];
-
-    // Collect edges and item nodes across all levels
-    std::vector<std::tuple<std::string, std::string, std::vector<std::string>>> edges;
-    std::unordered_set<std::string> itemNodes;
-
-    // Process each level
-    for (size_t levelIndex = 0; levelIndex < dungeonData["levels"].size(); ++levelIndex)
-    {
-        const auto& levelData = dungeonData["levels"][levelIndex];
-
-        // Insert all rooms for this level into the levels vector
-        for (const auto& roomData : levelData["rooms"])
-        {
-            size_t row = roomData["row"];
-            size_t column = roomData["column"];
-            std::string tilemapName = roomData["tilemap"];
-            std::string doorsStr = roomData["doors"];
-            uint8_t doors = static_cast<uint8_t>(std::stoi(doorsStr, nullptr, 2));
-
-            insertRoom(levelIndex, row, column, Room{ game.loader.getTilemap(tilemapName), doors });
-        }
-
-        // Collect edges with item requirements from this level for the graph
-        for (const auto& edge : levelData["edges"])
-        {
-            std::vector<int> fromCoords = edge["from"];
-            std::vector<int> toCoords = edge["to"];
-            std::vector<std::string> requiredItems = edge["required_items"];
-            // edge identifiers are build like "0_3_1" (level 0, row 3, column 1)
-            std::string fromId = std::to_string(levelIndex) + "_" + std::to_string(fromCoords[0]) + "_" + std::to_string(fromCoords[1]);
-            std::string toId = std::to_string(levelIndex) + "_" + std::to_string(toCoords[0]) + "_" + std::to_string(toCoords[1]);
-
-            edges.emplace_back(fromId, toId, requiredItems);
-        }
-
-        // Collect item nodes from this level
-        for (const auto& coords : levelData["item_nodes"])
-        {
-            std::vector<int> coordPair = coords;
-            std::string roomId = std::to_string(levelIndex) + "_" + std::to_string(coordPair[0]) + "_" + std::to_string(coordPair[1]);
-            itemNodes.insert(roomId);
-        }
-    }
-
-    // Add level connections (also bidirectional)
-    for (const auto& conn : dungeonData["level_connections"])
-    {
-        size_t fromLevel = conn["from"];
-        size_t toLevel = conn["to"];
-        std::vector<int> roomCoords = conn["room"];
-
-        std::string fromId = std::to_string(fromLevel) + "_" + std::to_string(roomCoords[0]) + "_" + std::to_string(roomCoords[1]);
-        std::string toId = std::to_string(toLevel) + "_" + std::to_string(roomCoords[0]) + "_" + std::to_string(roomCoords[1]);
-
-        edges.emplace_back(fromId, toId, std::vector<std::string>{});
-        edges.emplace_back(toId, fromId, std::vector<std::string>{});
-    }
-
-    // Build starting room identifier
-    std::string startingRoomId = std::to_string(startingLevel) + "_" + std::to_string(startCoords[0]) + "_" + std::to_string(startCoords[1]);
-
-    // Build and fill world graph
-    WorldGraph G = buildGraphFromDungeon(startingRoomId, edges, itemNodes);
-    int attempts = 0;
-    const int max_attempts = 100;
-
-    do 
-    {
-        G.initializeItems(itemPool);
-        G.forwardFill();
-        attempts++;
-    } while (!G.itemPool.empty() && attempts < max_attempts);
-
-    if (!G.itemPool.empty())
-    {
-        // TODO help finding the reason why the generation failed
-        G.logDebug();
-
-        TraceLog(LOG_INFO, "Dungeon Size");
-        for (size_t lvl = 0; lvl < levels.size(); lvl++)
-        {
-            TraceLog(LOG_INFO, "Level %d: %d rooms.", lvl, levels[lvl].getRooms().size());
-        }
-
-        G.testReachability();
-
-        size_t numItemsLeft = G.itemPool.size();
-        TraceLog(LOG_INFO, "There are still %d items in the pool.", numItemsLeft);
-
-        throw std::runtime_error("Failed to place all items after " + std::to_string(max_attempts) + " attempts");
-    }
-
-    // Place items into Tiled data
-    for (const auto& [roomId, node] : G.nodes)
-    {
-        if (node->item.has_value())
-        {
-            TraceLog(LOG_INFO, "[%s] placed item: %s", roomId.c_str(), node->item->c_str());
-
-            // Parse level from roomId string "level_row_col"
-            size_t firstUnderscore = roomId.find('_');
-            size_t level = std::stoi(roomId.substr(0, firstUnderscore));
-
-            auto& rooms = levels[level].getRooms();
-            TileMap& roomData = rooms[node->id]->tilemap;
-            std::vector<TileObject>& objects = roomData.getObjects();
-            for (auto& obj : objects)
-            {
-                // replace empty chests with items
-                if (obj.name == "chest" && obj.properties["item"] == "")
-                //if (obj.name == "chest")
-                {
-                    obj.properties["item"] = node->item.value();
-                    obj.properties["amount"] = 1;
-
-                    // overwrite the object state
-                    // TODO unify this and the json data??
-                    auto& objectStates = rooms[node->id]->objectStates;
-                    objectStates[obj.id].itemName = node->item.value();
-                    objectStates[obj.id].itemAmount = 1;
-
-                    break; // chooses the first chest in this room
-                }
-            }
-        }
-    }
-    // print Dungeon graph to the console
-    G.logDebug();
 }

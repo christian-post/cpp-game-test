@@ -1,5 +1,4 @@
 #pragma once
-//#include "Game.h"
 #include "raylib.h"
 #include "json.hpp"
 #include <cstdint>
@@ -9,14 +8,39 @@
 #include <unordered_map>
 #include <vector>
 #include <utility>
-
+#include <optional>
 
 class Game;
-struct ObjectState;
-class Dungeon;
 
+// ========== OBJECT STATE ==========
+struct ObjectState {
+    bool isOpened = false;
+    bool isDefeated = false;
+    size_t dialogIndex = 0;
+    std::string itemName;
+    size_t itemAmount = 0;
+};
+
+inline void to_json(nlohmann::json& jsonOutput, const ObjectState& state) {
+    jsonOutput = {
+        { "isOpened", state.isOpened },
+        { "isDefeated", state.isDefeated },
+        { "dialogIndex", state.dialogIndex },
+        { "itemName", state.itemName },
+        { "itemAmount", state.itemAmount },
+    };
+}
+
+inline void from_json(const nlohmann::json& jsonInput, ObjectState& state) {
+    jsonInput.at("isOpened").get_to(state.isOpened);
+    jsonInput.at("isDefeated").get_to(state.isDefeated);
+    jsonInput.at("dialogIndex").get_to(state.dialogIndex);
+    jsonInput.at("itemName").get_to(state.itemName);
+    jsonInput.at("itemAmount").get_to(state.itemAmount);
+}
+
+// ========== TILESET DATA STRUCTURES ==========
 struct Tileset {
-    // used to store the data from *.tsj files
     std::string name, image;
     uint32_t imagewidth, imageheight, tilecount, tileheight, tilewidth, columns;
 
@@ -24,7 +48,7 @@ struct Tileset {
 
     Tileset(const nlohmann::json& objJson) :
         name(objJson["name"]),
-        image(std::filesystem::path(objJson["image"].get<std::string>()).filename().string()), // basename, used as key for the texture
+        image(std::filesystem::path(objJson["image"].get<std::string>()).filename().string()),
         imagewidth(objJson["imagewidth"]),
         imageheight(objJson["imageheight"]),
         tilecount(objJson["tilecount"]),
@@ -39,19 +63,18 @@ struct TileLayer {
     bool visible;
     int width, height;
     std::vector<std::vector<int>> data;
-    std::unordered_map<std::string, std::string> properties;  // TODO parse properties as JSON
+    std::unordered_map<std::string, std::string> properties;
     TileLayer(const nlohmann::json& layerJson);
 };
 
 struct TileObject {
-    // Tiled map objects (sprites etc.)
     std::string type, name;
     float x, y, width, height;
     bool visible;
     uint32_t id;
     nlohmann::json properties;
 
-    TileObject() = default;  // TODO
+    TileObject() = default;
 
     TileObject(const nlohmann::json& objJson) :
         type(objJson["type"]),
@@ -63,32 +86,36 @@ struct TileObject {
         height(objJson["height"]),
         id(objJson["id"])
     {
-        if (objJson.contains("properties") && objJson["properties"].is_array()) {
-            for (const auto& p : objJson["properties"]) {
-                if (p.contains("name") && p.contains("value")) {
+        if (objJson.contains("properties") && objJson["properties"].is_array())
+        {
+            for (const auto& p : objJson["properties"])
+            {
+                if (p.contains("name") && p.contains("value"))
+                {
                     properties[p["name"]] = p["value"];
                 }
             }
         }
-        else {
+        else
+        {
             properties = nlohmann::json::object();
         }
     }
 };
 
 struct CollisionObject {
-    // just a raylib Rectangle with an additional layer property that allows for finer collision handling
     int layer = 0;
     float x, y, width, height;
     Rectangle getRect() { return Rectangle{ x, y, width, height }; }
 };
 
+// ========== TILEMAP ==========
 class TileMap {
 public:
     TileMap(const nlohmann::json& jsonMap, std::string mapName);
     const TileLayer& getLayer(size_t index) const;
     const std::vector<TileObject>& getObjects() const { return objects; }
-    std::vector<TileObject>& getObjects() { return objects; } // non-const overload for modifications
+    std::vector<TileObject>& getObjects() { return objects; }
     const std::string& getName() const { return mapName; }
     const std::vector<std::pair<std::string, int>>& getTilesetNames() const { return tilesetNames; }
     const std::string& getRoomID() const { return roomID; }
@@ -97,16 +124,46 @@ public:
 
     size_t width, height, tileWidth, tileHeight;
     std::vector<TileLayer> layers;
-    mutable std::vector<TileObject> dynamicObjects; // TileObjects that get added from somewhere else than the Tiled data
+    mutable std::vector<TileObject> dynamicObjects;
 
 private:
     std::string mapName;
-    std::vector<std::pair<std::string, int>> tilesetNames;  // Tiled allows a map to have multiple tilesets. First is the file id, sectond is the firstgid
+    std::vector<std::pair<std::string, int>> tilesetNames;
     std::string music;
     bool dark = false;
     std::vector<TileObject> objects;
-    std::string roomID; // used for room-individual triggers
+    std::string roomID;
 };
 
+// ========== ROOM ==========
+class Room {
+public:
+    uint8_t doors;
+    TileMap tilemap;
+    uint8_t state = 1;
+    bool visited = false;
+    bool dark = false;
+    std::unordered_map<uint32_t, ObjectState> objectStates;
 
-void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, std::unordered_map<uint32_t, ObjectState>& objectStates, const nlohmann::json& spriteData); // helper function that turns Tiled data into sprites etc
+    Room(TileMap tilemap, uint8_t doors = 0b0000)
+        : doors(doors), tilemap(std::move(tilemap)), dark(this->tilemap.isDark())
+    {
+    }
+};
+
+// ========== LEVEL ==========
+class Level {
+public:
+    Level(size_t roomsW, size_t roomsH);
+    std::vector<std::optional<Room>>& getRooms();
+    Room* getRoomAt(size_t index);
+    void insertRoom(size_t index, Room&& room);
+
+private:
+    size_t roomsW;
+    size_t roomsH;
+    std::vector<std::optional<Room>> rooms;
+};
+
+// ========== HELPER FUNCTION ==========
+void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, std::unordered_map<uint32_t, ObjectState>& objectStates, const nlohmann::json& spriteData);

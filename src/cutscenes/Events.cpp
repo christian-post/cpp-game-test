@@ -23,19 +23,19 @@ void setupConditionalEvents(InGame& inGame)
         },
         [&]() {
             size_t level = 0;
-            size_t roomIdx = game.currentDungeon->getStartingRoomIndex();
-            game.currentDungeon->advanceRoomState(level, roomIdx);
+            size_t roomIdx = game.currentWorld->startingRoomIndex;
+            game.currentWorld->advanceRoomState(level, roomIdx);
         }
     );
 
     game.eventManager.pushConditionalEvent(
         [&]() {
             // this happens in the first room after the player obtained the sword from another room
-            const std::string& roomID = game.currentDungeon->loadTileMap()->getRoomID();
+            const std::string& roomID = game.currentWorld->getCurrentTileMap()->getRoomID();
             return (roomID == "starting_room" && game.inventory.getItemQuantity("weapon_sword") > 0);
             },
         [&]() {
-            if (game.spriteMap.find("elfCompanion2") == game.spriteMap.end() || game.currentDungeon->getCurrentRoomState() >= 6)
+            if (game.spriteMap.find("elfCompanion2") == game.spriteMap.end() || game.currentWorld->getCurrentRoom()->state >= 6)
                 return;
             game.eventManager.pushDelayedEvent(UNNAMED, 0.1f, nullptr, [&]() {
                 Sprite& npcRef = *game.spriteMap["elfCompanion2"];               
@@ -51,7 +51,7 @@ void setupConditionalEvents(InGame& inGame)
                 game.cutsceneManager.queueCommand(new Command_Textbox(game, texts[0], "powerUp4", true)); // TODO pass the key to texts.json directly instead of the actual dialogue string... 
                 game.cutsceneManager.queueCommand(new Command_Callback([&]() {
                     game.eventManager.pushEvent(SHOW_HUD);
-                    game.currentDungeon->advanceRoomState();
+                    game.currentWorld->advanceRoomState();
                     if (!npcRef.persistent) {
                         npcRef.persistent = true;
                         npcRef.followsPlayer = true;
@@ -66,8 +66,8 @@ void setupConditionalEvents(InGame& inGame)
     game.eventManager.pushConditionalEvent(
         [&]() {
             // this event sets the position of the elf companion next to the player after loading the first room
-            const std::string& roomID = game.currentDungeon->loadTileMap()->getRoomID();
-            return (roomID == "starting_room" && game.currentDungeon->getCurrentRoomState() >= 6);
+            const std::string& roomID = game.currentWorld->getCurrentTileMap()->getRoomID();
+            return (roomID == "starting_room" && game.currentWorld->getCurrentRoom()->state >= 6);
         },
         [&]() {
             if (game.spriteMap.find("elfCompanion2") == game.spriteMap.end())
@@ -94,7 +94,7 @@ void setupConditionalEvents(InGame& inGame)
             if (!inGame.tileMap) 
                 return false;
             return inGame.tileMap->getName() == "dungeon004" &&
-                game.currentDungeon->getCurrentRoomState() < 2 &&
+                game.currentWorld->getCurrentRoom()->state < 2 &&
                 std::none_of(game.sprites.begin(), game.sprites.end(),
                     [](const std::shared_ptr<Sprite>& s) {
                         return s->isEnemy;
@@ -115,7 +115,7 @@ void setupConditionalEvents(InGame& inGame)
                 game.cutsceneManager.queueCommand(new Command_Callback([&]() {
                     game.eventManager.pushEvent(SHOW_HUD);
                     game.cutsceneManager.setCameraControl(false);
-                    game.currentDungeon->advanceRoomState();
+                    game.currentWorld->advanceRoomState();
                     }));
                 });
         }
@@ -127,7 +127,7 @@ void setupConditionalEvents(InGame& inGame)
             if (!inGame.tileMap) 
                 return false;
             return inGame.tileMap->getName() == "dungeon006" &&
-                game.currentDungeon->getCurrentRoomState() < 2 &&
+                game.currentWorld->getCurrentRoom()->state < 2 &&
                 std::none_of(game.sprites.begin(), game.sprites.end(),
                     [](const std::shared_ptr<Sprite>& s) {
                         return s->isEnemy;
@@ -148,7 +148,7 @@ void setupConditionalEvents(InGame& inGame)
                 game.cutsceneManager.queueCommand(new Command_Callback([&]() {
                     game.eventManager.pushEvent(SHOW_HUD);
                     game.cutsceneManager.setCameraControl(false);
-                    game.currentDungeon->advanceRoomState();
+                    game.currentWorld->advanceRoomState();
                     }));
                 });
         }
@@ -182,7 +182,7 @@ void setupConditionalEvents(InGame& inGame)
             if (!inGame.tileMap)
                 return false;
             return inGame.tileMap->getName() == "dungeon_turrets_0101" &&
-                game.currentDungeon->getCurrentRoomState() < 2 &&
+                game.currentWorld->getCurrentRoom()->state < 2 &&
                 std::none_of(game.sprites.begin(), game.sprites.end(),
                     [](const std::shared_ptr<Sprite>& s) {
                         return s->isEnemy;
@@ -203,7 +203,7 @@ void setupConditionalEvents(InGame& inGame)
                 game.cutsceneManager.queueCommand(new Command_Callback([&]() {
                     game.eventManager.pushEvent(SHOW_HUD);
                     game.cutsceneManager.setCameraControl(false);
-                    game.currentDungeon->advanceRoomState();
+                    game.currentWorld->advanceRoomState();
                     }));
                 });
         }
@@ -215,7 +215,7 @@ void setupConditionalEvents(InGame& inGame)
             if (!inGame.tileMap)
                 return false;
             return inGame.tileMap->getName() == "dungeon_fight_chest_0100" &&
-                game.currentDungeon->getCurrentRoomState() < 2 &&
+                game.currentWorld->getCurrentRoom()->state < 2 &&
                 std::none_of(game.sprites.begin(), game.sprites.end(),
                     [](const std::shared_ptr<Sprite>& s) {
                         return s->isEnemy;
@@ -228,7 +228,7 @@ void setupConditionalEvents(InGame& inGame)
                 game.cutsceneManager.queueCommand(new Command_CameraPan(game, 136.0f, 118.0f, 1.0f));
                 game.cutsceneManager.queueCommand(new Command_Wait(0.3f));
                 game.cutsceneManager.queueCommand(new Command_Callback([&]() {
-                    game.currentDungeon->advanceRoomState();
+                    game.currentWorld->advanceRoomState();
                     game.eventManager.pushEvent(RELOAD_ROOM); // make the chest appear
                     }));
                 game.cutsceneManager.queueCommand(new Command_Wait(0.5f));
@@ -246,7 +246,7 @@ void setupConditionalEvents(InGame& inGame)
             if (!inGame.tileMap)
                 return false;
             return inGame.tileMap->getName() == "dungeon_final_boss_0001" &&
-                game.currentDungeon->getCurrentRoomState() < 4 &&
+                game.currentWorld->getCurrentRoom()->state < 4 &&
                 std::none_of(game.sprites.begin(), game.sprites.end(),
                     [](const std::shared_ptr<Sprite>& s) {
                         return s->isEnemy;
@@ -283,8 +283,8 @@ void setupConditionalEvents(InGame& inGame)
                     game.eventManager.pushEvent(SHOW_HUD);
                     game.cutsceneManager.setCameraControl(false);
                     // TODO state 2 closes the door
-                    game.currentDungeon->advanceRoomState();
-                    game.currentDungeon->advanceRoomState();
+                    game.currentWorld->advanceRoomState();
+                    game.currentWorld->advanceRoomState();
                     }));
                 });
         }

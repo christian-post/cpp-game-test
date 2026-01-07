@@ -150,7 +150,7 @@ void saveDungeon(SaveGame& saveGame, Dungeon& dungeon)
     }
     saveGame.dungeonWidth = width;
     saveGame.dungeonHeight = height;
-    saveGame.startingRoomIndex = dungeon.getStartingRoomIndex();
+    saveGame.startingRoomIndex = dungeon.startingRoomIndex;
     saveGame.startingLevel = 0; // TODO ist just always 0 right now
 }
 
@@ -184,7 +184,7 @@ std::unique_ptr<Dungeon> loadDungeon(SaveGame& saveGame, Game& game)
     }
      
     dungeon->setStartingRoomIndex(saveGame.startingRoomIndex);
-    dungeon->setLevel(0);  // TODO
+    dungeon->currentLevel = 0;  // TODO
     dungeon->makeMinimapTextures();
 
     return dungeon;

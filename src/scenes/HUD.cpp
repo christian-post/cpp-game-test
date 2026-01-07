@@ -141,28 +141,28 @@ void HUD::draw()
     }
 
     // draw the mini map
-    auto [cols, rows] = game.currentDungeon->getSize();
-    const size_t currentRoomIndex = game.currentDungeon->getCurrentRoomIndex();
-    const int spacing = 1;
-    const int cellWidth = 6;
-    const int cellHeight = 4;
-    const int mapX = static_cast<int>(game.gameScreenWidth) - static_cast<int>(cols) * (cellWidth + spacing) - 6;
-    const int mapY = static_cast<int>(y) + 6;
-    for (size_t i = 0; i < cols * rows; ++i)
-    {
-        int col = static_cast<int>(i % cols);
-        int row = static_cast<int>(i / cols);
-        int cellX = mapX + col * (cellWidth + spacing);
-        int cellY = mapY + row * (cellHeight + spacing);
-        Color color = { 0 };
-        if (i == currentRoomIndex)
-            color = WHITE;
-        else if (game.currentDungeon->hasVisited(game.currentDungeon->getCurrentLevel(), i))
-            color = GRAY;
-        else
-            color = DARKGRAY;
-        DrawRectangle(cellX, cellY, cellWidth, cellHeight, color);
-    }
+    //auto [cols, rows] = game.currentDungeon->getSize();
+    //const size_t currentRoomIndex = game.currentDungeon->getCurrentRoomIndex();
+    //const int spacing = 1;
+    //const int cellWidth = 6;
+    //const int cellHeight = 4;
+    //const int mapX = static_cast<int>(game.gameScreenWidth) - static_cast<int>(cols) * (cellWidth + spacing) - 6;
+    //const int mapY = static_cast<int>(y) + 6;
+    //for (size_t i = 0; i < cols * rows; ++i)
+    //{
+    //    int col = static_cast<int>(i % cols);
+    //    int row = static_cast<int>(i / cols);
+    //    int cellX = mapX + col * (cellWidth + spacing);
+    //    int cellY = mapY + row * (cellHeight + spacing);
+    //    Color color = { 0 };
+    //    if (i == currentRoomIndex)
+    //        color = WHITE;
+    //    else if (game.currentDungeon->hasVisited(game.currentDungeon->getCurrentLevel(), i))
+    //        color = GRAY;
+    //    else
+    //        color = DARKGRAY;
+    //    DrawRectangle(cellX, cellY, cellWidth, cellHeight, color);
+    //}
 
     // whenever a collectable item is picked up
     if (showCollectedItem)
