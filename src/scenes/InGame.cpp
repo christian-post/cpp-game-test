@@ -42,13 +42,15 @@ void InGame::startup()
     else
     {
         // generate a fresh dungeon
-        std::string dungeonKey = game.getSetting<std::string>("first_dungeon");
-        game.createWorld(dungeonKey);
+        //std::string dungeonKey = game.getSetting<std::string>("first_dungeon");
+        //game.createWorld(dungeonKey);
+        std::string dungeonKey = "overworld";
+        game.createWorld(dungeonKey, false);
     }
     // retrieve the tilemap
     // and set the player's position in the first room
     loadTilemap();
-    player->moveTo(7.5f * float(tilemapRenderer.getTileSize()), 8.0f * float(tilemapRenderer.getTileSize()));
+    player->moveTo(game.currentWorld->startingPosition.x, game.currentWorld->startingPosition.y);
 
     // setup the camera
     cameraController.initialize(
@@ -405,9 +407,6 @@ void InGame::checkRoomTransition()
 
 void InGame::loadTilemap()
 {
-    Room* room = game.currentWorld->getCurrentRoom();
-    room->visited = true;
-
     tileMap = game.currentWorld->getCurrentTileMap();
     // remove static and dynamic (non-persistent) objects
     game.walls.clear();
@@ -424,6 +423,8 @@ void InGame::loadTilemap()
         tilemapRenderer.getWorldHeight() * tilemapRenderer.getTileSize()
     );
 
+    Room* room = game.currentWorld->getCurrentRoom();
+    room->visited = true;
     // the room state controls how objects are spawned
     // room states start with 1
     uint8_t currentState = room->state;
@@ -673,9 +674,6 @@ void InGame::draw()
  
     // draw the textures that are affected by the camera
     BeginMode2D(cameraController.getCamera());
-    // draw each tilemap layer except the top one
-    if (tileMap)
-        tilemapRenderer.drawAllLayersExceptTop(cameraController.getCamera());
 
     // Draw the sprites after sorting them by their bottom y position, also respect the drawing layer of each sprite (fixed)
     // TODO add a flag to sprite that makes an exception from this sorting
@@ -691,11 +689,28 @@ void InGame::draw()
         return (a->rect.y + a->rect.height) < (b->rect.y + b->rect.height);
         });
 
+    // draw each tilemap layer except the top one
+    auto& cam = cameraController.getCamera();
+    if (tileMap)
+    {
+        tilemapRenderer.drawLayer(0, cam); // floor
+        // now draw the shadows
+        for (Sprite* sprite : drawOrder)
+        {
+            sprite->drawShadow();
+        }
+        // TODO make this dynamic
+        tilemapRenderer.drawLayer(1, cam); // walls
+        tilemapRenderer.drawLayer(2, cam); // walls2
+    }
+
+    // draw the sprites
     for (Sprite* sprite : drawOrder)
     {
         sprite->draw();
         sprite->drawBehavior();
     }
+
     // draw particles
     for (auto& emitter : game.emitters)
     {
@@ -704,9 +719,9 @@ void InGame::draw()
 
     // now draw the top layer above the sprites
     if (tileMap)
-        tilemapRenderer.drawTopLayer(cameraController.getCamera());
+        tilemapRenderer.drawLayer(3, cam); // top
 
-    // debug information that is affected by the camera (hitboxes etc)
+    // draw debug information that is affected by the camera (hitboxes etc)
     if (game.debug)
     {
         for (const auto& wall : game.walls)
@@ -716,9 +731,6 @@ void InGame::draw()
         for (const auto& sprite : game.sprites)
         {
             DrawRectangleLines((int)sprite->rect.x, (int)sprite->rect.y, (int)sprite->rect.width, (int)sprite->rect.height, GREEN);
-        }
-        for (const auto& sprite : game.sprites)
-        {
             DrawRectangleLines((int)sprite->hurtbox.x, (int)sprite->hurtbox.y, (int)sprite->hurtbox.width, (int)sprite->hurtbox.height, RED);
         }
     }
@@ -729,8 +741,9 @@ void InGame::draw()
     if (game.currentWorld->getCurrentRoom()->dark)
         DrawLightOverlay(game.target.texture, game.loader.getShader("light_mask_flicker"), lights, lightCount, static_cast<float>(game.gameScreenWidth), static_cast<float>(game.gameScreenHeight));
 
-    // draw a vignette
-    DrawVignette(game.target.texture, game.loader.getShader("vignette"), game.getSetting<float>("vignetteIntensity"), game.getSetting<float>("vignetteSmoothness"), static_cast<float>(game.gameScreenWidth), static_cast<float>(game.gameScreenHeight));
+    // draw a vignette (only if player is in a dungeon)
+    if (game.currentWorld->isDungeon)
+        DrawVignette(game.target.texture, game.loader.getShader("vignette"), game.getSetting<float>("vignetteIntensity"), game.getSetting<float>("vignetteSmoothness"), static_cast<float>(game.gameScreenWidth), static_cast<float>(game.gameScreenHeight));
 
     // draw an effect when the player if low on health
     // TODO hardcoded values

@@ -97,6 +97,7 @@ public:
     void setHurtbox(float x = -1.0f, float y = -1.0f, float width = -1.0f, float height = -1.0f, bool center = false);
     void getControls();
     void update(float deltaTime);
+    void drawShadow();
     void draw();
     void moveTo(float x, float y);
 

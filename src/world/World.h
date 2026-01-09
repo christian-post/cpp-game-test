@@ -22,9 +22,11 @@ public:
     World(Game& game, size_t roomsW, size_t roomsH, size_t numLevels);
     virtual ~World() = default;
 
+    bool isDungeon = true;
     size_t currentLevel = 0;
     size_t currentRoomIndex = 0;
     size_t startingRoomIndex = 0;
+    Vector2 startingPosition = { 0.0f, 0.0f };
 
     // room access
     Room* getRoomAt(size_t level, size_t index);

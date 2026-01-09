@@ -12,7 +12,6 @@
 
 class Game;
 
-// ========== OBJECT STATE ==========
 struct ObjectState {
     bool isOpened = false;
     bool isDefeated = false;
@@ -39,7 +38,6 @@ inline void from_json(const nlohmann::json& jsonInput, ObjectState& state) {
     jsonInput.at("itemAmount").get_to(state.itemAmount);
 }
 
-// ========== TILESET DATA STRUCTURES ==========
 struct Tileset {
     std::string name, image;
     uint32_t imagewidth, imageheight, tilecount, tileheight, tilewidth, columns;
@@ -109,7 +107,6 @@ struct CollisionObject {
     Rectangle getRect() { return Rectangle{ x, y, width, height }; }
 };
 
-// ========== TILEMAP ==========
 class TileMap {
 public:
     TileMap(const nlohmann::json& jsonMap, std::string mapName);
@@ -122,7 +119,10 @@ public:
     const std::string& getMusicKey() const { return music; }
     bool isDark() const { return dark; }
 
-    size_t width, height, tileWidth, tileHeight;
+    size_t width; // width of the map in tiles
+    size_t height; // height of the map in tiles
+    size_t tileWidth; // width of one tile in pixels
+    size_t tileHeight; // height of one tile in pixels
     std::vector<TileLayer> layers;
     mutable std::vector<TileObject> dynamicObjects;
 
@@ -135,7 +135,6 @@ private:
     std::string roomID;
 };
 
-// ========== ROOM ==========
 class Room {
 public:
     uint8_t doors;
@@ -151,7 +150,6 @@ public:
     }
 };
 
-// ========== LEVEL ==========
 class Level {
 public:
     Level(size_t roomsW, size_t roomsH);
@@ -165,5 +163,4 @@ private:
     std::vector<std::optional<Room>> rooms;
 };
 
-// ========== HELPER FUNCTION ==========
 void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, std::unordered_map<uint32_t, ObjectState>& objectStates, const nlohmann::json& spriteData);

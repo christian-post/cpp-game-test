@@ -405,27 +405,28 @@ std::shared_ptr<Sprite> Game::createSprite(std::string spriteName, Rectangle& re
 
 void Game::createWorld(std::string& key, bool isDungeon)
 {
+    const auto& allDungeons = loader.getDungeonData();
+    if (!allDungeons.contains(key))
+        throw std::runtime_error("Dungeon '" + key + "' not found in dungeons.json");
+
+    const auto& worldData = allDungeons[key];
+
+    size_t roomsW = worldData["rooms_w"];
+    size_t roomsH = worldData["rooms_h"];
+    size_t numLevels = worldData["num_levels"];
+
     if (isDungeon)
     {
-        const auto& allDungeons = loader.getDungeonData();
-        if (!allDungeons.contains(key))
-            throw std::runtime_error("Dungeon '" + key + "' not found in dungeons.json");
-        const auto& dungeonData = allDungeons[key];
-
-        size_t roomsW = dungeonData["rooms_w"];
-        size_t roomsH = dungeonData["rooms_h"];
-        size_t numLevels = dungeonData["num_levels"];
-
         auto dungeon = std::make_unique<Dungeon>(*this, roomsW, roomsH, numLevels);
-        dungeon->generate(dungeonData);
+        dungeon->generate(worldData);
         dungeon->makeMinimapTextures();
         currentWorld = std::move(dungeon);
     }
     else
     {
         // TODO: load overworld data
-        auto overworld = std::make_unique<Overworld>(*this, 10, 10);  // placeholder size
-        // overworld->generate(overworldData);
+        auto overworld = std::make_unique<Overworld>(*this, roomsW, roomsH, numLevels);
+         overworld->generate(worldData);
         // overworld->makeMinimapTextures();
         currentWorld = std::move(overworld);
     }

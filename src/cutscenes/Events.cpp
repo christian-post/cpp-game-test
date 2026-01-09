@@ -2,6 +2,7 @@
 #include "Commands.h"
 #include "ChaseBehavior.h"
 #include "DialogueBehavior.h"
+#include "TileMap.h"
 #include "raylib.h"
 #include "raymath.h"
 
@@ -31,7 +32,12 @@ void setupConditionalEvents(InGame& inGame)
     game.eventManager.pushConditionalEvent(
         [&]() {
             // this happens in the first room after the player obtained the sword from another room
-            const std::string& roomID = game.currentWorld->getCurrentTileMap()->getRoomID();
+            const TileMap* tm = game.currentWorld->getCurrentTileMap();
+
+            if (!tm)
+                return false;
+
+            const std::string& roomID = tm->getRoomID();
             return (roomID == "starting_room" && game.inventory.getItemQuantity("weapon_sword") > 0);
             },
         [&]() {
@@ -66,7 +72,12 @@ void setupConditionalEvents(InGame& inGame)
     game.eventManager.pushConditionalEvent(
         [&]() {
             // this event sets the position of the elf companion next to the player after loading the first room
-            const std::string& roomID = game.currentWorld->getCurrentTileMap()->getRoomID();
+            const TileMap* tm = game.currentWorld->getCurrentTileMap();
+
+            if (!tm)
+                return false;
+
+            const std::string& roomID = tm->getRoomID();
             return (roomID == "starting_room" && game.currentWorld->getCurrentRoom()->state >= 6);
         },
         [&]() {
@@ -93,6 +104,7 @@ void setupConditionalEvents(InGame& inGame)
         [&]() {
             if (!inGame.tileMap) 
                 return false;
+
             return inGame.tileMap->getName() == "dungeon004" &&
                 game.currentWorld->getCurrentRoom()->state < 2 &&
                 std::none_of(game.sprites.begin(), game.sprites.end(),
@@ -126,6 +138,7 @@ void setupConditionalEvents(InGame& inGame)
         [&]() {
             if (!inGame.tileMap) 
                 return false;
+
             return inGame.tileMap->getName() == "dungeon006" &&
                 game.currentWorld->getCurrentRoom()->state < 2 &&
                 std::none_of(game.sprites.begin(), game.sprites.end(),
@@ -160,6 +173,7 @@ void setupConditionalEvents(InGame& inGame)
             // TODO change because the shop isn't the last room anymore
             if (!inGame.tileMap) 
                 return false;
+
             return (inGame.tileMap->getName() == "dungeon_shop");
         },
         [&]() {
@@ -181,6 +195,7 @@ void setupConditionalEvents(InGame& inGame)
         [&]() {
             if (!inGame.tileMap)
                 return false;
+
             return inGame.tileMap->getName() == "dungeon_turrets_0101" &&
                 game.currentWorld->getCurrentRoom()->state < 2 &&
                 std::none_of(game.sprites.begin(), game.sprites.end(),
@@ -214,6 +229,7 @@ void setupConditionalEvents(InGame& inGame)
         [&]() {
             if (!inGame.tileMap)
                 return false;
+
             return inGame.tileMap->getName() == "dungeon_fight_chest_0100" &&
                 game.currentWorld->getCurrentRoom()->state < 2 &&
                 std::none_of(game.sprites.begin(), game.sprites.end(),
@@ -245,6 +261,7 @@ void setupConditionalEvents(InGame& inGame)
         [&]() {
             if (!inGame.tileMap)
                 return false;
+
             return inGame.tileMap->getName() == "dungeon_final_boss_0001" &&
                 game.currentWorld->getCurrentRoom()->state < 4 &&
                 std::none_of(game.sprites.begin(), game.sprites.end(),

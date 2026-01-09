@@ -119,8 +119,8 @@
   "vignetteIntensity": 0.3,
   "vignetteSmoothness": 0.5,
   "vsync": true,
-  "windowHeight": 788,
-  "windowWidth": 1034,
-  "windowX": 832.0,
-  "windowY": 350.0
+  "windowHeight": 1048,
+  "windowWidth": 1340,
+  "windowX": 490.0,
+  "windowY": 186.0
 }

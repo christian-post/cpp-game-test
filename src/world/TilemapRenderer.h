@@ -23,7 +23,7 @@ public:
     // Main interface
     void loadTilemap(const TileMap* tilemap);
     void drawLayer(int layerIndex, const Camera2D& camera);
-    void drawAllLayersExceptTop(const Camera2D& camera);
+    void drawAllLayersExceptTop(const Camera2D& camera); // TODO probably obsolete?
     void drawTopLayer(const Camera2D& camera);
     void cleanup();
 

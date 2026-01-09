@@ -6,6 +6,7 @@
 Dungeon::Dungeon(Game& game, size_t roomsW, size_t roomsH, size_t numLevels)
     : World(game, roomsW, roomsH, numLevels)
 {
+    isDungeon = true;
     minimapTextures.resize(numLevels);
 }
 
@@ -61,6 +62,20 @@ void Dungeon::generate(const nlohmann::json& dungeonData)
             std::string roomId = std::to_string(levelIndex) + "_" + std::to_string(coordPair[0]) + "_" + std::to_string(coordPair[1]);
             itemNodes.insert(roomId);
         }
+    }
+
+    // save the player starting position
+    if (dungeonData.contains("starting_position"))
+    {
+        startingPosition.x = dungeonData["starting_position"]["x"];
+        startingPosition.y = dungeonData["starting_position"]["y"];
+    }
+    else
+    {
+        // if not specified, use the center of the first room
+        TileMap& tm = levels[startingLevel].getRoomAt(startingRoomIndex)->tilemap;
+        startingPosition.x = (tm.width * tm.tileWidth) * 0.5f;
+        startingPosition.y = (tm.height * tm.tileHeight) * 0.5f;
     }
 
     // add level connections (bidirectional)

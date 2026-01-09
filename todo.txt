@@ -11,10 +11,10 @@
 -- collision objects should be able to span multiple layers
 -- auto load most of the assets instead of manually adding them to Preload.cpp
 
-- Dungeon
--- procedural room generation
+- World
 -- dynamically show a shadow over a room entrance if the adjacent room is dark
--- unify Room::objectStates and TileMap::dynamicObjects? same data, two different places
+-- unify Room::objectStates and TileMap::dynamicObjects? same data, two different places#
+-- Mask room transitions to reduce visual artifacts
 
 - Sprites
 -- drawing priority/layer system

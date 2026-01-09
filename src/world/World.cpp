@@ -13,8 +13,9 @@ World::World(Game& game, size_t roomsW, size_t roomsH, size_t numLevels)
 
 Room* World::getRoomAt(size_t level, size_t index)
 {
-    if (level >= levels.size())
+    if (level >= levels.size()) // TODO is this check sensible here? 
         return nullptr;
+
     return levels[level].getRoomAt(index);
 }
 
