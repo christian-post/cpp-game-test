@@ -109,6 +109,7 @@
   "npcFollowSpeed": 18.0,
   "playerStartingHealth": 10,
   "playerStartingMaxHealth": 10,
+  "screenShake": true,
   "sfxVolume": 70,
   "soundOn": false,
   "targetFPS": 120,
@@ -117,9 +118,9 @@
   "tileChunkSize": 256,
   "vignetteIntensity": 0.3,
   "vignetteSmoothness": 0.5,
-  "vsync": false,
+  "vsync": true,
   "windowHeight": 788,
   "windowWidth": 1034,
-  "windowX": 393.0,
-  "windowY": 170.0
+  "windowX": 832.0,
+  "windowY": 350.0
 }

@@ -151,7 +151,7 @@ void CameraController::setupEventListeners()
     // Listen for screen shake events
     // data expects a tuple of duration, x magnitude, y magnitude
     game.eventManager.addListener(SCREEN_SHAKE, [this](std::any data) {
-        if (!data.has_value()) {
+        if (!data.has_value() || !game.getSetting<bool>("screenShake")) {
             // TODO: default shake intensity?
             return;
         }

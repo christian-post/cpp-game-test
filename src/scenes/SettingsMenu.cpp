@@ -91,7 +91,6 @@ void SettingsMenu::startup()
     textSpeedItem.cycleCallback = [&, speeds](size_t index) {
         double rounded = std::round(speeds[index] * 100.0) / 100.0;
         game.writeSetting("textDelay", rounded);
-        //game.writeSetting("textDelay", speeds[index]);
         };
     menu.addItem(textSpeedItem);
 
@@ -100,13 +99,25 @@ void SettingsMenu::startup()
     vsyncItem.type = MenuItemType::Cycle;
     vsyncItem.options = { "On", "Off" };
 
-    vsyncItem.currentOption = game.getSetting<bool>("vsync") ? 1 : 0;
+    vsyncItem.currentOption = game.getSetting<bool>("vsync") ? 0 : 1;
 
     vsyncItem.cycleCallback = [&](size_t index) {
         game.toggleVsync();
-        //game.writeSetting("textDelay", speeds[index]);
         };
     menu.addItem(vsyncItem);
+
+    MenuItem screenShakeItem;
+    screenShakeItem.displayName = "Screen shake";
+    screenShakeItem.type = MenuItemType::Cycle;
+    screenShakeItem.options = { "On", "Off" };
+
+    screenShakeItem.currentOption = game.getSetting<bool>("screenShake") ? 0 : 1;
+
+    screenShakeItem.cycleCallback = [&](size_t index) {
+        bool isOn = index == 0 ? true : false;
+        game.writeSetting("screenShake", isOn);
+        };
+    menu.addItem(screenShakeItem);
 
     // key bindings menu
     menu.addItem({ "Key Bindings", MenuItemType::Action, [&]() {

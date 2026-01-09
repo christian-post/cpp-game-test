@@ -1,0 +1,34 @@
+{
+    "maps": [
+        {
+            "fileName": "test_fields.json",
+            "height": 640,
+            "width": 640,
+            "x": -160,
+            "y": 0
+        },
+        {
+            "fileName": "fields_2.json",
+            "height": 640,
+            "width": 640,
+            "x": 480,
+            "y": 0
+        },
+        {
+            "fileName": "fields_3.json",
+            "height": 640,
+            "width": 640,
+            "x": -160,
+            "y": -640
+        },
+        {
+            "fileName": "fields_4.json",
+            "height": 640,
+            "width": 640,
+            "x": 480,
+            "y": -640
+        }
+    ],
+    "onlyShowAdjacentMaps": false,
+    "type": "world"
+}
