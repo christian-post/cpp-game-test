@@ -27,6 +27,7 @@ public:
     virtual void update(float deltaTime) {}
     virtual void draw() {}
     virtual void end() {}
+    virtual void onPause() {}
 
     std::string getName() const { return name; }
     bool isActive() const { return active; }
@@ -47,7 +48,7 @@ public:
     Game& getGame() { return game; }
     inventoryState getState() { return state; }
 
-
+    // TODO does this functionally overlap with Scene::end()?
     using CompletionCallback = std::function<void()>;
     void setOnComplete(CompletionCallback callback)
     {

@@ -5,7 +5,7 @@
 
 class Dungeon : public World {
 public:
-    Dungeon(Game& game, size_t roomsW, size_t roomsH, size_t numLevels);
+    Dungeon(Game& game, size_t roomsW, size_t roomsH, size_t numLevels, std::string& name);
 
     std::vector<std::vector<RenderTexture2D>> minimapTextures;
 

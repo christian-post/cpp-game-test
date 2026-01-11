@@ -12,40 +12,37 @@ nlohmann::json writeDataToJSON(const SaveGame& saveGame)
     for (const auto& itemPair : saveGame.items)
     {
         jsonOutput["items"].push_back({
-            {"key", itemPair.first},
-            {"amount", itemPair.second}
+            { "key", itemPair.first },
+            { "amount", itemPair.second }
             });
     }
 
-    for (size_t lvl = 0; lvl < saveGame.DungeonRooms.size(); lvl++)
+    for (const auto& [key, world] : saveGame.worldData)
     {
-        for (const auto& roomEntry : saveGame.DungeonRooms[lvl])
+        size_t lvl = 0;
+        for (const auto& roomMap : world)
         {
-            size_t roomHash = roomEntry.first;
-            const RoomData& roomData = roomEntry.second;
-
-            nlohmann::json roomJson;
-            roomJson["visited"] = roomData.visited;
-            roomJson["dark"] = roomData.dark;
-            roomJson["doors"] = roomData.doors;
-            roomJson["tilemapKey"] = roomData.tilemapKey;
-            roomJson["state"] = roomData.state;
-
-            for (const auto& objectEntry : roomData.objectStates)
+            for (const auto& [index, roomData] : roomMap)
             {
-                uint32_t objectId = objectEntry.first;
-                const ObjectState& objectState = objectEntry.second;
-                roomJson["objectStates"][std::to_string(objectId)] = objectState;
-            }
+                nlohmann::json roomJson;
+                roomJson["visited"] = roomData.visited;
+                roomJson["dark"] = roomData.dark;
+                roomJson["doors"] = roomData.doors;
+                roomJson["tilemapKey"] = roomData.tilemapKey;
+                roomJson["state"] = roomData.state;
 
-            jsonOutput["DungeonLevels"][lvl][std::to_string(roomHash)] = roomJson;
+                for (const auto& objectEntry : roomData.objectStates)
+                {
+                    uint32_t objectId = objectEntry.first;
+                    const ObjectState& objectState = objectEntry.second;
+                    roomJson["objectStates"][std::to_string(objectId)] = objectState;
+                }
+
+                jsonOutput["worldData"][key][lvl][std::to_string(index)] = roomJson;
+            }
+            ++lvl;
         }
     }
-
-    jsonOutput["DungeonWidth"] = saveGame.dungeonWidth;
-    jsonOutput["DungeonHeight"] = saveGame.dungeonHeight;
-    jsonOutput["StartingRoomIndex"] = saveGame.startingRoomIndex;
-    jsonOutput["StartingLevel"] = saveGame.startingLevel;
 
     return jsonOutput;
 }
@@ -74,64 +71,55 @@ SaveGame readSaveDataFromJSON(const nlohmann::json& jsonInput)
         }
     }
 
-    // Dungeon metadata
-    saveGame.dungeonWidth = jsonInput.at("DungeonWidth").get<size_t>();
-    saveGame.dungeonHeight = jsonInput.at("DungeonHeight").get<size_t>();
-    saveGame.startingRoomIndex = jsonInput.at("StartingRoomIndex").get<size_t>();
-    saveGame.startingLevel = jsonInput.at("StartingLevel").get<size_t>();
-
-    // Dungeon room data
-    if (!jsonInput.contains("DungeonLevels"))
+    for (auto& [worldName, worldJson] : jsonInput["worldData"].items())
     {
-        TraceLog(LOG_ERROR, "No data for DungeonLevels found in savegame.");
-        return saveGame;
-    }
+        size_t numLevels = worldJson.size();
+        saveGame.worldData[worldName].resize(numLevels);
 
-    size_t numLevels = jsonInput["DungeonLevels"].size();
-    saveGame.DungeonRooms.resize(numLevels);
-    for (size_t lvl = 0; lvl < numLevels; ++lvl)
-    {
-        const auto& levelData = jsonInput["DungeonLevels"][lvl];
-    
-        for (auto& [roomHash, roomJson] : levelData.items())
+        for (size_t lvl = 0; lvl < numLevels; ++lvl)
         {
-            size_t roomIndex = static_cast<size_t>(std::stoul(roomHash));
-            RoomData roomData;
-            roomData.visited = roomJson.at("visited").get<bool>();
-            roomData.dark = roomJson.at("dark").get<bool>();
-            roomData.doors = roomJson.at("doors").get<uint8_t>();
-            roomData.state = roomJson.at("state").get<uint8_t>();
-            roomData.tilemapKey = roomJson.at("tilemapKey").get<std::string>();
-
-            if (roomJson.contains("objectStates"))
+            const auto& levelData = worldJson[lvl];
+            for (auto& [roomHash, roomJson] : levelData.items())
             {
-                for (const auto& objectEntry : roomJson.at("objectStates").items())
+                size_t roomIndex = static_cast<size_t>(std::stoul(roomHash));
+
+                RoomData roomData;
+                roomData.visited = roomJson.at("visited").get<bool>();
+                roomData.dark = roomJson.at("dark").get<bool>();
+                roomData.doors = roomJson.at("doors").get<uint8_t>();
+                roomData.state = roomJson.at("state").get<uint8_t>();
+                roomData.tilemapKey = roomJson.at("tilemapKey").get<std::string>();
+
+                if (roomJson.contains("objectStates"))
                 {
-                    uint32_t objectId = static_cast<uint32_t>(std::stoul(objectEntry.key()));
-                    roomData.objectStates[objectId] = objectEntry.value().get<ObjectState>();
+                    for (const auto& objectEntry : roomJson.at("objectStates").items())
+                    {
+                        uint32_t objectId = static_cast<uint32_t>(std::stoul(objectEntry.key()));
+                        roomData.objectStates[objectId] = objectEntry.value().get<ObjectState>();
+                    }
                 }
+
+                saveGame.worldData[worldName][lvl][roomIndex] = roomData;
             }
-            saveGame.DungeonRooms[lvl][roomIndex] = roomData;
         }
     }
+
     return saveGame;
 }
 
-void saveDungeon(SaveGame& saveGame, Dungeon& dungeon)
+void saveWorld(SaveGame& saveGame, World& world)
 {
-    // writes the necessary data to the savegame object
-    // rooms is a vector of optionals and may contain empty entries
-    // saveGame.DungeonRooms is a tightly packed hash map (though I could also use null in the JSON)
-    //auto& rooms = dungeon.getRooms();
-    size_t numLevels = dungeon.getNumLevels();
-    saveGame.DungeonRooms.resize(numLevels);
-    auto [width, height] = dungeon.getSize();
+    std::string& worldName = world.name;
+    size_t numLevels = world.getNumLevels();
+    auto [width, height] = world.getSize();
+
+    saveGame.worldData[worldName].resize(numLevels);
 
     for (size_t lvl = 0; lvl < numLevels; lvl++)
     {
         for (size_t i = 0; i < width * height; i++)
         {
-            Room* room = dungeon.getRoomAt(lvl, i);
+            Room* room = world.getRoomAt(lvl, i);
             if (!room)
                 continue;
 
@@ -145,47 +133,36 @@ void saveDungeon(SaveGame& saveGame, Dungeon& dungeon)
             rd.objectStates = room->objectStates;
             rd.tilemapKey = room->tilemap.getName();
             rd.visited = room->visited;
-            saveGame.DungeonRooms[lvl][i] = rd;
+            saveGame.worldData[worldName][lvl][i] = rd;
         }
     }
-    saveGame.dungeonWidth = width;
-    saveGame.dungeonHeight = height;
-    saveGame.startingRoomIndex = dungeon.startingRoomIndex;
-    saveGame.startingLevel = 0; // TODO ist just always 0 right now
+
 }
 
-std::unique_ptr<Dungeon> loadDungeon(SaveGame& saveGame, Game& game)
+void loadWorld(SaveGame& saveGame, Game& game, std::string& name)
 {
-    // creates a dungeon from the save data
-    std::unique_ptr dungeon = std::make_unique<Dungeon>(game, saveGame.dungeonWidth, saveGame.dungeonHeight, 1); // TODO levels
-    size_t numLevels = saveGame.DungeonRooms.size();
+    bool isDungeon = name == "overworld";
+    game.createWorld(name, isDungeon);
 
-    TraceLog(LOG_INFO, "Loading rooms on level %d", numLevels);
-    for (size_t lvl = 0; lvl < numLevels; ++lvl)
+    auto [width, height] = game.currentWorld->getSize();
+
+    // TODO optimize memory access
+    for (size_t lvl = 0; lvl < game.currentWorld->getNumLevels(); ++lvl)
     {
-        const auto& levelRooms = saveGame.DungeonRooms[lvl];
+        const auto& levelRooms = saveGame.worldData[name][lvl]; // all rooms on this level
 
         for (const auto& [index, roomData] : levelRooms)
         {
-            Room room{ game.loader.getTilemap(roomData.tilemapKey), roomData.doors };
-            room.dark = roomData.dark;
-            room.state = roomData.state;
-            room.visited = roomData.visited;
+            Room* room = game.currentWorld->getRoomAt(lvl, index);
+            room->dark = roomData.dark;
+            room->state = roomData.state;
+            room->visited = roomData.visited;
             for (auto& [objID, state] : roomData.objectStates)
             {
-                room.objectStates[objID] = state;
+                room->objectStates[objID] = state;
             }
-            size_t row = index / saveGame.dungeonWidth;
-            size_t col = index % saveGame.dungeonWidth;
-            dungeon->insertRoom(lvl, row, col, std::move(room));
-
-            TraceLog(LOG_INFO, "Loading Room with index %d (%s) in state %d", index, roomData.tilemapKey.c_str(), room.state);
+            // debugging message
+            TraceLog(LOG_INFO, "Loading Room in level %d with index %d (%s) in state %d", lvl, index, roomData.tilemapKey.c_str(), room->state);
         }
     }
-     
-    dungeon->setStartingRoomIndex(saveGame.startingRoomIndex);
-    dungeon->currentLevel = 0;  // TODO
-    dungeon->makeMinimapTextures();
-
-    return dungeon;
 }

@@ -3,8 +3,8 @@
 #include "WorldGraph.h"
 #include "TilemapRenderer.h"
 
-Dungeon::Dungeon(Game& game, size_t roomsW, size_t roomsH, size_t numLevels)
-    : World(game, roomsW, roomsH, numLevels)
+Dungeon::Dungeon(Game& game, size_t roomsW, size_t roomsH, size_t numLevels, std::string& name)
+    : World(game, roomsW, roomsH, numLevels, name)
 {
     isDungeon = true;
     minimapTextures.resize(numLevels);

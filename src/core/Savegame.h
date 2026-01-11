@@ -1,5 +1,6 @@
 #pragma once
 #include "Dungeon.h"
+#include "World.h"
 #include "json.hpp"
 #include <memory>
 #include <vector>
@@ -28,15 +29,10 @@ struct SaveGame
     std::array<std::string, 2> currentWeapons;
     std::vector<std::string> spritesFollowingPlayer; // save keys for sprites that follow the player (might be more than one idk)
     std::vector<std::pair<std::string, uint32_t>> items; // <key, amount>; strings correspond to keys in ItemData.cpp
-    // TODO: create a data structure that allows for multiple dungeons
-    size_t dungeonWidth = 0;
-    size_t dungeonHeight = 0;
-    size_t startingRoomIndex = 0;
-    size_t startingLevel = 0;
-    std::vector<std::unordered_map<size_t, RoomData>> DungeonRooms; // hash corresponds to room index
+    std::unordered_map<std::string, std::vector<std::unordered_map<size_t, RoomData>>> worldData; // hierarchy of keys/indices is: world_name > level_index > room_index
 };
 
 nlohmann::json writeDataToJSON(const SaveGame& saveGame);
 SaveGame readSaveDataFromJSON(const nlohmann::json& jsonInput);
-void saveDungeon(SaveGame & saveGame, Dungeon & dungeon);
-std::unique_ptr<Dungeon> loadDungeon(SaveGame& saveGame, Game& game);
+void saveWorld(SaveGame& saveGame, World& world);
+void loadWorld(SaveGame& saveGame, Game& game, std::string& name); // loads the given world from the saveGame object as game.currentWorld

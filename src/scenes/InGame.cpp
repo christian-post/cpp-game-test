@@ -37,6 +37,7 @@ void InGame::startup()
     auto saveData = game.getSaveData();
     if (saveData)
     {
+        // TODO broken
         loadWorldFromSave(saveData);
     }
     else
@@ -281,7 +282,9 @@ void InGame::loadWorldFromSave(std::shared_ptr<SaveGame> save)
         this->game.eventManager.pushEvent(WEAPON_SET, std::pair<std::string, size_t>(save->currentWeapons[1], 1));
         });
 
-    game.currentWorld = loadDungeon(*save, game);
+    //game.currentWorld = loadDungeon(*save, game);
+    std::string name = "overworld"; // TODO placeholder
+    loadWorld(*save, game, name);
 
     // add NPCs that follow the player to the current room's data
     // TODO: is it worth it to give the TileMap a mutable member?
@@ -762,10 +765,19 @@ void InGame::draw()
 
 void InGame::end()
 {
+    // take a screenshot
+    game.lastScreenshot = std::make_unique<Image>(LoadImageFromTexture(game.target.texture));
+
     // wait for a split second
     WaitTime(0.25);
     // stop the ingame music track
     if (music) 
         StopMusicStream(*music);
     music = nullptr;
+}
+
+void InGame::onPause()
+{
+    // take a screenshot
+    game.lastScreenshot = std::make_unique<Image>(LoadImageFromTexture(game.target.texture));
 }

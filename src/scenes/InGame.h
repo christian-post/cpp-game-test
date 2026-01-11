@@ -22,6 +22,7 @@ public:
     void update(float deltaTime) override;
     void draw() override;
     void end() override;
+    void onPause() override;
 
     // Function that handles room transitions
     void loadTilemap();

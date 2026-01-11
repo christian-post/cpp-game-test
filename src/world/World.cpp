@@ -1,8 +1,8 @@
 #include "World.h"
 #include "Game.h"
 
-World::World(Game& game, size_t roomsW, size_t roomsH, size_t numLevels)
-    : game{ game }, roomsW{ roomsW }, roomsH{ roomsH }
+World::World(Game& game, size_t roomsW, size_t roomsH, size_t numLevels, std::string& name)
+    : game{ game }, roomsW{ roomsW }, roomsH{ roomsH }, name{ name }
 {
     levels.reserve(numLevels);
     for (size_t i = 0; i < numLevels; ++i)

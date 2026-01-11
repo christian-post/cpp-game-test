@@ -45,6 +45,7 @@ public:
     void toggleVsync();
 
     RenderTexture2D target; // texture surface for the ingame graphics
+    std::unique_ptr<Image> lastScreenshot = nullptr; // store a screenshot from the last time the player was in the InGame scene
 
     AssetLoader loader;
     nlohmann::json getSetting(const std::string& key, nlohmann::json defaultValue = nlohmann::json()) const;
@@ -179,5 +180,5 @@ private:
     void setSceneState(const std::string& name, bool active, bool paused);
     std::unordered_map<std::string, SceneCallback> sceneCallbacks; // temporarily hold scene completion callbacks for scenes that haven't been started yet
     std::vector<std::shared_ptr<Sprite>> spritesToAdd; // stores the sprites that are later added to the actual sprites vector (prevents changing the vector during the update loop)
-    std::shared_ptr<SaveGame> savegame = nullptr; // store save data
+    std::shared_ptr<SaveGame> savegame = nullptr; // keeps the last loaded savegame in memory to allow access to previously visited worlds' states
 };

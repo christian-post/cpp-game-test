@@ -1,8 +1,8 @@
 #include "Overworld.h"
 #include "Game.h"
 
-Overworld::Overworld(Game& game, size_t roomsW, size_t roomsH, size_t numLevels)
-    : World(game, roomsW, roomsH, numLevels)
+Overworld::Overworld(Game& game, size_t roomsW, size_t roomsH, size_t numLevels, std::string& name)
+    : World(game, roomsW, roomsH, numLevels, name)
 {
     isDungeon = false;
     //minimapTextures.resize(numLevels);

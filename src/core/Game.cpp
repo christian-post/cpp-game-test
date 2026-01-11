@@ -128,6 +128,8 @@ Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this)
 
 Game::~Game() 
 {
+    if (lastScreenshot)
+        UnloadImage(*lastScreenshot);
 }
 
 void Game::restart() 
@@ -217,6 +219,9 @@ void Game::setSceneState(const std::string& name, bool active, bool paused)
 {
     if (scenes.count(name)) 
     {  
+        if (paused)
+            scenes[name]->onPause(); // TODO is it weird to call this here?
+            
         scenes[name]->setActive(active);
         scenes[name]->setPaused(paused);
     }
@@ -334,10 +339,8 @@ void Game::save(std::string& filename)
         }
     }
 
-    // serialize the dungeon room data
-    // TODO create a structure that encapsulate the whole world map as well as all dungeons
-    save.DungeonRooms = {};
-    //saveDungeon(save, *currentWorld);
+    // serialize the world data
+    saveWorld(save, *currentWorld);
 
     auto j = writeDataToJSON(save);
 
@@ -345,21 +348,19 @@ void Game::save(std::string& filename)
     file << j.dump(2);
     TraceLog(LOG_INFO, "The game was saved to %s.", filename.c_str());
 
-    // save a screenshot as a thumbnail
-    // TODO: delayed so that it captures the InGame scene
-    // TODO: this does not work when the savegame menu does not go back in game
-    // --> maybe save the last texture surface of InGame in memory?
-    eventManager.pushDelayedEvent(UNNAMED, 0.1f, nullptr, [this, filename] {
-        Image img = LoadImageFromTexture(this->target.texture);
-        ImageFlipVertical(&img);
-        // TODO: image looks blurry
-        int w = static_cast<int>(gameScreenWidth / 2);
-        int h = static_cast<int>(gameScreenHeight / 2);
-        ImageResize(&img, w, h);
-        std::string path = "savegames/thumbs/" + filename + ".png";
-        ExportImage(img, path.c_str());
-        UnloadImage(img);
-    });
+    // save a screenshot for the loading menu thumbnail
+    if (!this->lastScreenshot)
+        return;
+
+    Image img = *this->lastScreenshot;
+    ImageFlipVertical(&img);
+    // TODO: image looks blurry
+    int w = static_cast<int>(gameScreenWidth / 2);
+    int h = static_cast<int>(gameScreenHeight / 2);
+    ImageResize(&img, w, h);
+    std::string path = "savegames/thumbs/" + filename + ".png";
+    ExportImage(img, path.c_str());
+    UnloadImage(img);
 }
 
 void Game::load(std::string& filename)
@@ -369,7 +370,7 @@ void Game::load(std::string& filename)
     fileStream >> jsonData;
 
     savegame = std::make_shared<SaveGame>(readSaveDataFromJSON(jsonData));
-    // unpacking the savegame object happens in InGame.cpp at startup
+    // Unpacking the savegame object happens in InGame.cpp at startup
     eventManager.pushEvent(LOADING_SAVEGAME_SUCCESS);
 }
 
@@ -405,11 +406,11 @@ std::shared_ptr<Sprite> Game::createSprite(std::string spriteName, Rectangle& re
 
 void Game::createWorld(std::string& key, bool isDungeon)
 {
-    const auto& allDungeons = loader.getDungeonData();
-    if (!allDungeons.contains(key))
+    const auto& allWorldsData = loader.getDungeonData();
+    if (!allWorldsData.contains(key))
         throw std::runtime_error("Dungeon '" + key + "' not found in dungeons.json");
 
-    const auto& worldData = allDungeons[key];
+    const auto& worldData = allWorldsData[key];
 
     size_t roomsW = worldData["rooms_w"];
     size_t roomsH = worldData["rooms_h"];
@@ -417,17 +418,17 @@ void Game::createWorld(std::string& key, bool isDungeon)
 
     if (isDungeon)
     {
-        auto dungeon = std::make_unique<Dungeon>(*this, roomsW, roomsH, numLevels);
+        auto dungeon = std::make_unique<Dungeon>(*this, roomsW, roomsH, numLevels, key);
         dungeon->generate(worldData);
         dungeon->makeMinimapTextures();
         currentWorld = std::move(dungeon);
     }
     else
     {
-        // TODO: load overworld data
-        auto overworld = std::make_unique<Overworld>(*this, roomsW, roomsH, numLevels);
+        // load overworld data
+        auto overworld = std::make_unique<Overworld>(*this, roomsW, roomsH, numLevels, key);
          overworld->generate(worldData);
-        // overworld->makeMinimapTextures();
+        // overworld->makeMinimapTextures(); // TODO
         currentWorld = std::move(overworld);
     }
 }

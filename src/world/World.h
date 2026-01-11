@@ -7,6 +7,7 @@
 #include <optional>
 #include <unordered_map>
 #include <vector>
+#include <string>
 
 class Game;
 
@@ -19,8 +20,10 @@ struct MapRenderParams {
 
 class World {
 public:
-    World(Game& game, size_t roomsW, size_t roomsH, size_t numLevels);
+    World(Game& game, size_t roomsW, size_t roomsH, size_t numLevels, std::string& name);
     virtual ~World() = default;
+
+    std::string name; // needed for save game data, has to match an entry in dungeons.json
 
     bool isDungeon = true;
     size_t currentLevel = 0;
