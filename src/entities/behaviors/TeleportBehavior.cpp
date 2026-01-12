@@ -3,8 +3,10 @@
 #include "Game.h"
 #include <any>
 
-TeleportBehavior::TeleportBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> other, const std::string& targetMap, Vector2 targetPos)
-    : game{ game }, self{ self }, other{ other }, targetMap{ targetMap }, targetPos{ targetPos } 
+TeleportBehavior::TeleportBehavior(Game& game, std::shared_ptr<Sprite> self, std::shared_ptr<Sprite> other, const std::string& targetWorld, size_t targetLevel, size_t targetIndex, Vector2 targetPos)
+    : game{ game }, self{ self }, other{ other }, targetWorld{ targetWorld }, targetLevel{ targetLevel }, targetIndex{ targetIndex }, targetPos {
+    targetPos
+}
 {}
 
 void TeleportBehavior::update(float deltaTime) 
@@ -15,8 +17,8 @@ void TeleportBehavior::update(float deltaTime)
         {
             done = true;
             game.eventManager.pushDelayedEvent(UNNAMED, 0.0f, nullptr, [this]() {
-                game.eventManager.pushEvent(TELEPORT, std::any(TeleportEvent{ targetMap, targetPos }));
-                game.playSound("bookPlace1");
+                game.eventManager.pushEvent(TELEPORT, std::any(TeleportEvent{ targetWorld, targetLevel, targetIndex, targetPos }));
+                game.playSound("bookPlace1"); // TODO
                 });
         }
     }

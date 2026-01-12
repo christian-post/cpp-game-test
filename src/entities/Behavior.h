@@ -40,7 +40,9 @@ struct shootingConfig
 
 struct TeleportEvent
 {
-    std::string targetMap;
+    std::string targetWorld;
+    size_t targetLevel;
+    size_t targetIndex;
     Vector2 targetPos;
 };
 

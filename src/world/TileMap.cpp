@@ -221,14 +221,15 @@ void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, 
         // TODO: for persistent sprites, check if they exist in the spriteMap
         if (obj.name == "teleport")
         {
-            // when touched, changes the current index
-            // TODO currently unused
+            // when touched, changes the current world, level, room, and position
             sprite->isColliding = false;
             sprite->visible = false;
-            std::string targetMap = obj.properties.value("targetMap", "");
-            float targetX = obj.properties.value("targetPosX", 0.0f);
-            float targetY = obj.properties.value("targetPosY", 0.0f);
-            sprite->addBehavior(std::make_unique<TeleportBehavior>(game, sprite, game.spriteMap["player"], targetMap, Vector2{ targetX, targetY }));
+            std::string targetWorld = obj.properties.value("targetWorld", "overworld"); // fallback: go to the overworld?
+            size_t targetLevel = obj.properties.value("targetLevel", 0);
+            size_t targetIndex = obj.properties.value("targetIndex", 0);
+            float targetX = obj.properties.value("targetX", 0.0f);
+            float targetY = obj.properties.value("targetY", 0.0f);
+            sprite->addBehavior(std::make_unique<TeleportBehavior>(game, sprite, game.spriteMap["player"], targetWorld, targetLevel, targetIndex, Vector2{ targetX, targetY }));
         }
         else if (obj.name == "stairs")
         {

@@ -74,6 +74,8 @@ private:
     void onDebugButton3();
     void handlePlayerInput(float deltaTime);
 
+    void takeScreenshot();
+
     bool playerMovementLocked = false; // arrow keys won't move the player
     bool cameraHasBounds = true;  // only for debugging
     std::shared_ptr<Emitter> wpnHitEffect = nullptr;

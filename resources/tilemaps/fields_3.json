@@ -568,9 +568,57 @@
          "visible":true,
          "x":0,
          "y":0
+        }, 
+        {
+         "draworder":"topdown",
+         "id":6,
+         "name":"sprites",
+         "objects":[
+                {
+                 "height":16,
+                 "id":78,
+                 "name":"teleport",
+                 "properties":[
+                        {
+                         "name":"targetIndex",
+                         "type":"int",
+                         "value":3
+                        }, 
+                        {
+                         "name":"targetLevel",
+                         "type":"int",
+                         "value":0
+                        }, 
+                        {
+                         "name":"targetWorld",
+                         "type":"string",
+                         "value":"overworld"
+                        }, 
+                        {
+                         "name":"targetX",
+                         "type":"float",
+                         "value":323
+                        }, 
+                        {
+                         "name":"targetY",
+                         "type":"float",
+                         "value":323
+                        }],
+                 "rotation":0,
+                 "type":"sprite",
+                 "visible":true,
+                 "width":32,
+                 "x":448,
+                 "y":224
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
         }],
- "nextlayerid":6,
- "nextobjectid":75,
+ "nextlayerid":7,
+ "nextobjectid":79,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.11.2",

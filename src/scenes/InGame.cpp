@@ -5,6 +5,7 @@
 #include "TileMap.h"
 #include "Savegame.h"
 #include "Emitter.h"
+#include "Behavior.h"
 #include "DeathBehavior.h"
 #include "WeaponBehavior.h"
 #include "raymath.h"
@@ -114,6 +115,23 @@ void InGame::setupEventListeners()
 
     game.eventManager.addListener(RELOAD_ROOM, [this](const std::any&) {
         loadTilemap();
+        });
+
+    game.eventManager.addListener(TELEPORT, [this](const std::any& data) {
+        auto [targetWorld, targetLevel, targetIndex, targetPos] = std::any_cast<TeleportEvent>(data);
+        if (game.currentWorld->name == targetWorld)
+        {
+            // change rooms within the same world
+            game.currentWorld->currentLevel = targetLevel;
+            game.currentWorld->currentRoomIndex = targetIndex;
+        }
+        else
+        {
+            // change world
+            
+        }
+        loadTilemap();
+        player->moveTo(targetPos.x, targetPos.y);
         });
 }
 
@@ -265,6 +283,17 @@ void InGame::handlePlayerInput(float deltaTime)
     // Don't allow movement if player is locked
     if (!playerMovementLocked)
         player->getControls();
+}
+
+void InGame::takeScreenshot()
+{
+    if (game.lastScreenshot)
+    {
+        UnloadImage(*game.lastScreenshot);
+        game.lastScreenshot.reset();
+    }
+
+    game.lastScreenshot = std::make_unique<Image>(LoadImageFromTexture(game.target.texture));
 }
 
 void InGame::loadWorldFromSave(std::shared_ptr<SaveGame> save)
@@ -765,8 +794,7 @@ void InGame::draw()
 
 void InGame::end()
 {
-    // take a screenshot
-    game.lastScreenshot = std::make_unique<Image>(LoadImageFromTexture(game.target.texture));
+    takeScreenshot();
 
     // wait for a split second
     WaitTime(0.25);
@@ -778,6 +806,5 @@ void InGame::end()
 
 void InGame::onPause()
 {
-    // take a screenshot
-    game.lastScreenshot = std::make_unique<Image>(LoadImageFromTexture(game.target.texture));
+    takeScreenshot();
 }

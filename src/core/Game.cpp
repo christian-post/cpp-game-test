@@ -128,8 +128,6 @@ Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this)
 
 Game::~Game() 
 {
-    if (lastScreenshot)
-        UnloadImage(*lastScreenshot);
 }
 
 void Game::restart() 
@@ -145,6 +143,11 @@ void Game::cleanup()
     saveSettings();
 
     UnloadRenderTexture(target);
+    if (lastScreenshot)
+    {
+        UnloadImage(*lastScreenshot);
+        lastScreenshot = nullptr;
+    }
     CloseAudioDevice();
     CloseWindow();
 }
@@ -352,7 +355,7 @@ void Game::save(std::string& filename)
     if (!this->lastScreenshot)
         return;
 
-    Image img = *this->lastScreenshot;
+    Image img = ImageCopy(*this->lastScreenshot);
     ImageFlipVertical(&img);
     // TODO: image looks blurry
     int w = static_cast<int>(gameScreenWidth / 2);
