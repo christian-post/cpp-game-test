@@ -2,6 +2,7 @@
 ## BUGS
 - projectiles only create an impact emitter on the target and on walls, not on other sprites
 - RELOAD_ROOM event crashes in combination with emitters
+- During room transition the player position gets updated BEFORE the room is loaded. This causes weird collision behavior with sprites that are on the other side of the screen in the previous room.
 - Signpost "dialogue" property does not overwrite npcs.json
 
 ## FEATURES/REFACTORS:

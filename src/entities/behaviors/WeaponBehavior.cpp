@@ -29,8 +29,11 @@ WeaponBehavior::WeaponBehavior(Game& game, std::shared_ptr<Sprite> sprite, std::
 
 void WeaponBehavior::update(float deltaTime) 
 {
-    if (auto s = self.lock(), o = owner.lock(); s && o
-        ) {
+    if (auto s = self.lock(), o = owner.lock(); s && o) 
+    {
+        if (o->isMarkedForDeletion())
+            return;
+
         lifetime -= deltaTime;
         // weapon is done
         if (lifetime < originalLifetime * -0.2f && !done)

@@ -22,6 +22,9 @@ void ShootSpreadBehavior::update(float deltaTime)
 
     if (auto s = self.lock(), t = target.lock(); s && t)
     {
+        if (s->isMarkedForDeletion() || t->isMarkedForDeletion())
+            return;
+
         game.playSound(config.sound);
         Vector2 sCenter = GetRectCenter(s->rect);
         Vector2 tCenter = GetRectCenter(t->rect);

@@ -127,8 +127,12 @@ void InGame::setupEventListeners()
         }
         else
         {
-            // change world
-            
+            // go to different world
+            // TODO check if saveGame contains data
+            game.createWorld(targetWorld, (targetWorld != "overworld"));
+            // TODO duplicate code
+            game.currentWorld->currentLevel = targetLevel;
+            game.currentWorld->currentRoomIndex = targetIndex;
         }
         loadTilemap();
         player->moveTo(targetPos.x, targetPos.y);
@@ -311,8 +315,7 @@ void InGame::loadWorldFromSave(std::shared_ptr<SaveGame> save)
         this->game.eventManager.pushEvent(WEAPON_SET, std::pair<std::string, size_t>(save->currentWeapons[1], 1));
         });
 
-    //game.currentWorld = loadDungeon(*save, game);
-    std::string name = "overworld"; // TODO placeholder
+    std::string& name = save->lastWorld;
     loadWorld(*save, game, name);
 
     // add NPCs that follow the player to the current room's data
@@ -405,34 +408,40 @@ void InGame::checkRoomTransition()
     // tests if the player rect is outside of the world bounds
     // returns an offset which can be used to displace the map index
     int8_t offset = 0;
+    Vector2 newPlayerPos = player->position; // store the new position
+
     auto [cols, _] = game.currentWorld->getSize();
     if (player->rect.x < 0.0f)
     {
         offset = -1;
-        player->moveTo(tilemapRenderer.getWorldWidth() * tilemapRenderer.getTileSize() - player->rect.width * 1.5f, player->position.y);
+        newPlayerPos = { tilemapRenderer.getWorldWidth() * tilemapRenderer.getTileSize() - player->rect.width * 1.5f, player->position.y };
     }
     else if (player->rect.x + player->rect.width > tilemapRenderer.getWorldWidth() * tilemapRenderer.getTileSize())
     {
         offset = 1;
-        player->moveTo(player->rect.width * 0.5f, player->position.y);
+        newPlayerPos = { player->rect.width * 0.5f, player->position.y };
     }
     else if (player->rect.y < 0.0f)
     {
         offset = int8_t(cols) * -1;
-        player->moveTo(player->position.x, tilemapRenderer.getWorldHeight() * tilemapRenderer.getTileSize() - player->rect.height * 1.5f);
+        newPlayerPos = { player->position.x, tilemapRenderer.getWorldHeight() * tilemapRenderer.getTileSize() - player->rect.height * 1.5f };
     }
-    else if (player->rect.y + player->rect.height > tilemapRenderer.getWorldHeight() * tilemapRenderer.getTileSize()) {
+    else if (player->rect.y + player->rect.height > tilemapRenderer.getWorldHeight() * tilemapRenderer.getTileSize())
+    {
         offset = int8_t(cols);
-        player->moveTo(player->position.x, player->rect.height * 0.5f);
+        newPlayerPos = { player->position.x, player->rect.height * 0.5f };
     }
+
     // change the room if the offset is some value
     if (offset != 0)
     {
         // load the new room, also make sure that the new index is not negative
         size_t newIndex = std::max(0, static_cast<int8_t>(game.currentWorld->currentRoomIndex) + offset);
         game.currentWorld->currentRoomIndex = newIndex;
-        game.eventManager.pushDelayedEvent(UNNAMED, 0.0f, nullptr, [&]() {
+
+        game.eventManager.pushDelayedEvent(UNNAMED, 0.0f, nullptr, [&, newPlayerPos]() {
             loadTilemap();
+            player->moveTo(newPlayerPos.x, newPlayerPos.y);
             });
     }
 }
@@ -443,7 +452,7 @@ void InGame::loadTilemap()
     // remove static and dynamic (non-persistent) objects
     game.walls.clear();
     game.clearEmitters();
-    game.clearSprites();
+    game.clearSprites(); // sprites get flagged for deletion, but live until the end of the frame
     // check if there even is a valid tile map
     if (!tileMap)
         return;
@@ -769,7 +778,6 @@ void InGame::draw()
     EndMode2D();
 
     // draw lighting in dark rooms
-    // TODO: should game.target be passed as an argument to scene.draw() instead of being indirectly accessible to the scenes?
     if (game.currentWorld->getCurrentRoom()->dark)
         DrawLightOverlay(game.target.texture, game.loader.getShader("light_mask_flicker"), lights, lightCount, static_cast<float>(game.gameScreenWidth), static_cast<float>(game.gameScreenHeight));
 

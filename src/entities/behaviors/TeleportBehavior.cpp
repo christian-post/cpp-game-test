@@ -13,6 +13,9 @@ void TeleportBehavior::update(float deltaTime)
 {
     if (auto s = self.lock(), o = other.lock(); s && o && !done)
     {
+        if (s->isMarkedForDeletion() || o->isMarkedForDeletion()) // sprites are virtually dead
+            return;
+
         if (CheckCollisionRecs(s->rect, o->rect))
         {
             done = true;

@@ -17,6 +17,8 @@ nlohmann::json writeDataToJSON(const SaveGame& saveGame)
             });
     }
 
+    jsonOutput["lastWorld"] = saveGame.lastWorld;
+
     for (const auto& [key, world] : saveGame.worldData)
     {
         size_t lvl = 0;
@@ -70,6 +72,8 @@ SaveGame readSaveDataFromJSON(const nlohmann::json& jsonInput)
             saveGame.items.emplace_back(key, amount);
         }
     }
+
+    saveGame.lastWorld = jsonInput["lastWorld"];
 
     for (auto& [worldName, worldJson] : jsonInput["worldData"].items())
     {
@@ -141,7 +145,7 @@ void saveWorld(SaveGame& saveGame, World& world)
 
 void loadWorld(SaveGame& saveGame, Game& game, std::string& name)
 {
-    bool isDungeon = name == "overworld";
+    bool isDungeon = (name == "overworld");
     game.createWorld(name, isDungeon);
 
     auto [width, height] = game.currentWorld->getSize();

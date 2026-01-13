@@ -9,6 +9,9 @@ void WatchBehavior::update(float deltaTime)
 {
     if (auto s = self.lock(), t = target.lock(); s && t)
     {
+        if (s->isMarkedForDeletion() || t->isMarkedForDeletion())
+            return;
+
         if (t->position.x < s->position.x)
             s->lastDirection = LEFT;
         else

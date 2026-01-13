@@ -12,6 +12,9 @@ void CollectItemBehavior::update(float deltaTime)
 {
     if (auto s = self.lock(), o = other.lock(); s && o && !done)
     {
+        if (s->isMarkedForDeletion() || o->isMarkedForDeletion())
+            return;
+
         switch (state)
         {
         case 0:

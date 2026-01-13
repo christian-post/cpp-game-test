@@ -29,6 +29,7 @@ struct SaveGame
     std::array<std::string, 2> currentWeapons;
     std::vector<std::string> spritesFollowingPlayer; // save keys for sprites that follow the player (might be more than one idk)
     std::vector<std::pair<std::string, uint32_t>> items; // <key, amount>; strings correspond to keys in ItemData.cpp
+    std::string lastWorld = "";
     std::unordered_map<std::string, std::vector<std::unordered_map<size_t, RoomData>>> worldData; // hierarchy of keys/indices is: world_name > level_index > room_index
 };
 

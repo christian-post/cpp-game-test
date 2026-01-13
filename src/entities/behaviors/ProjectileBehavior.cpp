@@ -45,7 +45,11 @@ void ProjectileBehavior::update(float deltaTime)
 {
     auto s = self.lock();
     auto t = target.lock();
+
     if (!s)
+        return;
+
+    if (s->isMarkedForDeletion() || t->isMarkedForDeletion())
         return;
 
     if (impactEmitter)

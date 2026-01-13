@@ -582,7 +582,7 @@
                         {
                          "name":"targetIndex",
                          "type":"int",
-                         "value":3
+                         "value":10
                         }, 
                         {
                          "name":"targetLevel",
@@ -592,17 +592,17 @@
                         {
                          "name":"targetWorld",
                          "type":"string",
-                         "value":"overworld"
+                         "value":"generated_dungeon"
                         }, 
                         {
                          "name":"targetX",
                          "type":"float",
-                         "value":323
+                         "value":128
                         }, 
                         {
                          "name":"targetY",
                          "type":"float",
-                         "value":323
+                         "value":200
                         }],
                  "rotation":0,
                  "type":"sprite",

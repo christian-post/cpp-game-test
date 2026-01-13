@@ -17,6 +17,9 @@ void TradeItemBehavior::update(float deltaTime)
 
     if (auto s = self.lock(), p = player.lock(); s && p)
     {
+        if (s->isMarkedForDeletion())
+            return;
+
         if (CheckCollisionRecs(s->rect, p->rect))
         {
             if (!collided)

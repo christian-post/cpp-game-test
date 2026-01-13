@@ -14,6 +14,9 @@ void KiteBehavior::update(float deltaTime)
 {
     if (auto s = self.lock(), t = target.lock(); s && t)
     {
+        if (s->isMarkedForDeletion() || t->isMarkedForDeletion())
+            return;
+
         Vector2 targetCenter = GetRectCenter(t->rect);
 
         orbitAngle += moveSpeed * deltaTime;

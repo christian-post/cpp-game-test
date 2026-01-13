@@ -12,6 +12,9 @@ void StairsBehavior::update(float deltaTime)
     {
         if (CheckCollisionRecs(s->rect, o->rect))
         {
+            if (s->isMarkedForDeletion() || o->isMarkedForDeletion())
+                return;
+
             done = true;
             game.eventManager.pushDelayedEvent(UNNAMED, 0.0f, nullptr, [this]() {
                 int change = static_cast<int>(game.currentWorld->currentLevel) + levelChange;

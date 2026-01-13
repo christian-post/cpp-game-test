@@ -15,8 +15,12 @@ void OpenLockBehavior::update(float deltaTime)
 {
     if (triggered)
         return;
+
     if (auto d = door.lock(), p = player.lock(); d && p)
     {
+        if (d->isMarkedForDeletion())
+            return;
+
         const float padding = 2.0f;
         interactionRect.x = d->rect.x - padding;
         interactionRect.y = d->rect.y - padding;

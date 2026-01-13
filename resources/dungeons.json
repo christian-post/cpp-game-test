@@ -743,13 +743,13 @@
           {
             "row": 1,
             "column": 3,
-            "tilemap": "room_0111",
+            "tilemap": "room_0111_fight",
             "doors": "0111"
           },
           {
             "row": 2,
             "column": 2,
-            "tilemap": "room_1010",
+            "tilemap": "room_1010_fight",
             "doors": "1010"
           },
           {
@@ -767,7 +767,7 @@
           {
             "row": 2,
             "column": 1,
-            "tilemap": "room_1010",
+            "tilemap": "room_1010_fight",
             "doors": "1010"
           },
           {
@@ -861,7 +861,7 @@
           {
             "row": 1,
             "column": 0,
-            "tilemap": "room_0101_fight",
+            "tilemap": "room_0101",
             "doors": "0101"
           },
           {
@@ -885,7 +885,7 @@
           {
             "row": 1,
             "column": 2,
-            "tilemap": "room_0110_fight",
+            "tilemap": "room_0110",
             "doors": "0110"
           },
           {
@@ -897,19 +897,19 @@
           {
             "row": 0,
             "column": 2,
-            "tilemap": "room_0001_fight",
+            "tilemap": "room_0001",
             "doors": "0001"
           },
           {
             "row": 1,
             "column": 3,
-            "tilemap": "room_0101",
+            "tilemap": "room_0101_fight",
             "doors": "0101"
           },
           {
             "row": 0,
             "column": 3,
-            "tilemap": "room_0001",
+            "tilemap": "room_0001_fight",
             "doors": "0001"
           },
           {
@@ -987,7 +987,10 @@
   },
   "overworld": {
     "starting_level": 0,
-    "starting_room": [ 0, 0 ],
+    "starting_room": [
+      0,
+      0
+    ],
     "starting_position": {
       "x": 448,
       "y": 256
@@ -1022,9 +1025,7 @@
             "doors": "1111"
           }
         ],
-        "edges": [
-
-        ],
+        "edges": [],
         "item_nodes": []
       }
     ],

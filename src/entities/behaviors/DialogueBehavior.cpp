@@ -15,8 +15,12 @@ void DialogueBehavior::update(float deltaTime)
 {
     if (triggered)
         return;
+
     if (auto s = self.lock(), p = player.lock(); s && p)
     {
+        if (s->isMarkedForDeletion())
+            return;
+
         if (CheckCollisionRecs(s->rect, p->rect))
         {
             if (!collided)

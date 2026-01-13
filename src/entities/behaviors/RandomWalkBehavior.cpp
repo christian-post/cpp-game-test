@@ -16,6 +16,9 @@ void RandomWalkBehavior::update(float deltaTime)
 {
     if (auto s = self.lock())
     {
+        if (s->isMarkedForDeletion())
+            return;
+
         timer += deltaTime;
 
         if (timer < waitTime)

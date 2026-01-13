@@ -10,6 +10,9 @@ void HealBehavior::update(float deltaTime)
 {
     if (auto s = self.lock(), o = other.lock(); s && o && !done)
     {
+        if (s->isMarkedForDeletion() || o->isMarkedForDeletion())
+            return;
+
         if (CheckCollisionRecs(s->rect, o->rect))
         {
             done = true;

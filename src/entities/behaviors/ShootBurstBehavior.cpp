@@ -27,6 +27,9 @@ void ShootBurstBehavior::update(float deltaTime)
 
     if (auto s = self.lock(), t = target.lock(); s && t)
     {
+        if (s->isMarkedForDeletion() || t->isMarkedForDeletion())
+            return;
+
         game.playSound(config.sound);
         Vector2 sCenter = GetRectCenter(s->rect);
         Rectangle sRect = { sCenter.x - config.hitboxSize / 2.0f, sCenter.y - config.hitboxSize / 2.0f, config.hitboxSize, config.hitboxSize };

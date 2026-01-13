@@ -183,11 +183,17 @@ void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, 
 
         // get the hitbox dimensions for the constructor
         // if not specified in the JSON data, it takes the dimensions from the Tiled object data
-        Vector2 hitbox = data.contains("hitbox") ?
+        Vector2 hitboxSize = data.contains("hitbox") ?
             Vector2{ data.at("hitbox")[0].get<float>(), data.at("hitbox")[1].get<float>() } :
             Vector2{ obj.width, obj.height };
+        // overwrite with Tiled data if the rect size differs from the tile size
+        // TODO this is probably only a temporary fix
+        if (obj.width != 16.0f)
+            hitboxSize.x = obj.width;
+        if (obj.height != 16.0f)
+            hitboxSize.y = obj.height;
         // instanciate the sprite
-        auto sprite = std::make_shared<Sprite>(game, obj.x, obj.y, hitbox.x, hitbox.y, obj.name);
+        auto sprite = std::make_shared<Sprite>(game, obj.x, obj.y, hitboxSize.x, hitboxSize.y, obj.name);
         // generic attributes
         // from JSON data
         sprite->health = data.contains("health") ? data.at("health").get<int>() : defaultData.at("health").get<int>();
@@ -221,6 +227,7 @@ void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, 
         // TODO: for persistent sprites, check if they exist in the spriteMap
         if (obj.name == "teleport")
         {
+            sprite->spriteName = "teleport";
             // when touched, changes the current world, level, room, and position
             sprite->isColliding = false;
             sprite->visible = false;

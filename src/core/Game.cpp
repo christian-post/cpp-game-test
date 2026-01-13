@@ -342,8 +342,11 @@ void Game::save(std::string& filename)
         }
     }
 
-    // serialize the world data
+    // serialize the current world data
     saveWorld(save, *currentWorld);
+
+    // save the last visited world
+    save.lastWorld = currentWorld->name;
 
     auto j = writeDataToJSON(save);
 
@@ -654,6 +657,14 @@ void Game::draw()
                 {
                     DrawText("invalid room index", 4, int(GetScreenHeight() * 0.8f), fontSize, WHITE);
                 }
+            }
+
+            // visualize player position
+            Sprite* p = getPlayer();
+            if (p)
+            {
+                Vector2 playerPos = p->position;
+                DrawText(format("Player pos: (%d, %d)", int(playerPos.x), int(playerPos.y)).c_str(), 4, int(GetScreenHeight() * 0.85f), fontSize, WHITE);
             }
         }
     EndDrawing();

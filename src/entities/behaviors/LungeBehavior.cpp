@@ -13,6 +13,9 @@ void LungeBehavior::update(float deltaTime)
 {
     if (auto s = self.lock(), t = target.lock(); s && t)
     {
+        if (s->isMarkedForDeletion() || t->isMarkedForDeletion())
+            return;
+
         if (!hasLunged) {
             Vector2 selfCenter = GetRectCenter(s->rect);
             Vector2 targetCenter = GetRectCenter(t->rect);
