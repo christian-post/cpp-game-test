@@ -656,19 +656,19 @@
           {
             "row": 2,
             "column": 2,
-            "tilemap": "room_1110_start",
+            "tilemap": "room_1110_fight",
             "doors": "1110"
           },
           {
             "row": 2,
             "column": 1,
-            "tilemap": "room_1110",
+            "tilemap": "room_1110_fight",
             "doors": "1110"
           },
           {
             "row": 1,
             "column": 2,
-            "tilemap": "room_0001_with_item",
+            "tilemap": "room_0001",
             "doors": "0001"
           },
           {
@@ -680,31 +680,31 @@
           {
             "row": 1,
             "column": 1,
-            "tilemap": "room_0111",
+            "tilemap": "room_0111_fight",
             "doors": "0111"
           },
           {
             "row": 2,
             "column": 0,
-            "tilemap": "room_1000_connection_None_None",
+            "tilemap": "room_1000_fight",
             "doors": "1000"
           },
           {
             "row": 1,
             "column": 0,
-            "tilemap": "room_1100",
+            "tilemap": "room_1100_fight",
             "doors": "1100"
           },
           {
             "row": 0,
             "column": 1,
-            "tilemap": "room_1001_with_item",
+            "tilemap": "room_1001_fight",
             "doors": "1001"
           },
           {
             "row": 0,
             "column": 0,
-            "tilemap": "room_0001",
+            "tilemap": "room_0001_fight",
             "doors": "0001"
           },
           {
@@ -743,7 +743,7 @@
           {
             "row": 1,
             "column": 3,
-            "tilemap": "room_0111_fight",
+            "tilemap": "room_0111",
             "doors": "0111"
           },
           {
@@ -755,13 +755,13 @@
           {
             "row": 0,
             "column": 3,
-            "tilemap": "room_0011_with_item",
+            "tilemap": "room_0011_fight",
             "doors": "0011"
           },
           {
             "row": 1,
             "column": 2,
-            "tilemap": "room_1010_variant",
+            "tilemap": "room_1010_fight",
             "doors": "1010"
           },
           {
@@ -779,25 +779,25 @@
           {
             "row": 1,
             "column": 1,
-            "tilemap": "room_1010_fight",
+            "tilemap": "room_1010_variant",
             "doors": "1010"
           },
           {
             "row": 2,
             "column": 0,
-            "tilemap": "room_1000_with_item",
+            "tilemap": "room_1000_connection_1_2",
             "doors": "1000"
           },
           {
             "row": 0,
             "column": 1,
-            "tilemap": "room_1000_with_item",
+            "tilemap": "room_1000",
             "doors": "1000"
           },
           {
             "row": 1,
             "column": 0,
-            "tilemap": "room_1000",
+            "tilemap": "room_1000_fight",
             "doors": "1000"
           }
         ],
@@ -855,25 +855,25 @@
           {
             "row": 2,
             "column": 1,
-            "tilemap": "room_1110",
+            "tilemap": "room_1110_fight",
             "doors": "1110"
           },
           {
             "row": 1,
             "column": 0,
-            "tilemap": "room_0101",
+            "tilemap": "room_0101_fight",
             "doors": "0101"
           },
           {
             "row": 1,
             "column": 1,
-            "tilemap": "room_1101",
+            "tilemap": "room_1101_fight",
             "doors": "1101"
           },
           {
             "row": 2,
             "column": 2,
-            "tilemap": "room_1010_with_item",
+            "tilemap": "room_1010_fight",
             "doors": "1010"
           },
           {
@@ -885,13 +885,13 @@
           {
             "row": 1,
             "column": 2,
-            "tilemap": "room_0110",
+            "tilemap": "room_0110_fight",
             "doors": "0110"
           },
           {
             "row": 2,
             "column": 3,
-            "tilemap": "room_0110_connection_None_None",
+            "tilemap": "room_0110_fight",
             "doors": "0110"
           },
           {
@@ -903,13 +903,13 @@
           {
             "row": 1,
             "column": 3,
-            "tilemap": "room_0101_fight",
+            "tilemap": "room_0101",
             "doors": "0101"
           },
           {
             "row": 0,
             "column": 3,
-            "tilemap": "room_0001_fight",
+            "tilemap": "room_0001",
             "doors": "0001"
           },
           {

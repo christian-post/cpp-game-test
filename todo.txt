@@ -17,7 +17,7 @@
 -- dynamically show a shadow over a room entrance if the adjacent room is dark
 -- unify Room::objectStates and TileMap::dynamicObjects? same data, two different places
 -- Mask room transitions to reduce visual artifacts
--- Room.visited property is not saved when leaving a dungeon
+-- draw stairs/laddern on MapUI
 
 - Sprites
 -- drawing priority/layer system
