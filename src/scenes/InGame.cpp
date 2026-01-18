@@ -34,7 +34,6 @@ void InGame::startup()
     game.emitters.push_back(wpnHitEffect);
 
     // check for existing loaded savegame data here
-    // TODO put this in separate function for less spaghetti
     auto saveData = game.getSaveData();
     if (saveData)
     {
@@ -43,11 +42,9 @@ void InGame::startup()
     }
     else
     {
-        // generate a fresh dungeon
-        //std::string dungeonKey = game.getSetting<std::string>("first_dungeon");
-        //game.createWorld(dungeonKey);
-        std::string dungeonKey = "overworld";
-        game.createWorld(dungeonKey, false);
+        // start in the overworld
+        std::string worldKey = "overworld";
+        game.createWorld(worldKey, false);
     }
     // retrieve the tilemap
     // and set the player's position in the first room

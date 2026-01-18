@@ -144,7 +144,7 @@ void saveWorld(SaveGame& saveGame, World& world)
 
 void loadWorld(SaveGame& saveGame, Game& game, const std::string& name)
 {
-    bool isDungeon = (name == "overworld");
+    bool isDungeon = !(name == "overworld");
     game.createWorld(name, isDungeon);
 
     auto [width, height] = game.currentWorld->getSize();

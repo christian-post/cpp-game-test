@@ -348,6 +348,16 @@ void Game::save(std::string& filename)
     // add the current world data
     saveWorld(save, *currentWorld);
 
+    // add data from the current savegame object about previously visited worlds
+    // TODO just a temporary fix
+    for (auto& it : savegame->worldData)
+    {
+        if (it.first != currentWorld->name)
+        {
+            save.worldData[it.first] = it.second;
+        }
+    }
+
     // save the last visited world
     save.lastWorld = currentWorld->name;
 

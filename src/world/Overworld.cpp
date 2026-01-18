@@ -48,12 +48,6 @@ void Overworld::generate(const nlohmann::json& overworldData)
     }
 }
 
-//void Overworld::makeMinimapTextures()
-//{
-//    // TODO: implement overworld minimap texture generation
-//    // different from dungeon (interconnected style)
-//}
-
 void Overworld::renderMinimap(float hudY, float gameScreenWidth)
 {
     // TODO: implement overworld HUD minimap rendering
