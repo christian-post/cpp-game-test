@@ -61,3 +61,21 @@ void DrawLowHealthEffect(Texture2D& texture, const Shader& shader, float frequen
     DrawTexturePro(texture, source, dest, { 0.0f, 0.0f }, 0.0f, WHITE);
     EndShaderMode();
 }
+
+void DrawTransition(Texture2D& texture, const Shader& shader, Vector2 center, float screenW, float screenH, float startTime, float duration, int opening)
+{
+    float currentTime = GetTime();
+    SetShaderValue(shader, GetShaderLocation(shader, "center"), &center, SHADER_UNIFORM_VEC2);
+    SetShaderValue(shader, GetShaderLocation(shader, "screenWidth"), &screenW, SHADER_UNIFORM_FLOAT);
+    SetShaderValue(shader, GetShaderLocation(shader, "screenHeight"), &screenH, SHADER_UNIFORM_FLOAT);
+    SetShaderValue(shader, GetShaderLocation(shader, "currentTime"), &currentTime, SHADER_UNIFORM_FLOAT);
+    SetShaderValue(shader, GetShaderLocation(shader, "startTime"), &startTime, SHADER_UNIFORM_FLOAT);
+    SetShaderValue(shader, GetShaderLocation(shader, "duration"), &duration, SHADER_UNIFORM_FLOAT);
+    SetShaderValue(shader, GetShaderLocation(shader, "opening"), &opening, SHADER_UNIFORM_INT); // 1 = opening, 0 = closing
+
+    BeginShaderMode(shader);
+    Rectangle source = { 0.0f, 0.0f, screenW, screenH };
+    Rectangle dest = { 0.0f, 0.0f, screenW, screenH };
+    DrawTexturePro(texture, source, dest, { 0.0f, 0.0f }, 0.0f, WHITE);
+    EndShaderMode();
+}

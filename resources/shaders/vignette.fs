@@ -8,7 +8,8 @@ uniform float vignetteSoftness;
 in vec2 fragTexCoord;
 out vec4 finalColor;
 
-void main() {
+void main()
+{
     vec2 fragCoord = fragTexCoord * vec2(screenWidth, screenHeight);
     
     // Calculate distance from center in pixel space

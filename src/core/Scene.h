@@ -83,11 +83,12 @@ protected:
 // Copy paste this when creating a child scene
 
 // -- SceneName.h
-// 
+//#pragma once
 //#include "Scene.h"
 //#include <iostream>
 //
-//class Preload : public Scene {
+//class Preload : public Scene 
+//{
 //public:
 //    Preload(Game& game, const std::string& name) : Scene(game, name) {}
 //    void startup() override;
@@ -102,17 +103,21 @@ protected:
 //#include "Game.h"
 //#include "raylib.h"
 //
-//void Name::startup() {
+//void Name::startup()
+//{
 //}
 //
-//void Name::update(float deltaTime) {
+//void Name::update(float deltaTime)
+//{
 //
 //}
 //
-//void Name::draw() {
+//void Name::draw()
+// {
 //
 //}
 //
-//void Name::end() {
+//void Name::end()
+//{
 //
 //}

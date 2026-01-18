@@ -11,17 +11,18 @@ out vec4 finalColor;
 
 uniform int flipX;
 
-float rand(vec2 co) {
+float rand(vec2 co)
+{
     return fract(sin(dot(co.xy, vec2(12.9898,78.233))) * 43758.5453);
 }
 
-void main() {
+void main()
+{
     vec2 uv = fragTexCoord;
     vec4 texColor = texture(texture0, uv);
 
-    if (flipX == 1) {
+    if (flipX == 1)
         uv.x = 1.0 - uv.x;
-    }
 
     float threshold = mod(time, duration) / duration * 1.5;
     float noise = rand(floor(uv * 100.0));

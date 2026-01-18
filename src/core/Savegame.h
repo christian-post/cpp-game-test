@@ -36,4 +36,4 @@ struct SaveGame
 nlohmann::json writeDataToJSON(const SaveGame& saveGame);
 SaveGame readSaveDataFromJSON(const nlohmann::json& jsonInput);
 void saveWorld(SaveGame& saveGame, World& world);
-void loadWorld(SaveGame& saveGame, Game& game, std::string& name); // loads the given world from the saveGame object as game.currentWorld
+void loadWorld(SaveGame& saveGame, Game& game, const std::string& name); // loads the given world from the saveGame object as game.currentWorld

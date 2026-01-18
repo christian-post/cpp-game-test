@@ -8,6 +8,8 @@ void Preload::startup() {
     // > preload most of the assets that are persistent throughout the game.
     // > for an animated sprite, the keys have to contain the suffixes
     // _idle, _run, _hit, [...]
+
+    // TODO loadQueue will be owned by the AssetLoader class
     loadQueue.emplace("Loading textures", [&]() {
         l.loadTextures({
             {
@@ -205,6 +207,11 @@ void Preload::startup() {
         l.LoadtilesetFromTiled("./resources/tilemaps/dungeon.tsj");
         l.LoadtilesetFromTiled("./resources/tilemaps/dungeon_topdown.tsj");
         l.LoadtilesetFromTiled("./resources/tilemaps/fields.tsj");
+
+        // load minified versions for the minimap
+        l.loadTextures({ {"fields_mini", { "./resources/textures/tilesets/fields_mini.png"} } });
+        l.loadTextures({ {"top-down-dungeon-tileset_mini", { "./resources/textures/tilesets/top-down-dungeon-tileset_mini.png"} } });
+        l.loadTextures({ {"dungeon_mini", { "./resources/textures/tilesets/dungeon_mini.png"} } });
         });
     // load the tile maps from text files
     loadQueue.emplace("Loading tilemaps", [&]() {
@@ -217,11 +224,7 @@ void Preload::startup() {
         });
     // load shaders
     loadQueue.emplace("Loading shaders", [&]() {
-        l.LoadShaderFile("./resources/shaders/crumble.fs");
-        l.LoadShaderFile("./resources/shaders/light_mask.fs");
-        l.LoadShaderFile("./resources/shaders/vignette.fs");
-        l.LoadShaderFile("./resources/shaders/light_mask_flicker.fs");
-        l.LoadShaderFile("./resources/shaders/heartbeat.fs");
+        l.LoadShadersFromDirectory("./resources/shaders");
         });
     // JSON data
     loadQueue.emplace("Loading JSON data", [&]() {

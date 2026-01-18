@@ -20,7 +20,7 @@ struct MapRenderParams {
 
 class World {
 public:
-    World(Game& game, size_t roomsW, size_t roomsH, size_t numLevels, std::string& name);
+    World(Game& game, size_t roomsW, size_t roomsH, size_t numLevels, const std::string& name);
     virtual ~World() = default;
 
     std::string name; // needed for save game data, has to match an entry in dungeons.json
@@ -49,9 +49,13 @@ public:
     void advanceRoomState(); 
     void advanceRoomState(size_t level, size_t index);
 
+    // create textures for drawing the map in the menu
+    // one texture per Level, from which the rooms get sampled when drawing
+    std::vector<RenderTexture2D> mapTextures;
+    void makeMapTextures();
+
     // child methods
     virtual void generate(const nlohmann::json& worldData) = 0;
-    virtual void makeMinimapTextures() = 0;
     virtual void renderMinimap(float hudY, float gameScreenWidth) = 0;
     virtual void renderMapScreen(const MapRenderParams& params) = 0;
 

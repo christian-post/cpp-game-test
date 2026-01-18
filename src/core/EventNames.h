@@ -21,18 +21,20 @@ enum EventName
     SHOW_HELP_TEXT,
     HIDE_HELP_TEXT,
     MOVE_CAMERA,
-    TELEPORT,
-    RELOAD_ROOM,
+    TELEPORT, // change the world, level, room index, player position, and reload the room
+    RELOAD_ROOM, // just reload the room
     SET_MUSIC_VOLUME,
-    SCREEN_SHAKE,  // data: tuple[duration, xMag, yMag]
-    KILL_WEAPON,
+    SCREEN_SHAKE, // data: tuple[duration, xMag, yMag]
+    KILL_WEAPON, // weapon sprite is done
     INVENTORY_DONE,
     SELECT_MENU_DONE,
     LOADING_SAVEGAME_SUCCESS,
-    LAMP_ON,
-    LAMP_OFF,
-    LOCK_PLAYER_MOVEMENT,
+    LAMP_ON, // player activates the lamp
+    LAMP_OFF, // player deactivates the lamp
+    LOCK_PLAYER_MOVEMENT, // the user can't steer the player sprite
     UNLOCK_PLAYER_MOVEMENT,
+    INTERMEDIATE_LOADING_FINISHED, // signals that loading during the game has finished TODO unused
+    CAMERA_UPDATE, // dispatches once per frame when the camera updates; contains the camera reference and player world position
     UNNAMED, // used whenever no name is needed (delayed or repeated events that have no listeners)
     STATIC_EVENT_COUNT // needs to be at the last position
 };

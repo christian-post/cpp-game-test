@@ -31,7 +31,6 @@ private:
 
 public:
     Game();
-    ~Game();
     // in-game resolution (stays constant, gets scaled up to window size)
     uint32_t gameScreenWidth = 256;
     uint32_t gameScreenHeight = 192;
@@ -130,7 +129,7 @@ public:
 
     // World management
     std::unique_ptr<World> currentWorld = nullptr; 
-    void createWorld(std::string& key, bool isDungeon = true);
+    void createWorld(const std::string& key, bool isDungeon = true);
 
     // World bounds (set by InGame when loading tilemap)
     // TODO these need to be here (and not in CameraController.h) because behaviors need to have access to this information 
@@ -171,6 +170,8 @@ public:
 
     bool debug = false; // controls the debug menu and functions
 
+    std::shared_ptr<SaveGame> savegame = nullptr; // keeps the last loaded savegame in memory to allow access to previously visited worlds' states
+
 private:
     bool running = true;
     bool restartRequested = false; // triggers a restart (Game instance is recreated)
@@ -180,5 +181,4 @@ private:
     void setSceneState(const std::string& name, bool active, bool paused);
     std::unordered_map<std::string, SceneCallback> sceneCallbacks; // temporarily hold scene completion callbacks for scenes that haven't been started yet
     std::vector<std::shared_ptr<Sprite>> spritesToAdd; // stores the sprites that are later added to the actual sprites vector (prevents changing the vector during the update loop)
-    std::shared_ptr<SaveGame> savegame = nullptr; // keeps the last loaded savegame in memory to allow access to previously visited worlds' states
 };

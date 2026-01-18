@@ -10,11 +10,13 @@ uniform float screenHeight;
 in vec2 fragTexCoord;
 out vec4 finalColor;
 
-void main() {
+void main()
+{
     vec2 fragCoord = fragTexCoord * vec2(screenWidth, screenHeight);
     float alpha = 1.0;
 
-    for (int i = 0; i < u_lightCount; i++) {
+    for (int i = 0; i < u_lightCount; i++)
+    {
         float dist = distance(fragCoord, u_centers[i]);
         float falloff = max(u_radii[i] * 0.9, 1.0);
         float fade = smoothstep(u_radii[i], u_radii[i] - falloff, dist);

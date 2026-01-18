@@ -5,13 +5,13 @@
 
 class Dungeon : public World {
 public:
-    Dungeon(Game& game, size_t roomsW, size_t roomsH, size_t numLevels, std::string& name);
+    Dungeon(Game& game, size_t roomsW, size_t roomsH, size_t numLevels, const std::string& name);
 
-    std::vector<std::vector<RenderTexture2D>> minimapTextures;
+    //std::vector<std::vector<RenderTexture2D>> minimapTextures;
 
     // override virtual methods
     void generate(const nlohmann::json& dungeonData) override;
-    void makeMinimapTextures() override;
+    //void makeMinimapTextures() override;
     void renderMinimap(float hudY, float gameScreenWidth) override;
     void renderMapScreen(const MapRenderParams& params) override;
 

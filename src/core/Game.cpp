@@ -17,6 +17,7 @@
 #include "InventoryUI.h"
 #include "MapUI.h"
 #include "GameOver.h"
+#include "WorldTransition.h"
 #include "Utils.h"
 #include "Emitter.h"
 #include <sstream>
@@ -106,6 +107,7 @@ Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this)
 
     // define all Scenes as factory functions
     // the second argument is priority for the drawing order
+    // TODO does the name have to be a string?
     registerScene<Preload>("Preload", 0);
     registerScene<TitleScreen>("TitleScreen", 0);
     registerScene<StartMenu>("StartMenu", 0);
@@ -121,13 +123,10 @@ Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this)
     registerScene<InventoryUI>("InventoryUI", 2);
     registerScene<MapUI>("MapUI", 2);
     registerScene<GameOver>("GameOver", 2);
+    registerScene<WorldTransition>("WorldTransition", 1);
 
     // seed the rng
     srand(static_cast<uint32_t>(time(nullptr)));
-}
-
-Game::~Game() 
-{
 }
 
 void Game::restart() 
@@ -141,6 +140,8 @@ void Game::restart()
 void Game::cleanup() 
 {
     saveSettings();
+
+    savegame = nullptr;
 
     UnloadRenderTexture(target);
     if (lastScreenshot)
@@ -314,6 +315,8 @@ void Game::save(std::string& filename)
 {
     // saves the game data to a JSON file
     SaveGame save; // create a new save game object
+    // TODO take the existing save game object
+    // TODO split these into two methods (write to SaveGame object, and serialize and save the SaveGame object)
 
     save.playerMaxHealth = getPlayer()->maxHealth;
     save.playerHealth = std::max(static_cast<uint32_t>(6), getPlayer()->health); // ensure the player always starts with at least 3 hearts
@@ -342,7 +345,7 @@ void Game::save(std::string& filename)
         }
     }
 
-    // serialize the current world data
+    // add the current world data
     saveWorld(save, *currentWorld);
 
     // save the last visited world
@@ -410,7 +413,7 @@ std::shared_ptr<Sprite> Game::createSprite(std::string spriteName, Rectangle& re
     return sprite;
 }
 
-void Game::createWorld(std::string& key, bool isDungeon)
+void Game::createWorld(const std::string& key, bool isDungeon)
 {
     const auto& allWorldsData = loader.getDungeonData();
     if (!allWorldsData.contains(key))
@@ -426,15 +429,15 @@ void Game::createWorld(std::string& key, bool isDungeon)
     {
         auto dungeon = std::make_unique<Dungeon>(*this, roomsW, roomsH, numLevels, key);
         dungeon->generate(worldData);
-        dungeon->makeMinimapTextures();
+        dungeon->makeMapTextures();
         currentWorld = std::move(dungeon);
     }
     else
     {
         // load overworld data
         auto overworld = std::make_unique<Overworld>(*this, roomsW, roomsH, numLevels, key);
-         overworld->generate(worldData);
-        // overworld->makeMinimapTextures(); // TODO
+        overworld->generate(worldData);
+        overworld->makeMapTextures();
         currentWorld = std::move(overworld);
     }
 }

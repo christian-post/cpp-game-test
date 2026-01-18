@@ -201,6 +201,9 @@
     <ClCompile Include="src\world\Overworld.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\scenes\WorldTransition.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\scenes\TitleScreen.h">
@@ -398,6 +401,9 @@
     <ClInclude Include="src\world\Overworld.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\scenes\WorldTransition.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="todo.txt" />
@@ -425,6 +431,7 @@
     <None Include=".gitignore" />
     <None Include="resources\shaders\heartbeat.fs" />
     <None Include="resources\dungeons.json" />
+    <None Include="resources\shaders\circle_transition.fs" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="github\hero.gif">

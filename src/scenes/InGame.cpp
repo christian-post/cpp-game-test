@@ -119,23 +119,48 @@ void InGame::setupEventListeners()
 
     game.eventManager.addListener(TELEPORT, [this](const std::any& data) {
         auto [targetWorld, targetLevel, targetIndex, targetPos] = std::any_cast<TeleportEvent>(data);
-        if (game.currentWorld->name == targetWorld)
+        if (game.currentWorld->name != targetWorld)
         {
-            // change rooms within the same world
-            game.currentWorld->currentLevel = targetLevel;
-            game.currentWorld->currentRoomIndex = targetIndex;
+            // go to different world
+            // this loading callback will be handled by the WorldTransition scene
+            game.startScene("WorldTransition");
+
+            // TODO save the current world for later
+            game.loader.loadQueue.emplace("Saving World", [this, data]() {
+                if (!game.savegame)
+                    // create an empty SaveGame object where there currently is none
+                    game.savegame = std::make_shared<SaveGame>();
+                saveWorld(*game.savegame, *game.currentWorld);
+                });
+
+            game.loader.loadQueue.emplace("Loading World", [this, data]() {
+                auto [targetWorld, targetLevel, targetIndex, targetPos] = std::any_cast<TeleportEvent>(data);
+
+                // check if the last loaded saveGame contains data
+                if (!game.savegame || game.savegame->worldData.find(targetWorld) == game.savegame->worldData.end())
+                {
+                    game.createWorld(targetWorld, (targetWorld != "overworld"));
+                }
+                else
+                {
+                    // savegame contains this world's data
+                    // TODO this always regenerates the minimap textures. maybe cache them, or some of them?
+                    loadWorld(*game.savegame, game, targetWorld);
+                }
+
+                game.currentWorld->currentLevel = targetLevel;
+                game.currentWorld->currentRoomIndex = targetIndex;
+                loadTilemap();
+                player->moveTo(targetPos.x, targetPos.y);
+                });
         }
         else
         {
-            // go to different world
-            // TODO check if saveGame contains data
-            game.createWorld(targetWorld, (targetWorld != "overworld"));
-            // TODO duplicate code
             game.currentWorld->currentLevel = targetLevel;
             game.currentWorld->currentRoomIndex = targetIndex;
+            loadTilemap();
+            player->moveTo(targetPos.x, targetPos.y);
         }
-        loadTilemap();
-        player->moveTo(targetPos.x, targetPos.y);
         });
 }
 

@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <vector>
 #include <string>
+#include <queue>
 #include <filesystem>
 
 namespace fs = std::filesystem;
@@ -13,19 +14,6 @@ nlohmann::json resolveInheritance(const std::unordered_map<std::string, nlohmann
 
 class AssetLoader
 {
-private:
-    std::unordered_map<std::string, std::vector<Texture2D>> textureGroups; // animation frames are grouped together
-    std::unordered_map<std::string, Tileset> tilesets;
-    std::unordered_map<std::string, Font> fonts;
-    std::unordered_map<std::string, std::unique_ptr<TileMap>> tileMaps;
-    std::unordered_map<std::string, std::shared_ptr<Shader>> shaders;
-    std::unordered_map<std::string, Music> musicTracks;
-    std::unordered_map<std::string, Sound> sounds;
-    std::unordered_map<std::string, std::vector<std::string>> textData;
-    nlohmann::json settings;
-    nlohmann::json spriteData;
-    nlohmann::json particleData;
-    nlohmann::json dungeonData;
     
 public:
     AssetLoader();
@@ -40,6 +28,7 @@ public:
     void LoadtileMapFromTiled(const std::string& filename);
     void LoadFont(const std::string& filename);
     void LoadShaderFile(const std::string& filename);
+    void LoadShadersFromDirectory(const std::string& directory);
     void loadSettings(const std::string& filename);
     void loadSpriteData(const std::string& filename);
     void loadParticleData(const std::string& filename);
@@ -65,4 +54,23 @@ public:
 
     const std::vector<std::string>& getText(std::string& key);
     Texture2D fallbackTexture;
+
+    // queued loading
+    std::queue<std::pair<std::string, std::function<void()>>> loadQueue;
+    std::string loadingMessage = "Loading...";
+    size_t totalLoadSteps = 0;
+
+private:
+    std::unordered_map<std::string, std::vector<Texture2D>> textureGroups; // animation frames are grouped together
+    std::unordered_map<std::string, Tileset> tilesets;
+    std::unordered_map<std::string, Font> fonts;
+    std::unordered_map<std::string, std::unique_ptr<TileMap>> tileMaps;
+    std::unordered_map<std::string, std::shared_ptr<Shader>> shaders;
+    std::unordered_map<std::string, Music> musicTracks;
+    std::unordered_map<std::string, Sound> sounds;
+    std::unordered_map<std::string, std::vector<std::string>> textData;
+    nlohmann::json settings;
+    nlohmann::json spriteData;
+    nlohmann::json particleData;
+    nlohmann::json dungeonData;
 };

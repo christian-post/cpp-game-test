@@ -251,6 +251,19 @@ void AssetLoader::LoadShaderFile(const std::string& filename)
     shaders[baseName] = shader;
 }
 
+void AssetLoader::LoadShadersFromDirectory(const std::string& directory)
+{
+    for (const auto& entry : fs::directory_iterator(directory))
+    {
+        auto ext = entry.path().extension();
+        if (entry.path().extension() == ".fs")
+        {
+            std::string filename = directory + "/" + entry.path().filename().string();
+            LoadShaderFile(filename);
+        }
+    }
+}
+
 void AssetLoader::loadSettings(const std::string& filename)
 {
     std::ifstream file(filename);

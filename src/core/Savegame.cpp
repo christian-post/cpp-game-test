@@ -140,10 +140,9 @@ void saveWorld(SaveGame& saveGame, World& world)
             saveGame.worldData[worldName][lvl][i] = rd;
         }
     }
-
 }
 
-void loadWorld(SaveGame& saveGame, Game& game, std::string& name)
+void loadWorld(SaveGame& saveGame, Game& game, const std::string& name)
 {
     bool isDungeon = (name == "overworld");
     game.createWorld(name, isDungeon);

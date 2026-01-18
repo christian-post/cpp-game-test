@@ -3,11 +3,11 @@
 #include "WorldGraph.h"
 #include "TilemapRenderer.h"
 
-Dungeon::Dungeon(Game& game, size_t roomsW, size_t roomsH, size_t numLevels, std::string& name)
+Dungeon::Dungeon(Game& game, size_t roomsW, size_t roomsH, size_t numLevels, const std::string& name)
     : World(game, roomsW, roomsH, numLevels, name)
 {
     isDungeon = true;
-    minimapTextures.resize(numLevels);
+    //mapTextures.resize(numLevels);
 }
 
 void Dungeon::generate(const nlohmann::json& dungeonData)
@@ -162,159 +162,160 @@ void Dungeon::generate(const nlohmann::json& dungeonData)
     G.logDebug();
 }
 
-void Dungeon::makeMinimapTextures()
-{
-    constexpr int miniWidth = 36;
-    constexpr int miniHeight = 24;
-    constexpr int tileSize = 16;
-
-    minimapTextures.resize(levels.size());
-
-    for (size_t level = 0; level < levels.size(); level++)
-    {
-        for (size_t i = 0; i < roomsW * roomsH; i++)
-        {
-            Room* room = getRoomAt(level, i);
-            if (!room)
-            {
-                RenderTexture2D mini = LoadRenderTexture(miniWidth, miniHeight);
-                BeginTextureMode(mini);
-                ClearBackground(BLANK);
-                EndTextureMode();
-                minimapTextures[level].push_back(mini);
-                continue;
-            }
-            auto& tileMap = room->tilemap;
-
-            // Get all tileset information
-            const auto& tilesetInfos = tileMap.getTilesetNames();
-
-            // Use the existing TilesetData struct - no redefinition!
-            std::vector<TilesetData> tilesetCache;
-            for (const auto& info : tilesetInfos)
-            {
-                const Tileset& tileset = game.loader.getTileset(info.first);
-                TilesetData data;
-                data.name = info.first;
-                data.tileset = &tileset;
-                data.texture = &game.loader.getTextures(tileset.name)[0];
-                data.tilesPerRow = tileset.columns;
-                data.firstGid = info.second;
-                tilesetCache.push_back(data);
-            }
-
-            size_t tilemapWidth = tileMap.width * tileSize;
-            size_t tilemapHeight = tileMap.height * tileSize;
-            size_t tilesX = tileMap.width;
-            size_t tilesY = tileMap.height;
-
-            // render at full size first
-            RenderTexture2D normal = LoadRenderTexture(static_cast<int>(tilemapWidth), static_cast<int>(tilemapHeight));
-            RenderTexture2D mini = LoadRenderTexture(miniWidth, miniHeight);
-
-            BeginTextureMode(normal);
-            ClearBackground(BLANK);
-            for (size_t layerIndex = 0; layerIndex < tileMap.layers.size(); ++layerIndex)
-            {
-                const auto& layer = tileMap.getLayer(layerIndex);
-                if (!layer.visible)
-                    continue;
-
-                for (size_t y = 0; y < tileMap.height; ++y)
-                {
-                    for (size_t x = 0; x < tileMap.width; ++x)
-                    {
-                        int tileId = layer.data[y][x];
-                        if (tileId == 0)
-                            continue;
-
-                        // find which tileset this tile belongs to
-                        const TilesetData* tilesetData = nullptr;
-                        int tileIndex = 0;
-
-                        for (size_t i = 0; i < tilesetCache.size(); i++)
-                        {
-                            int currentFirstGid = tilesetCache[i].firstGid;
-                            int nextFirstGid = (i + 1 < tilesetCache.size()) ? tilesetCache[i + 1].firstGid : INT_MAX;
-
-                            if (tileId >= currentFirstGid && tileId < nextFirstGid)
-                            {
-                                tilesetData = &tilesetCache[i];
-                                tileIndex = tileId - currentFirstGid;
-                                break;
-                            }
-                        }
-
-                        if (!tilesetData)
-                            continue;
-
-                        // sample the source rect from the tileset
-                        float tileX = static_cast<float>(tileIndex % tilesetData->tilesPerRow) * tileSize;
-                        float tileY = (static_cast<float>(tileIndex) / static_cast<float>(tilesetData->tilesPerRow)) * tileSize;
-                        Rectangle src = { tileX, tileY, (float)tileSize, (float)tileSize };
-
-                        float px = static_cast<float>(x) * static_cast<float>(tileSize);
-                        float py = static_cast<float>(y) * static_cast<float>(tileSize);
-                        Rectangle dst = { px, py, tileSize, tileSize };
-
-                        DrawTexturePro(*tilesetData->texture, src, dst, { 0, 0 }, 0.0f, WHITE);
-                    }
-                }
-            }
-            EndTextureMode();
-
-            // downsample to minimap size using mode filter
-            Image fullImg = LoadImageFromTexture(normal.texture);
-            Color* pixels = LoadImageColors(fullImg);
-
-            BeginTextureMode(mini);
-            ClearBackground(BLANK);
-            for (size_t ty = 0; ty < tilesY; ++ty)
-            {
-                for (size_t tx = 0; tx < tilesX; ++tx)
-                {
-                    std::unordered_map<unsigned int, int> colorCount;
-                    for (size_t py = 0; py < tileSize; ++py)
-                    {
-                        for (size_t px = 0; px < tileSize; ++px)
-                        {
-                            size_t ix = tx * tileSize + px;
-                            size_t iy = ty * tileSize + py;
-                            Color c = pixels[iy * fullImg.width + ix];
-                            uint32_t key = *(uint32_t*)&c;
-                            colorCount[key]++;
-                        }
-                    }
-
-                    // find most frequent color
-                    int maxCount = 0;
-                    Color mode = BLANK;
-                    for (const auto& [key, count] : colorCount)
-                    {
-                        if (count > maxCount)
-                        {
-                            maxCount = count;
-                            mode = *(Color*)&key;
-                        }
-                    }
-
-                    float sx = static_cast<float>(tx) * (static_cast<float>(mini.texture.width) / static_cast<float>(tilesX));
-                    float sy = static_cast<float>(ty) * (static_cast<float>(mini.texture.height) / static_cast<float>(tilesY));
-                    float sw = static_cast<float>(mini.texture.width) / static_cast<float>(tilesX);
-                    float sh = static_cast<float>(mini.texture.height) / static_cast<float>(tilesY);
-                    DrawRectangleRec({ sx, sy, sw, sh }, mode);
-                }
-            }
-            EndTextureMode();
-
-            UnloadImageColors(pixels);
-            UnloadImage(fullImg);
-            UnloadRenderTexture(normal);
-
-            minimapTextures[level].push_back(mini);
-        }
-    }
-}
+//void Dungeon::makeMinimapTextures()
+//{
+//    constexpr int miniWidth = 36;
+//    constexpr int miniHeight = 24;
+//    constexpr int tileSize = 16;
+//
+//    minimapTextures.resize(levels.size());
+//
+//    for (size_t level = 0; level < levels.size(); level++)
+//    {
+//        for (size_t i = 0; i < roomsW * roomsH; i++)
+//        {
+//            Room* room = getRoomAt(level, i);
+//            if (!room)
+//            {
+//                // TODO use a cached texture instead of creating the same one for every empty room
+//                RenderTexture2D mini = LoadRenderTexture(miniWidth, miniHeight);
+//                BeginTextureMode(mini);
+//                ClearBackground(BLANK);
+//                EndTextureMode();
+//                minimapTextures[level].push_back(mini);
+//                continue;
+//            }
+//            auto& tileMap = room->tilemap;
+//
+//            // Get all tileset information
+//            const auto& tilesetInfos = tileMap.getTilesetNames();
+//
+//            // Use the existing TilesetData struct - no redefinition!
+//            std::vector<TilesetData> tilesetCache;
+//            for (const auto& info : tilesetInfos)
+//            {
+//                const Tileset& tileset = game.loader.getTileset(info.first);
+//                TilesetData data;
+//                data.name = info.first;
+//                data.tileset = &tileset;
+//                data.texture = &game.loader.getTextures(tileset.name)[0];
+//                data.tilesPerRow = tileset.columns;
+//                data.firstGid = info.second;
+//                tilesetCache.push_back(data);
+//            }
+//
+//            size_t tilemapWidth = tileMap.width * tileSize;
+//            size_t tilemapHeight = tileMap.height * tileSize;
+//            size_t tilesX = tileMap.width;
+//            size_t tilesY = tileMap.height;
+//
+//            // render at full size first
+//            RenderTexture2D normal = LoadRenderTexture(static_cast<int>(tilemapWidth), static_cast<int>(tilemapHeight));
+//            RenderTexture2D mini = LoadRenderTexture(miniWidth, miniHeight);
+//
+//            BeginTextureMode(normal);
+//            ClearBackground(BLANK);
+//            for (size_t layerIndex = 0; layerIndex < tileMap.layers.size(); ++layerIndex)
+//            {
+//                const auto& layer = tileMap.getLayer(layerIndex);
+//                if (!layer.visible)
+//                    continue;
+//
+//                for (size_t y = 0; y < tileMap.height; ++y)
+//                {
+//                    for (size_t x = 0; x < tileMap.width; ++x)
+//                    {
+//                        int tileId = layer.data[y][x];
+//                        if (tileId == 0)
+//                            continue;
+//
+//                        // find which tileset this tile belongs to
+//                        const TilesetData* tilesetData = nullptr;
+//                        int tileIndex = 0;
+//
+//                        for (size_t i = 0; i < tilesetCache.size(); i++)
+//                        {
+//                            int currentFirstGid = tilesetCache[i].firstGid;
+//                            int nextFirstGid = (i + 1 < tilesetCache.size()) ? tilesetCache[i + 1].firstGid : INT_MAX;
+//
+//                            if (tileId >= currentFirstGid && tileId < nextFirstGid)
+//                            {
+//                                tilesetData = &tilesetCache[i];
+//                                tileIndex = tileId - currentFirstGid;
+//                                break;
+//                            }
+//                        }
+//
+//                        if (!tilesetData)
+//                            continue;
+//
+//                        // sample the source rect from the tileset
+//                        float tileX = static_cast<float>(tileIndex % tilesetData->tilesPerRow) * tileSize;
+//                        float tileY = (static_cast<float>(tileIndex) / static_cast<float>(tilesetData->tilesPerRow)) * tileSize;
+//                        Rectangle src = { tileX, tileY, (float)tileSize, (float)tileSize };
+//
+//                        float px = static_cast<float>(x) * static_cast<float>(tileSize);
+//                        float py = static_cast<float>(y) * static_cast<float>(tileSize);
+//                        Rectangle dst = { px, py, tileSize, tileSize };
+//
+//                        DrawTexturePro(*tilesetData->texture, src, dst, { 0, 0 }, 0.0f, WHITE);
+//                    }
+//                }
+//            }
+//            EndTextureMode();
+//
+//            // downsample to minimap size using mode filter
+//            Image fullImg = LoadImageFromTexture(normal.texture);
+//            Color* pixels = LoadImageColors(fullImg);
+//
+//            BeginTextureMode(mini);
+//            ClearBackground(BLANK);
+//            for (size_t ty = 0; ty < tilesY; ++ty)
+//            {
+//                for (size_t tx = 0; tx < tilesX; ++tx)
+//                {
+//                    std::unordered_map<unsigned int, int> colorCount;
+//                    for (size_t py = 0; py < tileSize; ++py)
+//                    {
+//                        for (size_t px = 0; px < tileSize; ++px)
+//                        {
+//                            size_t ix = tx * tileSize + px;
+//                            size_t iy = ty * tileSize + py;
+//                            Color c = pixels[iy * fullImg.width + ix];
+//                            uint32_t key = *(uint32_t*)&c;
+//                            colorCount[key]++;
+//                        }
+//                    }
+//
+//                    // find most frequent color
+//                    int maxCount = 0;
+//                    Color mode = BLANK;
+//                    for (const auto& [key, count] : colorCount)
+//                    {
+//                        if (count > maxCount)
+//                        {
+//                            maxCount = count;
+//                            mode = *(Color*)&key;
+//                        }
+//                    }
+//
+//                    float sx = static_cast<float>(tx) * (static_cast<float>(mini.texture.width) / static_cast<float>(tilesX));
+//                    float sy = static_cast<float>(ty) * (static_cast<float>(mini.texture.height) / static_cast<float>(tilesY));
+//                    float sw = static_cast<float>(mini.texture.width) / static_cast<float>(tilesX);
+//                    float sh = static_cast<float>(mini.texture.height) / static_cast<float>(tilesY);
+//                    DrawRectangleRec({ sx, sy, sw, sh }, mode);
+//                }
+//            }
+//            EndTextureMode();
+//
+//            UnloadImageColors(pixels);
+//            UnloadImage(fullImg);
+//            UnloadRenderTexture(normal);
+//
+//            minimapTextures[level].push_back(mini);
+//        }
+//    }
+//}
 
 void Dungeon::renderMinimap(float hudY, float gameScreenWidth)
 {
@@ -357,9 +358,23 @@ void Dungeon::renderMinimap(float hudY, float gameScreenWidth)
 
 void Dungeon::renderMapScreen(const MapRenderParams& params)
 {
+    // calculate minimap cell size based on max room dimensions
+    int miniWidth = 0;
+    int miniHeight = 0;
+    for (size_t level = 0; level < levels.size(); level++)
+    {
+        for (size_t i = 0; i < roomsW * roomsH; i++)
+        {
+            Room* room = getRoomAt(level, i);
+            if (!room)
+                continue;
+            miniWidth = std::max(miniWidth, (int)room->tilemap.width);
+            miniHeight = std::max(miniHeight, (int)room->tilemap.height);
+        }
+    }
+
     const auto [cols, rows] = getSize();
     size_t currentRoomIdx = currentRoomIndex;
-
     const size_t cellWidth = (static_cast<size_t>(params.width) - 2 * params.border - (cols - 1) * params.spacing - params.offsetX) / cols;
     const size_t cellHeight = (static_cast<size_t>(params.height) - 2 * params.border - (rows - 1) * params.spacing - params.offsetY) / rows;
 
@@ -382,18 +397,24 @@ void Dungeon::renderMapScreen(const MapRenderParams& params)
         size_t cellY = params.offsetY + static_cast<size_t>(params.y) + params.border + row * (cellHeight + params.spacing);
         Color color = DARKGRAY;
         DrawRectangle(int(cellX), int(cellY), int(cellWidth), int(cellHeight), color);
-
         Room* room = getRoomAt(params.displayLevel, i);
-        if (room && room->visited && i < minimapTextures[params.displayLevel].size())
+        if (room && room->visited && params.displayLevel < mapTextures.size())
         {
-            const auto& tex = minimapTextures[params.displayLevel][i].texture;
-            Rectangle src = { 0, 0, (float)tex.width, (float)tex.height };
+            // calculate source rectangle in the atlas
+            int roomX = (i % cols) * miniWidth;
+            int roomY = (i / cols) * miniHeight;
+
+            // get actual room dimensions for proper sampling
+            int roomTilesX = room->tilemap.width;
+            int roomTilesY = room->tilemap.height;
+
+            Rectangle src = { (float)roomX, (float)roomY, (float)roomTilesX, (float)roomTilesY };
             Rectangle dst = { (float)cellX, (float)cellY, (float)cellWidth, (float)cellHeight };
-            DrawTexturePro(tex, src, dst, { 0, 0 }, 0.0f, WHITE);
+
+            DrawTexturePro(mapTextures[params.displayLevel].texture, src, dst, { 0, 0 }, 0.0f, WHITE);
 
             // indicate connections between rooms
             uint8_t doors = room->doors;
-
             for (int j = 3; j >= 0; j--)
             {
                 bool isDoor = (doors >> j) & 1;

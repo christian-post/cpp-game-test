@@ -8,7 +8,8 @@ uniform float frequency;
 in vec2 fragTexCoord;
 out vec4 finalColor;
 
-float heartbeat(float t) {
+float heartbeat(float t)
+{
     float beat = fract(t * frequency);
     float pulse = 0.0;
     if (beat < 0.15)
@@ -18,7 +19,8 @@ float heartbeat(float t) {
     return pulse * 0.15 + 1.0;
 }
 
-void main() {
+void main()
+{
     vec2 fragCoord = fragTexCoord * vec2(screenWidth, screenHeight);
     
     vec2 center = vec2(screenWidth * 0.5, screenHeight * 0.5);

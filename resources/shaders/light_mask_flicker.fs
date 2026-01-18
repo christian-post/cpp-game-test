@@ -10,22 +10,26 @@ in vec2 fragTexCoord;
 out vec4 finalColor;
 
 // Noise functions for randomness
-float hash(float n) {
+float hash(float n)
+{
     return fract(sin(n) * 43758.5453123);
 }
 
-float noise(float x) {
+float noise(float x)
+{
     float i = floor(x);
     float f = fract(x);
     f = f * f * (3.0 - 2.0 * f);
     return mix(hash(i), hash(i + 1.0), f);
 }
 
-void main() {
+void main()
+{
     vec2 fragCoord = fragTexCoord * vec2(screenWidth, screenHeight);
     float alpha = 1.0;
     
-    for (int i = 0; i < u_lightCount; i++) {
+    for (int i = 0; i < u_lightCount; i++)
+    {
         // Give each light a unique seed based on its index
         float seed = float(i) * 7.919;
         

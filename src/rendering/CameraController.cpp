@@ -62,6 +62,9 @@ void CameraController::update(float deltaTime)
 
     // Update camera target
     camera.target = target;
+
+    // expose the camera and its target to other scenes
+    game.eventManager.pushEvent(CAMERA_UPDATE, std::make_any<std::pair<Camera2D&, Vector2>>(camera, followTarget->position));
 }
 
 Vector2 CameraController::calculateTargetPosition() const

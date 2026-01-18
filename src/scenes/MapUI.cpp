@@ -158,6 +158,7 @@ void MapUI::draw()
         }
     }
 
+    // TODO let the World handle some of the params
     MapRenderParams p;
     p.x = x;
     p.y = y;

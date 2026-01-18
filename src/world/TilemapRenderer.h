@@ -10,6 +10,7 @@ struct TilesetData {
     std::string name;
     const Tileset* tileset;
     const Texture2D* texture;
+    const Texture2D* mapTexture; // texture for the map that is drawn in the menu
     size_t tilesPerRow;
     int firstGid;
 }; // encapsulates Tileset info read from TileMap

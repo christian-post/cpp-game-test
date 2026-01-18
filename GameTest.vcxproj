@@ -201,6 +201,7 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <ClCompile Include="src\scenes\SoundTest.cpp" />
     <ClCompile Include="src\scenes\StartMenu.cpp" />
     <ClCompile Include="src\scenes\TitleScreen.cpp" />
+    <ClCompile Include="src\scenes\WorldTransition.cpp" />
     <ClCompile Include="src\scenes\WriteSavegameMenu.cpp" />
     <ClCompile Include="src\ui\MenuSelect.cpp" />
     <ClCompile Include="src\ui\TextBox.cpp" />
@@ -268,6 +269,7 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <ClInclude Include="src\scenes\SoundTest.h" />
     <ClInclude Include="src\scenes\StartMenu.h" />
     <ClInclude Include="src\scenes\TitleScreen.h" />
+    <ClInclude Include="src\scenes\WorldTransition.h" />
     <ClInclude Include="src\scenes\WriteSavegameMenu.h" />
     <ClInclude Include="src\ui\MenuSelect.h" />
     <ClInclude Include="src\ui\TextBox.h" />
@@ -295,6 +297,7 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <None Include="resources\npcs.json" />
     <None Include="resources\particles.json" />
     <None Include="resources\settings.json" />
+    <None Include="resources\shaders\circle_transition.fs" />
     <None Include="resources\shaders\crumble.fs" />
     <None Include="resources\shaders\heartbeat.fs" />
     <None Include="resources\shaders\light_mask.fs" />

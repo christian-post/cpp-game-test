@@ -21,7 +21,7 @@ void TeleportBehavior::update(float deltaTime)
             done = true;
             game.eventManager.pushDelayedEvent(UNNAMED, 0.0f, nullptr, [this]() {
                 game.eventManager.pushEvent(TELEPORT, std::any(TeleportEvent{ targetWorld, targetLevel, targetIndex, targetPos }));
-                game.playSound("bookPlace1"); // TODO
+                //game.playSound("bookPlace1"); // TODO correct sound
                 });
         }
     }

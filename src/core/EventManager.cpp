@@ -65,14 +65,15 @@ void EventManager::clearAll()
 
 void EventManager::update(float deltaTime)
 {
+    // collect delayed events to fire
+    std::vector<TimedEvent> eventsToFire;
+
     for (auto it = delayedEvents.begin(); it != delayedEvents.end(); )
     {
         it->timeRemaining -= deltaTime;
         if (it->timeRemaining <= 0.0f)
         {
-            if (it->callback)
-                it->callback();
-            pushEvent(it->key, it->value);
+            eventsToFire.push_back(std::move(*it));
             it = delayedEvents.erase(it);
         }
         else
@@ -81,11 +82,22 @@ void EventManager::update(float deltaTime)
         }
     }
 
+    // fire collected delayed events
+    for (auto& event : eventsToFire)
+    {
+        if (event.callback)
+            event.callback();
+        pushEvent(event.key, event.value);
+    }
+
+    // collect conditional events to fire
+    std::vector<ConditionalEvent> conditionalToFire;
+
     for (auto it = conditionalEvents.begin(); it != conditionalEvents.end(); )
     {
         if (it->condition())
         {
-            it->callback();
+            conditionalToFire.push_back(std::move(*it));
             it = conditionalEvents.erase(it);
         }
         else
@@ -94,25 +106,48 @@ void EventManager::update(float deltaTime)
         }
     }
 
+    // fire collected conditional events
+    for (auto& event : conditionalToFire)
+    {
+        event.callback();
+    }
+
+    // collect repeated events to fire
+    std::vector<std::function<void()>> repeatedCallbacks;
+    std::vector<std::pair<int, std::any>> repeatedToFire;
+    std::vector<std::function<void()>> completionCallbacks;
+
     for (auto it = repeatedEvents.begin(); it != repeatedEvents.end(); )
     {
         it->timeRemaining -= deltaTime;
         if (it->timeRemaining <= 0.0f)
         {
-            // repeated callback
             if (it->callback)
-                it->callback();
-            pushEvent(it->key, it->value);
+                repeatedCallbacks.push_back(it->callback);
+            repeatedToFire.push_back({ it->key, it->value });
             it->timeRemaining += it->interval;
+
             if (--it->repeatsLeft <= 0)
             {
-                // callback on completion
                 if (it->onComplete)
-                    it->onComplete();
+                    completionCallbacks.push_back(it->onComplete);
                 it = repeatedEvents.erase(it);
                 continue;
             }
         }
         ++it;
+    }
+
+    // fire repeated event callbacks
+    for (size_t i = 0; i < repeatedCallbacks.size(); ++i)
+    {
+        repeatedCallbacks[i]();
+        pushEvent(repeatedToFire[i].first, repeatedToFire[i].second);
+    }
+
+    // fire completion callbacks
+    for (auto& callback : completionCallbacks)
+    {
+        callback();
     }
 }
