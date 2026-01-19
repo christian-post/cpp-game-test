@@ -1,5 +1,7 @@
 {
   "sprite_default": {
+    "persistent": false,
+    "followsPlayer": false,
     "textures": [
       "sprite_default_idle",
       "sprite_default_idle",
@@ -17,7 +19,8 @@
     "collides": 1,
     "hitbox": [ 16.0, 16.0 ],
     "hitboxOffset": [ 0.0, 0.0 ],
-    "itemDrops": []
+    "itemDrops": [],
+    "emitsLight": false
   },
   "elfCompanion1": {
     "inherits": "sprite_default",
@@ -26,6 +29,7 @@
       "elf_f_run"
     ],
     "health": 100,
+    "speed":  18.0,
     "behaviors": [ "RandomWalk", "Dialogue" ],
     "behaviorData": {
       "dialogue": "elfDialogue1",
@@ -34,9 +38,13 @@
   },
   "elfCompanion2": {
     "inherits": "elfCompanion1",
-    "behaviors": [ "Watch", "Dialogue" ],
+    "persistent": true,
+    "followsPlayer": true,
+    "behaviors": [ "Watch", "Dialogue", "Chase" ],
     "behaviorData": {
       "watchTarget": "player",
+      "chaseTarget": "player",
+      "minDist": 20.0,
       "dialogue": "elfDialogue2",
       "voice": "powerUp4"
     }

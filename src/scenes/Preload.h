@@ -14,7 +14,6 @@ public:
     void end() override;
 
 private:
-    std::queue<std::pair<std::string, std::function<void()>>> loadQueue;
     std::string currentMessage = "Loading...";
     size_t totalLoadSteps = 0;
 };

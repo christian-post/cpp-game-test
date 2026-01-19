@@ -224,6 +224,7 @@ void Dungeon::renderMapScreen(const MapRenderParams& params)
     const size_t cellHeight = (static_cast<size_t>(params.height) - 2 * params.border - (rows - 1) * params.spacing - params.offsetY) / rows;
 
     // calculate door offsets for minimap
+    // TODO do this once instead of every frame
     std::array<Vector2, 4> offsets;
     offsets[0].x = float(cellWidth);
     offsets[0].y = float(cellHeight / 2 - params.spacing / 2);
@@ -242,6 +243,7 @@ void Dungeon::renderMapScreen(const MapRenderParams& params)
         size_t cellY = params.offsetY + static_cast<size_t>(params.y) + params.border + row * (cellHeight + params.spacing);
         Color color = DARKGRAY;
         DrawRectangle(int(cellX), int(cellY), int(cellWidth), int(cellHeight), color);
+
         Room* room = getRoomAt(params.displayLevel, i);
         if (room && room->visited && params.displayLevel < mapTextures.size())
         {
@@ -287,6 +289,41 @@ void Dungeon::renderMapScreen(const MapRenderParams& params)
                 float py = cellY + v * cellHeight;
                 const auto& tex = game.loader.getTextures("knight_map_mini")[0];
                 DrawTexture(tex, (int)px, (int)py, WHITE);
+            }
+
+            // draw ladder if there is a connection
+            // TODO make this more efficient, maybe store the info about level connections in the room itself
+            TileMap& tm = room->tilemap;
+            for (auto& obj : tm.getObjects())
+            {
+                if (obj.name == "stairs")
+                {
+                    int level = obj.properties.value("level", 0);
+                    float arrowWidth = 12.0f;
+                    float arrowHeight = 6.0f;
+                    size_t roomW = room->tilemap.width * room->tilemap.tileWidth;
+                    size_t roomH = room->tilemap.height * room->tilemap.tileHeight;
+                    float stairsX = cellX + (obj.x / (float)roomW) * cellWidth;
+                    float stairsY = cellY + (obj.y / (float)roomH) * cellHeight;
+
+                    if (level < 0)
+                    {   
+                        // draw downwards arrow
+                        Vector2 v1 = { stairsX - arrowWidth / 2, stairsY };
+                        Vector2 v2 = { stairsX, stairsY + arrowHeight };
+                        Vector2 v3 = { stairsX + arrowWidth / 2, stairsY };
+                        DrawTriangle(v1, v2, v3, DARKBLUE);
+                    }
+                    else
+                    {
+                        // draw upwards arrow
+                        Vector2 v3 = { stairsX - arrowWidth / 2, stairsY };
+                        Vector2 v2 = { stairsX, stairsY - arrowHeight };
+                        Vector2 v1 = { stairsX + arrowWidth / 2, stairsY };
+                        DrawTriangle(v1, v2, v3, DARKBLUE);
+                    }
+                    break;
+                }
             }
         }
     }

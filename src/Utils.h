@@ -53,3 +53,21 @@ inline std::string format(const char* fmt, ...)
 
 void DrawTextWithSprites(const char* text, int x, int y, int fontSize, Color color, Game& game);
 int MeasureTextWithSprites(const char* text, int fontSize, Game& game);
+
+// helper function to get json value with fallback to default
+template<typename T>
+T getWithDefault(const nlohmann::json& data, const nlohmann::json& defaultData, const std::string& key)
+{
+    if (data.contains(key))
+        return data.at(key).get<T>();
+    return defaultData.at(key).get<T>();
+}
+
+// specialized template for Vector2
+template<>
+inline Vector2 getWithDefault<Vector2>(const nlohmann::json& data, const nlohmann::json& defaultData, const std::string& key)
+{
+    if (data.contains(key))
+        return Vector2{ data.at(key)[0].get<float>(), data.at(key)[1].get<float>() };
+    return Vector2{ defaultData.at(key)[0].get<float>(), defaultData.at(key)[1].get<float>() };
+}

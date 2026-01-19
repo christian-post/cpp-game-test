@@ -137,7 +137,7 @@ private:
 
 class Room {
 public:
-    uint8_t doors;
+    uint8_t doors = 0b0000;
     TileMap tilemap;
     uint8_t state = 1;
     bool visited = false;

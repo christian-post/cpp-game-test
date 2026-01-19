@@ -29,7 +29,10 @@ HUD::HUD(Game& game, const std::string& name) : Scene(game, name), heartImages{}
         if (equippedWeapons[(idx + 1) % 2] == weapon) {
             equippedWeapons[(idx + 1) % 2] = "";
         }
-        TraceLog(LOG_INFO, "player equipped the %s in slot %d", weapon.c_str(), idx);
+        if (weapon.empty())
+            TraceLog(LOG_INFO, "player equipped nothing in slot %d", idx);
+        else
+            TraceLog(LOG_INFO, "player equipped the %s in slot %d", weapon.c_str(), idx);
         });
 
     game.eventManager.addListener(ITEM_ADDED, [this](std::any data) {

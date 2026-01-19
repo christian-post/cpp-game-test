@@ -6,6 +6,7 @@
 #include "CollectItemBehavior.h"
 #include "OpenLockBehavior.h"
 #include "ChestBehavior.h"
+#include "Utils.h"
 
 Level::Level(size_t roomsW, size_t roomsH) : roomsW{ roomsW }, roomsH{ roomsH }
 {
@@ -156,15 +157,23 @@ void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, 
         if (objectStates[obj.id].isDefeated)
             // this sprite is dead, skip it
             return;
+
         std::string spriteName = obj.properties.value("spriteName", "sprite_default");
+
+        //skip if this is a persistant sprite that already exists
+        if (game.spriteMap[spriteName])
+            return;
+
         // get the data for this sprite from the JSON
         const auto& data = spriteData.contains(spriteName)
             ? spriteData.at(spriteName)
             : spriteData.at("sprite_default");
         if (!spriteData.contains(spriteName))
             TraceLog(LOG_WARNING, "Missing sprite data for %s, falling back to sprite_default", spriteName.c_str());
+        
         // store default data separately to replace individual attributes
         const auto& defaultData = spriteData.at("sprite_default");
+
         std::vector<std::string> textureKeys;
         if (data.contains("textures") && data.at("textures").is_array())
         {
@@ -186,27 +195,29 @@ void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, 
         Vector2 hitboxSize = data.contains("hitbox") ?
             Vector2{ data.at("hitbox")[0].get<float>(), data.at("hitbox")[1].get<float>() } :
             Vector2{ obj.width, obj.height };
+
         // overwrite with Tiled data if the rect size differs from the tile size
         // TODO this is probably only a temporary fix
         if (obj.width != 16.0f)
             hitboxSize.x = obj.width;
         if (obj.height != 16.0f)
             hitboxSize.y = obj.height;
+
         // instanciate the sprite
-        auto sprite = std::make_shared<Sprite>(game, obj.x, obj.y, hitboxSize.x, hitboxSize.y, obj.name);
-        // generic attributes
-        // from JSON data
-        sprite->health = data.contains("health") ? data.at("health").get<int>() : defaultData.at("health").get<int>();
-        sprite->damage = data.contains("damage") ? data.at("damage").get<int>() : defaultData.at("damage").get<int>();
-        sprite->speed = data.contains("speed") ? data.at("speed").get<float>() : defaultData.at("speed").get<float>();
-        sprite->knockback = data.contains("knockback") ? data.at("knockback").get<float>() : defaultData.at("knockback").get<float>();
-        sprite->weight = data.contains("weight") ? data.at("weight").get<float>() : defaultData.at("weight").get<int>();
-        sprite->hitboxOffset = data.contains("hitboxOffset") ?
-            Vector2{ data.at("hitboxOffset")[0].get<float>(), data.at("hitboxOffset")[1].get<float>() } :
-            Vector2{ 0.0f, 0.0f };
-        sprite->emitsLight = data.contains("emitsLight") ? data.at("emitsLight").get<bool>() : false;
+        auto sprite = std::make_shared<Sprite>(game, obj.x, obj.y, hitboxSize.x, hitboxSize.y, spriteName);
+
+        // generic attributes from JSON data
+        sprite->persistent = getWithDefault<bool>(data, defaultData, "persistent");
+        sprite->followsPlayer = getWithDefault<bool>(data, defaultData, "followsPlayer");
+        sprite->health = getWithDefault<int>(data, defaultData, "health");
+        sprite->damage = getWithDefault<int>(data, defaultData, "damage");
+        sprite->speed = getWithDefault<float>(data, defaultData, "speed");
+        sprite->knockback = getWithDefault<float>(data, defaultData, "knockback");
+        sprite->weight = getWithDefault<float>(data, defaultData, "weight");
+        sprite->emitsLight = getWithDefault<bool>(data, defaultData, "emitsLight");
+        sprite->hitboxOffset = getWithDefault<Vector2>(data, defaultData, "hitboxOffset");
+
         // attributes from Tiled data (instance-specific, overwrite JSON data)
-        sprite->spriteName = spriteName;
         sprite->speed = obj.properties.value("speed", sprite->speed);
         sprite->damage = obj.properties.value("damage", sprite->damage);
         sprite->knockback = obj.properties.value("knockback", sprite->knockback);
@@ -214,6 +225,7 @@ void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, 
         sprite->drawLayer = obj.properties.value("drawLayer", 0);
         sprite->emitsLight = obj.properties.value("emitsLight", false);
         sprite->castsShadow = obj.properties.value("castsShadow", true);
+
         float hurtboxW = obj.properties.value("hurtboxW", 0.0f);
         float hurtboxH = obj.properties.value("hurtboxH", 0.0f);
         if (hurtboxW != 0.0f && hurtboxH != 0.0f)
@@ -249,10 +261,8 @@ void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, 
         }
         else if (obj.name == "npc")
         {
-            if (!game.spriteMap[spriteName])
-                // TODO: handle this differently, this might create empty references
-                game.spriteMap[spriteName] = sprite;
             sprite->setTextures(textureKeys);
+            game.spriteMap[spriteName] = sprite;
         }
         else if (obj.name == "tradeItem")
         {
@@ -412,9 +422,7 @@ void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, 
         else if (data.contains("behaviors"))
         {
             // Use old behavior system as fallback
-            addBehaviorsToSprite(game, sprite,
-                data.at("behaviors"),
-                data.at("behaviorData"));
+            addBehaviorsToSprite(game, sprite, data.at("behaviors"), data.at("behaviorData"));
         }
 
         game.sprites.emplace_back(sprite);

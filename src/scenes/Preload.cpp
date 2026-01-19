@@ -9,8 +9,7 @@ void Preload::startup() {
     // > for an animated sprite, the keys have to contain the suffixes
     // _idle, _run, _hit, [...]
 
-    // TODO loadQueue will be owned by the AssetLoader class
-    loadQueue.emplace("Loading textures", [&]() {
+    game.loader.loadQueue.emplace("Loading textures", [&]() {
         l.loadTextures({
             {
                 "sprite_default", {
@@ -202,7 +201,7 @@ void Preload::startup() {
         });
 
     // load the tileset (the textures)
-    loadQueue.emplace("Loading tilesets", [&]() {
+    game.loader.loadQueue.emplace("Loading tilesets", [&]() {
         l.LoadtilesetFromTiled("./resources/tilemaps/test.tsj");
         l.LoadtilesetFromTiled("./resources/tilemaps/dungeon.tsj");
         l.LoadtilesetFromTiled("./resources/tilemaps/dungeon_topdown.tsj");
@@ -214,20 +213,20 @@ void Preload::startup() {
         l.loadTextures({ {"dungeon_mini", { "./resources/textures/tilesets/dungeon_mini.png"} } });
         });
     // load the tile maps from text files
-    loadQueue.emplace("Loading tilemaps", [&]() {
+    game.loader.loadQueue.emplace("Loading tilemaps", [&]() {
         l.loadTilemapsFromDirectory("./resources/tilemaps");
         l.loadTilemapsFromDirectory("./resources/tilemaps/generated");
         });
     // load the font
-    loadQueue.emplace("Loading fonts", [&]() {
+    game.loader.loadQueue.emplace("Loading fonts", [&]() {
         l.LoadFont("./resources/fonts/slkscr.ttf");
         });
     // load shaders
-    loadQueue.emplace("Loading shaders", [&]() {
+    game.loader.loadQueue.emplace("Loading shaders", [&]() {
         l.LoadShadersFromDirectory("./resources/shaders");
         });
     // JSON data
-    loadQueue.emplace("Loading JSON data", [&]() {
+    game.loader.loadQueue.emplace("Loading JSON data", [&]() {
         l.loadSpriteData("./resources/enemies.json");
         l.loadSpriteData("./resources/npcs.json");
         l.loadSpriteData("./resources/weapons.json");
@@ -237,14 +236,14 @@ void Preload::startup() {
         });
     // music and sfx
     // second argument is for adjusting the volume
-    loadQueue.emplace("Loading music", [&]() {
+    game.loader.loadQueue.emplace("Loading music", [&]() {
         l.LoadMusicFile("./resources/sound/music/Escape the Dungeon- Dubious Dungeon.mp3", 1.0f, "dungeon01");
         l.LoadMusicFile("./resources/sound/music/Dungeon 02.ogg", 0.7f, "dungeon02");
         l.LoadMusicFile("./resources/sound/music/title.wav", 1.0f);
         l.LoadMusicFile("./resources/sound/music/Adventure.mp3", 1.0f, "field01");
         l.LoadMusicFile("./resources/sound/music/Retro_No hope.mp3", 1.0f, "gameover");
         });
-    loadQueue.emplace("Loading sound files", [&]() {
+    game.loader.loadQueue.emplace("Loading sound files", [&]() {
         l.LoadSoundFile("./resources/sound/sfx/slash.wav", 0.1f);
         l.LoadSoundFile("./resources/sound/sfx/heart.wav", 0.6f);
         l.LoadSoundFile("./resources/sound/sfx/rupee.wav", 0.8f);
@@ -277,19 +276,19 @@ void Preload::startup() {
         l.LoadSoundFile("./resources/sound/sfx/magic1.wav");
         });
 
-    loadQueue.emplace("Loading thumbnails", [&]() {
+    game.loader.loadQueue.emplace("Loading thumbnails", [&]() {
         l.LoadSavegameThumbnails("./savegames/thumbs");
         });
 
-    totalLoadSteps = loadQueue.size();
+    totalLoadSteps = game.loader.loadQueue.size();
 }
 
 void Preload::update(float deltaTime) {
     // calculate loading progress
-    if (!loadQueue.empty()) {
-        currentMessage = loadQueue.front().first;
-        loadQueue.front().second(); // callback
-        loadQueue.pop();
+    if (!game.loader.loadQueue.empty()) {
+        currentMessage = game.loader.loadQueue.front().first;
+        game.loader.loadQueue.front().second(); // callback
+        game.loader.loadQueue.pop();
     }
     else {
         currentMessage = "Loading finished";
@@ -305,7 +304,7 @@ void Preload::draw() {
     int x = (game.gameScreenWidth - textWidth) / 2;
     int y = (game.gameScreenHeight - fontSize) / 2 + 16;
     DrawText(currentMessage.c_str(), x, y, fontSize, WHITE);
-    float progress = 1.0f - (float)loadQueue.size() / totalLoadSteps;
+    float progress = 1.0f - (float)game.loader.loadQueue.size() / totalLoadSteps;
     int rectX = int(game.gameScreenWidth * 0.2);
     int rectY = int(game.gameScreenHeight * 0.4);
     int rectW = int(game.gameScreenWidth * 0.6);

@@ -190,8 +190,10 @@ std::unique_ptr<Behavior> createBehaviorFromJSON(Game& game, std::shared_ptr<Spr
 }
 
 
-void addBehaviorsToSprite(Game& game, std::shared_ptr<Sprite> sprite, const std::vector<std::string>& behaviors, const nlohmann::json& behaviorData) {
-    for (const auto& key : behaviors) {
+void addBehaviorsToSprite(Game& game, std::shared_ptr<Sprite> sprite, const std::vector<std::string>& behaviors, const nlohmann::json& behaviorData)
+{
+    for (const auto& key : behaviors)
+    {
         auto behavior = createBehaviorFromJSON(game, sprite, key, behaviorData);
         if (behavior)
             sprite->addBehavior(std::move(behavior));

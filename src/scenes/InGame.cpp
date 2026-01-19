@@ -149,6 +149,12 @@ void InGame::setupEventListeners()
                 game.currentWorld->currentRoomIndex = targetIndex;
                 loadTilemap();
                 player->moveTo(targetPos.x, targetPos.y);
+                // check for companions
+                for (const auto& sprite : game.sprites)
+                {
+                    if (sprite->followsPlayer) 
+                        sprite->moveTo(player->position.x, player->position.y);
+                }
                 });
         }
         else
@@ -349,8 +355,6 @@ void InGame::loadWorldFromSave(std::shared_ptr<SaveGame> save)
         TileObject npc = TileObject();
         npc.name = "npc";
         npc.type = "sprite";
-        npc.x = player->position.x;
-        npc.y = player->position.y;
         // TODO: are width and height even important?
         npc.width = 16.0;
         npc.height = 16.0;
@@ -361,10 +365,16 @@ void InGame::loadWorldFromSave(std::shared_ptr<SaveGame> save)
 
         props["spriteName"] = sName;
         props["roomState"] = 0;
+        props["persistent"] = true;
 
         npc.properties = props;
 
         tileMap->dynamicObjects.emplace_back(npc);
+
+        // position the npc next to the player after they were repositioned
+        game.eventManager.pushDelayedEvent(UNNAMED, 0.1f, nullptr, [this, sName]() {
+            getSprite(sName)->moveTo(player->position.x, player->position.y);
+            });
     }
 }
 
@@ -464,6 +474,12 @@ void InGame::checkRoomTransition()
         game.eventManager.pushDelayedEvent(UNNAMED, 0.0f, nullptr, [&, newPlayerPos]() {
             loadTilemap();
             player->moveTo(newPlayerPos.x, newPlayerPos.y);
+            // check for companions
+            for (const auto& sprite : game.sprites)
+            {
+                if (sprite->followsPlayer)
+                    sprite->moveTo(player->position.x, player->position.y);
+            }
             });
     }
 }

@@ -3,7 +3,6 @@
 - projectiles only create an impact emitter on the target and on walls, not on other sprites
 - RELOAD_ROOM event crashes in combination with emitters
 - Signpost "dialogue" property does not overwrite npcs.json
-- npcs following you are wrongly positioned after the last room transition update, and after Teleport events
 
 ## FEATURES/REFACTORS:
 - Core
@@ -11,13 +10,12 @@
 -- do I need a base GameObject class? Or is that too much overhead for too little gain?
 -- collision objects should be able to span multiple layers
 -- auto load most of the assets instead of manually adding them to Preload.cpp
--- use game.loader.loadQueue in Preload instead of its own loadQueue
 
 - World
 -- dynamically show a shadow over a room entrance if the adjacent room is dark
 -- unify Room::objectStates and TileMap::dynamicObjects? same data, two different places
 -- Mask room transitions to reduce visual artifacts
--- draw stairs/laddern on MapUI
+-- draw stairs/ladders on MapUI
 
 - Sprites
 -- drawing priority/layer system
