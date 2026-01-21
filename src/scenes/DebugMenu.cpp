@@ -14,6 +14,10 @@ DebugMenu::DebugMenu(Game& game, const std::string& name) : Scene(game, name) {
         menus[i]->setFontSize(6);
         menus[i]->setYMargin(8);
     }
+
+    // the item menu is a bit different
+    menus[static_cast<size_t>(MenuType::ItemCheat)]->setFontSize(4);
+    menus[static_cast<size_t>(MenuType::ItemCheat)]->setYMargin(4);
 }
 
 void DebugMenu::startup()

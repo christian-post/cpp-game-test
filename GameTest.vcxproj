@@ -186,6 +186,7 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <ClCompile Include="src\lua\bindings\LuaBindings_Cutscene.cpp" />
     <ClCompile Include="src\lua\bindings\LuaBindings_Queries.cpp" />
     <ClCompile Include="src\lua\bindings\LuaBindings_Sprites.cpp" />
+    <ClCompile Include="src\lua\LuaDungeonGenerator.cpp" />
     <ClCompile Include="src\lua\LuaEventManager.cpp" />
     <ClCompile Include="src\particles\Emitter.cpp" />
     <ClCompile Include="src\particles\Particle.cpp" />
@@ -412,6 +413,7 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <ClInclude Include="src\entities\Sprite.h" />
     <ClInclude Include="src\entities\StateMachine.h" />
     <ClInclude Include="src\lua\bindings\LuaBindings.h" />
+    <ClInclude Include="src\lua\LuaDungeonGenerator.h" />
     <ClInclude Include="src\lua\LuaEventManager.h" />
     <ClInclude Include="src\particles\Emitter.h" />
     <ClInclude Include="src\particles\Particle.h" />

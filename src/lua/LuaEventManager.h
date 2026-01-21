@@ -7,6 +7,7 @@ class Game;
 class InGame;
 
 class LuaEventManager
+    // processes Lua script that control events (cutscenes etc) in the InGame scene
 {
 public:
     LuaEventManager(Game& game, InGame& inGame);

@@ -44,6 +44,14 @@ void StartMenu::startup() {
         });
 
     menu.addItem({
+           "Generate Dungeon",
+           MenuItemType::Action,
+           [&]() {
+               // TODO
+           }
+        });
+
+    menu.addItem({
             "Sound Test",
             MenuItemType::Action,
             [&]() {

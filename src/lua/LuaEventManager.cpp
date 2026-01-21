@@ -3,6 +3,7 @@
 #include "Game.h"
 #include "InGame.h"
 #include "raylib.h"
+#include "LuaDungeonGenerator.h"
 
 LuaEventManager::LuaEventManager(Game& game, InGame& inGame)
     : game(game), inGame(inGame)

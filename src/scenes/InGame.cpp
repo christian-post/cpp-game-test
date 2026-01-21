@@ -66,9 +66,6 @@ void InGame::startup()
     // Event listeners specific to the InGame scene
     setupEventListeners();
     setupConditionalEvents(*this);
-
-    // TODO just testing lua
-    luaEventManager->executeEvent("scripts/test.lua");
 }
 
 void InGame::setupEventListeners()

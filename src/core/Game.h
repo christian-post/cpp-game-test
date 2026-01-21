@@ -22,6 +22,7 @@
 
 
 class Command;
+class LuaDungeonGenerator;
 struct CollisionObject;
 struct Emitter;
 
@@ -31,6 +32,7 @@ private:
 
 public:
     Game();
+    ~Game();
     // in-game resolution (stays constant, gets scaled up to window size)
     uint32_t gameScreenWidth = 256;
     uint32_t gameScreenHeight = 192;
@@ -100,6 +102,7 @@ public:
     WindowEventHandler windowEvents; // processes raylib window changes specifically
     CutsceneManager cutsceneManager;
     InventoryManager inventory;
+    std::unique_ptr<LuaDungeonGenerator> luaDungeonGen; // handles all the dungeon generation Lua scripts
 
     bool isRunning() const { return running; }
     bool isRestartRequested() const { return restartRequested; }

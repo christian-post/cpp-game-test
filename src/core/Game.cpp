@@ -20,11 +20,12 @@
 #include "WorldTransition.h"
 #include "Utils.h"
 #include "Emitter.h"
+#include "LuaDungeonGenerator.h"
 #include <sstream>
 #include <fstream>
 #include <cassert>
 
-Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this) 
+Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this), luaDungeonGen(std::make_unique<LuaDungeonGenerator>(*this))
 {
     loader.loadSettings("./resources/settings.json");
     settings = &loader.getSettings();
@@ -127,7 +128,13 @@ Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this)
 
     // seed the rng
     srand(static_cast<uint32_t>(time(nullptr)));
+
+
+    // TODO testing
+    luaDungeonGen->executeScript("scripts/test.lua");
 }
+
+Game::~Game() = default;
 
 void Game::restart() 
 {

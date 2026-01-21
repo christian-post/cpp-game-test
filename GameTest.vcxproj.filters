@@ -312,6 +312,9 @@
     <ClCompile Include="vendor\lua\lzio.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\lua\LuaDungeonGenerator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\scenes\TitleScreen.h">
@@ -600,6 +603,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\lua\lzio.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lua\LuaDungeonGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
