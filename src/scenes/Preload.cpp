@@ -206,6 +206,7 @@ void Preload::startup() {
         l.LoadtilesetFromTiled("./resources/tilemaps/dungeon.tsj");
         l.LoadtilesetFromTiled("./resources/tilemaps/dungeon_topdown.tsj");
         l.LoadtilesetFromTiled("./resources/tilemaps/fields.tsj");
+        l.LoadtilesetFromTiled("./resources/tilemaps/simple_grassland.tsj");
 
         // load minified versions for the minimap
         l.loadTextures({ {"fields_mini", { "./resources/textures/tilesets/fields_mini.png"} } });

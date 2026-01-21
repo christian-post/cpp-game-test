@@ -1,11 +1,17 @@
 #include "Overworld.h"
 #include "Game.h"
+#include "Utils.h"
+#include <cmath>
 
 Overworld::Overworld(Game& game, size_t roomsW, size_t roomsH, size_t numLevels, const std::string& name)
     : World(game, roomsW, roomsH, numLevels, name)
 {
     isDungeon = false;
-    //minimapTextures.resize(numLevels);
+}
+
+void Overworld::update(float deltaTime)
+{
+    blinkTimer += deltaTime;
 }
 
 void Overworld::generate(const nlohmann::json& overworldData)
@@ -50,8 +56,48 @@ void Overworld::generate(const nlohmann::json& overworldData)
 
 void Overworld::renderMinimap(float hudY, float gameScreenWidth)
 {
-    // TODO: implement overworld HUD minimap rendering
-    // different layout than dungeon grid
+    // minimap dimensions and position
+    const int minimapWidth = 48;
+    const int minimapHeight = 24;
+    const int mapX = static_cast<int>(gameScreenWidth) - minimapWidth - 6;
+    const int mapY = static_cast<int>(hudY) + 4;
+
+    // draw gray background
+    DrawRectangle(mapX, mapY, minimapWidth, minimapHeight, GRAY);
+
+    // get current room and player position
+    Room* currentRoom = getCurrentRoom();
+    if (!currentRoom)
+        return;
+
+    //const Vector2& playerPos = game.getPlayer()->position;
+    const Vector2& playerPos = GetRectCenter(game.getPlayer()->rect);
+
+    // calculate current room's grid position
+    size_t currentCol = currentRoomIndex % roomsW;
+    size_t currentRow = currentRoomIndex / roomsW;
+
+    // calculate total world dimensions in pixels
+    // assuming all rooms have same dimensions for simplicity
+    size_t roomWidthPx = currentRoom->tilemap.width * currentRoom->tilemap.tileWidth;
+    size_t roomHeightPx = currentRoom->tilemap.height * currentRoom->tilemap.tileHeight;
+    size_t totalWorldWidth = roomsW * roomWidthPx;
+    size_t totalWorldHeight = roomsH * roomHeightPx;
+
+    // calculate absolute player position in world coordinates
+    float absoluteX = (currentCol * roomWidthPx) + playerPos.x;
+    float absoluteY = (currentRow * roomHeightPx) + playerPos.y;
+
+    // map to minimap coordinates
+    float u = absoluteX / totalWorldWidth;
+    float v = absoluteY / totalWorldHeight;
+    int dotX = mapX + static_cast<int>(u * minimapWidth);
+    int dotY = mapY + static_cast<int>(v * minimapHeight);
+
+    // draw white dot for player position
+    if (fmod(blinkTimer, 1.0f) < 0.5f)
+        //DrawPixel(dotX, dotY, WHITE);
+        DrawRectangle(dotX - 1, dotY - 1, 2, 2, WHITE);
 }
 
 void Overworld::renderMapScreen(const MapRenderParams& params)

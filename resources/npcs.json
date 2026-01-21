@@ -40,6 +40,8 @@
     "inherits": "elfCompanion1",
     "persistent": true,
     "followsPlayer": true,
+    "hitbox": [ 12.0, 12.0 ],
+    "hitboxOffset": [ 2.0, 0.0 ],
     "behaviors": [ "Watch", "Dialogue", "Chase" ],
     "behaviorData": {
       "watchTarget": "player",

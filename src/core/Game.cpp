@@ -536,6 +536,9 @@ void Game::update(float deltaTime)
     eventManager.update(deltaTime);
     windowEvents.update();
 
+    if (currentWorld)
+        currentWorld->update(deltaTime); // world-specific code that needs dt to work
+
     for (auto& [name, scene] : scenes)
     {
         if (scene && scene->isActive() && !scene->isPaused())

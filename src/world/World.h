@@ -55,6 +55,7 @@ public:
     void makeMapTextures();
 
     // child methods
+    virtual void update(float deltaTime) {}
     virtual void generate(const nlohmann::json& worldData) = 0;
     virtual void renderMinimap(float hudY, float gameScreenWidth) = 0;
     virtual void renderMapScreen(const MapRenderParams& params) = 0;

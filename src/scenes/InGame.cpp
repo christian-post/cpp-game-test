@@ -9,9 +9,11 @@
 #include "DeathBehavior.h"
 #include "WeaponBehavior.h"
 #include "raymath.h"
+#include "LuaEventManager.h"
+//#include "EventTriggerManager.h"
 
 
-InGame::InGame(Game& game, const std::string& name) : Scene(game, name), tileMap(nullptr), tilemapRenderer(game), cameraController(game) {}
+InGame::InGame(Game& game, const std::string& name) : Scene(game, name), tileMap(nullptr), tilemapRenderer(game), cameraController(game), luaEventManager(std::make_unique<LuaEventManager>(game, *this)) {}
 
 void InGame::startup()
 {
@@ -64,6 +66,9 @@ void InGame::startup()
     // Event listeners specific to the InGame scene
     setupEventListeners();
     setupConditionalEvents(*this);
+
+    // TODO just testing lua
+    luaEventManager->executeEvent("scripts/test.lua");
 }
 
 void InGame::setupEventListeners()
