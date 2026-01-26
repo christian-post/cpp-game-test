@@ -131,7 +131,8 @@ Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this), luaDungeonGen(
 
 
     // TODO testing
-    luaDungeonGen->executeScript("scripts/test.lua");
+    TraceLog(LOG_INFO, "Running Lua dungeon generation test");
+    luaDungeonGen->executeScript("scripts/dungeon_test.lua");
 }
 
 Game::~Game() = default;

@@ -469,8 +469,11 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <None Include="resources\shaders\vignette.fs" />
     <None Include="resources\texts.json" />
     <None Include="resources\weapons.json" />
+    <None Include="scripts\dungeon\dungeon_analyzer.lua" />
+    <None Include="scripts\dungeon\world_graph.lua" />
     <None Include="scripts\lib\cutscene_helpers.lua" />
-    <None Include="scripts\test.lua" />
+    <None Include="scripts\dungeon_test.lua" />
+    <None Include="scripts\lib\utils.lua" />
     <None Include="src\readme.md" />
   </ItemGroup>
   <ItemGroup>

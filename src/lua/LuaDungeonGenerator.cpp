@@ -5,7 +5,9 @@
 LuaDungeonGenerator::LuaDungeonGenerator(Game& game)
     : game(game)
 {
-    lua.open_libraries(sol::lib::base, sol::lib::math, sol::lib::string);
+    lua.open_libraries(sol::lib::base, sol::lib::math, sol::lib::string, sol::lib::package, sol::lib::table);
+    lua["package"]["path"] = lua["package"]["path"].get<std::string>() + ";scripts/?.lua";
+
     setupBindings();
 }
 

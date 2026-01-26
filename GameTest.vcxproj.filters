@@ -637,7 +637,10 @@
     <None Include="resources\dungeons.json" />
     <None Include="resources\shaders\circle_transition.fs" />
     <None Include="scripts\lib\cutscene_helpers.lua" />
-    <None Include="scripts\test.lua" />
+    <None Include="scripts\dungeon_test.lua" />
+    <None Include="scripts\dungeon\world_graph.lua" />
+    <None Include="scripts\dungeon\dungeon_analyzer.lua" />
+    <None Include="scripts\lib\utils.lua" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="github\hero.gif">
