@@ -123,11 +123,12 @@ void InGame::setupEventListeners()
             // this loading callback will be handled by the WorldTransition scene
             game.startScene("WorldTransition");
 
-            // TODO save the current world for later
+            // save the current world for later
             game.loader.loadQueue.emplace("Saving World", [this, data]() {
                 if (!game.savegame)
                     // create an empty SaveGame object where there currently is none
                     game.savegame = std::make_shared<SaveGame>();
+
                 saveWorld(*game.savegame, *game.currentWorld);
                 });
 

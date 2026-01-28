@@ -17,6 +17,7 @@
 -- unify Room::objectStates and TileMap::dynamicObjects? same data, two different places
 -- Mask room transitions to reduce visual artifacts
 -- draw stairs/ladders on MapUI
+-- WorldGraph might not be needed if done also in Lua
 
 - Sprites
 -- drawing priority/layer system

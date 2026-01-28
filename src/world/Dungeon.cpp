@@ -19,13 +19,6 @@ void Dungeon::generate(const nlohmann::json& dungeonData)
     setStartingRoomIndex(startIndex);
     currentLevel = startingLevel;
 
-    // get item pool for this dungeon
-    std::vector<std::string> itemPool = dungeonData["item_pool"];
-
-    // collect edges and item nodes across all levels
-    std::vector<std::tuple<std::string, std::string, std::vector<std::string>>> edges;
-    std::unordered_set<std::string> itemNodes;
-
     // process each level
     for (size_t levelIndex = 0; levelIndex < dungeonData["levels"].size(); ++levelIndex)
     {
@@ -41,26 +34,43 @@ void Dungeon::generate(const nlohmann::json& dungeonData)
             uint8_t doors = static_cast<uint8_t>(std::stoi(doorsStr, nullptr, 2));
 
             insertRoom(levelIndex, row, column, Room{ game.loader.getTilemap(tilemapName), doors });
-        }
 
-        // collect edges with item requirements from this level
-        for (const auto& edge : levelData["edges"])
-        {
-            std::vector<int> fromCoords = edge["from"];
-            std::vector<int> toCoords = edge["to"];
-            std::vector<std::string> requiredItems = edge["required_items"];
-            std::string fromId = std::to_string(levelIndex) + "_" + std::to_string(fromCoords[0]) + "_" + std::to_string(fromCoords[1]);
-            std::string toId = std::to_string(levelIndex) + "_" + std::to_string(toCoords[0]) + "_" + std::to_string(toCoords[1]);
+            // place item if this room has one (lua already decided placement)
+            if (roomData.contains("item"))
+            {
+                std::string itemName = roomData["item"];
 
-            edges.emplace_back(fromId, toId, requiredItems);
-        }
+                // get the room we just inserted
+                size_t roomIndex = row * roomsW + column;
+                Room* room = getRoomAt(levelIndex, roomIndex);
+                if (!room)
+                    continue;
 
-        // collect item nodes from this level
-        for (const auto& coords : levelData["item_nodes"])
-        {
-            std::vector<int> coordPair = coords;
-            std::string roomId = std::to_string(levelIndex) + "_" + std::to_string(coordPair[0]) + "_" + std::to_string(coordPair[1]);
-            itemNodes.insert(roomId);
+                // find chest object in tilemap and assign item
+                TileMap& roomTilemap = room->tilemap;
+                std::vector<TileObject>& objects = roomTilemap.getObjects();
+                bool chestFound = false;
+                for (auto& obj : objects)
+                {
+                    if (obj.name == "chest")
+                    {
+                        obj.properties["item"] = itemName;
+                        obj.properties["amount"] = 1;
+
+                        // update object state
+                        room->objectStates[obj.id].itemName = itemName;
+                        room->objectStates[obj.id].itemAmount = 1;
+
+                        TraceLog(LOG_INFO, "[Lvl %zu, (%zu, %zu)] Placed item: %s",
+                            levelIndex, row, column, itemName.c_str());
+                        chestFound = true;
+                        break;
+                    }
+                }
+                if (!chestFound)
+                    TraceLog(LOG_WARNING, "[Lvl %zu, (%zu, %zu)] No chest found in %s for item: %s",
+                        levelIndex, row, column, roomTilemap.getName().c_str(), itemName.c_str());
+            }
         }
     }
 
@@ -78,88 +88,7 @@ void Dungeon::generate(const nlohmann::json& dungeonData)
         startingPosition.y = (tm.height * tm.tileHeight) * 0.5f;
     }
 
-    // add level connections (bidirectional)
-    for (const auto& conn : dungeonData["level_connections"])
-    {
-        size_t fromLevel = conn["from"];
-        size_t toLevel = conn["to"];
-        std::vector<int> roomCoords = conn["room"];
-
-        std::string fromId = std::to_string(fromLevel) + "_" + std::to_string(roomCoords[0]) + "_" + std::to_string(roomCoords[1]);
-        std::string toId = std::to_string(toLevel) + "_" + std::to_string(roomCoords[0]) + "_" + std::to_string(roomCoords[1]);
-
-        edges.emplace_back(fromId, toId, std::vector<std::string>{});
-        edges.emplace_back(toId, fromId, std::vector<std::string>{});
-    }
-
-    // build starting room identifier
-    std::string startingRoomId = std::to_string(startingLevel) + "_" + std::to_string(startCoords[0]) + "_" + std::to_string(startCoords[1]);
-
-    // build and fill world graph
-    WorldGraph G = buildGraphFromDungeon(startingRoomId, edges, itemNodes);
-    int attempts = 0;
-    const int max_attempts = 100;
-
-    do
-    {
-        G.initializeItems(itemPool);
-        G.forwardFill();
-        attempts++;
-    } while (!G.itemPool.empty() && attempts < max_attempts);
-
-    if (!G.itemPool.empty())
-    {
-        G.logDebug();
-
-        TraceLog(LOG_INFO, "Dungeon Size");
-        for (size_t lvl = 0; lvl < levels.size(); lvl++)
-        {
-            TraceLog(LOG_INFO, "Level %zu: %zu rooms.", lvl, levels[lvl].getRooms().size());
-        }
-
-        G.testReachability();
-
-        size_t numItemsLeft = G.itemPool.size();
-        TraceLog(LOG_INFO, "There are still %zu items in the pool.", numItemsLeft);
-
-        throw std::runtime_error("Failed to place all items after " + std::to_string(max_attempts) + " attempts");
-    }
-
-    // place items into Tiled data
-    for (const auto& [roomId, node] : G.nodes)
-    {
-        if (node->item.has_value())
-        {
-            TraceLog(LOG_INFO, "[%s] placed item: %s", roomId.c_str(), node->item->c_str());
-
-            // parse level from roomId string "level_row_col"
-            size_t firstUnderscore = roomId.find('_');
-            size_t level = std::stoi(roomId.substr(0, firstUnderscore));
-
-            Room* room = getRoomAt(level, node->id);
-            if (!room)
-                continue;
-
-            TileMap& roomData = room->tilemap;
-            std::vector<TileObject>& objects = roomData.getObjects();
-            for (auto& obj : objects)
-            {
-                if (obj.name == "chest")
-                {
-                    obj.properties["item"] = node->item.value();
-                    obj.properties["amount"] = 1;
-
-                    // overwrite the object state
-                    room->objectStates[obj.id].itemName = node->item.value();
-                    room->objectStates[obj.id].itemAmount = 1;
-
-                    break;
-                }
-            }
-        }
-    }
-    // print Dungeon graph to the console
-    G.logDebug();
+    TraceLog(LOG_INFO, "Dungeon generated successfully from Lua data");
 }
 
 void Dungeon::renderMinimap(float hudY, float gameScreenWidth)

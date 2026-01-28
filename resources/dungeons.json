@@ -1048,19 +1048,32 @@
         ],
         "item_nodes": [
           [
+            0,
+            2
+          ],
+          [
             1,
             0
           ],
           [
             0,
             1
-          ],
-          [
-            0,
-            2
           ]
         ],
         "rooms": [
+          {
+            "column": 2,
+            "doors": "0011",
+            "item": "key",
+            "row": 0,
+            "tilemap": "room_0011"
+          },
+          {
+            "column": 2,
+            "doors": "0110",
+            "row": 1,
+            "tilemap": "room_0110"
+          },
           {
             "column": 0,
             "doors": "1100",
@@ -1076,29 +1089,16 @@
           },
           {
             "column": 1,
-            "doors": "1000",
-            "item": "boss_key",
-            "row": 0,
-            "tilemap": "room_1000"
-          },
-          {
-            "column": 1,
             "doors": "1010",
             "row": 1,
             "tilemap": "room_1010"
           },
           {
-            "column": 2,
-            "doors": "0110",
-            "row": 1,
-            "tilemap": "room_0110"
-          },
-          {
-            "column": 2,
-            "doors": "0011",
-            "item": "key",
+            "column": 1,
+            "doors": "1000",
+            "item": "boss_key",
             "row": 0,
-            "tilemap": "room_0011"
+            "tilemap": "room_1000"
           }
         ]
       },
@@ -1156,16 +1156,10 @@
         ],
         "rooms": [
           {
-            "column": 0,
-            "doors": "1001",
-            "row": 0,
-            "tilemap": "room_1001"
-          },
-          {
-            "column": 1,
-            "doors": "1100",
+            "column": 2,
+            "doors": "0010",
             "row": 1,
-            "tilemap": "room_1100"
+            "tilemap": "room_0010"
           },
           {
             "column": 1,
@@ -1173,6 +1167,12 @@
             "item": "key",
             "row": 0,
             "tilemap": "room_1011"
+          },
+          {
+            "column": 1,
+            "doors": "1100",
+            "row": 1,
+            "tilemap": "room_1100"
           },
           {
             "column": 2,
@@ -1188,10 +1188,10 @@
             "tilemap": "room_0100"
           },
           {
-            "column": 2,
-            "doors": "0010",
-            "row": 1,
-            "tilemap": "room_0010"
+            "column": 0,
+            "doors": "1001",
+            "row": 0,
+            "tilemap": "room_1001"
           }
         ]
       }
