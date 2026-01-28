@@ -1,8 +1,8 @@
-﻿-- Dungeon graph
-
--- ============================================================================
--- Item Configuration
--- ============================================================================
+﻿-- Item configuration
+--
+-- defines which items are consumable (stackable) vs permanent (boolean flags).
+-- consumable items are removed from inventory when used to traverse edges,
+-- while permanent items remain forever once acquired.
 local ItemConfig = {
     consumable_items = {
         small_key = true,
@@ -14,16 +14,21 @@ local function is_consumable(item_name)
     return ItemConfig.consumable_items[item_name] == true
 end
 
--- ============================================================================
--- Inventory Management
--- ============================================================================
+-- Inventory management
+--
+-- manages item storage with support for both consumable (stackable) and 
+-- permanent items. consumables track quantities, permanent items are boolean flags.
+-- inventories are immutable: operations return new copies rather than modifying in place.
+
 local Inventory = {}
 
 function Inventory.new()
+    -- creates an empty inventory
     return {}
 end
 
 function Inventory.copy(inv)
+    -- creates a deep copy of inventory
     local new_inv = {}
     for item, count in pairs(inv) do
         new_inv[item] = count
@@ -32,6 +37,7 @@ function Inventory.copy(inv)
 end
 
 function Inventory.add(inv, item)
+    -- adds this item to inventory (mutates in place)
     if is_consumable(item) then
         inv[item] = (inv[item] or 0) + 1
     else
@@ -40,6 +46,7 @@ function Inventory.add(inv, item)
 end
 
 function Inventory.has(inv, item, count)
+    -- check if inventory contains item(s)
     count = count or 1
     if is_consumable(item) then
         return (inv[item] or 0) >= count
@@ -49,6 +56,7 @@ function Inventory.has(inv, item, count)
 end
 
 function Inventory.consume(inv, item)
+    -- create new inventory with one item consumed
     local new_inv = Inventory.copy(inv)
     if is_consumable(item) then
         new_inv[item] = (new_inv[item] or 0) - 1
@@ -61,7 +69,7 @@ function Inventory.consume(inv, item)
 end
 
 function Inventory.to_key(inv)
-    -- create a string key for state tracking
+    -- creates a string key for state tracking in BFS
     local items = {}
     for item, value in pairs(inv) do
         if type(value) == "number" then
@@ -74,34 +82,38 @@ function Inventory.to_key(inv)
     return table.concat(items, ",")
 end
 
--- ============================================================================
 -- Node
--- ============================================================================
+--
+-- represents a room in the dungeon graph. each node has a name (room identifier),
+-- a list of edges to connected rooms, and an optional item value placed in this room.
 local Node = {}
 Node.__index = Node
 
 function Node.new(name)
     return setmetatable({
-        name = name,
-        edges = {},
-        value = nil
+        name = name, -- unique room identifier
+        edges = {}, -- array of Edge objects connecting to other nodes
+        value = nil -- item placed in this room (nil if empty)
     }, Node)
 end
 
--- ============================================================================
 -- Edge
--- ============================================================================
+--
+-- represents a connection between two rooms with optional item requirements.
+-- edges can be traversed if the player's inventory contains all required items.
+-- consumable items are removed from inventory when traversing.
 local Edge = {}
 Edge.__index = Edge
 
 function Edge.new(target, requirements)
     return setmetatable({
-        target = target,
-        requirements = requirements or {}
+        target = target, -- destination Node
+        requirements = requirements or {} -- array of item names needed to traverse this edge
     }, Edge)
 end
 
 function Edge:can_traverse(inventory)
+    -- check if edge is traversable with given inventory
     for _, req in ipairs(self.requirements) do
         if not Inventory.has(inventory, req) then
             return false
@@ -121,34 +133,41 @@ function Edge:traverse(inventory)
     return new_inv
 end
 
--- ============================================================================
--- WorldGraph
--- ============================================================================
+-- world graph
+--
+-- represents a dungeon as a directed graph with items and traversal requirements.
+-- supports forward-fill item placement algorithm with reachability checking.
+-- uses BFS to determine which rooms are accessible given current inventory.
 local WorldGraph = {}
 WorldGraph.__index = WorldGraph
 
 function WorldGraph.new()
+    -- creates a new empty world graph
     return setmetatable({
         nodes = {},
-        start = nil,
-        owned_items = Inventory.new(),
-        item_pool = {},
+        start = nil, -- start node
+        owned_items = Inventory.new(), -- contains items that have been collected during search(), empty at the start
+        item_pool = {}, -- items that are to be placed, full after initialization
         excluded_rooms = {},
         collected_locations = {}
     }, WorldGraph)
 end
 
 function WorldGraph:exclude_room(room_name)
+    -- marks room as ineligible for item placement
     self.excluded_rooms[room_name] = true
 end
 
 function WorldGraph:add_node(name)
+    -- adds a room to the graph
     local node = Node.new(name)
     self.nodes[name] = node
     return node
 end
 
 function WorldGraph:add_edge(from_name, to_name, requirements)
+    -- adds bidirectional connection between rooms with optional requirements
+    -- the nodes have to already exist in the graph
     local from_node = self.nodes[from_name]
     local to_node = self.nodes[to_name]
     
@@ -168,6 +187,7 @@ function WorldGraph:add_edge(from_name, to_name, requirements)
 end
 
 function WorldGraph:add_one_way_edge(from_name, to_name, requirements)
+    -- adds unidirectional connection between rooms with optional requirements
     local from_node = self.nodes[from_name]
     local to_node = self.nodes[to_name]
     
@@ -181,10 +201,13 @@ function WorldGraph:add_one_way_edge(from_name, to_name, requirements)
 end
 
 function WorldGraph:set_start(name)
+    -- sets the starting room
     self.start = self.nodes[name]
 end
 
 function WorldGraph:initialize_items(item_pool)
+    -- loads and shuffles item pool for placement
+
     -- copy and shuffle
     self.item_pool = {}
     for i = 1, #item_pool do
@@ -201,12 +224,14 @@ function WorldGraph:initialize_items(item_pool)
 end
 
 function WorldGraph:get_reachable_nodes()
+    -- uses BFS to find all accessible rooms from start with current inventory
     if not self.start then
         return {}
     end
     
     local starting_inventory = Inventory.copy(self.owned_items)
     
+    -- helper function to track visited nodes
     -- state = (node, inventory)
     local state_key = function(node, inv)
         local node_name = ""
@@ -219,9 +244,9 @@ function WorldGraph:get_reachable_nodes()
         return node_name .. "|" .. Inventory.to_key(inv)
     end
     
-    local visited = {}
-    local visited_nodes = {}  -- Track which nodes already added to reachable
-    local reachable = {}
+    local visited_states = {}  -- tracks (node, inventory) combinations already explored
+    local visited_nodes = {}  -- track which unique nodes were already added to reachable array
+    local reachable = {}  -- nodes that can be reached, returned at the end
     local queue = {{node = self.start, inventory = starting_inventory}}
     local qi = 1
     
@@ -231,10 +256,10 @@ function WorldGraph:get_reachable_nodes()
         
         local key = state_key(state.node, state.inventory)
         
-        if not visited[key] then
-            visited[key] = true
+        if not visited_states[key] then
+            visited_states[key] = true
             
-            -- Only add node once to reachable (not once per inventory state!)
+            -- add node once to reachable nodes
             if not visited_nodes[state.node] then
                 visited_nodes[state.node] = true
                 table.insert(reachable, state.node)
@@ -243,6 +268,7 @@ function WorldGraph:get_reachable_nodes()
             for _, edge in ipairs(state.node.edges) do
                 if edge:can_traverse(state.inventory) then
                     local new_inventory = edge:traverse(state.inventory)
+                    -- add the node at the other end of the edge to the queue, to be checked in the next iteration
                     table.insert(queue, {node = edge.target, inventory = new_inventory})
                 end
             end
@@ -253,6 +279,7 @@ function WorldGraph:get_reachable_nodes()
 end
 
 function WorldGraph:forward_fill(verbose)
+    -- places items using forward-fill algorithm
     local iteration = 0
     
     while self:has_null_node() and #self.item_pool > 0 do
@@ -285,6 +312,7 @@ function WorldGraph:forward_fill(verbose)
         
         for _, node in ipairs(reachable) do
             if not node.value and not self.excluded_rooms[node.name] then
+                -- this node is allowed to have an item
                 table.insert(null_nodes, node)
             end
         end
@@ -308,12 +336,13 @@ function WorldGraph:forward_fill(verbose)
         local item = table.remove(self.item_pool)
         node.value = item
         Inventory.add(self.owned_items, item)
-        self.collected_locations[node.name] = true  -- Mark as collected
+        self.collected_locations[node.name] = true  -- mark as collected
         
         if verbose then
             print(string.format("Placed '%s' in '%s'", item, node.name))
         end
         
+        -- expand inventory by going through all reachable nodes
         self:search()
     end
     
@@ -321,6 +350,7 @@ function WorldGraph:forward_fill(verbose)
 end
 
 function WorldGraph:reset_items()
+    -- clears all item placements and resets state
     for _, node in pairs(self.nodes) do
         node.value = nil
     end
@@ -331,6 +361,7 @@ function WorldGraph:reset_items()
 end
 
 function WorldGraph:has_null_node()
+    -- checks if any node is missing an item value
     for _, node in pairs(self.nodes) do
         if not node.value then
             return true
@@ -340,7 +371,8 @@ function WorldGraph:has_null_node()
 end
 
 function WorldGraph:search()
-    -- Track which locations we've already counted
+    -- collects items from reachable rooms and updates inventory
+    -- track which locations we've already counted
     if not self.collected_locations then
         self.collected_locations = {}
     end
@@ -352,7 +384,7 @@ function WorldGraph:search()
         
         local reachable = self:get_reachable_nodes()
         
-        -- Collect items from reachable nodes
+        -- collect items from reachable nodes
         local newly_acquired = {}
         for _, node in ipairs(reachable) do
             if node.value and not self.collected_locations[node.name] then
@@ -366,14 +398,14 @@ function WorldGraph:search()
             end
         end
         
-        -- Update inventory
+        -- update inventory
         local acquired_any = false
         for item in pairs(newly_acquired) do
             Inventory.add(self.owned_items, item)
             acquired_any = true
         end
         
-        -- Mark locations as collected
+        -- mark locations as collected
         for _, node in ipairs(reachable) do
             if node.value then
                 self.collected_locations[node.name] = true
@@ -387,6 +419,7 @@ function WorldGraph:search()
 end
 
 function WorldGraph:test_reachability()
+    -- verifies all nodes can be reached with all items in the pool
     -- save current owned items
     local saved_items = self.owned_items
     
@@ -425,7 +458,7 @@ function WorldGraph:test_reachability()
         local diff = total_nodes - num_reachable
         print(string.format("WARNING: There are %d unreachable nodes (out of %d).", diff, total_nodes))
         
-        -- Show which nodes are unreachable
+        -- show which nodes are unreachable
         print("\nUnreachable nodes:")
         for name, _ in pairs(self.nodes) do
             if not reachable_names[name] then
@@ -440,9 +473,7 @@ function WorldGraph:test_reachability()
     end
 end
 
--- ============================================================================
--- Export
--- ============================================================================
+-- export
 return {
     new = WorldGraph.new,
     configure = function(config)

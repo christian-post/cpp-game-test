@@ -122,5 +122,7 @@
   "windowHeight": 823,
   "windowWidth": 1098,
   "windowX": 278.0,
-  "windowY": 105.0
+  "windowY": 105.0,
+  "dungeonRngSeed": 12345,
+  "useRngSeed": true
 }

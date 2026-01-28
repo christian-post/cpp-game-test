@@ -48,7 +48,7 @@ function execute()
 
     local itemPool = {"small_key", "small_key", "boss_key", "weapon_sword"}
 
-    g:initialize_items(utils.shallowCopy(itemPool))
+    g:initialize_items(itemPool)
 
     -- Test if all nodes are reachable with all items
     if not g:test_reachability() then
@@ -57,8 +57,8 @@ function execute()
     end
     
     -- Quality-based generation
-    local max_iterations = 100
-    local target_score = 0.8
+    local max_iterations = 20
+    local target_score = 0.7
     local best_score = 0
     local best_placements = nil
     local best_report = nil
@@ -80,7 +80,7 @@ function execute()
             end
         
             g:reset_items()
-            g:initialize_items(utils.shallowCopy(itemPool))
+            g:initialize_items(itemPool)
             success = g:forward_fill(false)
         end
     
@@ -94,10 +94,12 @@ function execute()
             -- Track best
             if score > best_score then
                 best_score = score
-                -- Save item placements
+                -- Save item placements (only nodes with items)
                 best_placements = {}
                 for name, node in pairs(g.nodes) do
-                    best_placements[name] = node.value
+                    if node.value then
+                        best_placements[name] = node.value
+                    end
                 end
                 -- Save the report
                 best_report = Analyzer.generate_report(g)
@@ -119,6 +121,11 @@ function execute()
     
     -- Restore best placements to the graph
     if best_placements then
+        -- clear all values first
+        for name, node in pairs(g.nodes) do
+            node.value = nil
+        end
+    
         for name, item in pairs(best_placements) do
             g.nodes[name].value = item
         end

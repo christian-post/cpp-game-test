@@ -88,8 +88,8 @@ Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this), luaDungeonGen(
 
     // Render texture initialization, used to hold the rendering result so we can easily resize it
     // see https://github.com/raysan5/raylib/blob/master/examples/core/core_window_letterbox.c
-    gameScreenWidth = getSetting("gameScreenWidth");
-    gameScreenHeight = getSetting("gameScreenHeight");
+    gameScreenWidth = getSetting<uint32_t>("gameScreenWidth");
+    gameScreenHeight = getSetting<uint32_t>("gameScreenHeight");
     target = LoadRenderTexture(gameScreenWidth, gameScreenHeight);
 
     SetTargetFPS(getSetting<int>("targetFPS"));
@@ -128,6 +128,13 @@ Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this), luaDungeonGen(
 
     // seed the rng
     srand(static_cast<uint32_t>(time(nullptr)));
+
+    if (getSetting<bool>("useRngSeed"))
+    {
+        int seed = getSetting<int>("dungeonRngSeed");
+        TraceLog(LOG_INFO, "Using dungeon RNG seed: %d", seed);
+        luaDungeonGen->setSeed(seed);
+    }
 
 
     // TODO testing
