@@ -582,7 +582,7 @@
                         {
                          "name":"targetIndex",
                          "type":"int",
-                         "value":10
+                         "value":5
                         }, 
                         {
                          "name":"targetLevel",
@@ -592,7 +592,7 @@
                         {
                          "name":"targetWorld",
                          "type":"string",
-                         "value":"generated_dungeon"
+                         "value":"lua_dungeon"
                         }, 
                         {
                          "name":"targetX",

@@ -29,7 +29,7 @@ function execute()
     g:exclude_room("Room_1_1_0")
     
     -- room connections
-    g:add_edge("Room_0_0_0", "Room_0_1_0", {"small_key"})
+    g:add_edge("Room_0_0_0", "Room_0_1_0", {"key"})
     g:add_edge("Room_0_0_0", "Room_0_0_1")
     g:add_edge("Room_0_0_1", "Room_0_0_2")
     g:add_edge("Room_0_0_2", "Start")
@@ -41,12 +41,12 @@ function execute()
     g:add_edge("Room_1_0_0", "Room_1_0_1")
     g:add_edge("Room_1_0_1", "BossRoom", {"boss_key"})
     g:add_edge("Room_1_0_0", "Room_1_1_0")
-    g:add_edge("Room_1_1_0", "Room_1_1_1", {"small_key"})
+    g:add_edge("Room_1_1_0", "Room_1_1_1", {"key"})
     g:add_edge("Room_1_1_1", "Room_1_1_2", {"weapon_sword"})
     
     g:set_start("Start")
 
-    local itemPool = {"small_key", "small_key", "boss_key", "weapon_sword"}
+    local itemPool = {"key", "key", "boss_key", "weapon_sword"}
 
     g:initialize_items(itemPool)
 

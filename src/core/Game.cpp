@@ -129,6 +129,8 @@ Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this), luaDungeonGen(
     // seed the rng
     srand(static_cast<uint32_t>(time(nullptr)));
 
+    // fix the rng seed in Lua if provided in settings.json
+    // otherwise it will use os.time() as well
     if (getSetting<bool>("useRngSeed"))
     {
         int seed = getSetting<int>("dungeonRngSeed");
@@ -136,10 +138,9 @@ Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this), luaDungeonGen(
         luaDungeonGen->setSeed(seed);
     }
 
-
-    // TODO testing
+    // TODO testing dungeon generation
     TraceLog(LOG_INFO, "Running Lua dungeon generation test");
-    luaDungeonGen->executeScript("scripts/dungeon_test.lua");
+    luaDungeonGen->executeScript("scripts/test_dungeon_generation.lua");
 }
 
 Game::~Game() = default;

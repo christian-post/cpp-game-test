@@ -2,6 +2,7 @@
 
 #include <sol.hpp>
 #include "raylib.h"
+#include "json.hpp"
 #include <string>
 
 class Game;
@@ -48,4 +49,6 @@ private:
     sol::state lua;
 
     void setupBindings();
+    nlohmann::json solToJson(const sol::object& obj); // converts a lua table to json
+    sol::object jsonToSol(const nlohmann::json& j); // other way round
 };

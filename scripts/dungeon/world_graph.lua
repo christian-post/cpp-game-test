@@ -5,7 +5,7 @@
 -- while permanent items remain forever once acquired.
 local ItemConfig = {
     consumable_items = {
-        small_key = true,
+        key = true,
         boss_key = false,  -- boss key is permanent
     }
 }

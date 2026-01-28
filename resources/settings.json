@@ -1,7 +1,7 @@
 {
   "HudHeight": 32.0,
   "PlayeriFrames": 1.0,
-  "first_dungeon": "generated_dungeon",
+  "dungeonRngSeed": 12345,
   "fullscreen": false,
   "gameScreenHeight": 192,
   "gameScreenWidth": 256,
@@ -116,13 +116,12 @@
   "textDelay": 0.02,
   "textboxHeight": 64,
   "tileChunkSize": 256,
+  "useRngSeed": true,
   "vignetteIntensity": 0.3,
   "vignetteSmoothness": 0.5,
   "vsync": true,
   "windowHeight": 823,
   "windowWidth": 1098,
   "windowX": 278.0,
-  "windowY": 105.0,
-  "dungeonRngSeed": 12345,
-  "useRngSeed": true
+  "windowY": 105.0
 }

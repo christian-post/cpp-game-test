@@ -2,10 +2,6 @@
 
 local DungeonAnalyzer = {}
 
--- ============================================================================
--- Distance Calculations (BFS-based)
--- ============================================================================
-
 local function distance_between_nodes(graph, node1, node2)
     if node1 == node2 then
         return 0
@@ -56,10 +52,6 @@ local function distance_between_nodes(graph, node1, node2)
     
     return 999  -- not connected
 end
-
--- ============================================================================
--- Individual Metrics
--- ============================================================================
 
 function DungeonAnalyzer.boss_key_distance(graph)
     -- find boss_key location
@@ -138,11 +130,6 @@ function DungeonAnalyzer.item_distribution(graph, item_filter)
     return total_distance / pairs
 end
 
-
--- ============================================================================
--- Composite Challenge Score
--- ============================================================================
-
 function DungeonAnalyzer.challenge_score(graph, config)
     config = config or {}
     
@@ -183,10 +170,6 @@ function DungeonAnalyzer.challenge_score(graph, config)
     }
 end
 
--- ============================================================================
--- Detailed Report
--- ============================================================================
-
 function DungeonAnalyzer.generate_report(graph, config)
     local score, details = DungeonAnalyzer.challenge_score(graph, config)
     
@@ -225,9 +208,5 @@ function DungeonAnalyzer.print_report(report)
         print(string.format("    %s", metric.description))
     end
 end
-
--- ============================================================================
--- Export
--- ============================================================================
 
 return DungeonAnalyzer

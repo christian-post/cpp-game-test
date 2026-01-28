@@ -612,6 +612,7 @@
   <ItemGroup>
     <Text Include="todo.txt" />
     <Text Include="savegames\thumbs\readme.txt" />
+    <Text Include="scripts\dungeon\dungeon_exporter.lua" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="GameTest.rc">
@@ -641,6 +642,9 @@
     <None Include="scripts\dungeon\world_graph.lua" />
     <None Include="scripts\dungeon\dungeon_analyzer.lua" />
     <None Include="scripts\lib\utils.lua" />
+    <None Include="scripts\dungeon\dungeon_generator.lua" />
+    <None Include="scripts\dungeon\dungeon_builder.lua" />
+    <None Include="scripts\test_dungeon_generation.lua" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="github\hero.gif">
