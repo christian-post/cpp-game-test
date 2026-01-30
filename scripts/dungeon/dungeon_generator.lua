@@ -125,6 +125,9 @@ local function find_dead_end_for_stairs(layout, edges, level, entry_position)
             table.insert(level_nodes, name)
         end
     end
+
+    -- sort for deterministic order
+    table.sort(level_nodes)
     
     -- count connections for each node
     local counts = count_connections(edges, level_nodes)

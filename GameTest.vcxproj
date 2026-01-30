@@ -448,6 +448,7 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
   <ItemGroup>
     <Text Include="savegames\thumbs\readme.txt" />
     <Text Include="scripts\dungeon\dungeon_exporter.lua" />
+    <Text Include="scripts\dungeon\object_templates.lua" />
     <Text Include="todo.txt" />
   </ItemGroup>
   <ItemGroup>
@@ -469,10 +470,13 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <None Include="resources\shaders\light_mask_flicker.fs" />
     <None Include="resources\shaders\vignette.fs" />
     <None Include="resources\texts.json" />
+    <None Include="resources\tilemaps\dungeon.tsj" />
     <None Include="resources\weapons.json" />
     <None Include="scripts\dungeon\dungeon_analyzer.lua" />
     <None Include="scripts\dungeon\dungeon_builder.lua" />
     <None Include="scripts\dungeon\dungeon_generator.lua" />
+    <None Include="scripts\dungeon\generate_base_rooms.lua" />
+    <None Include="scripts\dungeon\tilemap_modifier.lua" />
     <None Include="scripts\dungeon\world_graph.lua" />
     <None Include="scripts\lib\cutscene_helpers.lua" />
     <None Include="scripts\dungeon_test.lua" />

@@ -21,3 +21,6 @@ ipch/
 savegames/*.json
 savegames/thumbs/*.png
 debug/*
+
+tilemaps/generated/*
+tilemaps/base/*

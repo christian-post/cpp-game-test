@@ -613,6 +613,7 @@
     <Text Include="todo.txt" />
     <Text Include="savegames\thumbs\readme.txt" />
     <Text Include="scripts\dungeon\dungeon_exporter.lua" />
+    <Text Include="scripts\dungeon\object_templates.lua" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="GameTest.rc">
@@ -645,6 +646,9 @@
     <None Include="scripts\dungeon\dungeon_generator.lua" />
     <None Include="scripts\dungeon\dungeon_builder.lua" />
     <None Include="scripts\test_dungeon_generation.lua" />
+    <None Include="scripts\dungeon\generate_base_rooms.lua" />
+    <None Include="scripts\dungeon\tilemap_modifier.lua" />
+    <None Include="resources\tilemaps\dungeon.tsj" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="github\hero.gif">

@@ -123,7 +123,7 @@ void AssetLoader::loadTextures(const std::unordered_map<std::string, std::vector
             if (fs::exists(filename))
                 textureGroups[key].emplace_back(LoadTexture(filename.c_str()));
             else
-                TraceLog(LOG_ERROR, "ERROR: File not found:  %s", filename.c_str());
+                TraceLog(LOG_ERROR, "File not found:  %s", filename.c_str());
         }
     }
 }
@@ -133,7 +133,7 @@ void AssetLoader::loadSpritesheet(const std::string& filename, int frameWidth, i
     namespace fs = std::filesystem;
     if (!fs::exists(filename))
     {
-        TraceLog(LOG_ERROR, "ERROR: File not found:  %s", filename.c_str());
+        TraceLog(LOG_ERROR, "File not found:  %s", filename.c_str());
         return;
     }
     std::string id = key.empty() ? fs::path(filename).stem().string() : key;

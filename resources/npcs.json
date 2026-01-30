@@ -29,7 +29,7 @@
       "elf_f_run"
     ],
     "health": 100,
-    "speed":  18.0,
+    "speed": 18.0,
     "behaviors": [ "RandomWalk", "Dialogue" ],
     "behaviorData": {
       "dialogue": "elfDialogue1",
@@ -84,11 +84,18 @@
   },
   "dungeon_door": {
     "inherits": "sprite_default",
-    "textureKey": "dungeon_door",
     "textures": [
       "dungeon_door"
     ],
     "hitbox": [ 32.0, 24.0 ],
+    "hitboxOffset": [ 0.0, 0.0 ]
+  },
+  "locked_door": {
+    "inherits": "sprite_default",
+    "textures": [
+      "doors_locked"
+    ],
+    "hitbox": [ 32.0, 36.0 ],
     "hitboxOffset": [ 0.0, 0.0 ]
   },
   "wall_fountain_basin": {

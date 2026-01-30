@@ -580,7 +580,8 @@ void InGame::update(float deltaTime)
         lights[i].active = false;
     }
 
-    bool isDark = game.currentWorld->getCurrentRoom()->dark;
+    Room* rm = game.currentWorld->getCurrentRoom();
+    bool isDark = (rm && rm->dark);
 
     // animate always, regardless of cutscene
     for (const auto& sprite : game.sprites)
@@ -818,7 +819,8 @@ void InGame::draw()
     EndMode2D();
 
     // draw lighting in dark rooms
-    if (game.currentWorld->getCurrentRoom()->dark)
+    Room* r = game.currentWorld->getCurrentRoom();
+    if (r && r->dark)
         DrawLightOverlay(game.target.texture, game.loader.getShader("light_mask_flicker"), lights, lightCount, static_cast<float>(game.gameScreenWidth), static_cast<float>(game.gameScreenHeight));
 
     // draw a vignette (only if player is in a dungeon)

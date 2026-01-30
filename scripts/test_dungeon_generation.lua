@@ -4,6 +4,14 @@ function execute()
     local DungeonExporter = require("dungeon.dungeon_exporter")
     local WorldGraph = require("dungeon.world_graph")
     local Analyzer = require("dungeon.dungeon_analyzer")
+    local GenerateBaseRooms = require("dungeon.generate_base_rooms")
+    local TilemapModifier = require("dungeon.tilemap_modifier")
+    local ObjectTemplates = require("dungeon.object_templates")
+
+    print("=== RNG Test ===")
+    print("Random 1: " .. math.random())
+    print("Random 2: " .. math.random())
+    print("Random 3: " .. math.random() .. "\n")
     
     print("=== Modular Dungeon Generation Test ===\n")
     
@@ -147,14 +155,39 @@ function execute()
         print("")
         Analyzer.print_report(best_report)
         
+        -- step 6: export dungeon data
+        print("\nStep 6: Exporting dungeon data...")
         local dungeon_data = DungeonExporter.export(layout, edges, graph, item_pool, stairway_rooms, DungeonGenerator)
-        
-        -- save individual file
-        --DungeonExporter.save_to_file(dungeon_data, "resources/generated_dungeon.json")
-        
-        -- append to dungeons.json with custom name:
         DungeonExporter.append_to_dungeons(dungeon_data, "resources/dungeons.json", "lua_dungeon")
-
+        DungeonExporter.save_to_file(dungeon_data, "resources/test_lua_dungeon.json")
+        
+        -- step 7: generate base room tilemaps (only if needed)
+        print("\nStep 7: Checking base room tilemaps...")
+        -- check if base rooms exist, if not generate them
+        local base_check = io.open("resources/tilemaps/base/room_0001.json", "r")
+        if not base_check then
+            print("  Base rooms not found, generating...")
+            GenerateBaseRooms.generate(
+                "resources/tilemaps/empty_floor.json",
+                "resources/tilemaps/base"
+            )
+        else
+            base_check:close()
+            print("  Base rooms already exist, skipping generation")
+        end
+        
+        -- step 8: process tilemaps (add items, stairs, etc.)
+        print("\nStep 8: Processing tilemaps...")
+        TilemapModifier.process_dungeon(
+            "resources/dungeons.json",
+            "lua_dungeon",
+            "resources/tilemaps/base",
+            "resources/tilemaps/generated",
+            ObjectTemplates
+        )
+        
+        print("\n=== Dungeon Generation Complete! ===")
+        
         return graph, layout, best_score, best_report
     else
         print("\nFailed to generate any valid dungeon!")
