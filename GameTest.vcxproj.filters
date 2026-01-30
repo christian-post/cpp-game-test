@@ -614,6 +614,8 @@
     <Text Include="savegames\thumbs\readme.txt" />
     <Text Include="scripts\dungeon\dungeon_exporter.lua" />
     <Text Include="scripts\dungeon\object_templates.lua" />
+    <Text Include="resources\tilemaps\base\readme.txt" />
+    <Text Include="resources\tilemaps\generated\readme.txt" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="GameTest.rc">

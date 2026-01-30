@@ -989,7 +989,7 @@
     "boss_level": 1,
     "boss_room": [
       1,
-      1
+      0
     ],
     "item_pool": [
       "key",
@@ -1025,7 +1025,7 @@
               2
             ],
             "required_items": [
-              "key"
+              "boss_key"
             ],
             "to": [
               0,
@@ -1038,7 +1038,7 @@
               1
             ],
             "required_items": [
-              "key"
+              "weapon_sword"
             ],
             "to": [
               1,
@@ -1049,24 +1049,24 @@
         "item_nodes": [
           [
             1,
+            1
+          ],
+          [
+            1,
             0
           ],
           [
             0,
             2
-          ],
-          [
-            1,
-            1
           ]
         ],
         "rooms": [
           {
-            "column": 0,
-            "doors": "1000",
-            "item": "boss_key",
+            "column": 1,
+            "doors": "1010",
+            "item": "key",
             "row": 1,
-            "tilemap": "room_1000_with_item"
+            "tilemap": "room_1010_with_item"
           },
           {
             "column": 1,
@@ -1083,27 +1083,40 @@
           {
             "column": 0,
             "doors": "1000",
+            "item": "boss_key",
+            "row": 1,
+            "tilemap": "room_1000_with_item"
+          },
+          {
+            "column": 0,
+            "doors": "1000",
             "row": 0,
             "tilemap": "room_1000_connection"
           },
           {
             "column": 2,
             "doors": "0011",
-            "item": "key",
+            "item": "weapon_sword",
             "row": 0,
             "tilemap": "room_0011_with_item"
-          },
-          {
-            "column": 1,
-            "doors": "1010",
-            "item": "key",
-            "row": 1,
-            "tilemap": "room_1010_with_item"
           }
         ]
       },
       {
         "edges": [
+          {
+            "from": [
+              0,
+              0
+            ],
+            "required_items": [
+              "boss_key"
+            ],
+            "to": [
+              1,
+              0
+            ]
+          },
           {
             "from": [
               0,
@@ -1123,7 +1136,7 @@
               1
             ],
             "required_items": [
-              "boss_key"
+              "key"
             ],
             "to": [
               1,
@@ -1136,7 +1149,7 @@
               2
             ],
             "required_items": [
-              "weapon_sword"
+              "key"
             ],
             "to": [
               1,
@@ -1146,7 +1159,7 @@
         ],
         "item_nodes": [
           [
-            0,
+            1,
             2
           ],
           [
@@ -1156,42 +1169,42 @@
         ],
         "rooms": [
           {
+            "column": 0,
+            "doors": "0100",
+            "row": 1,
+            "tilemap": "room_0100"
+          },
+          {
             "column": 2,
-            "doors": "0011",
+            "doors": "0100",
             "item": "key",
-            "row": 0,
-            "tilemap": "room_0011_with_item"
+            "row": 1,
+            "tilemap": "room_0100_with_item"
+          },
+          {
+            "column": 1,
+            "doors": "0100",
+            "row": 1,
+            "tilemap": "room_0100"
           },
           {
             "column": 1,
             "doors": "1011",
-            "item": "weapon_sword",
+            "item": "key",
             "row": 0,
             "tilemap": "room_1011_with_item"
           },
           {
-            "column": 1,
-            "doors": "0100",
-            "row": 1,
-            "tilemap": "room_0100"
-          },
-          {
             "column": 2,
-            "doors": "0100",
-            "row": 1,
-            "tilemap": "room_0100"
+            "doors": "0011",
+            "row": 0,
+            "tilemap": "room_0011"
           },
           {
             "column": 0,
             "doors": "1001",
             "row": 0,
             "tilemap": "room_1001_connection"
-          },
-          {
-            "column": 0,
-            "doors": "0100",
-            "row": 1,
-            "tilemap": "room_0100"
           }
         ]
       }

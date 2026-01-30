@@ -446,6 +446,8 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <ClInclude Include="src\world\WorldGraph.h" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="resources\tilemaps\base\readme.txt" />
+    <Text Include="resources\tilemaps\generated\readme.txt" />
     <Text Include="savegames\thumbs\readme.txt" />
     <Text Include="scripts\dungeon\dungeon_exporter.lua" />
     <Text Include="scripts\dungeon\object_templates.lua" />

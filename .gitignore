@@ -22,5 +22,5 @@ savegames/*.json
 savegames/thumbs/*.png
 debug/*
 
-tilemaps/generated/*
-tilemaps/base/*
+resources/tilemaps/generated/*.json
+resources/tilemaps/base/*.json

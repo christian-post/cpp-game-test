@@ -8,7 +8,86 @@ local door_tile_positions = {
     {14, 7}   -- down (index 3)
 }
 
-local function load_tilemap(tilemap_base_path, doors)
+-- tile variants for randomization
+
+local floor_tiles = {7, 8, 9, 10, 11, 12, 13, 27, 28, 29, 30, 31, 32, 33, 47, 48, 49, 50, 51, 52, 53}
+
+local wall_tiles = {
+    {82, 102, 122},  -- [1] right wall variants
+    {61, 62, 63},    -- [2] top wall variants
+    {81, 101, 121},  -- [3] left wall variants
+    {83, 84, 85}     -- [4] bottom wall variants
+}
+
+local wall_configs = {
+    {pos_range = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}, fixed_pos = 14, tile_idx = 1, is_vertical = true},   -- right: iterate y, fixed x=14
+    {pos_range = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}, fixed_pos = 1, tile_idx = 2, is_vertical = false},   -- top: iterate x, fixed y=1
+    {pos_range = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}, fixed_pos = 1, tile_idx = 3, is_vertical = true},    -- left: iterate y, fixed x=1
+    {pos_range = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}, fixed_pos = 14, tile_idx = 4, is_vertical = false}   -- bottom: iterate x, fixed y=14
+}
+
+local function is_floor_tile(tile_id)
+    for _, floor_tile in ipairs(floor_tiles) do
+        if tile_id == floor_tile then
+            return true
+        end
+    end
+    return false
+end
+
+local base_wall_tiles = {21, 42, 23, 2}  -- right, up, left, down
+
+local function is_wall_tile(tile_id)
+    for _, wall_tile in ipairs(base_wall_tiles) do
+        if tile_id == wall_tile then
+            return true
+        end
+    end
+    return false
+end
+
+local function randomize_tiles(room_data)
+    for _, layer in ipairs(room_data.layers) do
+        if layer.name == "floor" then
+            -- randomize floor tiles
+            for i = 1, #layer.data do
+                if is_floor_tile(layer.data[i]) then
+                    layer.data[i] = floor_tiles[math.random(#floor_tiles)]
+                end
+            end
+            
+        elseif layer.name == "walls" then
+            local width = room_data.width
+            
+            -- randomize wall tiles based on wall_configs
+            for _, config in ipairs(wall_configs) do
+                for _, pos in ipairs(config.pos_range) do
+                    if math.random() < 0.4 then
+                        local wall_x, wall_y
+                        if config.is_vertical then
+                            wall_x = config.fixed_pos
+                            wall_y = pos
+                        else
+                            wall_x = pos
+                            wall_y = config.fixed_pos
+                        end
+                        
+                        local wall_idx = wall_x + wall_y * width + 1  -- +1 for Lua indexing
+                        
+                        -- only randomize if it's actually a base wall tile (not a door)
+                        if is_wall_tile(layer.data[wall_idx]) then
+                            local variants = wall_tiles[config.tile_idx]
+                            layer.data[wall_idx] = variants[math.random(#variants)]
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+
+local function load_tilemap(tilemap_base_path, doors, randomize)
     local tilemap_path = tilemap_base_path .. "/room_" .. doors .. ".json"
     local file = io.open(tilemap_path, "r")
     if not file then
@@ -16,7 +95,13 @@ local function load_tilemap(tilemap_base_path, doors)
     end
     local content = file:read("*all")
     file:close()
-    return json.decode(content)
+    local room = json.decode(content)
+
+    if randomize then
+        randomize_tiles(room)
+    end
+
+    return room
 end
 
 -- ============================================================================
@@ -82,7 +167,7 @@ local function process_starting_room(tilemap_base_path, doors, tilemap_name, Obj
         modified_doors = modified_doors .. tostring((doors_num >> i) & 1)
     end
     
-    local room = load_tilemap(tilemap_base_path, modified_doors)
+    local room = load_tilemap(tilemap_base_path, modified_doors, true)
     
     -- add roomID property
     if not room.properties then
@@ -108,7 +193,7 @@ local function process_starting_room(tilemap_base_path, doors, tilemap_name, Obj
 end
 
 local function process_item_room(tilemap_base_path, doors, tilemap_name, ObjectTemplates)
-    local room = load_tilemap(tilemap_base_path, doors)
+    local room = load_tilemap(tilemap_base_path, doors, true)
     
     -- add chest
     for _, layer in ipairs(room.layers) do
@@ -122,7 +207,7 @@ local function process_item_room(tilemap_base_path, doors, tilemap_name, ObjectT
 end
 
 local function process_connection_room(tilemap_base_path, doors, tilemap_name, level_diff, ObjectTemplates)
-    local room = load_tilemap(tilemap_base_path, doors)
+    local room = load_tilemap(tilemap_base_path, doors, true)
     
     local stairs = ObjectTemplates.create("stairs")
     stairs.properties[1].value = level_diff
@@ -148,7 +233,7 @@ local function process_connection_room(tilemap_base_path, doors, tilemap_name, l
 end
 
 local function process_normal_room(tilemap_base_path, doors, tilemap_name)
-    local room = load_tilemap(tilemap_base_path, doors)
+    local room = load_tilemap(tilemap_base_path, doors, true)
     return room, tilemap_name .. ".json"
 end
 
