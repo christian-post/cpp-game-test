@@ -135,9 +135,10 @@ void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, 
     if (objectState != 0 && (objectState & currentState) == 0)
         return;
 
-    TraceLog(LOG_INFO, "creating %s - <%s>, id: %d, objectState: %d at (%.0f,%.0f)",
+    TraceLog(LOG_INFO, "Creating %s - %s (\"%s\"), id: %d, objectState: %d at (%.0f,%.0f)",
         obj.type.c_str(),
         obj.name.empty() ? "unnamed" : obj.name.c_str(),
+        obj.properties.value("spriteName", "unnamed").c_str(),
         obj.id, objectState, obj.x, obj.y
     );
 
@@ -329,43 +330,43 @@ void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, 
             // TODO: set the open state in Tiled Data
             uint8_t openState = obj.properties.value("openState", 0);
 
-            
+            // frames are in directional order
             sprite->currentFrame = obj.properties.value("direction", 0);
 
-            //std::string eventStr = obj.properties.value("event", "");
-            //int eventKey = EventKeyRegistry::getEventKey(eventStr);
+            std::string eventStr = obj.properties.value("event", "");
+            int eventKey = EventKeyRegistry::getEventKey(eventStr);
 
-            //bool isAlreadyOpen = false; // check if this door already opened from another event
-            //for (auto& ev : game.eventManager.peekEvents())
-            //{
-            //    if (ev.first == eventKey)
-            //        isAlreadyOpen = true;
-            //}
+            bool isAlreadyOpen = false; // check if this door already opened from another event
+            for (auto& ev : game.eventManager.peekEvents())
+            {
+                if (ev.first == eventKey)
+                    isAlreadyOpen = true;
+            }
 
-            //if (currentState < openState && !objectStates[obj.id].isOpened && !isAlreadyOpen)
-            //{
-            //    sprite->staticCollision = true;
-            //    bool locked = obj.properties.value("locked", false);
-            //    if (locked)
-            //    {
-            //        sprite->currentFrame = 2;
-            //        sprite->addBehavior(std::make_unique<OpenLockBehavior>(game, sprite, game.spriteMap["player"], eventKey));
-            //    }
+            if (currentState < openState && !objectStates[obj.id].isOpened && !isAlreadyOpen)
+            {
+                sprite->staticCollision = true;
+                bool locked = obj.properties.value("locked", false);
+                if (locked)
+                {
+                    sprite->currentFrame = 2;
+                    sprite->addBehavior(std::make_unique<OpenLockBehavior>(game, sprite, game.spriteMap["player"], eventKey));
+                }
 
-            //    // external door trigger
-            //    game.eventManager.addListener(eventKey, [&, sprite = sprite.get()](std::any) {
-            //        objectStates[obj.id].isOpened = true;
-            //        sprite->currentFrame = 1;
-            //        sprite->staticCollision = false;
-            //        // TODO open the door in the adjacent room
-            //        });
-            //}
-            //else
-            //{
-            //    sprite->currentFrame = 1;
-            //    sprite->staticCollision = false;
-            //    objectStates[obj.id].isOpened = true;
-            //}
+                // external door trigger
+                game.eventManager.addListener(eventKey, [&, sprite = sprite.get()](std::any) {
+                    objectStates[obj.id].isOpened = true;
+                    sprite->visible = false;
+                    sprite->staticCollision = false;
+                    // TODO open the door in the adjacent room
+                    });
+            }
+            else
+            {
+                sprite->visible = false;
+                sprite->staticCollision = false;
+                objectStates[obj.id].isOpened = true;
+            }
 
         }
         else if (obj.name == "hurt")

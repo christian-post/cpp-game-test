@@ -147,7 +147,9 @@ local function find_locked_doors(dungeon_data, level_idx, room_coords)
             if direction_idx then
                 table.insert(locked_doors, {
                     direction = direction_idx,
-                    item = edge.required_items[1]
+                    item = edge.required_items[1],
+                    from_room = from,  -- edge info
+                    to_room = to
                 })
             end
             
@@ -237,7 +239,7 @@ local function process_normal_room(tilemap_base_path, doors, tilemap_name)
     return room, tilemap_name .. ".json"
 end
 
-local function add_locked_doors_to_room(room, locked_doors, ObjectTemplates)
+local function add_locked_doors_to_room(room, locked_doors, ObjectTemplates, level_idx, room_coords)
     local tilesize = room.tilewidth
     local direction_names = {"right", "up", "left", "down"}
     
@@ -253,10 +255,21 @@ local function add_locked_doors_to_room(room, locked_doors, ObjectTemplates)
         locked_door.x = tile_pos[2] * tilesize
         locked_door.y = tile_pos[1] * tilesize
         
+        -- create normalized event ID from edge coordinates
+        local r1, c1 = lock_info.from_room[1], lock_info.from_room[2]
+        local r2, c2 = lock_info.to_room[1], lock_info.to_room[2]
+        -- normalize: ensure smaller coordinates come first for consistency
+        if r1 > r2 or (r1 == r2 and c1 > c2) then
+            r1, c1, r2, c2 = r2, c2, r1, c1
+        end
+        local event_id = string.format("door_%d_%d_%d_%d_%d_unlocked", level_idx, r1, c1, r2, c2)
+        
         -- set properties by name
         for _, prop in ipairs(locked_door.properties) do
             if prop.name == "direction" then
                 prop.value = lock_info.direction
+            elseif prop.name == "event" then
+                prop.value = event_id
             end
         end
         
@@ -340,7 +353,7 @@ function TilemapModifier.process_dungeon(dungeon_json_path, dungeon_name, tilema
             -- check for locked doors and place them
             local locked_doors = find_locked_doors(dungeon_data, level_idx, room_coords)
             if #locked_doors > 0 then
-                add_locked_doors_to_room(room, locked_doors, ObjectTemplates)
+                add_locked_doors_to_room(room, locked_doors, ObjectTemplates, level_idx, room_coords)
             end
             
             -- update tilemap reference in dungeon data

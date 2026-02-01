@@ -99,6 +99,16 @@ local templates = {
                 value = true
             },
             {
+                name = "openState",
+                type = "int",
+                value = 16
+            },
+             {
+                name = "event",
+                type = "string",
+                value = "" -- needs to be overwritten
+            },
+            {
                 name = "spriteName",
                 type = "string",
                 value = "locked_door"

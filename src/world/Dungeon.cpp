@@ -35,14 +35,15 @@ void Dungeon::generate(const nlohmann::json& dungeonData)
 
             insertRoom(levelIndex, row, column, Room{ game.loader.getTilemap(tilemapName), doors });
 
-            // place item if this room has one (lua already decided placement)
+            // place item in chest if this room has one
             if (roomData.contains("item"))
             {
                 std::string itemName = roomData["item"];
 
-                // get the room we just inserted
+                // get the room that was just inserted
                 size_t roomIndex = row * roomsW + column;
                 Room* room = getRoomAt(levelIndex, roomIndex);
+                // TODO can this ever be a nullptr?
                 if (!room)
                     continue;
 

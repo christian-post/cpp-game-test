@@ -487,7 +487,7 @@ void Game::clearSprites(bool clearPersistent)
         if (!sprite->persistent)
         {
             sprite->markForDeletion();
-            TraceLog(LOG_INFO, "deleting Sprite %s", sprite->spriteName.c_str());
+            TraceLog(LOG_INFO, "Marking Sprite \"%s\" at %p for deletion", sprite->spriteName.c_str(), sprite.get());
         }
     }
 }
@@ -724,7 +724,7 @@ void Game::run()
     while (running && !WindowShouldClose())
     {
         // show FPS in title
-        snprintf(title, sizeof(title), "My Game - FPS: %d", GetFPS());
+        snprintf(title, sizeof(title), "Dungeon Crusader - FPS: %d", GetFPS());
         SetWindowTitle(title);
         // get the recently pressed/held down buttons
         buttonsPressed = GetControlsPressed();
@@ -733,17 +733,12 @@ void Game::run()
         // debug mode toggle
         if (buttonsPressed & CONTROL_DEBUG)
             debug = !debug; 
-        // specific debug functions
-        if (debug)
-        {
-            if (buttonsPressed & CONTROL_DEBUG_K2)
-                soundOn = !soundOn;
-        }
 
         // --- main game loop ---
         float currentTime = float(GetTime());
         float deltaTime = currentTime - lastTime;
         lastTime = currentTime;
+
         update(deltaTime);
         playMusic();
         draw();

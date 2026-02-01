@@ -39,6 +39,48 @@ enum EventName
     STATIC_EVENT_COUNT // needs to be at the last position
 };
 
+// for debugging only
+inline const char* EventNameStrings[] = {
+    "SAVE_GAME",
+    "LOAD_GAME",
+    "ADD_ITEM",
+    "REMOVE_ITEM",
+    "CONSUME_ITEM",
+    "HIDE_HUD",
+    "SHOW_HUD",
+    "WEAPON_SET",
+    "ITEM_ADDED",
+    "SHOW_COIN_AMOUNT",
+    "HIDE_COIN_AMOUNT",
+    "SHOW_HELP_TEXT",
+    "HIDE_HELP_TEXT",
+    "MOVE_CAMERA",
+    "TELEPORT",
+    "RELOAD_ROOM",
+    "SET_MUSIC_VOLUME",
+    "SCREEN_SHAKE",
+    "KILL_WEAPON",
+    "INVENTORY_DONE",
+    "SELECT_MENU_DONE",
+    "LOADING_SAVEGAME_SUCCESS",
+    "LAMP_ON",
+    "LAMP_OFF",
+    "LOCK_PLAYER_MOVEMENT",
+    "UNLOCK_PLAYER_MOVEMENT",
+    "INTERMEDIATE_LOADING_FINISHED",
+    "CAMERA_UPDATE",
+    "UNNAMED"
+};
+
+inline const char* GetEventNameString(EventName event) {
+    if (event >= 0 && event < STATIC_EVENT_COUNT) {
+        return EventNameStrings[event];
+    }
+    static char buffer[32];
+    snprintf(buffer, sizeof(buffer), "UNKNOWN_EVENT(%d)", static_cast<int>(event));
+    return buffer;
+}
+
 
 class EventKeyRegistry
 {

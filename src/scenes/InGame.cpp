@@ -489,8 +489,9 @@ void InGame::checkRoomTransition()
 void InGame::loadTilemap()
 {
     tileMap = game.currentWorld->getCurrentTileMap();
+    TraceLog(LOG_INFO, "Loading Tilemap \"%s\"", tileMap->getName().c_str());
     // remove static and dynamic (non-persistent) objects
-    game.walls.clear();
+    game.walls.clear(); // walls are deleted instantly
     game.clearEmitters();
     game.clearSprites(); // sprites get flagged for deletion, but live until the end of the frame
     // check if there even is a valid tile map
@@ -583,7 +584,7 @@ void InGame::update(float deltaTime)
     Room* rm = game.currentWorld->getCurrentRoom();
     bool isDark = (rm && rm->dark);
 
-    // animate always, regardless of cutscene
+    // animate sprites always, regardless of cutscene
     for (const auto& sprite : game.sprites)
     {
         // progress the animation index and change the textures if necessary
@@ -609,6 +610,7 @@ void InGame::update(float deltaTime)
             currentLightIndex++;
         }
     }
+
     for (const auto& sprite : game.sprites)
     {
         // collision of sprites with static objects (walls)
@@ -622,10 +624,10 @@ void InGame::update(float deltaTime)
         }
         for (const auto& other : game.sprites)
         {
-            if (other != sprite && other->staticCollision)
+            if (other != sprite && other->staticCollision && !other->isMarkedForDeletion())
                 resolveAxisX(sprite, other->rect);
         }
-
+        // resolve collision in the Y direction
         sprite->rect.y = sprite->position.y;
         for (const auto& wall : game.walls)
         {
@@ -633,7 +635,7 @@ void InGame::update(float deltaTime)
         }
         for (const auto& other : game.sprites)
         {
-            if (other != sprite && other->staticCollision)
+            if (other != sprite && other->staticCollision && !other->isMarkedForDeletion())
                 resolveAxisY(sprite, other->rect);
         }
 
@@ -744,7 +746,8 @@ void InGame::update(float deltaTime)
     if (player->health < 1)
     {
         game.pauseScene(getName());
-        if (music) StopMusicStream(*music);
+        if (music) 
+            StopMusicStream(*music);
         game.stopScene("HUD");
         game.startScene("GameOver");
     }

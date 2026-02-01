@@ -211,9 +211,11 @@ void Preload::startup() {
         l.LoadtilesetFromTiled("./resources/tilemaps/simple_grassland.tsj");
 
         // load minified versions for the minimap
+        // key has to be [tileset_image_file]_mini
         l.loadTextures({ {"fields_mini", { "./resources/textures/tilesets/fields_mini.png"} } });
         l.loadTextures({ {"top-down-dungeon-tileset_mini", { "./resources/textures/tilesets/top-down-dungeon-tileset_mini.png"} } });
         l.loadTextures({ {"dungeon_mini", { "./resources/textures/tilesets/dungeon_mini.png"} } });
+        l.loadTextures({ {"simple_grassland_tiles_mini", { "./resources/textures/tilesets/simple_grassland_tiles_mini.png"} } });
         });
     // load the tile maps from text files
     game.loader.loadQueue.emplace("Loading tilemaps", [&]() {

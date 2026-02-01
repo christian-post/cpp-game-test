@@ -173,7 +173,7 @@ std::string GetLastWriteTime(const std::string& path)
 
 void resolveAxisX(const std::shared_ptr<Sprite>& sprite, const Rectangle& obstacle) 
 {
-    if (!sprite->isColliding || !CheckCollisionRecs(sprite->rect, obstacle))
+    if (!sprite->isColliding || sprite->isMarkedForDeletion() || !CheckCollisionRecs(sprite->rect, obstacle))
         return;
 
     float spriteCenterX = sprite->rect.x + sprite->rect.width * 0.5f;
@@ -190,7 +190,7 @@ void resolveAxisX(const std::shared_ptr<Sprite>& sprite, const Rectangle& obstac
 
 void resolveAxisY(const std::shared_ptr<Sprite>& sprite, const Rectangle& obstacle) 
 {
-    if (!sprite->isColliding || !CheckCollisionRecs(sprite->rect, obstacle))
+    if (!sprite->isColliding || sprite->isMarkedForDeletion() || !CheckCollisionRecs(sprite->rect, obstacle))
         return;
 
     float spriteCenterY = sprite->rect.y + sprite->rect.height * 0.5f;
