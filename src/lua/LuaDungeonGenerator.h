@@ -15,14 +15,14 @@ public:
     void setSeed(int seed);
 
     template<typename... Args>
-    void executeScript(const std::string& scriptPath, Args&&... args)
+    bool executeScript(const std::string& scriptPath, Args&&... args)
     {
         auto result = lua.safe_script_file(scriptPath);
         if (!result.valid())
         {
             sol::error err = result;
             TraceLog(LOG_ERROR, "Lua script error: %s", err.what());
-            return;
+            return false;
         }
 
         sol::protected_function execute = lua["execute"];
@@ -33,7 +33,18 @@ public:
             {
                 sol::error err = exec_result;
                 TraceLog(LOG_ERROR, "Lua execute() error: %s", err.what());
-                return;
+                return false;
+            }
+
+            // check if execute() returned false
+            if (exec_result.return_count() > 0)
+            {
+                sol::optional<bool> success = exec_result;
+                if (success && !success.value())
+                {
+                    TraceLog(LOG_WARNING, "Script %s execute() returned false", scriptPath.c_str());
+                    return false;
+                }
             }
         }
         else
@@ -42,6 +53,7 @@ public:
         }
 
         TraceLog(LOG_INFO, "Lua script executed successfully: %s", scriptPath.c_str());
+        return true;
     }
 
 private:

@@ -140,7 +140,8 @@ Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this), luaDungeonGen(
 
     // TODO testing dungeon generation
     TraceLog(LOG_INFO, "Running Lua dungeon generation test");
-    luaDungeonGen->executeScript("scripts/test_dungeon_generation.lua");
+    bool success = luaDungeonGen->executeScript("scripts/test_dungeon_generation.lua");
+    assert(success && "Lua dungeon generation failed");
 }
 
 Game::~Game() = default;
@@ -702,9 +703,29 @@ void Game::draw()
     EndDrawing();
 }
 
+void Game::processFrame()
+{
+    float currentTime = float(GetTime());
+    float deltaTime = currentTime - lastTime;
+    lastTime = currentTime;
+
+    update(deltaTime);
+    playMusic();
+    draw();
+
+    // toggle fullscreen
+    if (IsKeyPressed(KEY_F4))
+        toggleFullscreen();
+
+    // restart the game 
+    // TODO: this is just for faster debugging, will be removed in the final version
+    if (IsKeyPressed(KEY_F5))
+        restart();
+}
+
 void Game::run()
 {
-    float lastTime = (float)GetTime();
+    lastTime = (float)GetTime();
     char title[64];
 
     // start the first scene
@@ -735,22 +756,7 @@ void Game::run()
             debug = !debug; 
 
         // --- main game loop ---
-        float currentTime = float(GetTime());
-        float deltaTime = currentTime - lastTime;
-        lastTime = currentTime;
-
-        update(deltaTime);
-        playMusic();
-        draw();
-
-        // toggle fullscreen
-        if (IsKeyPressed(KEY_F4))
-            toggleFullscreen();
-
-        // restart the game 
-        // TODO: this is just for faster debugging, will be removed in the final version
-        if (IsKeyPressed(KEY_F5))
-            restart();
+        processFrame();
 
         // safely clean up sprites and scenes after the other logic is done
         processMarkedSprites();

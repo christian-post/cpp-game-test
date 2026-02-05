@@ -179,6 +179,7 @@ void Preload::startup() {
             { "heart_1up", { "./resources/textures/sprites/item_drop_heart1up.png" } },
             { "bomb", { "./resources/textures/sprites/bomb_f0.png" } },
             { "item_key", { "./resources/textures/sprites/item_key.png" } },
+            { "item_boss_key", { "./resources/textures/sprites/item_boss_key.png" } },
             //{ "item_lamp", { "./resources/textures/sprites/item_lamp_new_0.png" } },
             {
                 "dungeon_door", {

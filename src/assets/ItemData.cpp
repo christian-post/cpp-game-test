@@ -58,6 +58,7 @@ std::map<std::string, ItemData> createItemData(Game& game)
     data["coin"] = ItemData{ PASSIVE, "Coin", "itemDropCoin" };
     data["weapon_arrow"] = ItemData{ PASSIVE, "Arrows", "weapon_arrow" };
     data["key"] = ItemData{ PASSIVE, "Key", "item_key" };
+    data["boss_key"] = ItemData{ PASSIVE, "Boss Key", "item_boss_key" };
     data["heart_drop"] = ItemData{ IMMEDIATE, "Heart", "itemDropHeart" };
     data["heart_1up"] = ItemData{ CONSUMABLE, "Heart 1UP", "heart_1up" };
 

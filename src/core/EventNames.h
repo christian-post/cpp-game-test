@@ -35,6 +35,9 @@ enum EventName
     UNLOCK_PLAYER_MOVEMENT,
     INTERMEDIATE_LOADING_FINISHED, // signals that loading during the game has finished TODO unused
     CAMERA_UPDATE, // dispatches once per frame when the camera updates; contains the camera reference and player world position
+    DUNGEON_GENERATION_START,
+    DUNGEON_GENERATION_TICK,
+    DUNGEON_GENERATION_COMPLETE,
     UNNAMED, // used whenever no name is needed (delayed or repeated events that have no listeners)
     STATIC_EVENT_COUNT // needs to be at the last position
 };
@@ -69,6 +72,9 @@ inline const char* EventNameStrings[] = {
     "UNLOCK_PLAYER_MOVEMENT",
     "INTERMEDIATE_LOADING_FINISHED",
     "CAMERA_UPDATE",
+    "DUNGEON_GENERATION_START",
+    "DUNGEON_GENERATION_TICK",
+    "DUNGEON_GENERATION_COMPLETE",
     "UNNAMED"
 };
 

@@ -349,7 +349,6 @@ void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, 
                 bool locked = obj.properties.value("locked", false);
                 if (locked)
                 {
-                    sprite->currentFrame = 2;
                     sprite->addBehavior(std::make_unique<OpenLockBehavior>(game, sprite, game.spriteMap["player"], eventKey));
                 }
 

@@ -36,6 +36,13 @@ void LuaDungeonGenerator::setupBindings()
                 return sol::nil;
             }
         };
+
+    // keeps the raylib window busy while the dungeon script is running
+    lua["yield_to_engine"] = [this]() {
+        this->game.eventManager.pushEvent(DUNGEON_GENERATION_TICK);
+        this->game.processFrame();
+        return !WindowShouldClose();
+        };
 }
 
 nlohmann::json LuaDungeonGenerator::solToJson(const sol::object& obj)

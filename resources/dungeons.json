@@ -989,7 +989,7 @@
     "boss_level": 1,
     "boss_room": [
       1,
-      0
+      2
     ],
     "item_pool": [
       "key",
@@ -1025,7 +1025,7 @@
               2
             ],
             "required_items": [
-              "boss_key"
+              "weapon_sword"
             ],
             "to": [
               0,
@@ -1038,7 +1038,7 @@
               1
             ],
             "required_items": [
-              "weapon_sword"
+              "key"
             ],
             "to": [
               1,
@@ -1047,6 +1047,10 @@
           }
         ],
         "item_nodes": [
+          [
+            0,
+            1
+          ],
           [
             0,
             2
@@ -1063,42 +1067,43 @@
         "rooms": [
           {
             "column": 2,
-            "doors": "0011",
-            "item": "weapon_sword",
-            "row": 0,
-            "tilemap": "room_0011_with_item"
-          },
-          {
-            "column": 2,
             "doors": "0110",
             "row": 1,
-            "tilemap": "room_0110_start"
-          },
-          {
-            "column": 0,
-            "doors": "1000",
-            "item": "boss_key",
-            "row": 1,
-            "tilemap": "room_1000_with_item"
+            "tilemap": "L0_R1_C2_start"
           },
           {
             "column": 1,
             "doors": "1010",
+            "item": "key",
             "row": 0,
-            "tilemap": "room_1010"
+            "tilemap": "L0_R0_C1_item"
+          },
+          {
+            "column": 2,
+            "doors": "0011",
+            "item": "boss_key",
+            "row": 0,
+            "tilemap": "L0_R0_C2_item"
           },
           {
             "column": 0,
             "doors": "1000",
-            "row": 0,
-            "tilemap": "room_1000_connection"
+            "item": "weapon_sword",
+            "row": 1,
+            "tilemap": "L0_R1_C0_item"
           },
           {
             "column": 1,
             "doors": "1010",
             "item": "key",
             "row": 1,
-            "tilemap": "room_1010_with_item"
+            "tilemap": "L0_R1_C1_item"
+          },
+          {
+            "column": 0,
+            "doors": "1000",
+            "row": 0,
+            "tilemap": "L0_R0_C0_connection"
           }
         ]
       },
@@ -1107,49 +1112,36 @@
           {
             "from": [
               0,
-              0
+              1
+            ],
+            "required_items": [
+              "key"
+            ],
+            "to": [
+              0,
+              2
+            ]
+          },
+          {
+            "from": [
+              0,
+              1
+            ],
+            "required_items": [
+              "key"
+            ],
+            "to": [
+              1,
+              1
+            ]
+          },
+          {
+            "from": [
+              0,
+              2
             ],
             "required_items": [
               "boss_key"
-            ],
-            "to": [
-              1,
-              0
-            ]
-          },
-          {
-            "from": [
-              0,
-              1
-            ],
-            "required_items": [
-              "key"
-            ],
-            "to": [
-              0,
-              2
-            ]
-          },
-          {
-            "from": [
-              0,
-              1
-            ],
-            "required_items": [
-              "key"
-            ],
-            "to": [
-              1,
-              1
-            ]
-          },
-          {
-            "from": [
-              0,
-              2
-            ],
-            "required_items": [
-              "key"
             ],
             "to": [
               1,
@@ -1159,12 +1151,8 @@
         ],
         "item_nodes": [
           [
-            0,
-            1
-          ],
-          [
             1,
-            2
+            1
           ]
         ],
         "rooms": [
@@ -1172,39 +1160,38 @@
             "column": 0,
             "doors": "1001",
             "row": 0,
-            "tilemap": "room_1001_connection"
-          },
-          {
-            "column": 1,
-            "doors": "1011",
-            "item": "key",
-            "row": 0,
-            "tilemap": "room_1011_with_item"
-          },
-          {
-            "column": 0,
-            "doors": "0100",
-            "row": 1,
-            "tilemap": "room_0100"
+            "tilemap": "L1_R0_C0_connection"
           },
           {
             "column": 2,
             "doors": "0011",
             "row": 0,
-            "tilemap": "room_0011"
+            "tilemap": "L1_R0_C2"
           },
           {
             "column": 1,
-            "doors": "0100",
-            "row": 1,
-            "tilemap": "room_0100"
+            "doors": "1011",
+            "row": 0,
+            "tilemap": "L1_R0_C1"
           },
           {
             "column": 2,
             "doors": "0100",
+            "row": 1,
+            "tilemap": "L1_R1_C2"
+          },
+          {
+            "column": 0,
+            "doors": "0100",
+            "row": 1,
+            "tilemap": "L1_R1_C0"
+          },
+          {
+            "column": 1,
+            "doors": "0100",
             "item": "key",
             "row": 1,
-            "tilemap": "room_0100_with_item"
+            "tilemap": "L1_R1_C1_item"
           }
         ]
       }

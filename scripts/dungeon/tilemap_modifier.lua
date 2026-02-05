@@ -108,8 +108,8 @@ end
 -- Room Processing Functions
 -- ============================================================================
 
-local function find_locked_doors(dungeon_data, level_idx, room_coords)
-    local locked_doors = {}
+local function find_locked_edges(dungeon_data, level_idx, room_coords)
+    local locked_edges = {}
     local level_data = dungeon_data.levels[level_idx + 1]
     
     for _, edge in ipairs(level_data.edges) do
@@ -145,7 +145,7 @@ local function find_locked_doors(dungeon_data, level_idx, room_coords)
             end
             
             if direction_idx then
-                table.insert(locked_doors, {
+                table.insert(locked_edges, {
                     direction = direction_idx,
                     item = edge.required_items[1],
                     from_room = from,  -- edge info
@@ -157,10 +157,10 @@ local function find_locked_doors(dungeon_data, level_idx, room_coords)
         end
     end
     
-    return locked_doors
+    return locked_edges
 end
 
-local function process_starting_room(tilemap_base_path, doors, tilemap_name, ObjectTemplates)
+local function process_starting_room(tilemap_base_path, doors, tilemap_name, ObjectTemplates, level, row, col)
     -- add exit door (down = bit 3)
     local doors_num = tonumber(doors, 2)
     doors_num = doors_num | 1  -- set bit 0 for down door
@@ -191,10 +191,10 @@ local function process_starting_room(tilemap_base_path, doors, tilemap_name, Obj
         end
     end
     
-    return room, tilemap_name .. "_start.json"
+    return room, string.format("L%d_R%d_C%d_start.json", level, row, col)
 end
 
-local function process_item_room(tilemap_base_path, doors, tilemap_name, ObjectTemplates)
+local function process_item_room(tilemap_base_path, doors, tilemap_name, ObjectTemplates, level, row, col)
     local room = load_tilemap(tilemap_base_path, doors, true)
     
     -- add chest
@@ -205,10 +205,10 @@ local function process_item_room(tilemap_base_path, doors, tilemap_name, ObjectT
         end
     end
     
-    return room, tilemap_name .. "_with_item.json"
+    return room, string.format("L%d_R%d_C%d_item.json", level, row, col)
 end
 
-local function process_connection_room(tilemap_base_path, doors, tilemap_name, level_diff, ObjectTemplates)
+local function process_connection_room(tilemap_base_path, doors, tilemap_name, level_diff, ObjectTemplates, level, row, col)
     local room = load_tilemap(tilemap_base_path, doors, true)
     
     local stairs = ObjectTemplates.create("stairs")
@@ -231,12 +231,12 @@ local function process_connection_room(tilemap_base_path, doors, tilemap_name, l
         end
     end
     
-    return room, tilemap_name .. "_connection.json"
+    return room, string.format("L%d_R%d_C%d_connection.json", level, row, col)
 end
 
-local function process_normal_room(tilemap_base_path, doors, tilemap_name)
+local function process_normal_room(tilemap_base_path, doors, tilemap_name, level, row, col)
     local room = load_tilemap(tilemap_base_path, doors, true)
-    return room, tilemap_name .. ".json"
+    return room, string.format("L%d_R%d_C%d.json", level, row, col)
 end
 
 local function add_locked_doors_to_room(room, locked_doors, ObjectTemplates, level_idx, room_coords)
@@ -324,11 +324,11 @@ function TilemapModifier.process_dungeon(dungeon_json_path, dungeon_name, tilema
                room_coords[1] == starting_room[1] and 
                room_coords[2] == starting_room[2] then
                 
-                room, filename = process_starting_room(tilemap_base_path, doors, tilemap_name, ObjectTemplates)
+                room, filename = process_starting_room(tilemap_base_path, doors, tilemap_name, ObjectTemplates, level_idx, room_data.row, room_data.column)
             
             -- check if item room
             elseif room_data.item then
-                room, filename = process_item_room(tilemap_base_path, doors, tilemap_name, ObjectTemplates)
+                room, filename = process_item_room(tilemap_base_path, doors, tilemap_name, ObjectTemplates, level_idx, room_data.row, room_data.column)
             
             -- check if stairway room
             else
@@ -344,17 +344,40 @@ function TilemapModifier.process_dungeon(dungeon_json_path, dungeon_name, tilema
                 end
                 
                 if level_diff then
-                    room, filename = process_connection_room(tilemap_base_path, doors, tilemap_name, level_diff, ObjectTemplates)
+                    room, filename = process_connection_room(tilemap_base_path, doors, tilemap_name, level_diff, ObjectTemplates, level_idx, room_data.row, room_data.column)
                 else
-                    room, filename = process_normal_room(tilemap_base_path, doors, tilemap_name)
+                    room, filename = process_normal_room(tilemap_base_path, doors, tilemap_name, level_idx, room_data.row, room_data.column)
                 end
             end
 
-            -- check for locked doors and place them
-            local locked_doors = find_locked_doors(dungeon_data, level_idx, room_coords)
-            if #locked_doors > 0 then
-                add_locked_doors_to_room(room, locked_doors, ObjectTemplates, level_idx, room_coords)
-            end
+            -- check for locked edges
+            local locked_edges = find_locked_edges(dungeon_data, level_idx, room_coords)
+            if #locked_edges > 0 then
+                -- separate by requirement type
+                local key_locks = {}
+                local combat_locks = {}
+                -- TODO add more lock types
+    
+                for _, edge_info in ipairs(locked_edges) do
+                    print(edge_info.item)
+                    if edge_info.item == "key" or edge_info.item == "boss_key" then
+                        table.insert(key_locks, edge_info)
+                    elseif edge_info.item == "weapon_sword" then
+                        table.insert(combat_locks, edge_info)
+                    end
+                    -- TODO
+                end
+    
+                -- handle each type with specific function
+                if #key_locks > 0 then
+                    add_locked_doors_to_room(room, key_locks, ObjectTemplates, level_idx, room_coords)
+                end
+    
+                -- TODO: implement later
+                -- if #combat_locks > 0 then
+                --     add_combat_encounter_to_room(room, combat_locks, ObjectTemplates)
+                -- end
+end
             
             -- update tilemap reference in dungeon data
             room_data.tilemap = filename:gsub("%.json$", "")

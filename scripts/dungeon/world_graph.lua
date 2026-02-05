@@ -145,7 +145,9 @@ function WorldGraph.new()
     -- creates a new empty world graph
     return setmetatable({
         nodes = {},
+        node_to_name = {}, -- reverse lookup (to prevent unintentional shuffling)
         start = nil, -- start node
+        goal = nil, -- final node for world completion
         owned_items = Inventory.new(), -- contains items that have been collected during search(), empty at the start
         item_pool = {}, -- items that are to be placed, full after initialization
         excluded_rooms = {},
@@ -162,7 +164,12 @@ function WorldGraph:add_node(name)
     -- adds a room to the graph
     local node = Node.new(name)
     self.nodes[name] = node
+    self.node_to_name[node] = name
     return node
+end
+
+function WorldGraph:set_goal(name)
+    self.goal = self.nodes[name]
 end
 
 function WorldGraph:add_edge(from_name, to_name, requirements)
@@ -338,9 +345,9 @@ function WorldGraph:forward_fill(verbose)
         Inventory.add(self.owned_items, item)
         self.collected_locations[node.name] = true  -- mark as collected
         
-        if verbose then
+        --if verbose then
             print(string.format("Placed '%s' in '%s'", item, node.name))
-        end
+        --end
         
         -- expand inventory by going through all reachable nodes
         self:search()
@@ -348,6 +355,7 @@ function WorldGraph:forward_fill(verbose)
     
     return true
 end
+
 
 function WorldGraph:reset_items()
     -- clears all item placements and resets state
@@ -471,6 +479,271 @@ function WorldGraph:test_reachability()
         print(string.format("INFO: All %d nodes can be reached", total_nodes))
         return true
     end
+end
+
+-- ============================================================================
+-- SOLVABILITY CHECKING
+-- ============================================================================
+
+-- create unique identifier for a door (bidirectional)
+local function door_id(node1_name, node2_name)
+    -- normalize: alphabetically smaller name first for consistency
+    if node1_name < node2_name then
+        return node1_name .. "<->" .. node2_name
+    else
+        return node2_name .. "<->" .. node1_name
+    end
+end
+
+-- state representation for solvability checking
+local function state_to_key(graph, node, inventory, collected, unlocked_doors)
+    local node_name = graph.node_to_name[node]
+    
+    local collected_list = {}
+    for loc, _ in pairs(collected) do
+        table.insert(collected_list, loc)
+    end
+    table.sort(collected_list)
+    
+    local unlocked_list = {}
+    for door, _ in pairs(unlocked_doors) do
+        table.insert(unlocked_list, door)
+    end
+    table.sort(unlocked_list)
+    
+    return node_name .. "|" .. Inventory.to_key(inventory) .. "|" .. 
+           table.concat(collected_list, ",") .. "|" .. 
+           table.concat(unlocked_list, ",")
+end
+
+function WorldGraph:find_all_reachable_states()
+    -- finds ALL states (node + inventory + collected + unlocked doors) reachable from start
+    if not self.start then
+        return {}
+    end
+    
+    local start_state = {
+        node = self.start,
+        inventory = Inventory.new(),
+        collected = {},
+        unlocked_doors = {}
+    }
+    
+    local queue = {start_state}
+    local visited = {}
+    local all_states = {start_state}
+    visited[state_to_key(self, start_state.node, start_state.inventory, start_state.collected, start_state.unlocked_doors)] = true
+    
+    local qi = 1
+    while qi <= #queue do
+        local current = queue[qi]
+        qi = qi + 1
+        
+        -- try to collect item at current location if not already collected
+        if current.node.value and not current.collected[current.node.name] then
+            local new_inventory = Inventory.copy(current.inventory)
+            Inventory.add(new_inventory, current.node.value)
+            
+            local new_collected = {}
+            for k, v in pairs(current.collected) do
+                new_collected[k] = v
+            end
+            new_collected[current.node.name] = true
+            
+            local new_state = {
+                node = current.node,
+                inventory = new_inventory,
+                collected = new_collected,
+                unlocked_doors = current.unlocked_doors
+            }
+            
+            local key = state_to_key(self, new_state.node, new_state.inventory, new_state.collected, new_state.unlocked_doors)
+            if not visited[key] then
+                visited[key] = true
+                table.insert(queue, new_state)
+                table.insert(all_states, new_state)
+            end
+        end
+        
+        -- try to traverse each edge
+        for _, edge in ipairs(current.node.edges) do
+            local current_node_name = self.node_to_name[current.node]
+            local target_node_name = self.node_to_name[edge.target]
+            local edge_door_id = door_id(current_node_name, target_node_name)
+            
+            -- check if this is a free edge or already unlocked
+            if #edge.requirements == 0 or current.unlocked_doors[edge_door_id] then
+                local new_state = {
+                    node = edge.target,
+                    inventory = current.inventory,
+                    collected = current.collected,
+                    unlocked_doors = current.unlocked_doors
+                }
+                
+                local key = state_to_key(self, new_state.node, new_state.inventory, new_state.collected, new_state.unlocked_doors)
+                if not visited[key] then
+                    visited[key] = true
+                    table.insert(queue, new_state)
+                    table.insert(all_states, new_state)
+                end
+            -- check if we can unlock this door
+            elseif edge:can_traverse(current.inventory) then
+                local new_inventory = edge:traverse(current.inventory)
+                
+                -- copy unlocked doors and add this one
+                local new_unlocked = {}
+                for k, v in pairs(current.unlocked_doors) do
+                    new_unlocked[k] = v
+                end
+                new_unlocked[edge_door_id] = true
+                
+                local new_state = {
+                    node = edge.target,
+                    inventory = new_inventory,
+                    collected = current.collected,
+                    unlocked_doors = new_unlocked
+                }
+                
+                local key = state_to_key(self, new_state.node, new_state.inventory, new_state.collected, new_state.unlocked_doors)
+                if not visited[key] then
+                    visited[key] = true
+                    table.insert(queue, new_state)
+                    table.insert(all_states, new_state)
+                end
+            end
+        end
+    end
+    
+    return all_states
+end
+
+function WorldGraph:can_reach_goal_from_state(start_state)
+    -- checks if a specific state can reach the goal node
+    if not self.goal then
+        error("Goal node not set! Call set_goal() first")
+    end
+    
+    local queue = {start_state}
+    local visited = {}
+    visited[state_to_key(self, start_state.node, start_state.inventory, start_state.collected, start_state.unlocked_doors)] = true
+    
+    local qi = 1
+    while qi <= #queue do
+        local current = queue[qi]
+        qi = qi + 1
+        
+        -- check if we reached goal
+        if current.node == self.goal then
+            return true
+        end
+        
+        -- try to collect item
+        if current.node.value and not current.collected[current.node.name] then
+            local new_inventory = Inventory.copy(current.inventory)
+            Inventory.add(new_inventory, current.node.value)
+            
+            local new_collected = {}
+            for k, v in pairs(current.collected) do
+                new_collected[k] = v
+            end
+            new_collected[current.node.name] = true
+            
+            local new_state = {
+                node = current.node,
+                inventory = new_inventory,
+                collected = new_collected,
+                unlocked_doors = current.unlocked_doors
+            }
+            
+            local key = state_to_key(self, new_state.node, new_state.inventory, new_state.collected, new_state.unlocked_doors)
+            if not visited[key] then
+                visited[key] = true
+                table.insert(queue, new_state)
+            end
+        end
+        
+        -- try to traverse edges
+        for _, edge in ipairs(current.node.edges) do
+            local current_node_name = self.node_to_name[current.node]
+            local target_node_name = self.node_to_name[edge.target]
+            local edge_door_id = door_id(current_node_name, target_node_name)
+            
+            -- check if this is a free edge or already unlocked
+            if #edge.requirements == 0 or current.unlocked_doors[edge_door_id] then
+                local new_state = {
+                    node = edge.target,
+                    inventory = current.inventory,
+                    collected = current.collected,
+                    unlocked_doors = current.unlocked_doors
+                }
+                
+                local key = state_to_key(self, new_state.node, new_state.inventory, new_state.collected, new_state.unlocked_doors)
+                if not visited[key] then
+                    visited[key] = true
+                    table.insert(queue, new_state)
+                end
+            -- check if we can unlock this door
+            elseif edge:can_traverse(current.inventory) then
+                local new_inventory = edge:traverse(current.inventory)
+                
+                -- copy unlocked doors and add this one
+                local new_unlocked = {}
+                for k, v in pairs(current.unlocked_doors) do
+                    new_unlocked[k] = v
+                end
+                new_unlocked[edge_door_id] = true
+                
+                local new_state = {
+                    node = edge.target,
+                    inventory = new_inventory,
+                    collected = current.collected,
+                    unlocked_doors = new_unlocked
+                }
+                
+                local key = state_to_key(self, new_state.node, new_state.inventory, new_state.collected, new_state.unlocked_doors)
+                if not visited[key] then
+                    visited[key] = true
+                    table.insert(queue, new_state)
+                end
+            end
+        end
+    end
+    
+    return false
+end
+
+function WorldGraph:is_solvable(verbose)
+    -- checks if dungeon is solvable (no reachable state leads to dead end)
+    if not self.goal then
+        error("Goal node not set! Call set_goal() first")
+    end
+    
+    if verbose then
+        print("  Checking for trap states...")
+    end
+    
+    -- find all reachable states
+    local all_states = self:find_all_reachable_states()
+    
+    if verbose then
+        print(string.format("  Found %d reachable states to check", #all_states))
+    end
+    
+    -- check each state can reach goal
+    for i, state in ipairs(all_states) do
+        if not self:can_reach_goal_from_state(state) then
+            if verbose then
+                print(string.format("  TRAP FOUND at state %d (location: %s)", i, state.node.name))
+            end
+            return false, state
+        end
+    end
+    
+    if verbose then
+        print("  No traps found!")
+    end
+    
+    return true, nil
 end
 
 -- export

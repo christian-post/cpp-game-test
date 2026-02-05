@@ -191,7 +191,7 @@ function DungeonGenerator.generate(config)
             local stair_pos = stairway_positions[level]
             level_start_row = stair_pos.row
             level_start_col = stair_pos.col
-            level_start_name = string.format("L%d_Start", level)
+            level_start_name = string.format("L%d_Room0", level)
         end
         
         generate_level(layout, edges, level, level_start_row, level_start_col, level_start_name, config)

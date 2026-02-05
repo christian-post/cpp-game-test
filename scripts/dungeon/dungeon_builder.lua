@@ -1,4 +1,4 @@
--- converts layout to WorldGraph and adds BossRoom, locked edges, item requirements
+-- converts dungeon layout to WorldGraph and adds BossRoom, locked edges, item requirements
 
 local DungeonBuilder = {}
 
@@ -148,10 +148,12 @@ local function lock_edges_with_items(edges, item_pool, stairway_rooms, boss_room
         end
     end
     
-    -- shuffle item pool
+    -- shuffle item pool but exclude boss_key (already used for boss door)
     local items = {}
     for _, item in ipairs(item_pool) do
-        table.insert(items, item)
+        if item ~= "boss_key" then
+            table.insert(items, item)
+        end
     end
     shuffle(items)
     
@@ -167,34 +169,67 @@ local function lock_edges_with_items(edges, item_pool, stairway_rooms, boss_room
 end
 
 function DungeonBuilder.build(WorldGraph, layout, edges, stairway_rooms, item_pool)
-    -- builds complete WorldGraph from layout with BossRoom and locked edges
-    -- returns: graph, boss_room_name, excluded_rooms (set)
-    
-    -- place boss room
+    -- place boss room (modifies edges once)
     local boss_room_name = place_boss_room(layout, edges, stairway_rooms)
     
-    -- lock edges with items
-    lock_edges_with_items(edges, item_pool, stairway_rooms, boss_room_name)
-    
-    -- build graph
-    local graph = build_graph_from_layout(WorldGraph, layout, edges)
-    
-    -- set start node
-    graph:set_start("Start")
-    
-    -- mark excluded rooms (cannot have items placed)
-    local excluded_rooms = {}
-    excluded_rooms["Start"] = true
-    excluded_rooms[boss_room_name] = true
-    for room_name, _ in pairs(stairway_rooms) do
-        excluded_rooms[room_name] = true
+    -- save edge state after boss placement (deep copy)
+    local edges_after_boss = {}
+    for i, edge in ipairs(edges) do
+        local reqs_copy = {}
+        for j, req in ipairs(edge[3]) do
+            reqs_copy[j] = req
+        end
+        edges_after_boss[i] = {edge[1], edge[2], reqs_copy}
     end
     
-    for room_name, _ in pairs(excluded_rooms) do
-        graph:exclude_room(room_name)
+    local max_lock_attempts = 100
+    local graph = nil
+    
+    for attempt = 1, max_lock_attempts do
+        -- tell the Game that this is still running
+        if not yield_to_engine() then
+            print("INFO: Window closed during generation")
+            return false
+        end
+
+        -- restore edges to post-boss state (removes previous item locks)
+        for i, edge in ipairs(edges_after_boss) do
+            local reqs_copy = {}
+            for j, req in ipairs(edge[3]) do
+                reqs_copy[j] = req
+            end
+            edges[i] = {edge[1], edge[2], reqs_copy}
+        end
+        
+        -- lock edges with items (randomly)
+        lock_edges_with_items(edges, item_pool, stairway_rooms, boss_room_name)
+        
+        -- build graph and test
+        -- TODO needs to be generalized, no hard coded node names
+        graph = build_graph_from_layout(WorldGraph, layout, edges)
+        graph:set_start("Start")
+        graph:set_goal(boss_room_name)
+        
+        local excluded_rooms = {}
+        excluded_rooms["Start"] = true
+        excluded_rooms[boss_room_name] = true
+        for room_name, _ in pairs(stairway_rooms) do
+            excluded_rooms[room_name] = true
+        end
+        
+        for room_name, _ in pairs(excluded_rooms) do
+            graph:exclude_room(room_name)
+        end
+        
+        graph:initialize_items(item_pool)
+        if graph:test_reachability() then
+            return graph, boss_room_name, excluded_rooms
+        end
+        
+        print(string.format("  Lock attempt %d failed reachability test, retrying...", attempt))
     end
     
-    return graph, boss_room_name, excluded_rooms
+    error("Could not generate solvable dungeon structure after " .. max_lock_attempts .. " attempts")
 end
 
 return DungeonBuilder

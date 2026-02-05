@@ -29,6 +29,9 @@
 - UI
 -- MenuSelect: Add Section headers that divide the menu items, but can't be selected themselves
 
+- Assets
+-- Turn ItemData.cpp consumables callbacks into a Lua script as well, and use a json for the basic item data (type, texture, screen name)
+
 # NOT SO IMPORTANT:
 ## FEATURES/REFACTORS:
 - add a "persistent" property to event listeners (non-persistent listeners are removed after one event)

@@ -64,11 +64,12 @@ public:
     void writeSetting(const std::string& key, nlohmann::json value);
     void saveSettings();
 
-    // basic game loop
+    // main game loop
     void update(float deltaTime);
     void playMusic();
     void draw();
     void run();
+    void processFrame(); // encapsulates the whole game loop
 
     // scene management
     void startScene(const std::string& name); // calls Scene.startup()
@@ -177,6 +178,7 @@ public:
 
 private:
     bool running = true;
+    float lastTime = 0.0f; // for delta timing
     bool restartRequested = false; // triggers a restart (Game instance is recreated)
     std::unordered_map<std::string, std::unique_ptr<Scene>> scenes; // contains active game scenes
     std::unordered_map<std::string, std::function<std::unique_ptr<Scene>(const std::string&)>> sceneRegistry; // stores scene constructors
