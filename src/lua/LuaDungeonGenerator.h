@@ -4,6 +4,7 @@
 #include "raylib.h"
 #include "json.hpp"
 #include <string>
+#include <random>
 
 class Game;
 
@@ -59,6 +60,7 @@ public:
 private:
     Game& game;
     sol::state lua;
+    std::mt19937 dungeonRng;
 
     void setupBindings();
     nlohmann::json solToJson(const sol::object& obj); // converts a lua table to json

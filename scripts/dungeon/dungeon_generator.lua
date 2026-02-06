@@ -35,7 +35,7 @@ end
 local function shuffle(list)
     -- fisher-yates shuffle
     for i = #list, 2, -1 do
-        local j = math.random(1, i)
+        local j = dungeon_random(1, i)
         list[i], list[j] = list[j], list[i]
     end
 end
@@ -77,13 +77,13 @@ local function generate_level(layout, edges, level, start_row, start_col, start_
             dead_end_chance = base_dead_end_chance * (growth_rate ^ excess - 1) / (growth_rate - 1)
         end
         
-        if math.random() < dead_end_chance then
+        if dungeon_random() < dead_end_chance then
             goto continue
         end
         
         -- try to expand in random directions
         local directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}}
-        local max_expands = math.random(1, #directions)
+        local max_expands = dungeon_random(1, #directions)
         shuffle(directions)
         
         local expand_count = 0
@@ -154,7 +154,7 @@ local function find_dead_end_for_stairs(layout, edges, level, entry_position)
         return nil
     end
     
-    return candidates[math.random(#candidates)]
+    return candidates[dungeon_random(#candidates)]
 end
 
 function DungeonGenerator.generate(config)

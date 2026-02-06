@@ -223,7 +223,7 @@ function WorldGraph:initialize_items(item_pool)
     
     -- fisher-yates shuffle
     for i = #self.item_pool, 2, -1 do
-        local j = math.random(1, i)
+        local j = dungeon_random(1, i)
         self.item_pool[i], self.item_pool[j] = self.item_pool[j], self.item_pool[i]
     end
     
@@ -339,7 +339,7 @@ function WorldGraph:forward_fill(verbose)
         end
         
         -- place random item in random null node
-        local node = null_nodes[math.random(#null_nodes)]
+        local node = null_nodes[dungeon_random(#null_nodes)]
         local item = table.remove(self.item_pool)
         node.value = item
         Inventory.add(self.owned_items, item)

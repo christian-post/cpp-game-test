@@ -54,7 +54,7 @@ local function randomize_tiles(room_data)
             -- randomize floor tiles
             for i = 1, #layer.data do
                 if is_floor_tile(layer.data[i]) then
-                    layer.data[i] = floor_tiles[math.random(#floor_tiles)]
+                    layer.data[i] = floor_tiles[dungeon_random(#floor_tiles)]
                 end
             end
             
@@ -64,7 +64,7 @@ local function randomize_tiles(room_data)
             -- randomize wall tiles based on wall_configs
             for _, config in ipairs(wall_configs) do
                 for _, pos in ipairs(config.pos_range) do
-                    if math.random() < 0.4 then
+                    if dungeon_random() < 0.4 then
                         local wall_x, wall_y
                         if config.is_vertical then
                             wall_x = config.fixed_pos
@@ -79,7 +79,7 @@ local function randomize_tiles(room_data)
                         -- only randomize if it's actually a base wall tile (not a door)
                         if is_wall_tile(layer.data[wall_idx]) then
                             local variants = wall_tiles[config.tile_idx]
-                            layer.data[wall_idx] = variants[math.random(#variants)]
+                            layer.data[wall_idx] = variants[dungeon_random(#variants)]
                         end
                     end
                 end

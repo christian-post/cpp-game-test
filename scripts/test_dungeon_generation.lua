@@ -9,9 +9,9 @@ function execute()
     local ObjectTemplates = require("dungeon.object_templates")
 
     print("=== RNG Test ===")
-    print("Random 1: " .. math.random())
-    print("Random 2: " .. math.random())
-    print("Random 3: " .. math.random() .. "\n")
+    print("Random 1: " .. dungeon_random())
+    print("Random 2: " .. dungeon_random())
+    print("Random 3: " .. dungeon_random() .. "\n")
     
     print("=== Modular Dungeon Generation Test ===\n")
     
@@ -315,9 +315,9 @@ function execute()
         print("\n=== Dungeon Generation Complete! ===")
 
         print("=== RNG Test ===")
-        print("Random 1: " .. math.random())
-        print("Random 2: " .. math.random())
-        print("Random 3: " .. math.random() .. "\n")
+        print("Random 1: " .. dungeon_random())
+        print("Random 2: " .. dungeon_random())
+        print("Random 3: " .. dungeon_random() .. "\n")
         
         return graph, layout, best_score, best_report
     else

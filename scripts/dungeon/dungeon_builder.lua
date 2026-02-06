@@ -35,7 +35,7 @@ end
 local function shuffle(list)
     -- fisher-yates shuffle
     for i = #list, 2, -1 do
-        local j = math.random(1, i)
+        local j =dungeon_random(1, i)
         list[i], list[j] = list[j], list[i]
     end
 end
@@ -96,7 +96,7 @@ local function place_boss_room(layout, edges, stairway_rooms)
     end
     
     -- pick random dead-end room
-    local old_name = dead_end_rooms[math.random(#dead_end_rooms)]
+    local old_name = dead_end_rooms[dungeon_random(#dead_end_rooms)]
     local boss_room_name = "BossRoom"
     
     -- update layout

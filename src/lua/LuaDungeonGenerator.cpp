@@ -14,6 +14,7 @@ LuaDungeonGenerator::LuaDungeonGenerator(Game& game)
 void LuaDungeonGenerator::setSeed(int seed)
 {
     lua["math"]["randomseed"](seed);
+    dungeonRng.seed(seed);
 }
 
 void LuaDungeonGenerator::setupBindings()
@@ -47,6 +48,34 @@ void LuaDungeonGenerator::setupBindings()
         this->game.eventManager.pushEvent(DUNGEON_GENERATION_TICK);
         this->game.processFrame();
         return !WindowShouldClose();
+        };
+
+    // dungeon-specific RNG, won't be affected by game frame processing
+    lua["dungeon_random"] = [this](sol::optional<int> m, sol::optional<int> n) -> double
+        {
+            std::uniform_real_distribution<double> dist(0.0, 1.0);
+            double r = dist(dungeonRng);
+
+            if (m && n)
+            {
+                // dungeon_random(m, n) -> integer in range [m, n]
+                return std::floor(r * (*n - *m + 1)) + *m;
+            }
+            else if (m)
+            {
+                // dungeon_random(m) -> integer in range [1, m]
+                return std::floor(r * *m) + 1;
+            }
+            else
+            {
+                // dungeon_random() -> float in range [0, 1)
+                return r;
+            }
+        };
+
+    lua["dungeon_randomseed"] = [this](int seed)
+        {
+            dungeonRng.seed(seed);
         };
 }
 
