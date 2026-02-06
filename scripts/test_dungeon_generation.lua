@@ -313,6 +313,11 @@ function execute()
         )
         
         print("\n=== Dungeon Generation Complete! ===")
+
+        print("=== RNG Test ===")
+        print("Random 1: " .. math.random())
+        print("Random 2: " .. math.random())
+        print("Random 3: " .. math.random() .. "\n")
         
         return graph, layout, best_score, best_report
     else

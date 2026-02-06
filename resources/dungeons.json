@@ -1056,23 +1056,11 @@
             "tilemap": "L0_R1_C1_item"
           },
           {
-            "column": 0,
-            "doors": "1000",
-            "row": 1,
-            "tilemap": "L0_R1_C0"
-          },
-          {
             "column": 2,
             "doors": "0011",
             "item": "key",
             "row": 0,
             "tilemap": "L0_R0_C2_item"
-          },
-          {
-            "column": 0,
-            "doors": "1000",
-            "row": 0,
-            "tilemap": "L0_R0_C0_connection"
           },
           {
             "column": 1,
@@ -1086,6 +1074,18 @@
             "doors": "0110",
             "row": 1,
             "tilemap": "L0_R1_C2_start"
+          },
+          {
+            "column": 0,
+            "doors": "1000",
+            "row": 0,
+            "tilemap": "L0_R0_C0_connection"
+          },
+          {
+            "column": 0,
+            "doors": "1000",
+            "row": 1,
+            "tilemap": "L0_R1_C0"
           }
         ]
       },
@@ -1156,16 +1156,16 @@
         ],
         "rooms": [
           {
-            "column": 0,
-            "doors": "0100",
-            "row": 1,
-            "tilemap": "L1_R1_C0"
-          },
-          {
             "column": 2,
             "doors": "0011",
             "row": 0,
             "tilemap": "L1_R0_C2"
+          },
+          {
+            "column": 0,
+            "doors": "0100",
+            "row": 1,
+            "tilemap": "L1_R1_C0"
           },
           {
             "column": 1,
@@ -1173,13 +1173,6 @@
             "item": "key",
             "row": 0,
             "tilemap": "L1_R0_C1_item"
-          },
-          {
-            "column": 2,
-            "doors": "0100",
-            "item": "key",
-            "row": 1,
-            "tilemap": "L1_R1_C2_item"
           },
           {
             "column": 1,
@@ -1192,6 +1185,13 @@
             "doors": "1001",
             "row": 0,
             "tilemap": "L1_R0_C0_connection"
+          },
+          {
+            "column": 2,
+            "doors": "0100",
+            "item": "key",
+            "row": 1,
+            "tilemap": "L1_R1_C2_item"
           }
         ]
       }

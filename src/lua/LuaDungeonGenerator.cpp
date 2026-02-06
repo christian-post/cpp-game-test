@@ -11,6 +11,11 @@ LuaDungeonGenerator::LuaDungeonGenerator(Game& game)
     setupBindings();
 }
 
+void LuaDungeonGenerator::setSeed(int seed)
+{
+    lua["math"]["randomseed"](seed);
+}
+
 void LuaDungeonGenerator::setupBindings()
 {
     // expose json encoding to lua

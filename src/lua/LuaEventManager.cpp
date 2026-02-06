@@ -14,11 +14,6 @@ LuaEventManager::LuaEventManager(Game& game, InGame& inGame)
     setupBindings();
 }
 
-void LuaDungeonGenerator::setSeed(int seed)
-{
-    lua["math"]["randomseed"](seed);
-}
-
 void LuaEventManager::executeEvent(const std::string& scriptPath)
 {
     auto result = lua.safe_script_file(scriptPath);
