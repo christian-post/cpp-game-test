@@ -91,27 +91,30 @@ function DungeonExporter.export(layout, edges, graph, item_pool, stairway_rooms,
         }
         
         -- collect all rooms for this level
-        for node_name, pos in pairs(layout.positions) do
-            if pos.level == level then
-                local doors = DungeonGenerator.calculate_doors(layout, edges, level, pos.row, pos.col)
-                
-                local room_data = {
-                    row = pos.row,
-                    column = pos.col,
-                    tilemap = "room_" .. doors,
-                    doors = doors
-                }
-                
-                -- add item placement info (excluding special rooms)
-                if node_name ~= "Start" and node_name ~= "BossRoom" and not stairway_rooms[node_name] then
-                    local node = graph.nodes[node_name]
-                    if node and node.value then
-                        room_data.item = node.value
-                        table.insert(level_data.item_nodes, {pos.row, pos.col})
+        for row = 0, layout.rows - 1 do
+            for col = 0, layout.cols - 1 do
+                local node_name = get_node_at(layout, level, row, col)
+                if node_name then
+                    local doors = DungeonGenerator.calculate_doors(layout, edges, level, row, col)
+            
+                    local room_data = {
+                        row = row,
+                        column = col,
+                        tilemap = "room_" .. doors,
+                        doors = doors
+                    }
+            
+                    -- add item placement info (excluding special rooms)
+                    if node_name ~= "Start" and node_name ~= "BossRoom" and not stairway_rooms[node_name] then
+                        local node = graph.nodes[node_name]
+                        if node and node.value then
+                            room_data.item = node.value
+                            table.insert(level_data.item_nodes, {row, col})
+                        end
                     end
+            
+                    table.insert(level_data.rooms, room_data)
                 end
-                
-                table.insert(level_data.rooms, room_data)
             end
         end
         

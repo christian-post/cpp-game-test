@@ -79,6 +79,7 @@ local function place_boss_room(layout, edges, stairway_rooms)
             table.insert(final_level_nodes, name)
         end
     end
+    table.sort(final_level_nodes)
     
     -- count connections
     local counts = count_connections(edges, final_level_nodes)

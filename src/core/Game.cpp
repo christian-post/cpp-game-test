@@ -24,6 +24,8 @@
 #include <sstream>
 #include <fstream>
 #include <cassert>
+#include <ctime>
+
 
 Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this), luaDungeonGen(std::make_unique<LuaDungeonGenerator>(*this))
 {
@@ -724,6 +726,10 @@ void Game::processFrame()
     // TODO: this is just for faster debugging, will be removed in the final version
     if (IsKeyPressed(KEY_F5))
         restart();
+
+    if (IsKeyPressed(KEY_F10)) {
+        // TODO screenshot
+    }
 }
 
 void Game::run()

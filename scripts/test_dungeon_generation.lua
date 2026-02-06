@@ -9,9 +9,7 @@ function execute()
     local ObjectTemplates = require("dungeon.object_templates")
 
     print("=== RNG Test ===")
-    print("Random 1: " .. dungeon_random())
-    print("Random 2: " .. dungeon_random())
-    print("Random 3: " .. dungeon_random() .. "\n")
+    print("Random number: " .. dungeon_random() .. "\n")
     
     print("=== Modular Dungeon Generation Test ===\n")
     
@@ -38,6 +36,9 @@ function execute()
     print(string.format("  Created %d edges", #edges))
     
     -- step 2: build graph
+    print("=== RNG Test ===")
+    print("Random number: " .. dungeon_random() .. "\n")
+
     print("\nStep 2: Building graph...")
     local item_pool = {"key", "key", "key", "boss_key", "weapon_sword"}
     local graph, boss_room, excluded_rooms = DungeonBuilder.build(
@@ -157,6 +158,9 @@ function execute()
     end
     
     -- step 3: test reachability
+    print("=== RNG Test ===")
+    print("Random number: " .. dungeon_random() .. "\n")
+
     print("\nStep 3: Testing reachability...")
     graph:initialize_items(item_pool)
     if not graph:test_reachability() then
@@ -165,6 +169,9 @@ function execute()
     end
     
     -- step 4: quality-based item placement
+    print("=== RNG Test ===")
+    print("Random number: " .. dungeon_random() .. "\n")
+
     print("\nStep 4: Finding optimal item placement...")
     local max_iterations = 1 -- how often it evaluates the dungeon score
     local target_score = 0.7
@@ -266,6 +273,9 @@ function execute()
     end
     
     -- step 5: restore best placement
+    print("=== RNG Test ===")
+    print("Random number: " .. dungeon_random() .. "\n")
+
     if best_placements then
         graph:reset_items()
 
@@ -283,11 +293,17 @@ function execute()
         Analyzer.print_report(best_report)
         
         -- step 6: export dungeon data
+        print("=== RNG Test ===")
+        print("Random number: " .. dungeon_random() .. "\n")
+
         print("\nStep 6: Exporting dungeon data...")
         local dungeon_data = DungeonExporter.export(layout, edges, graph, item_pool, stairway_rooms, DungeonGenerator)
         DungeonExporter.append_to_dungeons(dungeon_data, "resources/dungeons.json", "lua_dungeon")
         
         -- step 7: generate base room tilemaps (only if needed)
+        print("=== RNG Test ===")
+        print("Random number: " .. dungeon_random() .. "\n")
+
         print("\nStep 7: Checking base room tilemaps...")
         -- check if base rooms exist, if not generate them
         local base_check = io.open("resources/tilemaps/base/room_0001.json", "r")
@@ -303,7 +319,13 @@ function execute()
         end
         
         -- step 8: process tilemaps (add items, stairs, etc.)
+        print("=== RNG Test ===")
+        print("Random number: " .. dungeon_random() .. "\n")
+
         print("\nStep 8: Processing tilemaps...")
+
+        dungeon_randomseed(12345) -- TODO testing
+
         TilemapModifier.process_dungeon(
             "resources/dungeons.json",
             "lua_dungeon",
@@ -315,9 +337,7 @@ function execute()
         print("\n=== Dungeon Generation Complete! ===")
 
         print("=== RNG Test ===")
-        print("Random 1: " .. dungeon_random())
-        print("Random 2: " .. dungeon_random())
-        print("Random 3: " .. dungeon_random() .. "\n")
+        print("Random number: " .. dungeon_random() .. "\n")
         
         return graph, layout, best_score, best_report
     else
