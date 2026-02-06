@@ -6,9 +6,10 @@
 #include "Controls.h"
 #include <any>
 #include <tuple>
+#include <utility>
 
-OpenLockBehavior::OpenLockBehavior(Game& game, std::shared_ptr<Sprite> door, std::shared_ptr<Sprite> player, const int triggerKey)
-    : game{ game }, door{ door }, player{ player }, triggerKey{ triggerKey }
+OpenLockBehavior::OpenLockBehavior(Game& game, std::shared_ptr<Sprite> door, std::shared_ptr<Sprite> player, const int triggerKey, std::string itemName)
+    : game{ game }, door{ door }, player{ player }, triggerKey{ triggerKey }, itemName{ std::move(itemName) }
 {}
 
 void OpenLockBehavior::update(float deltaTime)
@@ -37,8 +38,9 @@ void OpenLockBehavior::update(float deltaTime)
 
             if (game.buttonsDown & CONTROL_ACTION1)
             {
-                uint32_t qty = game.inventory.getItemQuantity("key");
                 triggered = true;
+                // itemName = key type (normal key, boss key, etc)
+                uint32_t qty = game.inventory.getItemQuantity(itemName);
                 if (qty == 0)
                 {
                     game.cutsceneManager.queueCommand(new Command_Textbox(game, "Looks like you need a key to open this door."));
@@ -49,15 +51,18 @@ void OpenLockBehavior::update(float deltaTime)
                         }));
                     return;
                 }
-                game.eventManager.pushEvent(REMOVE_ITEM, std::make_any<std::pair<std::string, uint32_t>>("key", 1));
+                // remove the item
+                game.eventManager.pushEvent(REMOVE_ITEM, std::make_any<std::pair<std::string, uint32_t>>(itemName, 1));
                 game.eventManager.pushDelayedEvent(UNNAMED, 0.1f, nullptr, [d, this]() {
                     this->game.playSound("bookPlace1");
-                    d->currentFrame = 0;
+                    //d->currentFrame = 0;
+                    // TODO opening animation?
                     this->game.eventManager.pushEvent(triggerKey);
                     });
                 game.eventManager.pushDelayedEvent(UNNAMED, 0.8f, nullptr, [d, this]() {
                     this->game.playSound("doorOpen_2");
-                    d->currentFrame = 1;
+                    //d->currentFrame = 1;
+                    d->visible = false;
                     d->staticCollision = false;
                     this->done = true;
                     });

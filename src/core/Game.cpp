@@ -106,6 +106,9 @@ Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this), luaDungeonGen(
     else
         SetDefaultGamepadBindings();
 
+    // disable exiting on ESC
+    SetExitKey(0);
+
     // define all Scenes as factory functions
     // the second argument is priority for the drawing order
     // TODO does the name have to be a string?

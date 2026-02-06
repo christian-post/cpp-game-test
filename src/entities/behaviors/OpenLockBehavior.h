@@ -9,7 +9,7 @@ class Sprite;
 class OpenLockBehavior : public Behavior
 {
 public:
-    OpenLockBehavior(Game& game, std::shared_ptr<Sprite> door, std::shared_ptr<Sprite> player, const int triggerKey);
+    OpenLockBehavior(Game& game, std::shared_ptr<Sprite> door, std::shared_ptr<Sprite> player, const int triggerKey, std::string itemName);
     void update(float deltaTime) override;
     void reset() override;
 
@@ -20,5 +20,6 @@ private:
     const int triggerKey;
     bool triggered = false;
     bool collided = true;
+    std::string itemName;
     Rectangle interactionRect = Rectangle{ 0.0f, 0.0f ,0.0f, 0.0f };
 };

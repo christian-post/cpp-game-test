@@ -85,7 +85,7 @@ local templates = {
 
     locked_door = {
         height = 32,
-        id = 69,
+        id = 0,
         name = "door",
         properties = {
             {
@@ -112,6 +112,60 @@ local templates = {
                 name = "spriteName",
                 type = "string",
                 value = "locked_door"
+            },
+            {
+                name = "itemName",
+                type = "string",
+                value = "key"
+            },
+            {
+                name = "direction",
+                type = "int",
+                value = 0 -- 0: right, 1: top, 2: left, 3: down
+            }
+        },
+        rotation = 0,
+        type = "sprite",
+        visible = true,
+        width = 32,
+        x = 0,
+        y = 0
+    },
+
+    boss_door = {
+        height = 32,
+        id = 44,
+        name = "door",
+        properties = {
+            {
+                name = "castsShadow",
+                type = "bool",
+                value = false
+            },
+            {
+                name = "locked",
+                type = "bool",
+                value = true
+            },
+            {
+                name = "openState",
+                type = "int",
+                value = 16
+            },
+             {
+                name = "event",
+                type = "string",
+                value = "" -- needs to be overwritten
+            },
+            {
+                name = "spriteName",
+                type = "string",
+                value = "boss_door"
+            },
+            {
+                name = "itemName",
+                type = "string",
+                value = "boss_key"
             },
             {
                 name = "direction",

@@ -28,6 +28,7 @@
 
 - UI
 -- MenuSelect: Add Section headers that divide the menu items, but can't be selected themselves
+-- Command_Textbox: use a key to texts.json instead of a string as the second argument
 
 - Assets
 -- Turn ItemData.cpp consumables callbacks into a Lua script as well, and use a json for the basic item data (type, texture, screen name)
@@ -46,7 +47,6 @@
 - Sprite.jump() method: add argument "jumpHeight" that roughly corresponds to the number of pixels
 - talking to an NPC should have the least priority when pressing the "interact" button and two or more interactibles are within reach
 - show the "<<" and ">>" help texts in the menu dynamically depedning if there is a menu next to it
-- check for hard-coded display texts in code and move them to texts.json
 - give the Signpost some collision
 - add a light cone to items that come from chests (if in a dark room) (or maybe draw them over the darkness layer?)
 - make Game.getPlayer() obsolete

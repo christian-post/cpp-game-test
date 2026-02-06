@@ -7,6 +7,7 @@
 #include "OpenLockBehavior.h"
 #include "ChestBehavior.h"
 #include "Utils.h"
+#include <utility>
 
 Level::Level(size_t roomsW, size_t roomsH) : roomsW{ roomsW }, roomsH{ roomsH }
 {
@@ -335,6 +336,7 @@ void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, 
 
             std::string eventStr = obj.properties.value("event", "");
             int eventKey = EventKeyRegistry::getEventKey(eventStr);
+            TraceLog(LOG_INFO, "door event created: %s", eventStr.c_str());
 
             bool isAlreadyOpen = false; // check if this door already opened from another event
             for (auto& ev : game.eventManager.peekEvents())
@@ -349,7 +351,7 @@ void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, 
                 bool locked = obj.properties.value("locked", false);
                 if (locked)
                 {
-                    sprite->addBehavior(std::make_unique<OpenLockBehavior>(game, sprite, game.spriteMap["player"], eventKey));
+                    sprite->addBehavior(std::make_unique<OpenLockBehavior>(game, sprite, game.spriteMap["player"], eventKey, obj.properties.value("itemName", "NOT FOUND")));
                 }
 
                 // external door trigger
@@ -357,7 +359,6 @@ void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, 
                     objectStates[obj.id].isOpened = true;
                     sprite->visible = false;
                     sprite->staticCollision = false;
-                    // TODO open the door in the adjacent room
                     });
             }
             else

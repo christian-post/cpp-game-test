@@ -764,10 +764,12 @@ void InGame::draw()
     // TODO add a flag to sprite that makes an exception from this sorting
     std::vector<Sprite*> drawOrder;
     drawOrder.reserve(game.sprites.size());
+
     for (const auto& sprite : game.sprites)
     {
         drawOrder.push_back(sprite.get());
     }
+
     std::sort(drawOrder.begin(), drawOrder.end(), [](Sprite* a, Sprite* b) {
         if (a->drawLayer != b->drawLayer)
             return a->drawLayer < b->drawLayer;

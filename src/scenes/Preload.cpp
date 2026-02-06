@@ -201,6 +201,7 @@ void Preload::startup() {
             l.loadSpritesheet("./resources/textures/sprites/lantern-Sheet.png", 16, 16, "item_lamp");
             l.loadSpritesheet("./resources/textures/sprites/door_closed_sheet.png", 32, 32, "doors_closed");
             l.loadSpritesheet("./resources/textures/sprites/door_locked_sheet.png", 32, 32, "doors_locked");
+            l.loadSpritesheet("./resources/textures/sprites/boss_door_locked_sheet.png", 32, 32, "boss_doors_locked");
         });
 
     // load the tileset (the textures)

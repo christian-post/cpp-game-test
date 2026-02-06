@@ -37,6 +37,8 @@ end
 
 local base_wall_tiles = {21, 42, 23, 2}  -- right, up, left, down
 
+local next_object_id = 1000 -- objects for this tilemap
+
 local function is_wall_tile(tile_id)
     for _, wall_tile in ipairs(base_wall_tiles) do
         if tile_id == wall_tile then
@@ -244,7 +246,16 @@ local function add_locked_doors_to_room(room, locked_doors, ObjectTemplates, lev
     local direction_names = {"right", "up", "left", "down"}
     
     for _, lock_info in ipairs(locked_doors) do
-        local locked_door = ObjectTemplates.create("locked_door")
+        local locked_door
+        if lock_info.item == "key" then
+            locked_door = ObjectTemplates.create("locked_door")
+        elseif lock_info.item == "boss_key" then
+            locked_door = ObjectTemplates.create("boss_door")
+            -- TODO change the door tiles on the top layer
+        else
+            print("ERROR: No object template for" .. lock_info.item )
+            return
+        end
 
         print(string.format("placing a door (%s)", direction_names[lock_info.direction + 1]))
         
@@ -263,6 +274,7 @@ local function add_locked_doors_to_room(room, locked_doors, ObjectTemplates, lev
             r1, c1, r2, c2 = r2, c2, r1, c1
         end
         local event_id = string.format("door_%d_%d_%d_%d_%d_unlocked", level_idx, r1, c1, r2, c2)
+        print(event_id)
         
         -- set properties by name
         for _, prop in ipairs(locked_door.properties) do
@@ -273,6 +285,10 @@ local function add_locked_doors_to_room(room, locked_doors, ObjectTemplates, lev
             end
         end
         
+        -- assign a unique ID
+        locked_door.id = next_object_id
+        next_object_id = next_object_id + 1
+
         -- add to sprites layer
         for _, layer in ipairs(room.layers) do
             if layer.name == "sprites" then

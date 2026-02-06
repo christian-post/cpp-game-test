@@ -82,8 +82,9 @@ inline const char* GetEventNameString(EventName event) {
     if (event >= 0 && event < STATIC_EVENT_COUNT) {
         return EventNameStrings[event];
     }
+    // if the event name exceeds the hard-coded events, it is probably a custom event
     static char buffer[32];
-    snprintf(buffer, sizeof(buffer), "UNKNOWN_EVENT(%d)", static_cast<int>(event));
+    snprintf(buffer, sizeof(buffer), "CUSTOM_EVENT(%d)", static_cast<int>(event));
     return buffer;
 }
 

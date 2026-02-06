@@ -98,6 +98,14 @@
     "hitbox": [ 32.0, 36.0 ],
     "hitboxOffset": [ 0.0, 0.0 ]
   },
+  "boss_door": {
+    "inherits": "sprite_default",
+    "textures": [
+      "boss_doors_locked"
+    ],
+    "hitbox": [ 32.0, 36.0 ],
+    "hitboxOffset": [ 0.0, 0.0 ]
+  },
   "wall_fountain_basin": {
     "inherits": "sprite_default",
     "textures": [

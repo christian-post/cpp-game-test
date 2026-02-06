@@ -286,7 +286,6 @@ function execute()
         print("\nStep 6: Exporting dungeon data...")
         local dungeon_data = DungeonExporter.export(layout, edges, graph, item_pool, stairway_rooms, DungeonGenerator)
         DungeonExporter.append_to_dungeons(dungeon_data, "resources/dungeons.json", "lua_dungeon")
-        DungeonExporter.save_to_file(dungeon_data, "resources/test_lua_dungeon.json")
         
         -- step 7: generate base room tilemaps (only if needed)
         print("\nStep 7: Checking base room tilemaps...")
