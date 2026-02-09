@@ -120,38 +120,38 @@ local function find_locked_edges(dungeon_data, level_idx, room_coords)
             local from = edge.from
             local to = edge.to
             
-            local dr, dc
-            
+            local row_delta, col_delta
+
             -- check if current room is 'from' (direction to 'to')
             if from[1] == room_coords[1] and from[2] == room_coords[2] then
-                dr = to[1] - from[1]
-                dc = to[2] - from[2]
-            
+                row_delta = to[1] - from[1]
+                col_delta = to[2] - from[2]
+
             -- check if current room is 'to' (direction to 'from')
             elseif to[1] == room_coords[1] and to[2] == room_coords[2] then
-                dr = from[1] - to[1]
-                dc = from[2] - to[2]
+                row_delta = from[1] - to[1]
+                col_delta = from[2] - to[2]
             else
                 goto continue
             end
-            
+
             -- determine direction index
             local direction_idx = nil
-            if dr == 0 and dc == 1 then
+            if row_delta == 0 and col_delta == 1 then
                 direction_idx = 0  -- right
-            elseif dr == -1 and dc == 0 then
+            elseif row_delta == -1 and col_delta == 0 then
                 direction_idx = 1  -- up
-            elseif dr == 0 and dc == -1 then
+            elseif row_delta == 0 and col_delta == -1 then
                 direction_idx = 2  -- left
-            elseif dr == 1 and dc == 0 then
+            elseif row_delta == 1 and col_delta == 0 then
                 direction_idx = 3  -- down
             end
-            
+
             if direction_idx then
                 table.insert(locked_edges, {
                     direction = direction_idx,
                     item = edge.required_items[1],
-                    from_room = from,  -- edge info
+                    from_room = from,
                     to_room = to
                 })
             end
@@ -453,7 +453,7 @@ function TilemapModifier.process_dungeon(dungeon_json_path, dungeon_name, tilema
                 if #combat_locks > 0 then
                     add_combat_encounter_to_room(room, combat_locks, ObjectTemplates, level_idx)
                 end
-end
+            end
             
             -- update tilemap reference in dungeon data
             room_data.tilemap = filename:gsub("%.json$", "")

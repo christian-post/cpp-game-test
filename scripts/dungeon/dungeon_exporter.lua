@@ -61,9 +61,8 @@ function DungeonExporter.export(layout, edges, graph, item_pool, stairway_rooms,
     
     -- build level connections (edges between levels)
     for _, edge in ipairs(edges) do
-        local from_node, to_node, requirements = edge[1], edge[2], edge[3]
-        local from_pos = layout.positions[from_node]
-        local to_pos = layout.positions[to_node]
+        local from_pos = layout.positions[edge.from]
+        local to_pos = layout.positions[edge.to]
         
         if from_pos and to_pos and from_pos.level ~= to_pos.level then
             local connection = {
@@ -72,9 +71,9 @@ function DungeonExporter.export(layout, edges, graph, item_pool, stairway_rooms,
                 room = {from_pos.row, from_pos.col}
             }
             
-            if #requirements > 0 then
+            if #edge.requirements > 0 then
                 connection.required_items = {}
-                for _, req in ipairs(requirements) do
+                for _, req in ipairs(edge.requirements) do
                     table.insert(connection.required_items, req)
                 end
             end
@@ -121,18 +120,17 @@ function DungeonExporter.export(layout, edges, graph, item_pool, stairway_rooms,
         
         -- collect edges within this level that have requirements
         for _, edge in ipairs(edges) do
-            local from_node, to_node, requirements = edge[1], edge[2], edge[3]
-            local from_pos = layout.positions[from_node]
-            local to_pos = layout.positions[to_node]
+            local from_pos = layout.positions[edge.from]
+            local to_pos = layout.positions[edge.to]
             
-            if from_pos and to_pos and from_pos.level == level and to_pos.level == level and #requirements > 0 then
+            if from_pos and to_pos and from_pos.level == level and to_pos.level == level and #edge.requirements > 0 then
                 local edge_data = {
                     from = {from_pos.row, from_pos.col},
                     to = {to_pos.row, to_pos.col},
                     required_items = {}
                 }
                 
-                for _, req in ipairs(requirements) do
+                for _, req in ipairs(edge.requirements) do
                     table.insert(edge_data.required_items, req)
                 end
                 

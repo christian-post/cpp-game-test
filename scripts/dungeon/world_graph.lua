@@ -617,6 +617,50 @@ function WorldGraph:find_all_reachable_states()
     return all_states
 end
 
+function WorldGraph:find_skippable_items()
+    -- returns items that are not required to reach the goal
+    if not self.goal then
+        error("Goal node not set! Call set_goal() first")
+    end
+    
+    local all_states = self:find_all_reachable_states()
+    
+    -- find all item locations (excluding excluded rooms)
+    local item_locations = {}
+    for name, node in pairs(self.nodes) do
+        if node.value and not self.excluded_rooms[name] then
+            item_locations[name] = node.value
+        end
+    end
+    
+    -- find items that were MISSED in at least one state AT THE GOAL
+    local skippable = {}
+    for loc, item in pairs(item_locations) do
+        skippable[loc] = {location = loc, item = item, can_skip = false}
+    end
+    
+    for _, state in ipairs(all_states) do
+        if state.node == self.goal then
+            -- this state reached the goal - check which items it DIDN'T collect
+            for loc, _ in pairs(item_locations) do
+                if not state.collected[loc] then
+                    skippable[loc].can_skip = true
+                end
+            end
+        end
+    end
+    
+    -- return only skippable items
+    local result = {}
+    for _, info in pairs(skippable) do
+        if info.can_skip then
+            table.insert(result, {location = info.location, item = info.item})
+        end
+    end
+    
+    return result
+end
+
 function WorldGraph:can_reach_goal_from_state(start_state)
     -- checks if a specific state can reach the goal node
     if not self.goal then

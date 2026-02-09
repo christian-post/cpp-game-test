@@ -20,12 +20,11 @@ local function count_connections(edges, node_names)
     end
     
     for _, edge in ipairs(edges) do
-        local from_node, to_node = edge[1], edge[2]
-        if counts[from_node] then
-            counts[from_node] = counts[from_node] + 1
+        if counts[edge.from] then
+            counts[edge.from] = counts[edge.from] + 1
         end
-        if counts[to_node] then
-            counts[to_node] = counts[to_node] + 1
+        if counts[edge.to] then
+            counts[edge.to] = counts[edge.to] + 1
         end
     end
     
@@ -104,7 +103,7 @@ local function generate_level(layout, edges, level, start_row, start_col, start_
                 table.insert(queue, {row = nr, col = nc, parent = room_name})
                 
                 -- add bidirectional edge (no requirements yet)
-                table.insert(edges, {parent_name, room_name, {}})
+                table.insert(edges, {from = parent_name, to = room_name, requirements = {}})
                 
                 expand_count = expand_count + 1
             end
@@ -222,8 +221,8 @@ function DungeonGenerator.generate(config)
         local stairs_to = get_node_at(layout, level + 1, stair_pos.row, stair_pos.col)
         
         if stairs_from and stairs_to then
-            table.insert(edges, {stairs_from, stairs_to, {}})
-            table.insert(edges, {stairs_to, stairs_from, {}})
+            table.insert(edges, {from = stairs_from, to = stairs_to, requirements = {}})
+            table.insert(edges, {from = stairs_to, to = stairs_from, requirements = {}})
             stairway_rooms[stairs_from] = true
             stairway_rooms[stairs_to] = true
         end
@@ -245,11 +244,9 @@ function DungeonGenerator.calculate_doors(layout, edges, level, row, col)
     
     -- check all edges for connections to adjacent rooms
     for _, edge in ipairs(edges) do
-        local from_node, to_node = edge[1], edge[2]
-        
         -- check if this edge involves our room
-        if from_node == node_name or to_node == node_name then
-            local other_node = (from_node == node_name) and to_node or from_node
+        if edge.from == node_name or edge.to == node_name then
+            local other_node = (edge.from == node_name) and edge.to or edge.from
             local other_pos = layout.positions[other_node]
             
             if other_pos and other_pos.level == level then

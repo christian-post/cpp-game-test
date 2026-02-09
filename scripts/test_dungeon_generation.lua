@@ -107,22 +107,22 @@ function execute()
     -- collect edges into a table for sorting
     local edge_entries = {}
     for _, edge in ipairs(edges) do
-        local from_pos = layout.positions[edge[1]]
-        local to_pos = layout.positions[edge[2]]
+        local from_pos = layout.positions[edge.from]
+        local to_pos = layout.positions[edge.to]
     
         -- skip edges where positions aren't found
         if from_pos and to_pos then
             local locked_item = nil
-            if edge[3] and #edge[3] > 0 then
-                locked_item = edge[3][1]
+            if edge.requirements and #edge.requirements > 0 then
+                locked_item = edge.requirements[1]
             end
             table.insert(edge_entries, {
-                from = edge[1],
-                to = edge[2],
+                from = edge.from,
+                to = edge.to,
                 from_pos = from_pos,
                 to_pos = to_pos,
                 locked_item = locked_item,
-                requirements = edge[3] or {}
+                requirements = edge.requirements or {}
             })
         end
     end
@@ -328,6 +328,17 @@ function execute()
         end
         
         print(string.format("\n=== Best Dungeon (score: %.3f) ===\n", best_score))
+        
+        -- check for items that can possibly be skipped
+        -- TODO do this check earlier (before breaking out of the loop)
+        graph:initialize_items(item_pool) -- reinitialize graph state for skippable items check
+        local skippable = graph:find_skippable_items()
+        if #skippable > 0 then
+            print("Warning: there are skippable items in this dungeon:")
+            for _, item_info in ipairs(skippable) do
+                print(string.format("  %s at %s", item_info.item, item_info.location))
+            end
+        end
         
         print("")
         Analyzer.print_report(best_report)

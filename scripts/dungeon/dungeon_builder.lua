@@ -21,12 +21,11 @@ local function count_connections(edges, node_names)
     end
     
     for _, edge in ipairs(edges) do
-        local from_node, to_node = edge[1], edge[2]
-        if counts[from_node] then
-            counts[from_node] = counts[from_node] + 1
+        if counts[edge.from] then
+            counts[edge.from] = counts[edge.from] + 1
         end
-        if counts[to_node] then
-            counts[to_node] = counts[to_node] + 1
+        if counts[edge.to] then
+            counts[edge.to] = counts[edge.to] + 1
         end
     end
     
@@ -51,21 +50,19 @@ local function build_graph_from_layout(WorldGraph, layout, edges)
     end
     
     -- add all edges
-    for _, edge in ipairs(edges) do
-        local from_node, to_node, requirements = edge[1], edge[2], edge[3]
-        
-        if #requirements == 0 then
+    for _, edge in ipairs(edges) do 
+        if #edge.requirements == 0 then
             -- bidirectional edge already added by generator
             -- but we need to add it to graph with empty requirements
-            graph:add_edge(from_node, to_node, {})
+            graph:add_edge(edge.from, edge.to, {})
         else
             -- edge with requirements (will be added later when locking)
             -- TODO make a data structure that tells the script which item locks are bidirectional or one-directional
-            if utils.has_value(requirements, "weapon_sword") then
-                graph:add_one_way_edge(from_node, to_node, requirements)
-                graph:add_one_way_edge(to_node, from_node, {}) -- add a free reverse edge
+            if utils.has_value(edge.requirements, "weapon_sword") then
+                graph:add_one_way_edge(edge.from, edge.to, edge.requirements)
+                graph:add_one_way_edge(edge.to, edge.from, {}) -- add a free reverse edge
             else
-                graph:add_edge(from_node, to_node, requirements)
+                graph:add_edge(edge.from, edge.to, edge.requirements)
             end
         end
     end
@@ -114,21 +111,17 @@ local function place_boss_room(layout, edges, stairway_rooms)
     
     -- update edges: replace old_name with boss_room_name
     for i, edge in ipairs(edges) do
-        local from_node, to_node, requirements = edge[1], edge[2], edge[3]
-        
-        if from_node == old_name then
-            edges[i] = {boss_room_name, to_node, requirements}
-        elseif to_node == old_name then
-            edges[i] = {from_node, boss_room_name, requirements}
+        if edge.from == old_name then
+            edges[i] = {from = boss_room_name, to = edge.to, requirements = edge.requirements}
+        elseif edge.to == old_name then
+            edges[i] = {from = edge.from, to = boss_room_name, requirements = edge.requirements}
         end
     end
     
     -- find the edge connecting to BossRoom and lock it with boss_key
-    for i, edge in ipairs(edges) do
-        local from_node, to_node = edge[1], edge[2]
-        
-        if boss_room_name == from_node or boss_room_name == to_node then
-            edges[i] = {from_node, to_node, {"boss_key"}}
+    for i, edge in ipairs(edges) do    
+        if boss_room_name == edge.from or boss_room_name == edge.to then
+            edges[i] = {from = edge.from, to = edge.to, requirements = {"boss_key"}}
             break
         end
     end
@@ -143,13 +136,11 @@ local function lock_edges_with_items(edges, item_pool, stairway_rooms, boss_room
     -- find lockable edges (no requirements, not involving special rooms)
     local lockable_indices = {}
     for i, edge in ipairs(edges) do
-        local from_node, to_node, requirements = edge[1], edge[2], edge[3]
-        
-        if #requirements == 0 then
+        if #edge.requirements == 0 then
             -- exclude start and boss rooms as well as connecting rooms between levels
-            local is_special_room = from_node == "Start" or to_node == "Start" or
-                                   from_node == boss_room_name or to_node == boss_room_name or
-                                   stairway_rooms[from_node] or stairway_rooms[to_node]
+            local is_special_room = edge.from == "Start" or edge.to == "Start" or
+                                   edge.from == boss_room_name or edge.to == boss_room_name or
+                                   stairway_rooms[edge.from] or stairway_rooms[edge.to]
             
             if not is_special_room then
                 table.insert(lockable_indices, i)
@@ -173,7 +164,7 @@ local function lock_edges_with_items(edges, item_pool, stairway_rooms, boss_room
     for i = 1, num_locks do
         local edge_index = lockable_indices[i]
         local edge = edges[edge_index]
-        edges[edge_index] = {edge[1], edge[2], {items[i]}}
+        edges[edge_index] = {from = edge.from, to = edge.to, requirements = {items[i]}}
     end
 end
 
@@ -185,10 +176,10 @@ function DungeonBuilder.build(WorldGraph, layout, edges, stairway_rooms, item_po
     local edges_after_boss = {}
     for i, edge in ipairs(edges) do
         local reqs_copy = {}
-        for j, req in ipairs(edge[3]) do
+        for j, req in ipairs(edge.requirements) do
             reqs_copy[j] = req
         end
-        edges_after_boss[i] = {edge[1], edge[2], reqs_copy}
+        edges_after_boss[i] = {from = edge.from, to = edge.to, requirements = reqs_copy}
     end
     
     local max_lock_attempts = 100
@@ -204,10 +195,10 @@ function DungeonBuilder.build(WorldGraph, layout, edges, stairway_rooms, item_po
         -- restore edges to post-boss state (removes previous item locks)
         for i, edge in ipairs(edges_after_boss) do
             local reqs_copy = {}
-            for j, req in ipairs(edge[3]) do
+            for j, req in ipairs(edge.requirements) do
                 reqs_copy[j] = req
             end
-            edges[i] = {edge[1], edge[2], reqs_copy}
+            edges[i] = {from = edge.from, to = edge.to, requirements = reqs_copy}
         end
         
         -- lock edges with items (randomly)
