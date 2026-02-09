@@ -1,4 +1,3 @@
--- scripts/tilemap/generate_base_rooms.lua
 local GenerateBaseRooms = {}
 
 -- door tile configurations
@@ -26,29 +25,28 @@ local door_positions = {
 -- collision wall configurations
 -- format: {door_index, solid_wall, segment1, segment2}
 local collision_walls = {
-    -- top wall (door at index 1 - up)
+    -- right wall
+    {0,
+     {height = 200, width = 28, x = 228, y = 28},
+     {height = 84, width = 28, x = 228, y = 28},
+     {height = 84, width = 28, x = 228, y = 144}},
+    -- top wall
     {1, 
      {height = 28, width = 256, x = 0, y = 0},
      {height = 28, width = 112, x = 0, y = 0},
      {height = 28, width = 112, x = 144, y = 0}},
     
-    -- left wall (door at index 2 - left)
+    -- left wall
     {2,
      {height = 200, width = 28, x = 0, y = 28},
      {height = 84, width = 28, x = 0, y = 28},
      {height = 84, width = 28, x = 0, y = 144}},
     
-    -- bottom wall (door at index 3 - down)
+    -- bottom wall
     {3,
      {height = 28, width = 256, x = 0, y = 228},
      {height = 28, width = 112, x = 0, y = 228},
-     {height = 28, width = 112, x = 144, y = 228}},
-    
-    -- right wall (door at index 0 - right)
-    {0,
-     {height = 200, width = 28, x = 228, y = 28},
-     {height = 84, width = 28, x = 228, y = 28},
-     {height = 84, width = 28, x = 228, y = 144}}
+     {height = 28, width = 112, x = 144, y = 228}}
 }
 
 local function place_door_tiles(room_data, selected_doors)

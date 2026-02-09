@@ -37,7 +37,8 @@ end
 
 local base_wall_tiles = {21, 42, 23, 2}  -- right, up, left, down
 
-local next_object_id = 1000 -- objects for this tilemap
+local next_object_id = 1000 -- unique identifier for objects on this tilemap
+-- TODO use the max(ID) of existing objects as a start? or is starting at 1000 always safe?
 
 local function is_wall_tile(tile_id)
     for _, wall_tile in ipairs(base_wall_tiles) do
@@ -74,9 +75,9 @@ local function randomize_tiles(room_data)
                             wall_y = config.fixed_pos
                         end
                         
-                        local wall_idx = wall_x + wall_y * width + 1  -- +1 for Lua indexing
+                        local wall_idx = wall_x + wall_y * width + 1
                         
-                        -- only randomize if it's actually a base wall tile (not a door)
+                        -- only randomize base wall tiles (not doors)
                         if is_wall_tile(layer.data[wall_idx]) then
                             local variants = wall_tiles[config.tile_idx]
                             layer.data[wall_idx] = variants[dungeon_random(#variants)]
@@ -183,7 +184,7 @@ local function process_starting_room(tilemap_base_path, doors, tilemap_name, Obj
         value = "starting_room"
     })
     
-    -- add NPCs and teleport
+    -- add NPCs and teleport to overworld (TODO: modify teleport target based on the dungeon config)
     for _, layer in ipairs(room.layers) do
         if layer.name == "sprites" then
             table.insert(layer.objects, ObjectTemplates.create("elf_companion_1"))
@@ -241,7 +242,67 @@ local function process_normal_room(tilemap_base_path, doors, tilemap_name, level
     return room, string.format("L%d_R%d_C%d.json", level, row, col)
 end
 
-local function add_locked_doors_to_room(room, locked_doors, ObjectTemplates, level_idx, room_coords)
+local function add_combat_encounter_to_room(room, combat_locks, ObjectTemplates, level_idx)
+    -- add enemy objects
+    -- modify the door at the edge to be closed
+
+    local tilesize = room.tilewidth
+    local direction_names = {"right", "up", "left", "down"}
+
+    for _, lock_info in ipairs(combat_locks) do
+        closed_door = ObjectTemplates.create("closed_door")
+
+        -- TODO modify enemies
+        enemy = ObjectTemplates.create("enemy")
+
+
+        print(string.format("placing an enemy (%s)", enemy.properties[2].value))
+        
+        -- get tile position
+        local tile_pos = door_tile_positions[lock_info.direction + 1]
+        
+        -- convert to pixel position (center of 2x2 door)
+        closed_door.x = tile_pos[2] * tilesize
+        closed_door.y = tile_pos[1] * tilesize
+        
+        -- create normalized event ID from edge coordinates
+        local r1, c1 = lock_info.from_room[1], lock_info.from_room[2]
+        local r2, c2 = lock_info.to_room[1], lock_info.to_room[2]
+        -- normalize: ensure smaller coordinates come first for consistency
+        if r1 > r2 or (r1 == r2 and c1 > c2) then
+            r1, c1, r2, c2 = r2, c2, r1, c1
+        end
+        local event_id = string.format("door_%d_%d_%d_%d_%d_opened", level_idx, r1, c1, r2, c2)
+        
+        -- set properties by name
+        for _, prop in ipairs(closed_door.properties) do
+            if prop.name == "direction" then
+                prop.value = lock_info.direction
+            elseif prop.name == "event" then
+                prop.value = event_id
+            end
+        end
+        
+        -- assign a unique ID
+        closed_door.id = next_object_id
+        next_object_id = next_object_id + 1
+
+        -- add door and enemies to sprites layer
+        for _, layer in ipairs(room.layers) do
+            if layer.name == "sprites" then
+                table.insert(layer.objects, closed_door)
+                -- TODO just adding 1 enemy for testing
+                table.insert(layer.objects, enemy)
+                break
+            end
+        end
+    end
+
+
+end
+
+local function add_locked_doors_to_room(room, locked_doors, ObjectTemplates, level_idx)
+    -- for doors locked with a key
     local tilesize = room.tilewidth
     local direction_names = {"right", "up", "left", "down"}
     
@@ -274,7 +335,6 @@ local function add_locked_doors_to_room(room, locked_doors, ObjectTemplates, lev
             r1, c1, r2, c2 = r2, c2, r1, c1
         end
         local event_id = string.format("door_%d_%d_%d_%d_%d_unlocked", level_idx, r1, c1, r2, c2)
-        print(event_id)
         
         -- set properties by name
         for _, prop in ipairs(locked_door.properties) do
@@ -375,7 +435,7 @@ function TilemapModifier.process_dungeon(dungeon_json_path, dungeon_name, tilema
                 -- TODO add more lock types
     
                 for _, edge_info in ipairs(locked_edges) do
-                    print(edge_info.item)
+                    print("Edge is locked by " .. edge_info.item)
                     if edge_info.item == "key" or edge_info.item == "boss_key" then
                         table.insert(key_locks, edge_info)
                     elseif edge_info.item == "weapon_sword" then
@@ -386,13 +446,13 @@ function TilemapModifier.process_dungeon(dungeon_json_path, dungeon_name, tilema
     
                 -- handle each type with specific function
                 if #key_locks > 0 then
-                    add_locked_doors_to_room(room, key_locks, ObjectTemplates, level_idx, room_coords)
+                    add_locked_doors_to_room(room, key_locks, ObjectTemplates, level_idx)
                 end
     
                 -- TODO: implement later
-                -- if #combat_locks > 0 then
-                --     add_combat_encounter_to_room(room, combat_locks, ObjectTemplates)
-                -- end
+                if #combat_locks > 0 then
+                    add_combat_encounter_to_room(room, combat_locks, ObjectTemplates, level_idx)
+                end
 end
             
             -- update tilemap reference in dungeon data

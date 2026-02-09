@@ -348,10 +348,20 @@ void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, 
             if (currentState < openState && !objectStates[obj.id].isOpened && !isAlreadyOpen)
             {
                 sprite->staticCollision = true;
-                bool locked = obj.properties.value("locked", false);
-                if (locked)
+                // check if this requires a key
+                if (obj.properties.value("locked", false))
                 {
                     sprite->addBehavior(std::make_unique<OpenLockBehavior>(game, sprite, game.spriteMap["player"], eventKey, obj.properties.value("itemName", "NOT FOUND")));
+                }
+                else if (obj.properties.value("opensOnEnemiesDefeated", false))
+                {
+                    // TODO dispatch this event in the InGame scene
+                    game.eventManager.addListener(ENEMIES_DEFEATED, [&, sprite = sprite.get()](std::any){
+                        // TODO play a short cutscene
+                        objectStates[obj.id].isOpened = true;
+                        sprite->visible = false;
+                        sprite->staticCollision = false;
+                        });
                 }
 
                 // external door trigger

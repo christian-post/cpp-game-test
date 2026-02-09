@@ -546,6 +546,8 @@ void InGame::loadTilemap()
         if (currentWeapon[wpnIdx].has_value() && currentWeapon[wpnIdx]->second == true)
             spawnWeapon(wpnIdx);
     }
+
+    checkEnemyCount = true; // start checking for live enemies again
 }
 
 
@@ -750,6 +752,16 @@ void InGame::update(float deltaTime)
             StopMusicStream(*music);
         game.stopScene("HUD");
         game.startScene("GameOver");
+    }
+
+    // check if all enemies are dead
+    if (checkEnemyCount && std::none_of(game.sprites.begin(), game.sprites.end(),
+        [](const std::shared_ptr<Sprite>& s) {
+            return s->isEnemy;
+        }))
+    {
+        checkEnemyCount = false;
+        game.eventManager.pushEvent(ENEMIES_DEFEATED);
     }
 }
 

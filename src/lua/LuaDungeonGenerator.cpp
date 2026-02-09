@@ -13,8 +13,9 @@ LuaDungeonGenerator::LuaDungeonGenerator(Game& game)
 
 void LuaDungeonGenerator::setSeed(int seed)
 {
-    lua["math"]["randomseed"](seed);
+    //lua["math"]["randomseed"](seed); TODO probably not needed anymore
     dungeonRng.seed(seed);
+    lua["dungeon_seed"] = seed;
 }
 
 void LuaDungeonGenerator::setupBindings()
@@ -73,10 +74,10 @@ void LuaDungeonGenerator::setupBindings()
             }
         };
 
-    lua["dungeon_randomseed"] = [this](int seed)
-        {
-            dungeonRng.seed(seed);
-        };
+    //lua["dungeon_randomseed"] = [this](int seed)
+    //    {
+    //        dungeonRng.seed(seed);
+    //    };
 }
 
 nlohmann::json LuaDungeonGenerator::solToJson(const sol::object& obj)

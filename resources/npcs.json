@@ -106,6 +106,12 @@
     "hitbox": [ 32.0, 36.0 ],
     "hitboxOffset": [ 0.0, 0.0 ]
   },
+  "closed_door": {
+    "inherits": "locked_door",
+    "textures": [
+      "doors_closed"
+    ]
+  },
   "wall_fountain_basin": {
     "inherits": "sprite_default",
     "textures": [

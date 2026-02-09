@@ -38,6 +38,7 @@ enum EventName
     DUNGEON_GENERATION_START,
     DUNGEON_GENERATION_TICK,
     DUNGEON_GENERATION_COMPLETE,
+    ENEMIES_DEFEATED, // all enemies in the current room have been defeated
     UNNAMED, // used whenever no name is needed (delayed or repeated events that have no listeners)
     STATIC_EVENT_COUNT // needs to be at the last position
 };

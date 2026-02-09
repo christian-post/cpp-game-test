@@ -41,6 +41,7 @@ function DungeonExporter.export(layout, edges, graph, item_pool, stairway_rooms,
     end
     
     local dungeon_data = {
+        seed = dungeon_seed,
         starting_level = start_pos.level,
         starting_room = {start_pos.row, start_pos.col},
         boss_level = boss_pos.level,

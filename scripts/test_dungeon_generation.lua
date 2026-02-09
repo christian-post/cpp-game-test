@@ -7,9 +7,6 @@ function execute()
     local GenerateBaseRooms = require("dungeon.generate_base_rooms")
     local TilemapModifier = require("dungeon.tilemap_modifier")
     local ObjectTemplates = require("dungeon.object_templates")
-
-    print("=== RNG Test ===")
-    print("Random number: " .. dungeon_random() .. "\n")
     
     print("=== Modular Dungeon Generation Test ===\n")
     
@@ -41,6 +38,7 @@ function execute()
 
     print("\nStep 2: Building graph...")
     local item_pool = {"key", "key", "key", "boss_key", "weapon_sword"}
+
     local graph, boss_room, excluded_rooms = DungeonBuilder.build(
         WorldGraph,
         layout,
@@ -123,7 +121,8 @@ function execute()
                 to = edge[2],
                 from_pos = from_pos,
                 to_pos = to_pos,
-                locked_item = locked_item
+                locked_item = locked_item,
+                requirements = edge[3] or {}
             })
         end
     end
@@ -149,18 +148,65 @@ function execute()
     end)
 
     -- print sorted edges
+
+    -- helper function to check if edge is bidirectional
+    -- TODO maybe put a flag into the edges table?
+    local function is_bidirectional(graph, from_name, to_name, requirements)
+        local from_node = graph.nodes[from_name]
+        local to_node = graph.nodes[to_name]
+    
+        -- check if reverse edge exists with same requirements
+        for _, edge in ipairs(to_node.edges) do
+            if edge.target == from_node then
+                -- check if requirements match
+                if #edge.requirements == #requirements then
+                    local match = true
+                    for i = 1, #requirements do
+                        if edge.requirements[i] ~= requirements[i] then
+                            match = false
+                            break
+                        end
+                    end
+                    if match then
+                        return true
+                    end
+                end
+            end
+        end
+        return false
+    end
+
+    local printed_pairs = {}  -- track which bidirectional pairs we've already printed
     for _, edge_entry in ipairs(edge_entries) do
+        local from = edge_entry.from
+        local to = edge_entry.to
+        local requirements = edge_entry.requirements or {}
+    
+        -- check if bidirectional
+        local is_bidir = is_bidirectional(graph, from, to, requirements)
+    
+        -- for bidirectional edges, only print once (alphabetically first direction)
+        if is_bidir then
+            local pair_key = from < to and (from .. "-" .. to) or (to .. "-" .. from)
+            if printed_pairs[pair_key] then
+                goto continue
+            end
+            printed_pairs[pair_key] = true
+        end
+    
         local lock_status = edge_entry.locked_item and string.format("LOCKED (%s)", edge_entry.locked_item) or "open"
-        print(string.format("  L%d [%d,%d] %s <-> L%d [%d,%d] %s: %s",
+        local arrow = is_bidir and "<->" or "->"
+    
+        print(string.format("  L%d [%d,%d] %s %s L%d [%d,%d] %s: %s",
             edge_entry.from_pos.level, edge_entry.from_pos.row, edge_entry.from_pos.col, edge_entry.from,
+            arrow,
             edge_entry.to_pos.level, edge_entry.to_pos.row, edge_entry.to_pos.col, edge_entry.to,
             lock_status))
+    
+        ::continue::
     end
     
     -- step 3: test reachability
-    print("=== RNG Test ===")
-    print("Random number: " .. dungeon_random() .. "\n")
-
     print("\nStep 3: Testing reachability...")
     graph:initialize_items(item_pool)
     if not graph:test_reachability() then
@@ -169,11 +215,8 @@ function execute()
     end
     
     -- step 4: quality-based item placement
-    print("=== RNG Test ===")
-    print("Random number: " .. dungeon_random() .. "\n")
-
     print("\nStep 4: Finding optimal item placement...")
-    local max_iterations = 1 -- how often it evaluates the dungeon score
+    local max_iterations = 10 -- how often it evaluates the dungeon score
     local target_score = 0.7
     local best_score = 0
     local best_placements = nil
@@ -181,7 +224,7 @@ function execute()
     
     for iteration = 1, max_iterations do
         -- try forward_fill with retries
-        local max_fill_attempts = 20
+        local max_fill_attempts = 25
         local success = false
     
         for attempt = 1, max_fill_attempts do
@@ -273,9 +316,6 @@ function execute()
     end
     
     -- step 5: restore best placement
-    print("=== RNG Test ===")
-    print("Random number: " .. dungeon_random() .. "\n")
-
     if best_placements then
         graph:reset_items()
 
@@ -293,17 +333,11 @@ function execute()
         Analyzer.print_report(best_report)
         
         -- step 6: export dungeon data
-        print("=== RNG Test ===")
-        print("Random number: " .. dungeon_random() .. "\n")
-
         print("\nStep 6: Exporting dungeon data...")
         local dungeon_data = DungeonExporter.export(layout, edges, graph, item_pool, stairway_rooms, DungeonGenerator)
         DungeonExporter.append_to_dungeons(dungeon_data, "resources/dungeons.json", "lua_dungeon")
         
         -- step 7: generate base room tilemaps (only if needed)
-        print("=== RNG Test ===")
-        print("Random number: " .. dungeon_random() .. "\n")
-
         print("\nStep 7: Checking base room tilemaps...")
         -- check if base rooms exist, if not generate them
         local base_check = io.open("resources/tilemaps/base/room_0001.json", "r")
@@ -319,12 +353,7 @@ function execute()
         end
         
         -- step 8: process tilemaps (add items, stairs, etc.)
-        print("=== RNG Test ===")
-        print("Random number: " .. dungeon_random() .. "\n")
-
         print("\nStep 8: Processing tilemaps...")
-
-        dungeon_randomseed(12345) -- TODO testing
 
         TilemapModifier.process_dungeon(
             "resources/dungeons.json",
@@ -335,10 +364,6 @@ function execute()
         )
         
         print("\n=== Dungeon Generation Complete! ===")
-
-        print("=== RNG Test ===")
-        print("Random number: " .. dungeon_random() .. "\n")
-        
         return graph, layout, best_score, best_report
     else
         print("\nFailed to generate any valid dungeon!")

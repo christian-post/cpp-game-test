@@ -1,5 +1,6 @@
 -- converts dungeon layout to WorldGraph and adds BossRoom, locked edges, item requirements
 
+local utils = require("lib.utils")
 local DungeonBuilder = {}
 
 local function get_node_at(layout, level, row, col)
@@ -59,7 +60,13 @@ local function build_graph_from_layout(WorldGraph, layout, edges)
             graph:add_edge(from_node, to_node, {})
         else
             -- edge with requirements (will be added later when locking)
-            graph:add_edge(from_node, to_node, requirements)
+            -- TODO make a data structure that tells the script which item locks are bidirectional or one-directional
+            if utils.has_value(requirements, "weapon_sword") then
+                graph:add_one_way_edge(from_node, to_node, requirements)
+                graph:add_one_way_edge(to_node, from_node, {}) -- add a free reverse edge
+            else
+                graph:add_edge(from_node, to_node, requirements)
+            end
         end
     end
     
@@ -139,6 +146,7 @@ local function lock_edges_with_items(edges, item_pool, stairway_rooms, boss_room
         local from_node, to_node, requirements = edge[1], edge[2], edge[3]
         
         if #requirements == 0 then
+            -- exclude start and boss rooms as well as connecting rooms between levels
             local is_special_room = from_node == "Start" or to_node == "Start" or
                                    from_node == boss_room_name or to_node == boss_room_name or
                                    stairway_rooms[from_node] or stairway_rooms[to_node]

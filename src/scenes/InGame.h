@@ -80,5 +80,6 @@ private:
 
     bool playerMovementLocked = false; // arrow keys won't move the player
     bool cameraHasBounds = true;  // only for debugging
+    bool checkEnemyCount = true; // if true, checks if there are enemies on the map. reset when entering a new map 
     std::shared_ptr<Emitter> wpnHitEffect = nullptr;
 };
