@@ -1,4 +1,10 @@
 {
+  "chestClosed": [
+    "The chest won't open."
+  ],
+  "elfCutscene1": [
+    "Is that a sword? Great! I'll follow you, now we can fight our way out of here."
+  ],
   "elfDialogue1": [
     "Hey can you help me? I'm trapped inside this dungeon and there are foes everywhere. You look like you are an adept fighter.\f... wait, do you not have any weapons with you? Maybe I'll wait for the next knight who's actually equipped properly.",
     "What do you want? Maybe look for a weapon in one of the other rooms, idk."
@@ -12,17 +18,20 @@
   "elfDialogue4": [
     ".....\fOh. Yeah, that's it for this demo. Thank you for playing, I guess."
   ],
-  "elfCutscene1": [
-    "Is that a sword? Great! I'll follow you, now we can fight our way out of here."
-  ],
-  "sign1": [
-    "This is a helpful sign. You are reading it right now."
+  "hint_lua_dungeon_randomNPC1": [
+    "Did you alread find the Sword in the Clifftop Fortress? That place is ??? from here."
   ],
   "merchantDialogue1": [
     "Buy somethin' will ya!"
   ],
-  "chestClosed": [
-    "The chest won't open."
+  "npcHint1": [
+    "Did you alread find the [HINT:item] in the [HINT:loc]? That place is [HINT:dir] from here."
+  ],
+  "npcHintGeneric1": [
+    "Nice weather, don't you think?"
+  ],
+  "sign1": [
+    "This is a helpful sign. You are reading it right now."
   ],
   "testLongText": [
     "This is a very long text that is used to test the text wrapping functionality in the game.\fIt should be long enough to ensure that it wraps correctly across multiple lines in the game's dialogue box. The text should also contain various characters and punctuation to ensure that it displays correctly in different scenarios. By the way, does the form feed espace character work?\fThis should be on its own page.\fLet's see how well this works out in practice, shall we? Let's keep going until we reach a point where we can be sure that the text wrapping is functioning as expected. Now some very long words: hyperquantilicious, or transmogrification, ultracrepidarianism, maybe pseudophilosophical, and counterevolutionary."

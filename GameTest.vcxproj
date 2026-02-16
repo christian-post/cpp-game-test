@@ -193,6 +193,7 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <ClCompile Include="src\rendering\CameraController.cpp" />
     <ClCompile Include="src\rendering\CircleOverlay.cpp" />
     <ClCompile Include="src\scenes\DebugMenu.cpp" />
+    <ClCompile Include="src\scenes\DungeonMenu.cpp" />
     <ClCompile Include="src\scenes\GameOver.cpp" />
     <ClCompile Include="src\scenes\HUD.cpp" />
     <ClCompile Include="src\scenes\InGame.cpp" />
@@ -420,6 +421,7 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <ClInclude Include="src\rendering\CameraController.h" />
     <ClInclude Include="src\rendering\CircleOverlay.h" />
     <ClInclude Include="src\scenes\DebugMenu.h" />
+    <ClInclude Include="src\scenes\DungeonMenu.h" />
     <ClInclude Include="src\scenes\HUD.h" />
     <ClInclude Include="src\scenes\InventoryUI.h" />
     <ClInclude Include="src\scenes\GameOver.h" />
@@ -474,10 +476,13 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <None Include="resources\texts.json" />
     <None Include="resources\tilemaps\dungeon.tsj" />
     <None Include="resources\weapons.json" />
+    <None Include="scripts\dungeon\debug_helper.lua" />
     <None Include="scripts\dungeon\dungeon_analyzer.lua" />
     <None Include="scripts\dungeon\dungeon_builder.lua" />
     <None Include="scripts\dungeon\dungeon_generator.lua" />
+    <None Include="scripts\dungeon\dungeon_utils.lua" />
     <None Include="scripts\dungeon\generate_base_rooms.lua" />
+    <None Include="scripts\dungeon\hint_generator.lua" />
     <None Include="scripts\dungeon\tilemap_modifier.lua" />
     <None Include="scripts\dungeon\world_graph.lua" />
     <None Include="scripts\lib\cutscene_helpers.lua" />

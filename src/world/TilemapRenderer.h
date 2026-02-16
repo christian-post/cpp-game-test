@@ -51,7 +51,7 @@ private:
     // Private methods
     void calculateDimensions();
     void generateChunks();
-    void generateChunkForLayer(size_t layerIndex);
+    void generateChunkForLayer(size_t layerIndex, Color clearColor);
     void drawChunks(int layerIndex, const Camera2D& camera);
     bool isChunkVisible(size_t chunkX, size_t chunkY, const Camera2D& camera) const;
     void cleanupChunks();

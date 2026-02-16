@@ -128,6 +128,22 @@ void Preload::startup() {
                 }
             },
             {
+                "dwarf_f_idle", {
+                    "./resources/textures/sprites/dwarf_f_idle_anim_f0.png",
+                    "./resources/textures/sprites/dwarf_f_idle_anim_f1.png",
+                    "./resources/textures/sprites/dwarf_f_idle_anim_f2.png",
+                    "./resources/textures/sprites/dwarf_f_idle_anim_f3.png",
+                }
+            },
+            {
+                "dwarf_f_run", {
+                    "./resources/textures/sprites/dwarf_f_run_anim_f0.png",
+                    "./resources/textures/sprites/dwarf_f_run_anim_f1.png",
+                    "./resources/textures/sprites/dwarf_f_run_anim_f2.png",
+                    "./resources/textures/sprites/dwarf_f_run_anim_f3.png",
+                }
+            },
+            {
                 "wall_fountain_basin", {
                     "./resources/textures/sprites/wall_fountain_basin_red_anim_f0.png",
                     "./resources/textures/sprites/wall_fountain_basin_red_anim_f1.png",
@@ -211,6 +227,8 @@ void Preload::startup() {
         l.LoadtilesetFromTiled("./resources/tilemaps/dungeon_topdown.tsj");
         l.LoadtilesetFromTiled("./resources/tilemaps/fields.tsj");
         l.LoadtilesetFromTiled("./resources/tilemaps/simple_grassland.tsj");
+        l.LoadtilesetFromTiled("./resources/tilemaps/simple_dungeon.tsj");
+        l.LoadtilesetFromTiled("./resources/tilemaps/simple_interior.tsj");
 
         // load minified versions for the minimap
         // key has to be [tileset_image_file]_mini
@@ -222,7 +240,7 @@ void Preload::startup() {
     // load the tile maps from text files
     game.loader.loadQueue.emplace("Loading tilemaps", [&]() {
         l.loadTilemapsFromDirectory("./resources/tilemaps");
-        l.loadTilemapsFromDirectory("./resources/tilemaps/generated");
+        l.loadTilemapsFromDirectory("./resources/tilemaps/generated/lua_dungeon"); // TODO load the subfolders into a hash table with the dungeon name as key
         });
     // load the font
     game.loader.loadQueue.emplace("Loading fonts", [&]() {

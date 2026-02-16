@@ -44,7 +44,9 @@ void InGame::startup()
     else
     {
         // start in the overworld
+        // TODO just a placeholder
         std::string worldKey = "overworld";
+        //std::string worldKey = "interior";
         game.createWorld(worldKey, false);
     }
     // retrieve the tilemap
@@ -53,10 +55,7 @@ void InGame::startup()
     player->moveTo(game.currentWorld->startingPosition.x, game.currentWorld->startingPosition.y);
 
     // setup the camera
-    cameraController.initialize(
-        static_cast<float>(game.gameScreenWidth),
-        static_cast<float>(game.gameScreenHeight)
-    );
+    cameraController.initialize(static_cast<float>(game.gameScreenWidth), static_cast<float>(game.gameScreenHeight));
     cameraController.setTarget(player.get());
 
     // assign button functions
@@ -138,7 +137,7 @@ void InGame::setupEventListeners()
                 // check if the last loaded saveGame contains data
                 if (!game.savegame || game.savegame->worldData.find(targetWorld) == game.savegame->worldData.end())
                 {
-                    game.createWorld(targetWorld, (targetWorld != "overworld"));
+                    game.createWorld(targetWorld, (targetWorld != "overworld" && targetWorld != "interior"));
                 }
                 else
                 {

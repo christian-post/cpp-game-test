@@ -1,312 +1,112 @@
-function execute()
+-- dungeon generation test script
+
+local function generate_layout(config)
     local DungeonGenerator = require("dungeon.dungeon_generator")
-    local DungeonBuilder = require("dungeon.dungeon_builder")
-    local DungeonExporter = require("dungeon.dungeon_exporter")
-    local WorldGraph = require("dungeon.world_graph")
-    local Analyzer = require("dungeon.dungeon_analyzer")
-    local GenerateBaseRooms = require("dungeon.generate_base_rooms")
-    local TilemapModifier = require("dungeon.tilemap_modifier")
-    local ObjectTemplates = require("dungeon.object_templates")
     
-    print("=== Modular Dungeon Generation Test ===\n")
-    
-    -- step 1: generate layout
     print("Step 1: Generating layout...")
-    local layout, edges, stairway_rooms = DungeonGenerator.generate({
-        rows = 2,
-        cols = 3,
-        levels = 2,
-        start_row = 1,
-        start_col = 2,
-        dead_end_chance = 0.5,
-        growth_rate = 4.0
-    })
+    local layout, edges, stairway_rooms = DungeonGenerator.generate(config)
     
-    print(string.format("  Generated %d rooms across %d levels", 
-        (function()
-            local count = 0
-            for _ in pairs(layout.positions) do
-                count = count + 1
-            end
-            return count
-        end)(), layout.levels))
-    print(string.format("  Created %d edges", #edges))
-    
-    -- step 2: build graph
-    print("=== RNG Test ===")
-    print("Random number: " .. dungeon_random() .. "\n")
+    return layout, edges, stairway_rooms, DungeonGenerator
+end
 
+local function build_graph(WorldGraph, layout, edges, stairway_rooms, item_pool)
+    local DungeonBuilder = require("dungeon.dungeon_builder")
+    local DebugHelper = require("dungeon.debug_helper")
+    
     print("\nStep 2: Building graph...")
-    local item_pool = {"key", "key", "key", "boss_key", "weapon_sword"}
-
-    local graph, boss_room, excluded_rooms = DungeonBuilder.build(
-        WorldGraph,
-        layout,
-        edges,
-        stairway_rooms,
-        item_pool
-    )
-
-    -- print everything for debugging
-    print(string.format("  BossRoom placed: %s", boss_room))
-    print(string.format("  Excluded rooms: %d", 
-        (function()
-            local count = 0
-            for _ in pairs(excluded_rooms) do
-                count = count + 1
-            end
-            return count
-        end)()))
-
-    print("\nLayout:")
-    -- collect entries into a table
-    local entries = {}
-    for name, pos in pairs(layout.positions) do
-        local item = graph.nodes[name].value or "empty"
-        table.insert(entries, {name = name, pos = pos, item = item})
-    end
-
-    -- sort by level, then row, then col
-    table.sort(entries, function(a, b)
-        if a.pos.level ~= b.pos.level then
-            return a.pos.level < b.pos.level
-        end
-        if a.pos.row ~= b.pos.row then
-            return a.pos.row < b.pos.row
-        end
-        return a.pos.col < b.pos.col
-    end)
-
-    -- print sorted entries
-    for _, entry in ipairs(entries) do
-        print(string.format("  L%d [%d,%d] %s: %s", entry.pos.level, entry.pos.row, entry.pos.col, entry.name, entry.item))
-    end
-        
-    print("\nDoor patterns:")
-    for level = 0, layout.levels - 1 do
-        print(string.format("  Level %d:", level))
-        for row = 0, layout.rows - 1 do
-            for col = 0, layout.cols - 1 do
-                local node_name = nil
-                for name, pos in pairs(layout.positions) do
-                    if pos.level == level and pos.row == row and pos.col == col then
-                        node_name = name
-                        break
-                    end
-                end
-                    
-                if node_name then
-                    local doors = DungeonGenerator.calculate_doors(layout, edges, level, row, col)
-                    print(string.format("    [%d,%d] %s: %s", row, col, node_name, doors))
-                end
-            end
-        end
-    end
-
-    print("\nEdges:")
-    -- collect edges into a table for sorting
-    local edge_entries = {}
-    for _, edge in ipairs(edges) do
-        local from_pos = layout.positions[edge.from]
-        local to_pos = layout.positions[edge.to]
+    update_progress("Building Dungeon Graph...")
     
-        -- skip edges where positions aren't found
-        if from_pos and to_pos then
-            local locked_item = nil
-            if edge.requirements and #edge.requirements > 0 then
-                locked_item = edge.requirements[1]
-            end
-            table.insert(edge_entries, {
-                from = edge.from,
-                to = edge.to,
-                from_pos = from_pos,
-                to_pos = to_pos,
-                locked_item = locked_item,
-                requirements = edge.requirements or {}
-            })
-        end
-    end
+    local graph, boss_room, excluded_rooms = DungeonBuilder.build(WorldGraph, layout, edges, stairway_rooms, item_pool)
+    
+    DebugHelper.print_builder_info(boss_room, excluded_rooms)
+    
+    return graph
+end
 
-    -- sort by from level, row, col, then to level, row, col
-    table.sort(edge_entries, function(a, b)
-        if a.from_pos.level ~= b.from_pos.level then
-            return a.from_pos.level < b.from_pos.level
-        end
-        if a.from_pos.row ~= b.from_pos.row then
-            return a.from_pos.row < b.from_pos.row
-        end
-        if a.from_pos.col ~= b.from_pos.col then
-            return a.from_pos.col < b.from_pos.col
-        end
-        if a.to_pos.level ~= b.to_pos.level then
-            return a.to_pos.level < b.to_pos.level
-        end
-        if a.to_pos.row ~= b.to_pos.row then
-            return a.to_pos.row < b.to_pos.row
-        end
-        return a.to_pos.col < b.to_pos.col
-    end)
-
-    -- print sorted edges
-
-    -- helper function to check if edge is bidirectional
-    -- TODO maybe put a flag into the edges table?
-    local function is_bidirectional(graph, from_name, to_name, requirements)
-        local from_node = graph.nodes[from_name]
-        local to_node = graph.nodes[to_name]
-    
-        -- check if reverse edge exists with same requirements
-        for _, edge in ipairs(to_node.edges) do
-            if edge.target == from_node then
-                -- check if requirements match
-                if #edge.requirements == #requirements then
-                    local match = true
-                    for i = 1, #requirements do
-                        if edge.requirements[i] ~= requirements[i] then
-                            match = false
-                            break
-                        end
-                    end
-                    if match then
-                        return true
-                    end
-                end
-            end
-        end
-        return false
-    end
-
-    local printed_pairs = {}  -- track which bidirectional pairs we've already printed
-    for _, edge_entry in ipairs(edge_entries) do
-        local from = edge_entry.from
-        local to = edge_entry.to
-        local requirements = edge_entry.requirements or {}
-    
-        -- check if bidirectional
-        local is_bidir = is_bidirectional(graph, from, to, requirements)
-    
-        -- for bidirectional edges, only print once (alphabetically first direction)
-        if is_bidir then
-            local pair_key = from < to and (from .. "-" .. to) or (to .. "-" .. from)
-            if printed_pairs[pair_key] then
-                goto continue
-            end
-            printed_pairs[pair_key] = true
-        end
-    
-        local lock_status = edge_entry.locked_item and string.format("LOCKED (%s)", edge_entry.locked_item) or "open"
-        local arrow = is_bidir and "<->" or "->"
-    
-        print(string.format("  L%d [%d,%d] %s %s L%d [%d,%d] %s: %s",
-            edge_entry.from_pos.level, edge_entry.from_pos.row, edge_entry.from_pos.col, edge_entry.from,
-            arrow,
-            edge_entry.to_pos.level, edge_entry.to_pos.row, edge_entry.to_pos.col, edge_entry.to,
-            lock_status))
-    
-        ::continue::
-    end
-    
-    -- step 3: test reachability
+local function test_reachability(graph, item_pool)
     print("\nStep 3: Testing reachability...")
+    update_progress("Testing Reachability...")
+    
     graph:initialize_items(item_pool)
     if not graph:test_reachability() then
         print("ERROR: Graph structure is invalid!")
-        return nil
+        return false
     end
     
-    -- step 4: quality-based item placement
+    return true
+end
+
+local function find_optimal_placement(graph, layout, item_pool, config)
+    local Analyzer = require("dungeon.dungeon_analyzer")
+    local DungeonUtils = require("dungeon.dungeon_utils")
+    local DebugHelper = require("dungeon.debug_helper")
+    
     print("\nStep 4: Finding optimal item placement...")
-    local max_iterations = 10 -- how often it evaluates the dungeon score
-    local target_score = 0.7
+    update_progress("Placing Items...")
+    
+    local max_iterations = config.max_iterations or 10
+    local target_score = config.target_score or 0.7
+    local max_fill_attempts = config.max_fill_attempts or 25
+    
     local best_score = 0
     local best_placements = nil
     local best_report = nil
     
     for iteration = 1, max_iterations do
-        -- try forward_fill with retries
-        local max_fill_attempts = 25
         local success = false
-    
+        
         for attempt = 1, max_fill_attempts do
-            -- tell the Game that this is still running
+            -- tell the game that this is still running
             if not yield_to_engine() then
                 print("INFO: Window closed during generation")
-                return false
+                return nil
             end
-
+            
             graph:reset_items()
             graph:initialize_items(item_pool)
             success = graph:forward_fill(false)
-    
+            
             if success then
-                -- check if the completed dungeon is solvable
-                local is_solvable, trap_state = graph:is_solvable(false)
-                if is_solvable then
-                    break  -- found a good dungeon
-                else
-                    if trap_state then
-                        print(string.format("  TRAP STATE DETAILS:"))
-                        print(string.format("    Location: %s", trap_state.node.name))
-                        print(string.format("    Inventory:"))
-                        for item, count in pairs(trap_state.inventory) do
-                            if type(count) == "number" then
-                                print(string.format("      %s x%d", item, count))
-                            else
-                                print(string.format("      %s", item))
+                local score = Analyzer.challenge_score(graph)
+                
+                -- check for skippable items
+                local skippable = graph:find_skippable_items()
+                local has_skippable_sword = DungeonUtils.has_skippable_item(skippable, "weapon_sword")
+                
+                if not has_skippable_sword then
+                    if score > best_score then
+                        best_score = score
+                        best_placements = {}
+                        for name, node in pairs(graph.nodes) do
+                            if node.value then
+                                best_placements[name] = node.value
                             end
                         end
-                        print(string.format("    Collected:"))
-                        for loc, _ in pairs(trap_state.collected) do
-                            print(string.format("      %s", loc))
-                        end
+                        best_report = Analyzer.generate_report(graph)
                     end
-                    print(string.format("  Attempt %d: placement complete but has trap, retrying...", attempt))
-                    success = false
+                    
+                    if score >= target_score then
+                        print(string.format("\nReached target score %.3f after %d iterations!", target_score, iteration))
+                        break
+                    end
+                else
+                    print("  Iteration rejected: sword is skippable")
                 end
             end
         end
-
-        -- print final layout with placed items
-        print("Layout with items:")
-
-        local entries = {}
-        for name, pos in pairs(layout.positions) do
-            local item = graph.nodes[name].value or "empty"
-            table.insert(entries, {name = name, pos = pos, item = item})
-        end
-
-        -- sort by level, then row, then col
-        table.sort(entries, function(a, b)
-            if a.pos.level ~= b.pos.level then
-                return a.pos.level < b.pos.level
-            end
-            if a.pos.row ~= b.pos.row then
-                return a.pos.row < b.pos.row
-            end
-            return a.pos.col < b.pos.col
-        end)
-
-        -- print sorted entries
-        for _, entry in ipairs(entries) do
-            print(string.format("  L%d [%d,%d] %s: %s", entry.pos.level, entry.pos.row, entry.pos.col, entry.name, entry.item))
-        end
-    
+        
         if success then
             local score = Analyzer.challenge_score(graph)
             print(string.format("  Iteration %d: score = %.3f", iteration, score))
-        
-            if score > best_score then
-                best_score = score
-                best_placements = {}
-                for name, node in pairs(graph.nodes) do
-                    if node.value then
-                        best_placements[name] = node.value
-                    end
-                end
-                best_report = Analyzer.generate_report(graph)
-            end
-        
-            if score >= target_score then
+            
+            DebugHelper.print_item_placement(layout, graph, iteration, score)
+            
+            graph:reset_items()
+            graph:initialize_items(item_pool)
+            local skippable = graph:find_skippable_items()
+            DebugHelper.print_skippable_warning(skippable)
+            
+            if score >= target_score and not DungeonUtils.has_skippable_item(skippable, "weapon_sword") then
                 print(string.format("\nReached target score %.3f after %d iterations!", target_score, iteration))
                 break
             end
@@ -315,69 +115,127 @@ function execute()
         end
     end
     
-    -- step 5: restore best placement
+    return best_score, best_placements, best_report
+end
+
+local function restore_best_placement(graph, best_placements)
+    graph:reset_items()
+    
+    for name, node in pairs(graph.nodes) do
+        node.value = nil
+    end
+    
+    for name, item in pairs(best_placements) do
+        graph.nodes[name].value = item
+    end
+end
+
+local function export_dungeon_data(layout, edges, graph, item_pool, stairway_rooms, dungeon_key, DungeonGenerator)
+    local DungeonExporter = require("dungeon.dungeon_exporter")
+    
+    print("\nStep 6: Exporting dungeon data...")
+    local dungeon_data = DungeonExporter.export(layout, edges, graph, item_pool, stairway_rooms, DungeonGenerator)
+    DungeonExporter.append_to_dungeons(dungeon_data, "resources/dungeons.json", dungeon_key)
+    return dungeon_data
+end
+
+local function generate_base_rooms_if_needed()
+    local GenerateBaseRooms = require("dungeon.generate_base_rooms")
+    
+    print("\nStep 7: Checking base room tilemaps...")
+    update_progress("Generating Base Rooms...")
+    
+    local base_check = io.open("resources/tilemaps/base/room_0001.json", "r")
+    if not base_check then
+        print("  Base rooms not found, generating...")
+        GenerateBaseRooms.generate("resources/tilemaps/empty_floor.json", "resources/tilemaps/base")
+    else
+        base_check:close()
+        print("  Base rooms already exist, skipping generation")
+    end
+end
+
+local function process_tilemaps(dungeon_key, output_dir)
+    local TilemapModifier = require("dungeon.tilemap_modifier")
+    local ObjectTemplates = require("dungeon.object_templates")
+    
+    print("\nStep 8: Processing tilemaps...")
+    update_progress("Processing Tilemaps...")
+    
+    TilemapModifier.process_dungeon("resources/dungeons.json", dungeon_key, "resources/tilemaps/base", output_dir, ObjectTemplates)
+end
+
+function execute()
+    local WorldGraph = require("dungeon.world_graph")
+    local Analyzer = require("dungeon.dungeon_analyzer")
+    local DebugHelper = require("dungeon.debug_helper")
+    local HintGenerator = require("dungeon.hint_generator")
+    
+    print("=== Modular Dungeon Generation Test ===\n")
+    dungeon_generation_start()
+    
+    local dungeon_key = "lua_dungeon"
+    local output_dir = "resources/tilemaps/generated/" .. dungeon_key
+    
+    -- setup output directory
+    filesystem.create_directory(output_dir)
+    filesystem.clear_directory(output_dir)
+    
+    -- step 1: generate layout
+    local layout_config = {
+        rows = 2,
+        cols = 3,
+        levels = 2,
+        start_row = 1,
+        start_col = 2,
+        dead_end_chance = 0.5,
+        growth_rate = 4.0
+    }
+    local layout, edges, stairway_rooms, DungeonGenerator = generate_layout(layout_config)
+    DebugHelper.print_generation_summary(layout, edges)
+    
+    -- step 2: build graph
+    local item_pool = {"key", "key", "key", "boss_key", "weapon_sword"}
+    local graph = build_graph(WorldGraph, layout, edges, stairway_rooms, item_pool)
+    
+    -- print debug information
+    DebugHelper.print_layout(layout, graph)
+    DebugHelper.print_door_patterns(layout, edges, DungeonGenerator)
+    DebugHelper.print_edges(layout, edges, graph)
+    
+    -- step 3: test reachability
+    if not test_reachability(graph, item_pool) then
+        dungeon_generation_complete(false)
+        return false
+    end
+    
+    -- step 4: find optimal item placement
+    local placement_config = {
+        max_iterations = 10, -- how often the score gets evaluated
+        target_score = 0.7, -- dungeon score (0 to 1)
+        max_fill_attempts = 25 -- max tries within one evaluation cycle
+    }
+    local best_score, best_placements, best_report = find_optimal_placement(graph, layout, item_pool, placement_config)
+    
+    -- step 5: finalize and export
     if best_placements then
-        graph:reset_items()
-
-        for name, node in pairs(graph.nodes) do
-            node.value = nil
-        end
+        restore_best_placement(graph, best_placements)
+        DebugHelper.print_final_report(best_score, best_report, Analyzer)
         
-        for name, item in pairs(best_placements) do
-            graph.nodes[name].value = item
-        end
-        
-        print(string.format("\n=== Best Dungeon (score: %.3f) ===\n", best_score))
-        
-        -- check for items that can possibly be skipped
-        -- TODO do this check earlier (before breaking out of the loop)
-        graph:initialize_items(item_pool) -- reinitialize graph state for skippable items check
-        local skippable = graph:find_skippable_items()
-        if #skippable > 0 then
-            print("Warning: there are skippable items in this dungeon:")
-            for _, item_info in ipairs(skippable) do
-                print(string.format("  %s at %s", item_info.item, item_info.location))
-            end
-        end
-        
-        print("")
-        Analyzer.print_report(best_report)
-        
-        -- step 6: export dungeon data
-        print("\nStep 6: Exporting dungeon data...")
-        local dungeon_data = DungeonExporter.export(layout, edges, graph, item_pool, stairway_rooms, DungeonGenerator)
-        DungeonExporter.append_to_dungeons(dungeon_data, "resources/dungeons.json", "lua_dungeon")
-        
-        -- step 7: generate base room tilemaps (only if needed)
-        print("\nStep 7: Checking base room tilemaps...")
-        -- check if base rooms exist, if not generate them
-        local base_check = io.open("resources/tilemaps/base/room_0001.json", "r")
-        if not base_check then
-            print("  Base rooms not found, generating...")
-            GenerateBaseRooms.generate(
-                "resources/tilemaps/empty_floor.json",
-                "resources/tilemaps/base"
-            )
-        else
-            base_check:close()
-            print("  Base rooms already exist, skipping generation")
-        end
-        
-        -- step 8: process tilemaps (add items, stairs, etc.)
-        print("\nStep 8: Processing tilemaps...")
-
-        TilemapModifier.process_dungeon(
-            "resources/dungeons.json",
-            "lua_dungeon",
-            "resources/tilemaps/base",
-            "resources/tilemaps/generated",
-            ObjectTemplates
-        )
+        local dungeon_data = export_dungeon_data(layout, edges, graph, item_pool, stairway_rooms, dungeon_key, DungeonGenerator)
+        generate_base_rooms_if_needed()
+        print("display name" .. dungeon_data.display_name)
+        HintGenerator.generate(graph, dungeon_key, dungeon_data.display_name)
+        process_tilemaps(dungeon_key, output_dir)
         
         print("\n=== Dungeon Generation Complete! ===")
+        dungeon_generation_complete(true)
+        
         return graph, layout, best_score, best_report
     else
         print("\nFailed to generate any valid dungeon!")
+        dungeon_generation_complete(false)
+
         return false
     end
 end

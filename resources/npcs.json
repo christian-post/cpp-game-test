@@ -135,5 +135,22 @@
     "textures": [
       "ladder_down"
     ]
+  },
+  "randomNPC1": {
+    "behaviorData": {
+      "dialogue": "hint_lua_dungeon_randomNPC1",
+      "voice": "powerUp4",
+      "watchTarget": "player"
+    },
+    "behaviors": [
+      "Watch",
+      "RandomWalk",
+      "Dialogue"
+    ],
+    "inherits": "sprite_default",
+    "textures": [
+      "dwarf_f_idle",
+      "dwarf_f_run"
+    ]
   }
 }

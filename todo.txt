@@ -4,8 +4,22 @@
 - RELOAD_ROOM event crashes in combination with emitters
 - Signpost "dialogue" property does not overwrite npcs.json
 - hitbox offset in Sprite data does not work
+- "restart game" breaks fullscreen mode
+- need to reload npcs.json, dungeons.json and texts.json after dungeon generation
 
 ## FEATURES/REFACTORS:
+- Gameplay
+-- Shop in town with randomized item
+-- Chest in overworld (integrate into graph)
+-- Continues after game over cost money
+-- Medalion/pendant equip system (1 at at time, 2 later in the game)
+--- Pendant that lets you instant revive for 100 coins
+--- Pendant that gives you +2 hearts
+--- Pendant that makes your weapons stronger, but longer cooldown
+--- etc
+-- NPCs in overworld or houses that give you hints (randomly)
+-- fortune teller gives you one hint (that is solvable) for money. "you will get the XY in Z" Resets after some time. Rewards you if you actually got the item.
+
 - Core
 -- load weapons.json data into weaponData structs in Preload
 -- do I need a base GameObject class? Or is that too much overhead for too little gain?
@@ -16,8 +30,6 @@
 -- dynamically show a shadow over a room entrance if the adjacent room is dark
 -- unify Room::objectStates and TileMap::dynamicObjects? same data, two different places
 -- Mask room transitions to reduce visual artifacts
--- draw stairs/ladders on MapUI
--- WorldGraph.h might not be needed if done also in Lua
 -- Buffer the Tilemap chunks of multiple adjacent rooms to reduce loading/unloading?
 
 - Sprites
@@ -64,3 +76,4 @@
 - hand painted title image
 - consistent source code formatting (brackets!)
 -- should all enums be UPPERCASE?
+- refactor "goto" statements in Lua scripts

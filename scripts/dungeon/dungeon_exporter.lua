@@ -41,6 +41,7 @@ function DungeonExporter.export(layout, edges, graph, item_pool, stairway_rooms,
     end
     
     local dungeon_data = {
+        display_name = "Clifftop Fortress", -- TODO define this elsewhere
         seed = dungeon_seed,
         starting_level = start_pos.level,
         starting_room = {start_pos.row, start_pos.col},
@@ -145,7 +146,7 @@ function DungeonExporter.export(layout, edges, graph, item_pool, stairway_rooms,
 end
 
 function DungeonExporter.save_to_file(dungeon_data, filepath)
-    -- saves dungeon data to JSON file
+    -- saves this dungeon's data to a JSON file
     -- note: json.encode is provided by C++ (LuaDungeonGenerator)
     
     local encoded = json.encode(dungeon_data, 2)
@@ -184,7 +185,7 @@ function DungeonExporter.append_to_dungeons(dungeon_data, filepath, dungeon_name
         end
     end
     
-    -- add dungeon with key name (overwrites if exists)
+    -- add dungeon with key name (overwrites completely if exists)
     dungeons[dungeon_name] = dungeon_data
     
     -- write back to file

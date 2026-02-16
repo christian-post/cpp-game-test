@@ -24,7 +24,6 @@ void StartMenu::startup() {
                 "Load Game",
                 MenuItemType::Action,
                 [&]() {
-                // TODO: Transition to another menu that lets you select a file
                 game.startScene("LoadSavegameMenu");
                 game.stopScene(getName());
             }
@@ -39,6 +38,15 @@ void StartMenu::startup() {
                     game.startScene("StartMenu");
                 });
                 game.startScene("SettingsMenu");
+                game.stopScene(getName());
+            }
+        });
+
+    menu.addItem({
+            "Generate New World",
+            MenuItemType::Action,
+            [&]() {
+                game.startScene("DungeonMenu");
                 game.stopScene(getName());
             }
         });

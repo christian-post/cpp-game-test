@@ -1,0 +1,14 @@
+{ "columns":24,
+ "image":"..\/textures\/tilesets\/simple_dungeon_tiles.png",
+ "imageheight":288,
+ "imagewidth":384,
+ "margin":0,
+ "name":"simple_dungeon.tsj",
+ "spacing":0,
+ "tilecount":432,
+ "tiledversion":"1.11.2",
+ "tileheight":16,
+ "tilewidth":16,
+ "type":"tileset",
+ "version":"1.10"
+}

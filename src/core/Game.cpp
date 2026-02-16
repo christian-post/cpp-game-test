@@ -12,6 +12,7 @@
 #include "LoadSavegameMenu.h"
 #include "WriteSavegameMenu.h"
 #include "KeyBindingMenu.h"
+#include "DungeonMenu.h"
 #include "InGame.h"
 #include "HUD.h"
 #include "InventoryUI.h"
@@ -21,6 +22,7 @@
 #include "Utils.h"
 #include "Emitter.h"
 #include "LuaDungeonGenerator.h"
+#include "rlgl.h"
 #include <sstream>
 #include <fstream>
 #include <cassert>
@@ -51,6 +53,9 @@ Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this), luaDungeonGen(
 
     InitWindow(winW, winH, "My first game");
 
+    // circumvent the alpha blending bug for RenderTextures
+    rlSetBlendFactorsSeparate(RL_SRC_ALPHA, RL_ONE_MINUS_SRC_ALPHA, RL_ONE, RL_ONE, RL_FUNC_ADD, RL_MAX);
+
     // clamp window size if needed
     int maxW = GetMonitorWidth(0);
     int maxH = GetMonitorHeight(0);
@@ -62,6 +67,7 @@ Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this), luaDungeonGen(
     }
     SetWindowMaxSize(maxW, maxH);
     SetWindowMinSize(320, 240);
+
     isFullscreen = getSetting("fullscreen", false);
     if (isFullscreen)
     {
@@ -123,6 +129,7 @@ Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this), luaDungeonGen(
     registerScene<KeyBindingMenu>("KeyBindingMenu", 2);
     registerScene<SoundTest>("SoundTest", 0);
     registerScene<DebugMenu>("DebugMenu", 2);
+    registerScene<DungeonMenu>("DungeonMenu", 0);
     registerScene<SelectMenu>("SelectMenu", 0);
     registerScene<InGame>("InGame", 0);
     registerScene<HUD>("HUD", 1);
@@ -131,22 +138,8 @@ Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this), luaDungeonGen(
     registerScene<GameOver>("GameOver", 2);
     registerScene<WorldTransition>("WorldTransition", 1);
 
-    // seed the rng
+    // seed the rng with system time
     srand(static_cast<uint32_t>(time(nullptr)));
-
-    // fix the rng seed in Lua if provided in settings.json
-    // otherwise it will use os.time() as well
-    if (getSetting<bool>("useRngSeed"))
-    {
-        int seed = getSetting<int>("dungeonRngSeed");
-        TraceLog(LOG_INFO, "Using dungeon RNG seed: %d", seed);
-        luaDungeonGen->setSeed(seed);
-    }
-
-    // TODO testing dungeon generation
-    TraceLog(LOG_INFO, "Running Lua dungeon generation test");
-    bool success = luaDungeonGen->executeScript("scripts/test_dungeon_generation.lua");
-    assert(success && "Lua dungeon generation failed");
 }
 
 Game::~Game() = default;

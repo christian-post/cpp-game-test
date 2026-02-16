@@ -2,7 +2,8 @@
 #include "Scene.h"
 #include "MenuSelect.h"
 
-class SelectMenu : public Scene {
+class SelectMenu : public Scene 
+{
 public:
     SelectMenu(Game& game, const std::string& name);
     void startup() override;

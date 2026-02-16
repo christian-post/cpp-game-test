@@ -45,10 +45,31 @@ void LuaDungeonGenerator::setupBindings()
         };
 
     // keeps the raylib window busy while the dungeon script is running
-    lua["yield_to_engine"] = [this]() {
-        this->game.eventManager.pushEvent(DUNGEON_GENERATION_TICK);
+    lua["yield_to_engine"] = [this](sol::optional<std::string> message) {
+        if (message)
+            // include a message that the loading scene can use to display information
+            this->game.eventManager.pushEvent(DUNGEON_GENERATION_TICK, *message);
+        else
+            this->game.eventManager.pushEvent(DUNGEON_GENERATION_TICK, std::any{});
         this->game.processFrame();
         return !WindowShouldClose();
+        };
+
+    lua["update_progress"] = [this](sol::optional<std::string> message) {
+        if (message)
+            // include a message that the loading scene can use to display information
+            this->game.eventManager.pushEvent(DUNGEON_GENERATION_PROGRESS, *message);
+        else
+            this->game.eventManager.pushEvent(DUNGEON_GENERATION_PROGRESS, std::any{});
+        };
+
+    lua["dungeon_generation_start"] = [this]() {
+        this->game.eventManager.pushEvent(DUNGEON_GENERATION_START);
+        };
+
+    lua["dungeon_generation_complete"] = [this](sol::optional<bool> success) {
+        bool result = success.value_or(true); // expect "true" as default
+        this->game.eventManager.pushEvent(DUNGEON_GENERATION_COMPLETE, result);
         };
 
     // dungeon-specific RNG, won't be affected by game frame processing
@@ -74,10 +95,22 @@ void LuaDungeonGenerator::setupBindings()
             }
         };
 
-    //lua["dungeon_randomseed"] = [this](int seed)
-    //    {
-    //        dungeonRng.seed(seed);
-    //    };
+    // filesystem operations
+    lua["filesystem"] = lua.create_table();
+
+    lua["filesystem"]["create_directory"] = [](const std::string& path) {
+        return std::filesystem::create_directories(path);
+        };
+
+    lua["filesystem"]["clear_directory"] = [](const std::string& path) {
+        if (!std::filesystem::exists(path))
+            return;
+
+        for (const auto& entry : std::filesystem::directory_iterator(path))
+        {
+            std::filesystem::remove_all(entry.path());
+        }
+        };
 }
 
 nlohmann::json LuaDungeonGenerator::solToJson(const sol::object& obj)

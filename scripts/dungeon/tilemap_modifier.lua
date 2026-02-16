@@ -126,7 +126,6 @@ local function find_locked_edges(dungeon_data, level_idx, room_coords)
             if from[1] == room_coords[1] and from[2] == room_coords[2] then
                 row_delta = to[1] - from[1]
                 col_delta = to[2] - from[2]
-
             -- check if current room is 'to' (direction to 'from')
             elseif to[1] == room_coords[1] and to[2] == room_coords[2] then
                 row_delta = from[1] - to[1]
@@ -435,13 +434,21 @@ function TilemapModifier.process_dungeon(dungeon_json_path, dungeon_name, tilema
                 -- TODO add more lock types
     
                 for _, edge_info in ipairs(locked_edges) do
-                    print("Edge is locked by " .. edge_info.item)
+                    print(string.format("Edge from [%d,%d] to [%d,%d] is locked by %s", 
+                        edge_info.from_room[1], 
+                        edge_info.from_room[2], 
+                        edge_info.to_room[1], 
+                        edge_info.to_room[2], 
+                        tostring(edge_info.item)))
                     if edge_info.item == "key" or edge_info.item == "boss_key" then
                         table.insert(key_locks, edge_info)
                     elseif edge_info.item == "weapon_sword" then
-                        table.insert(combat_locks, edge_info)
+                        -- sword locks are one-directional: the fight is only placed in the "from" room of this edge
+                        if edge_info.from_room[1] == room_coords[1] and edge_info.from_room[2] == room_coords[2] then
+                            table.insert(combat_locks, edge_info)
+                        end
                     end
-                    -- TODO
+                    -- TODO other locks
                 end
     
                 -- handle each type with specific function

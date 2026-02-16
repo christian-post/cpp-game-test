@@ -1,5 +1,6 @@
 #include "TilemapRenderer.h"
 #include "Game.h"
+#include "rlgl.h"
 #include <cmath>
 #include <algorithm>
 
@@ -99,11 +100,20 @@ void TilemapRenderer::generateChunks() {
     tilemapChunks.resize(layerCount);
 
     for (size_t layerIndex = 0; layerIndex < layerCount; layerIndex++) {
-        generateChunkForLayer(layerIndex);
+        // specifiy the clear color for each layer
+        // so that semi-transparent tiles are blended correctly
+        // TODO this is just a temporary fix, there has to be a better solution...
+        Color layerClearColors[4] = {
+            BLANK,                     // layer 0: floor
+            BLANK,                     // layer 1: walls
+            Color{ 255, 255, 255, 0 }, // layer 2: walls2
+            Color{ 255, 255, 255, 0 }, // layer 3: top
+        };
+        generateChunkForLayer(layerIndex, layerClearColors[layerIndex]);
     }
 }
 
-void TilemapRenderer::generateChunkForLayer(size_t layerIndex) {
+void TilemapRenderer::generateChunkForLayer(size_t layerIndex, Color clearColor) {
     if (currentTilemap == nullptr || layerIndex >= currentTilemap->layers.size()) {
         return;
     }
@@ -146,7 +156,9 @@ void TilemapRenderer::generateChunkForLayer(size_t layerIndex) {
 
             // begin rendering to this chunk
             BeginTextureMode(tilemapChunks[layerIndex][chunkIndex]);
-            ClearBackground(BLANK);
+            ClearBackground(clearColor);
+
+            BeginBlendMode(BLEND_CUSTOM_SEPARATE);
 
             // calculate tile boundaries for this chunk
             size_t startTileX = (chunkX * tileChunkSize) / tileSize;
@@ -212,6 +224,7 @@ void TilemapRenderer::generateChunkForLayer(size_t layerIndex) {
                 }
             }
 
+            EndBlendMode();
             EndTextureMode();
         }
     }
@@ -258,7 +271,9 @@ void TilemapRenderer::drawChunks(int layerIndex, const Camera2D& camera) {
                 static_cast<float>(tileChunkSize)
             };
 
-            DrawTexturePro(chunk.texture, sourceRect, destRect, { 0, 0 }, 0.0f, WHITE);
+            BeginBlendMode(BLEND_CUSTOM_SEPARATE);
+                DrawTexturePro(chunk.texture, sourceRect, destRect, { 0, 0 }, 0.0f, WHITE);
+            EndBlendMode();
         }
     }
 }
