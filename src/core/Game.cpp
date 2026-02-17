@@ -462,7 +462,17 @@ void Game::createWorld(const std::string& key, bool isDungeon)
         // load overworld data
         auto overworld = std::make_unique<Overworld>(*this, roomsW, roomsH, numLevels, key);
         overworld->generate(worldData);
-        overworld->makeMapTextures();
+
+        if (key == "overworld")
+        {
+            overworld->makeMapTextures();
+        }
+        else
+        {
+            // don't generate or show the map
+            overworld->showMap = false;
+        }
+
         currentWorld = std::move(overworld);
     }
 }

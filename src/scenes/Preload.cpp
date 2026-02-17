@@ -3,7 +3,8 @@
 #include "json.hpp"
 
 
-void Preload::startup() {
+void Preload::startup()
+{
     auto& l = game.loader;
     // > preload most of the assets that are persistent throughout the game.
     // > for an animated sprite, the keys have to contain the suffixes
@@ -308,27 +309,33 @@ void Preload::startup() {
     totalLoadSteps = game.loader.loadQueue.size();
 }
 
-void Preload::update(float deltaTime) {
-    // calculate loading progress
-    if (!game.loader.loadQueue.empty()) {
+void Preload::update(float deltaTime)
+{
+    // loading progress
+    if (!game.loader.loadQueue.empty()) 
+    {
         currentMessage = game.loader.loadQueue.front().first;
         game.loader.loadQueue.front().second(); // callback
         game.loader.loadQueue.pop();
     }
-    else {
+    else
+    {
         currentMessage = "Loading finished";
         game.stopScene("Preload");
         game.startScene("TitleScreen");
     }
 }
 
-void Preload::draw() {
+void Preload::draw()
+{
     ClearBackground(BLACK);
+
     int fontSize = 10;
     int textWidth = MeasureText(currentMessage.c_str(), fontSize);
     int x = (game.gameScreenWidth - textWidth) / 2;
     int y = (game.gameScreenHeight - fontSize) / 2 + 16;
     DrawText(currentMessage.c_str(), x, y, fontSize, WHITE);
+
     float progress = 1.0f - (float)game.loader.loadQueue.size() / totalLoadSteps;
     int rectX = int(game.gameScreenWidth * 0.2);
     int rectY = int(game.gameScreenHeight * 0.4);
@@ -338,7 +345,8 @@ void Preload::draw() {
     DrawRectangle(rectX, rectY, static_cast<int>(static_cast<float>(rectW) * progress), rectH, WHITE);
 }
 
-void Preload::end() {
+void Preload::end()
+{
     game.loader.postprocessSpriteData(); // for the JSON sprite data
 
     // process item data

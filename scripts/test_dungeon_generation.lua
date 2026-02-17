@@ -159,7 +159,7 @@ local function process_tilemaps(dungeon_key, output_dir)
     local TilemapModifier = require("dungeon.tilemap_modifier")
     local ObjectTemplates = require("dungeon.object_templates")
     
-    print("\nStep 8: Processing tilemaps...")
+    print("\nStep 9: Processing tilemaps...")
     update_progress("Processing Tilemaps...")
     
     TilemapModifier.process_dungeon("resources/dungeons.json", dungeon_key, "resources/tilemaps/base", output_dir, ObjectTemplates)
@@ -225,7 +225,7 @@ function execute()
         local dungeon_data = export_dungeon_data(layout, edges, graph, item_pool, stairway_rooms, dungeon_key, DungeonGenerator)
         generate_base_rooms_if_needed()
         print("display name" .. dungeon_data.display_name)
-        HintGenerator.generate(graph, dungeon_key, dungeon_data.display_name)
+        HintGenerator.generate(graph, layout, dungeon_key, dungeon_data.display_name)
         process_tilemaps(dungeon_key, output_dir)
         
         print("\n=== Dungeon Generation Complete! ===")

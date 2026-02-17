@@ -18,10 +18,12 @@ public:
     void startup() override;
     void update(float deltaTime) override;
     void draw() override;
+    void end() override;
 
 private:
     MenuSelect menu;
     std::string displayMessage = "";
     std::string lastSeedMessage = "";
     MenuState currentState = MenuState::Idle;
+    bool reloadRequired = false; // indicates whether files need to be reloaded
 };

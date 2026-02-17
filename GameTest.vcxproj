@@ -477,6 +477,7 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <None Include="resources\tilemaps\dungeon.tsj" />
     <None Include="resources\weapons.json" />
     <None Include="scripts\dungeon\debug_helper.lua" />
+    <None Include="scripts\dungeon\direction_utils.lua" />
     <None Include="scripts\dungeon\dungeon_analyzer.lua" />
     <None Include="scripts\dungeon\dungeon_builder.lua" />
     <None Include="scripts\dungeon\dungeon_generator.lua" />

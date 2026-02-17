@@ -45,9 +45,6 @@ void DungeonMenu::startup()
     {
         // TODO change to menu where the players can enter a seed
         uint32_t seed = game.getSetting<int>("dungeonRngSeed");
-
-        //std::string seedStr = seedToHexString(seed);
-        //std::string seedMenuText = "Generate with seed: " + seedStr;
         std::string seedMenuText = format("Generate with seed: (%s)", seedToHexString(seed).c_str());
 
         menu.addItem({
@@ -60,6 +57,8 @@ void DungeonMenu::startup()
                 TraceLog(LOG_INFO, "Running Lua dungeon generation test");
                 game.luaDungeonGen->executeScript("scripts/test_dungeon_generation.lua");
                 TraceLog(LOG_INFO, "Dungeon generation completed!");
+
+                reloadRequired = true;
             }
             });
     }
@@ -80,6 +79,8 @@ void DungeonMenu::startup()
 
                 std::string seedStr = seedToHexString(seed);
                 lastSeedMessage = "Seed of generated dungeon: " + seedStr;
+
+                reloadRequired = true;
             }
         });
 
@@ -138,4 +139,32 @@ void DungeonMenu::draw()
             DrawText(text, x, y, fontSize, LIGHTGRAY);
         }
     }
+}
+
+void DungeonMenu::end()
+{
+    // reload some of the files that got modified during dungeon generation
+    if (reloadRequired)
+    {
+        // JSON
+        game.loader.loadQueue.emplace("Loading JSON files", [&]() {
+            game.loader.loadSpriteData("./resources/npcs.json");
+            game.loader.loadtextData("./resources/texts.json");
+            game.loader.loadDungeonData("./resources/dungeons.json");
+            });
+
+        // rooms
+        game.loader.loadQueue.emplace("Loading tilemaps", [&]() {
+            game.loader.loadTilemapsFromDirectory("./resources/tilemaps/generated/lua_dungeon"); // TODO load subfolders recursively
+            });
+
+        // TODO will this take time long enough so I need to show a loading message?
+        while (!game.loader.loadQueue.empty())
+        {
+            game.loader.loadQueue.front().second(); // execute callback
+            game.loader.loadQueue.pop();
+        }
+    }
+
+    reloadRequired = false;
 }

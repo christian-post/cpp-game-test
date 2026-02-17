@@ -48,6 +48,9 @@ function DungeonExporter.export(layout, edges, graph, item_pool, stairway_rooms,
         boss_level = boss_pos.level,
         boss_room = {boss_pos.row, boss_pos.col},
         level_connections = {},
+        overworld_entrances = {
+            { room = {0, 0}, level = 0 } -- where this dungeon is in the overworld, TODO make dynamic
+        },
         item_pool = {},
         levels = {},
         rooms_w = max_col + 1,

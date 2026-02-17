@@ -56,6 +56,9 @@ void Overworld::generate(const nlohmann::json& overworldData)
 
 void Overworld::renderMinimap(float hudY, float gameScreenWidth)
 {
+    if (!showMap)
+        return;
+
     // minimap dimensions and position
     const int minimapWidth = 48;
     const int minimapHeight = 24;
@@ -102,6 +105,10 @@ void Overworld::renderMinimap(float hudY, float gameScreenWidth)
 
 void Overworld::renderMapScreen(const MapRenderParams& params)
 {
+    // TODO don't even go to this UI screen in the menu?
+    if (!showMap)
+        return;
+
     // overwrite some params
     size_t border = params.border;
     size_t spacing = 1;

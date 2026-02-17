@@ -26,6 +26,7 @@ public:
     std::string name; // needed for save game data, has to match an entry in dungeons.json
 
     bool isDungeon = true;
+    bool showMap = true; // some areas have no map (e.g., house interior)
     size_t currentLevel = 0;
     size_t currentRoomIndex = 0;
     size_t startingRoomIndex = 0;

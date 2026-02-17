@@ -660,6 +660,7 @@
     <None Include="scripts\dungeon\dungeon_utils.lua" />
     <None Include="scripts\dungeon\debug_helper.lua" />
     <None Include="scripts\dungeon\hint_generator.lua" />
+    <None Include="scripts\dungeon\direction_utils.lua" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="github\hero.gif">

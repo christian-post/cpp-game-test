@@ -1,11 +1,21 @@
--- scripts/dungeon/hint_generator.lua
+local DirectionUtils = require("dungeon.direction_utils")
+
 local HintGenerator = {}
 
--- mission-critical items eligible to be hinted at
+-- mission-critical items that can be hinted at
 local hint_items = { "weapon_sword", "boss_key" }
 
 -- npcs that can deliver hints (keys as in npcs.json)
-local hint_npcs = { "randomNPC1" }
+local hint_npcs = { 
+    { key = "randomNPC1", world = "interior", room = {0, 0}, level = 0 }
+}
+
+-- locations on the overworld that get used in conversations
+-- TODO get the display_name from dungeons.json?
+local famous_locations = {
+    { room = {0, 0}, display_name = "Clifftop Fortress" },
+    { room = {1, 1}, display_name = "the village" }
+}
 
 -- item names
 -- TODO use names from items data
@@ -26,14 +36,25 @@ local function prettify_name(str)
 end
 
 -- find which hint_items are actually placed in the graph
-local function find_placed_items(graph)
+local function find_placed_items(graph, layout, dungeon_key)
     local placed = {}
     local found_set = {}
 
     for _, item_name in ipairs(hint_items) do
-        for _, node in pairs(graph.nodes) do
+        for node_name, node in pairs(graph.nodes) do
             if node.value == item_name and not found_set[item_name] then
-                table.insert(placed, item_name)
+                -- look up position from layout
+                local pos = layout.positions[node_name]
+                if not pos then
+                    error(string.format("HintGenerator: node '%s' not found in layout", node_name))
+                end
+                
+                table.insert(placed, {
+                    name = item_name,
+                    world = dungeon_key,
+                    room = {pos.row, pos.col},
+                    level = pos.level
+                })
                 found_set[item_name] = true
                 break
             end
@@ -43,6 +64,7 @@ local function find_placed_items(graph)
     return placed
 end
 
+-- TODO these should be in a utils script
 local function load_json(path)
     local file = io.open(path, "r")
     if not file then
@@ -92,22 +114,32 @@ local function patch_npc_dialogue(path, npc_key, dialogue_key)
     out:close()
 end
 
-local function resolve_hint_text(template, item_name, dungeon_key, dungeon_display_name)
-    local display_item = item_display_names[item_name] or prettify_name(item_name)
+local function resolve_hint_text(template, item, npc, dungeon_display_name, dungeons_data)
+    local display_item = item_display_names[item.name] or prettify_name(item.name)
+    
+    -- resolve both locations to overworld coordinates
+    local npc_overworld = DirectionUtils.resolve_to_overworld_room(npc.world, npc.room, npc.level, dungeons_data)
+    local item_overworld = DirectionUtils.resolve_to_overworld_room(item.world, item.room, item.level, dungeons_data)
+    
+    -- get direction string
+    local direction_str = DirectionUtils.get_direction_string(npc_overworld, item_overworld, famous_locations)
+    
     local result = template
     result = result:gsub("%[HINT:item%]", display_item)
     result = result:gsub("%[HINT:loc%]",  dungeon_display_name)
-    result = result:gsub("%[HINT:dir%]",  "???")
+    result = result:gsub("%[HINT:dir%]",  direction_str)
     return result
 end
 
-function HintGenerator.generate(graph, dungeon_key, dungeon_display_name, texts_path, npcs_path)
+function HintGenerator.generate(graph, layout, dungeon_key, dungeon_display_name, texts_path, npcs_path)
+    -- TODO file path definitions consistency
     texts_path = texts_path or "resources/texts.json"
     npcs_path  = npcs_path  or "resources/npcs.json"
 
-    print("\nStep 5b: Generating NPC hints...")
+    print("\nStep 8: Generating NPC hints...")
 
     local texts_data = load_json(texts_path)
+    local dungeons_data = load_json("resources/dungeons.json")
 
     if not texts_data[hint_template_key] then
         error("HintGenerator: missing template key in texts.json: " .. hint_template_key)
@@ -117,23 +149,22 @@ function HintGenerator.generate(graph, dungeon_key, dungeon_display_name, texts_
     end
 
     local template     = texts_data[hint_template_key][1]
-    local placed_items = find_placed_items(graph)
-    print(string.format("  Found %d hintable item(s), %d hint NPC(s) available", #placed_items, #hint_npcs))
+    local placed_items = find_placed_items(graph, layout, dungeon_key)
 
-    for i, npc_key in ipairs(hint_npcs) do
-        local item_name    = placed_items[i]
+    for i, npc in ipairs(hint_npcs) do
+        local item = placed_items[i]
         local dialogue_key
 
-        if item_name then
-            dialogue_key = string.format("hint_%s_%s", dungeon_key, npc_key)
-            texts_data[dialogue_key] = { resolve_hint_text(template, item_name, dungeon_key, dungeon_display_name) }
-            print(string.format("  %s -> '%s' (%s)", npc_key, dialogue_key, item_name))
+        if item then
+            dialogue_key = string.format("hint_%s_%s", dungeon_key, npc.key)
+            texts_data[dialogue_key] = { resolve_hint_text(template, item, npc, dungeon_display_name, dungeons_data) }
+            print(string.format("  %s -> '%s' (%s)", npc.key, dialogue_key, item.name))
         else
             dialogue_key = generic_dialogue_key
-            print(string.format("  %s -> generic fallback", npc_key))
+            print(string.format("  %s -> generic fallback", npc.key))
         end
 
-        patch_npc_dialogue(npcs_path, npc_key, dialogue_key)
+        patch_npc_dialogue(npcs_path, npc.key, dialogue_key)
     end
 
     save_json(texts_path, texts_data)
