@@ -3,7 +3,7 @@
  "imageheight":288,
  "imagewidth":384,
  "margin":0,
- "name":"simple_dungeon.tsj",
+ "name":"simple_dungeon",
  "spacing":0,
  "tilecount":432,
  "tiledversion":"1.11.2",

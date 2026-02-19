@@ -2,28 +2,46 @@
 local TilemapModifier = {}
 
 local door_tile_positions = {
-    {7, 14},  -- right (index 0)
-    {0, 7},   -- up (index 1)
-    {7, 0},   -- left (index 2)
-    {14, 7}   -- down (index 3)
+    {13, 6},  -- right (index 0)
+    {6, 1},   -- up (index 1)
+    {1, 6},   -- left (index 2)
+    {6, 13}   -- down (index 3)
+}
+
+-- door dimensions {cols, rows} matching generate_base_rooms
+local door_dims = {
+    {2, 4},  -- right
+    {4, 2},  -- up
+    {2, 4},  -- left
+    {4, 2},  -- down
 }
 
 -- tile variants for randomization
 
-local floor_tiles = {7, 8, 9, 10, 11, 12, 13, 27, 28, 29, 30, 31, 32, 33, 47, 48, 49, 50, 51, 52, 53}
+-- floor
+local floor_tiles = {52, 49, 73, 97, 121, 145}
 
+-- walls (TODO: add more tile variants)
 local wall_tiles = {
-    {82, 102, 122},  -- [1] right wall variants
-    {61, 62, 63},    -- [2] top wall variants
-    {81, 101, 121},  -- [3] left wall variants
-    {83, 84, 85}     -- [4] bottom wall variants
+    {54},  -- [1] right outer  (x=14)
+    {53},  -- [2] right inner  (x=13)
+    {4},   -- [3] top outer    (y=1)
+    {28},  -- [4] top inner    (y=2)
+    {50},  -- [5] left outer   (x=1)
+    {51},  -- [6] left inner   (x=2)
+    {100}, -- [7] bottom outer (y=14)
+    {76},  -- [8] bottom inner (y=13)
 }
 
 local wall_configs = {
-    {pos_range = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}, fixed_pos = 14, tile_idx = 1, is_vertical = true},   -- right: iterate y, fixed x=14
-    {pos_range = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}, fixed_pos = 1, tile_idx = 2, is_vertical = false},   -- top: iterate x, fixed y=1
-    {pos_range = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}, fixed_pos = 1, tile_idx = 3, is_vertical = true},    -- left: iterate y, fixed x=1
-    {pos_range = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}, fixed_pos = 14, tile_idx = 4, is_vertical = false}   -- bottom: iterate x, fixed y=14
+    {pos_range = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}, fixed_pos = 14, tile_idx = 1, is_vertical = true},  -- right outer
+    {pos_range = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}, fixed_pos = 13, tile_idx = 2, is_vertical = true},  -- right inner
+    {pos_range = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}, fixed_pos = 1,  tile_idx = 3, is_vertical = false}, -- top outer
+    {pos_range = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}, fixed_pos = 2,  tile_idx = 4, is_vertical = false}, -- top inner
+    {pos_range = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}, fixed_pos = 1,  tile_idx = 5, is_vertical = true},  -- left outer
+    {pos_range = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}, fixed_pos = 2,  tile_idx = 6, is_vertical = true},  -- left inner
+    {pos_range = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}, fixed_pos = 14, tile_idx = 7, is_vertical = false}, -- bottom outer
+    {pos_range = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}, fixed_pos = 13, tile_idx = 8, is_vertical = false}, -- bottom inner
 }
 
 local function is_floor_tile(tile_id)
@@ -35,7 +53,7 @@ local function is_floor_tile(tile_id)
     return false
 end
 
-local base_wall_tiles = {21, 42, 23, 2}  -- right, up, left, down
+local base_wall_tiles = {54, 53, 4, 28, 50, 51, 100, 76}  -- right outer/inner, top outer/inner, left outer/inner, bottom outer/inner
 
 local next_object_id = 1000 -- unique identifier for objects on this tilemap
 -- TODO use the max(ID) of existing objects as a start? or is starting at 1000 always safe?
@@ -89,6 +107,26 @@ local function randomize_tiles(room_data)
     end
 end
 
+local function normalize_sparse_layers(room)
+    -- fixes some lua quirks with arrays and tables
+    local width = room.width
+    local height = room.height
+    local total = width * height
+
+    for _, layer in ipairs(room.layers) do
+        if layer.type == "tilelayer" and layer.data then
+            -- if #layer.data == 0, it's a non-sequence table (sparse format)
+            if #layer.data == 0 then
+                local dense = {}
+                for i = 1, total do
+                    dense[i] = layer.data[i] or 0
+                end
+                layer.data = dense
+            end
+        end
+    end
+end
+
 
 local function load_tilemap(tilemap_base_path, doors, randomize)
     local tilemap_path = tilemap_base_path .. "/room_" .. doors .. ".json"
@@ -99,6 +137,8 @@ local function load_tilemap(tilemap_base_path, doors, randomize)
     local content = file:read("*all")
     file:close()
     local room = json.decode(content)
+
+    normalize_sparse_layers(room)
 
     if randomize then
         randomize_tiles(room)
@@ -259,10 +299,11 @@ local function add_combat_encounter_to_room(room, combat_locks, ObjectTemplates,
         
         -- get tile position
         local tile_pos = door_tile_positions[lock_info.direction + 1]
+        local dims = door_dims[lock_info.direction + 1]
         
-        -- convert to pixel position (center of 2x2 door)
-        closed_door.x = tile_pos[2] * tilesize
-        closed_door.y = tile_pos[1] * tilesize
+        -- convert to pixel position (center of door)
+        closed_door.x = (tile_pos[2] + dims[1] / 2) * tilesize
+        closed_door.y = (tile_pos[1] + dims[2] / 2) * tilesize
         
         -- create normalized event ID from edge coordinates
         local r1, c1 = lock_info.from_room[1], lock_info.from_room[2]
@@ -321,10 +362,11 @@ local function add_locked_doors_to_room(room, locked_doors, ObjectTemplates, lev
         
         -- get tile position
         local tile_pos = door_tile_positions[lock_info.direction + 1]
+        local dims = door_dims[lock_info.direction + 1]
         
-        -- convert to pixel position (center of 2x2 door)
-        locked_door.x = tile_pos[2] * tilesize
-        locked_door.y = tile_pos[1] * tilesize
+        -- convert to pixel position (center of door)
+        locked_door.x = (tile_pos[2] + dims[1] / 2) * tilesize
+        locked_door.y = (tile_pos[1] + dims[2] / 2) * tilesize
         
         -- create normalized event ID from edge coordinates
         local r1, c1 = lock_info.from_room[1], lock_info.from_room[2]

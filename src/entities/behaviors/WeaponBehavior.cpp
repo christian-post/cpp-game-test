@@ -133,6 +133,7 @@ void WeaponBehavior::update(float deltaTime)
                 // update weapon rotation to match aim direction
                 s->rotationAngle = std::atan2(aimDirection.y, aimDirection.x) * RAD2DEG;
                 // adjust position based on rotation to keep bow at player's hand
+                // TODO define all magic numbers at the top
                 float offsetX = 0.0f;
                 float offsetY = 0.0f;
                 if (std::abs(aimDirection.x) > std::abs(aimDirection.y))

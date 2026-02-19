@@ -48,8 +48,8 @@ Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this), luaDungeonGen(
     int winW = getSetting<int>("windowWidth");
     int winH = getSetting<int>("windowHeight");
 
-    if (float(winH) / float(winW) != 0.75f)
-        winH = int(winW * 0.75f);
+    if (float(winH) / float(winW) != ASPECT_RATIO)
+        winH = int(winW * ASPECT_RATIO);
 
     InitWindow(winW, winH, "My first game");
 
@@ -66,7 +66,7 @@ Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this), luaDungeonGen(
         SetWindowSize(winW, winH);
     }
     SetWindowMaxSize(maxW, maxH);
-    SetWindowMinSize(320, 240);
+    SetWindowMinSize(MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT);
 
     isFullscreen = getSetting("fullscreen", false);
     if (isFullscreen)
@@ -92,7 +92,7 @@ Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this), luaDungeonGen(
 
     InitAudioDevice();
     soundOn = getSetting<bool>("soundOn");
-    SetMasterVolume(getSetting<float>("masterVolume") / 100.0f);
+    SetMasterVolume(getSetting<float>("masterVolume") / VOLUME_SCALE);
 
     // Render texture initialization, used to hold the rendering result so we can easily resize it
     // see https://github.com/raysan5/raylib/blob/master/examples/core/core_window_letterbox.c

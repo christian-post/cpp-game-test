@@ -177,6 +177,11 @@ public:
     std::shared_ptr<SaveGame> savegame = nullptr; // keeps the last loaded savegame in memory to allow access to previously visited worlds' states
 
 private:
+    static constexpr int MIN_WINDOW_WIDTH = 320;
+    static constexpr int MIN_WINDOW_HEIGHT = 240;
+    static constexpr float ASPECT_RATIO = 0.75f;
+    static constexpr float VOLUME_SCALE = 100.0f;
+
     bool running = true;
     float lastTime = 0.0f; // for delta timing
     bool restartRequested = false; // triggers a restart (Game instance is recreated)

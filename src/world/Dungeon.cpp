@@ -96,11 +96,11 @@ void Dungeon::renderMinimap(float hudY, float gameScreenWidth)
 {
     auto [cols, rows] = getSize();
     const size_t currentRoomIdx = currentRoomIndex;
-    const int spacing = 1;
-    const int cellWidth = 6;
-    const int cellHeight = 4;
-    const int mapX = static_cast<int>(gameScreenWidth) - static_cast<int>(cols) * (cellWidth + spacing) - 6;
-    const int mapY = static_cast<int>(hudY) + 6;
+    const int spacing = DUNGEON_MINIMAP_SPACING;
+    const int cellWidth = DUNGEON_MINIMAP_CELL_W;
+    const int cellHeight = DUNGEON_MINIMAP_CELL_H;
+    const int mapX = static_cast<int>(gameScreenWidth) - static_cast<int>(cols) * (cellWidth + spacing) - DUNGEON_MINIMAP_MARGIN_X;
+    const int mapY = static_cast<int>(hudY) + DUNGEON_MINIMAP_MARGIN_Y;
 
     for (size_t i = 0; i < cols * rows; ++i)
     {

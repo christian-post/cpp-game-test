@@ -28,7 +28,12 @@
     "Did you alread find the [HINT:item] in the [HINT:loc]? That place is [HINT:dir]."
   ],
   "npcHintGeneric1": [
-    "Did you know that you can press [TEX:xbox_buttons_sorted:12] twice to do a dodge roll?\f...You didn't? Well, that's because this game actually doesn't have a roll button. Bummer."
+    "Did you know that you can press [TEX:xbox_buttons_sorted:12] twice to do a dodge roll?\f...You didn't? Well, that's because this game actually doesn't have a roll button. Bummer.",
+    "I heard that trees can drop something valuable when you hit them with a sword.",
+    "Follow me on Bluesky for more gameplay tips."
+  ],
+  "placeholder": [
+    "Looks like someone forgot to modify my dialogue data."
   ],
   "sign1": [
     "This is a helpful sign. You are reading it right now."

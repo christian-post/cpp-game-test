@@ -3,11 +3,12 @@ local DirectionUtils = require("dungeon.direction_utils")
 local HintGenerator = {}
 
 -- mission-critical items that can be hinted at
-local hint_items = { "weapon_sword", "boss_key" }
+local hint_items = { "weapon_sword" }
 
 -- npcs that can deliver hints (keys as in npcs.json)
 local hint_npcs = { 
-    { key = "randomNPC1", world = "interior", room = {0, 0}, level = 0 }
+    { key = "randomNPC1", world = "interior", room = {0, 0}, level = 0 },
+    { key = "randomNPC2", world = "overworld", room = {1, 1}, level = 0 }
 }
 
 -- locations on the overworld that get used in conversations

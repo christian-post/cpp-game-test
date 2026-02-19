@@ -219,6 +219,10 @@ void Preload::startup()
             l.loadSpritesheet("./resources/textures/sprites/door_closed_sheet.png", 32, 32, "doors_closed");
             l.loadSpritesheet("./resources/textures/sprites/door_locked_sheet.png", 32, 32, "doors_locked");
             l.loadSpritesheet("./resources/textures/sprites/boss_door_locked_sheet.png", 32, 32, "boss_doors_locked");
+            l.loadSpritesheet("./resources/textures/sprites/normal_dude_1_idle.png", 16, 24, "normal_dude_1_idle");
+            l.loadSpritesheet("./resources/textures/sprites/normal_dude_1_run.png", 16, 24, "normal_dude_1_run");
+            l.loadSpritesheet("./resources/textures/sprites/normal_dude_2_idle.png", 16, 24, "normal_dude_2_idle");
+            l.loadSpritesheet("./resources/textures/sprites/normal_dude_2_run.png", 16, 24, "normal_dude_2_run");
         });
 
     // load the tileset (the textures)

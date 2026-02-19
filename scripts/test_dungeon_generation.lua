@@ -145,14 +145,20 @@ local function generate_base_rooms_if_needed()
     print("\nStep 7: Checking base room tilemaps...")
     update_progress("Generating Base Rooms...")
     
-    local base_check = io.open("resources/tilemaps/base/room_0001.json", "r")
+    -- TODO comment back in when finished debugging
+
+    --[[
+        local base_check = io.open("resources/tilemaps/base/room_0001.json", "r")
     if not base_check then
         print("  Base rooms not found, generating...")
-        GenerateBaseRooms.generate("resources/tilemaps/empty_floor.json", "resources/tilemaps/base")
+        GenerateBaseRooms.generate("resources/tilemaps/empty_floor_new.json", "resources/tilemaps/base")
     else
         base_check:close()
         print("  Base rooms already exist, skipping generation")
     end
+
+    ]]
+    GenerateBaseRooms.generate("resources/tilemaps/empty_floor_new.json", "resources/tilemaps/base")
 end
 
 local function process_tilemaps(dungeon_key, output_dir)

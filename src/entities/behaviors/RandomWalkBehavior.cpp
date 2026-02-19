@@ -8,7 +8,10 @@ RandomWalkBehavior::RandomWalkBehavior(std::shared_ptr<Sprite> sprite)
     : self{ sprite }
 {
     if (auto s = self.lock())
+    {
         walkTarget = s->position;
+        home = s->position;
+    }
     hasWalkTarget = false;
 }
 
@@ -70,7 +73,12 @@ void RandomWalkBehavior::update(float deltaTime)
             testRect.x = candidate.x;
             testRect.y = candidate.y;
 
-            if (s->game.isInWorldBounds(testRect) && isPathClear(s->rect, candidate, s->game.walls, s->layer))
+            // check if the next target would be too far from home
+            float distFromHomeX = candidate.x - home.x;
+            float distFromHomeY = candidate.y - home.y;
+            float distFromHomeSq = distFromHomeX * distFromHomeX + distFromHomeY * distFromHomeY;
+
+            if (s->game.isInWorldBounds(testRect) && isPathClear(s->rect, candidate, s->game.walls, s->layer) && distFromHomeSq < maxHomeDist * maxHomeDist)
             {
                 walkTarget = candidate;
                 hasWalkTarget = true;

@@ -1,94 +1,117 @@
 local GenerateBaseRooms = {}
 
 -- door tile configurations
+-- IMPORTANT lua indices start at 1
 local doors_floor = {
-    {181, 201, 182, 202}, -- right (index 0)
-    {103, 123, 104, 124}, -- up (index 1)
-    {190, 210, 191, 211}, -- left (index 2)
-    {148, 168, 149, 169}  -- down (index 3)
+    { 55,  56,  79,  80, 103, 104, 127, 128}, -- right 
+    {  7,   8,   9,  10,  31,  32,  33,  34}, -- left
+    { 57,  58,  81,  82, 105, 106, 129, 130}, -- up
+    {151, 152, 153, 154, 175, 176, 177, 178}  -- down
 }
 
 local doors_top = {
-    {99, 119, 100, 120},   -- right (index 0)
-    {19, 39, 20, 40},      -- up (index 1)
-    {59, 79, 60, 80},      -- left (index 2)
-    {139, 159, 140, 160}   -- down (index 3)
+    { 80, 104},  -- right (index 0)
+    {  8,   9},  -- up    (index 1)
+    { 81, 105},  -- left  (index 2)
+    {176, 177}   -- down  (index 3)
+}
+
+-- tells the program where the top tiles are in relation to the doors_floor tiles
+local door_top_offsets = {
+    {1, 1},  -- right: row+1, col+1
+    {0, 1},  -- up:    row+0, col+1
+    {1, 0},  -- left:  row+1, col+0
+    {1, 1},  -- down:  row+1, col+1
 }
 
 local door_positions = {
-    {7, 14},  -- right (index 0)
-    {0, 7},   -- up (index 1)
-    {7, 0},   -- left (index 2)
-    {14, 7}   -- down (index 3)
+    { 6, 13},
+    { 1,  6},
+    { 6,  1},
+    {13, 6}
+}
+
+-- tile dimensions per door direction {cols, rows}
+local door_floor_dims = {
+    {2, 4},  -- right: 2 wide x 4 tall
+    {4, 2},  -- up:    4 wide x 2 tall
+    {2, 4},  -- left:  2 wide x 4 tall
+    {4, 2},  -- down:  4 wide x 2 tall
+}
+
+local door_top_dims = {
+    {1, 2},  -- right: 1 wide x 2 tall
+    {2, 1},  -- up:    2 wide x 1 tall
+    {1, 2},  -- left:  1 wide x 2 tall
+    {2, 1},  -- down:  2 wide x 1 tall
 }
 
 -- collision wall configurations
 -- format: {door_index, solid_wall, segment1, segment2}
+-- solid wall = no door, segments = door in between
 local collision_walls = {
     -- right wall
-    {0,
-     {height = 200, width = 28, x = 228, y = 28},
-     {height = 84, width = 28, x = 228, y = 28},
-     {height = 84, width = 28, x = 228, y = 144}},
+    {
+        0,
+        {height = 160, width = 48, x = 208, y = 48},
+        {height = 68, width = 48, x = 208, y = 48},
+        {height = 68, width = 48, x = 208, y = 140}
+    },
     -- top wall
-    {1, 
-     {height = 28, width = 256, x = 0, y = 0},
-     {height = 28, width = 112, x = 0, y = 0},
-     {height = 28, width = 112, x = 144, y = 0}},
+    {
+        1, 
+        {height = 48, width = 256, x = 0, y = 0},
+        {height = 48, width = 116, x = 0, y = 0},
+        {height = 48, width = 116, x = 140, y = 0}
+    },
     
     -- left wall
-    {2,
-     {height = 200, width = 28, x = 0, y = 28},
-     {height = 84, width = 28, x = 0, y = 28},
-     {height = 84, width = 28, x = 0, y = 144}},
+    {
+        2,
+        {height = 160, width = 48, x = 0, y = 48},
+        {height = 68, width = 48, x = 0, y = 48},
+        {height = 68, width = 48, x = 0, y = 140}
+    },
     
     -- bottom wall
-    {3,
-     {height = 28, width = 256, x = 0, y = 228},
-     {height = 28, width = 112, x = 0, y = 228},
-     {height = 28, width = 112, x = 144, y = 228}}
+    {
+        3,
+        {height = 48, width = 256, x = 0, y = 208},
+        {height = 48, width = 116, x = 0, y = 208},
+        {height = 48, width = 116, x = 140, y = 208}
+    }
 }
+
+-- helper founction to write a rectangular block of tiles into a flat layer data array
+local function place_tile_block(data, map_width, start_row, start_col, tiles, num_cols, num_rows)
+    for r = 0, num_rows - 1 do
+        for c = 0, num_cols - 1 do
+            local tile_idx = r * num_cols + c + 1  -- index into tiles[]
+            local map_idx  = (start_row + r) * map_width + (start_col + c) + 1  -- 1-based flat index
+            data[map_idx] = tiles[tile_idx]
+        end
+    end
+end
 
 local function place_door_tiles(room_data, selected_doors)
     local width = room_data.width
-    
+
     for _, layer in ipairs(room_data.layers) do
-        if layer.name == "walls" then
-            -- place door tiles in walls layer
-            for _, door_idx in ipairs(selected_doors) do
-                local row = door_positions[door_idx + 1][1]
-                local col = door_positions[door_idx + 1][2]
-                local door_tiles = doors_floor[door_idx + 1]
-                
-                -- convert 2D positions to 1D indices
-                local idx_tl = row * width + col
-                local idx_bl = (row + 1) * width + col
-                local idx_tr = row * width + (col + 1)
-                local idx_br = (row + 1) * width + (col + 1)
-                
-                -- place the door tiles (lua is 1-indexed)
-                layer.data[idx_tl + 1] = door_tiles[1]  -- top-left
-                layer.data[idx_bl + 1] = door_tiles[2]  -- bottom-left
-                layer.data[idx_tr + 1] = door_tiles[3]  -- top-right
-                layer.data[idx_br + 1] = door_tiles[4]  -- bottom-right
-            end
-            
-        elseif layer.name == "top" then
-            -- place door tiles in top layer
-            for _, door_idx in ipairs(selected_doors) do
-                local row = door_positions[door_idx + 1][1]
-                local col = door_positions[door_idx + 1][2]
-                local door_tiles = doors_top[door_idx + 1]
-                
-                local idx_tl = row * width + col
-                local idx_bl = (row + 1) * width + col
-                local idx_tr = row * width + (col + 1)
-                local idx_br = (row + 1) * width + (col + 1)
-                
-                layer.data[idx_tl + 1] = door_tiles[1]
-                layer.data[idx_bl + 1] = door_tiles[2]
-                layer.data[idx_tr + 1] = door_tiles[3]
-                layer.data[idx_br + 1] = door_tiles[4]
+        for _, door_idx in ipairs(selected_doors) do
+            local row  = door_positions[door_idx + 1][1]
+            local col  = door_positions[door_idx + 1][2]
+
+            if layer.name == "walls" then
+                local dims = door_floor_dims[door_idx + 1]
+                place_tile_block(layer.data, width, row, col,
+                                 doors_floor[door_idx + 1], dims[1], dims[2])
+
+            elseif layer.name == "top" then
+                local dims = door_top_dims[door_idx + 1]
+                local off  = door_top_offsets[door_idx + 1]
+                place_tile_block(layer.data, width, row + off[1], col + off[2],
+                                 doors_top[door_idx + 1], dims[1], dims[2])
+
             end
         end
     end
@@ -207,8 +230,8 @@ function GenerateBaseRooms.generate(empty_tilemap_path, output_path)
         -- setup collision walls
         setup_collision_walls(room_data, selected_doors)
         
-        -- set tileset reference
-        room_data.tilesets[1].source = "dungeon_topdown.tsj"
+        -- set tileset reference TODO: get from tiled data?
+        room_data.tilesets[1].source = "simple_dungeon.tsj"
         
         -- save tilemap
         local output_file_path = output_path .. "/room_" .. door_string .. ".json"

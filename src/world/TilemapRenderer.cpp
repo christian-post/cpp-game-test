@@ -126,7 +126,7 @@ void TilemapRenderer::generateChunkForLayer(size_t layerIndex, Color clearColor)
         return;
     }
 
-    // Get tileset information
+    // Get tileset information (key and firstGid)
     const auto& tilesetInfos = currentTilemap->getTilesetNames();
 
     std::vector<TilesetData> tilesetCache;

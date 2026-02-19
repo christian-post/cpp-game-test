@@ -152,5 +152,20 @@
       "dwarf_f_idle",
       "dwarf_f_run"
     ]
+  },
+  "randomNPC2": {
+    "behaviorData": {
+      "dialogue": "npcHintGeneric1",
+      "voice": "powerUp4"
+    },
+    "behaviors": [
+      "RandomWalk",
+      "Dialogue"
+    ],
+    "inherits": "sprite_default",
+    "textures": [
+      "normal_dude_2_idle",
+      "normal_dude_2_run"
+    ]
   }
 }

@@ -19,4 +19,11 @@ public:
         const std::vector<std::tuple<std::string, std::string, std::vector<std::string>>>& edges,
         const std::unordered_set<std::string>& itemNodes
     );
+
+private:
+    static constexpr int   DUNGEON_MINIMAP_CELL_W = 6;   // cell width in pixels
+    static constexpr int   DUNGEON_MINIMAP_CELL_H = 4;   // cell height in pixels
+    static constexpr int   DUNGEON_MINIMAP_SPACING = 1;  // gap between cells
+    static constexpr int   DUNGEON_MINIMAP_MARGIN_X = 6; // right-edge inset from screen edge
+    static constexpr int   DUNGEON_MINIMAP_MARGIN_Y = 6; // top-edge inset below HUD
 };

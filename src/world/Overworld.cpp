@@ -60,10 +60,10 @@ void Overworld::renderMinimap(float hudY, float gameScreenWidth)
         return;
 
     // minimap dimensions and position
-    const int minimapWidth = 48;
-    const int minimapHeight = 24;
-    const int mapX = static_cast<int>(gameScreenWidth) - minimapWidth - 6;
-    const int mapY = static_cast<int>(hudY) + 4;
+    const int minimapWidth = OW_MINIMAP_WIDTH;
+    const int minimapHeight = OW_MINIMAP_HEIGHT;
+    const int mapX = static_cast<int>(gameScreenWidth) - minimapWidth - OW_MINIMAP_MARGIN_X;
+    const int mapY = static_cast<int>(hudY) + OW_MINIMAP_MARGIN_Y;
 
     // draw gray background
     DrawRectangle(mapX, mapY, minimapWidth, minimapHeight, GRAY);
@@ -98,9 +98,9 @@ void Overworld::renderMinimap(float hudY, float gameScreenWidth)
     int dotY = mapY + static_cast<int>(v * minimapHeight);
 
     // draw white dot for player position
-    if (fmod(blinkTimer, 1.0f) < 0.5f)
+    if (fmod(blinkTimer, OW_MINIMAP_BLINK_PERIOD) < OW_MINIMAP_BLINK_ON_FRAC)
         //DrawPixel(dotX, dotY, WHITE);
-        DrawRectangle(dotX - 1, dotY - 1, 2, 2, WHITE);
+        DrawRectangle(dotX - OW_MINIMAP_DOT_SIZE / 2, dotY - OW_MINIMAP_DOT_SIZE / 2, OW_MINIMAP_DOT_SIZE, OW_MINIMAP_DOT_SIZE, WHITE);
 }
 
 void Overworld::renderMapScreen(const MapRenderParams& params)
