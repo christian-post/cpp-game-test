@@ -216,9 +216,12 @@ void Preload::startup()
             l.loadSpritesheet("./resources/textures/sprites/xbox_buttons_16x16.png", 16, 16, "xbox_buttons");
             l.loadSpritesheet("./resources/textures/sprites/xbox_buttons_sorted.png", 16, 16, "xbox_buttons_sorted");
             l.loadSpritesheet("./resources/textures/sprites/lantern-Sheet.png", 16, 16, "item_lamp");
-            l.loadSpritesheet("./resources/textures/sprites/door_closed_sheet.png", 32, 32, "doors_closed");
-            l.loadSpritesheet("./resources/textures/sprites/door_locked_sheet.png", 32, 32, "doors_locked");
-            l.loadSpritesheet("./resources/textures/sprites/boss_door_locked_sheet.png", 32, 32, "boss_doors_locked");
+            //l.loadSpritesheet("./resources/textures/sprites/door_closed_sheet.png", 32, 32, "doors_closed");
+            //l.loadSpritesheet("./resources/textures/sprites/door_locked_sheet.png", 32, 32, "doors_locked");
+            l.loadSpritesheet("./resources/textures/sprites/simple_dungeon_doors_locked.png", 32, 32, "doors_locked");
+            l.loadSpritesheet("./resources/textures/sprites/simple_dungeon_doors_closed.png", 32, 32, "doors_closed");
+            //l.loadSpritesheet("./resources/textures/sprites/boss_door_locked_sheet.png", 32, 32, "boss_doors_locked");
+            l.loadSpritesheet("./resources/textures/sprites/boss_doors_locked.png", 32, 32, "boss_doors_locked");
             l.loadSpritesheet("./resources/textures/sprites/normal_dude_1_idle.png", 16, 24, "normal_dude_1_idle");
             l.loadSpritesheet("./resources/textures/sprites/normal_dude_1_run.png", 16, 24, "normal_dude_1_run");
             l.loadSpritesheet("./resources/textures/sprites/normal_dude_2_idle.png", 16, 24, "normal_dude_2_idle");

@@ -1,19 +1,18 @@
--- scripts/tilemap/tilemap_modifier.lua
 local TilemapModifier = {}
 
 local door_tile_positions = {
-    {13, 6},  -- right (index 0)
-    {6, 1},   -- up (index 1)
-    {1, 6},   -- left (index 2)
-    {6, 13}   -- down (index 3)
+    {13, 7},  -- right
+    {7, 1},   -- up
+    {1, 7},   -- left
+    {7, 13},   -- down
 }
 
--- door dimensions {cols, rows} matching generate_base_rooms
+-- door sprite dimensions in tiles {cols, rows}
 local door_dims = {
-    {2, 4},  -- right
-    {4, 2},  -- up
-    {2, 4},  -- left
-    {4, 2},  -- down
+    {2, 2},  -- right
+    {2, 2},  -- up
+    {2, 2},  -- left
+    {2, 2},  -- down
 }
 
 -- tile variants for randomization
@@ -300,10 +299,13 @@ local function add_combat_encounter_to_room(room, combat_locks, ObjectTemplates,
         -- get tile position
         local tile_pos = door_tile_positions[lock_info.direction + 1]
         local dims = door_dims[lock_info.direction + 1]
-        
-        -- convert to pixel position (center of door)
-        closed_door.x = (tile_pos[2] + dims[1] / 2) * tilesize
-        closed_door.y = (tile_pos[1] + dims[2] / 2) * tilesize
+
+        -- convert to pixel position
+        closed_door.x = tile_pos[1] * tilesize
+        closed_door.y = tile_pos[2] * tilesize
+
+        print(lock_info.direction + 1)
+        print(string.format("placing a door (%s) at %f, %f", direction_names[lock_info.direction + 1], closed_door.x, closed_door.y))
         
         -- create normalized event ID from edge coordinates
         local r1, c1 = lock_info.from_room[1], lock_info.from_room[2]
@@ -364,9 +366,9 @@ local function add_locked_doors_to_room(room, locked_doors, ObjectTemplates, lev
         local tile_pos = door_tile_positions[lock_info.direction + 1]
         local dims = door_dims[lock_info.direction + 1]
         
-        -- convert to pixel position (center of door)
-        locked_door.x = (tile_pos[2] + dims[1] / 2) * tilesize
-        locked_door.y = (tile_pos[1] + dims[2] / 2) * tilesize
+        -- convert to pixel position 
+        locked_door.x = tile_pos[1] * tilesize
+        locked_door.y = tile_pos[2] * tilesize
         
         -- create normalized event ID from edge coordinates
         local r1, c1 = lock_info.from_room[1], lock_info.from_room[2]

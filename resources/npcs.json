@@ -82,21 +82,14 @@
       "chest"
     ]
   },
-  "dungeon_door": {
-    "inherits": "sprite_default",
-    "textures": [
-      "dungeon_door"
-    ],
-    "hitbox": [ 32.0, 24.0 ],
-    "hitboxOffset": [ 0.0, 0.0 ]
-  },
   "locked_door": {
     "inherits": "sprite_default",
     "textures": [
       "doors_locked"
     ],
     "hitbox": [ 32.0, 36.0 ],
-    "hitboxOffset": [ 0.0, 0.0 ]
+    "hitboxOffset": [ 0.0, 0.0 ],
+    "collides": false
   },
   "boss_door": {
     "inherits": "sprite_default",
@@ -104,13 +97,15 @@
       "boss_doors_locked"
     ],
     "hitbox": [ 32.0, 36.0 ],
-    "hitboxOffset": [ 0.0, 0.0 ]
+    "hitboxOffset": [ 0.0, 0.0 ],
+    "collides": false
   },
   "closed_door": {
     "inherits": "locked_door",
     "textures": [
       "doors_closed"
-    ]
+    ],
+    "collides": false
   },
   "wall_fountain_basin": {
     "inherits": "sprite_default",
