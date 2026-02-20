@@ -198,13 +198,6 @@ void Preload::startup()
             { "item_key", { "./resources/textures/sprites/item_key.png" } },
             { "item_boss_key", { "./resources/textures/sprites/item_boss_key.png" } },
             //{ "item_lamp", { "./resources/textures/sprites/item_lamp_new_0.png" } },
-            {
-                "dungeon_door", {
-                    "./resources/textures/sprites/doors_leaf_closed.png",
-                    "./resources/textures/sprites/doors_leaf_open.png",
-                    "./resources/textures/sprites/doors_leaf_locked.png",
-                }
-            },
             { "knight_map_mini", { "./resources/textures/sprites/knight_map_mini.png" }},
             // background images
             { "title_image", { "./resources/textures/images/title.png" }},
@@ -213,14 +206,10 @@ void Preload::startup()
             l.loadSpritesheet("./resources/textures/sprites/projectiles.png", 8, 8, "magic_ball");
             l.loadSpritesheet("./resources/textures/sprites/fireball_16x4.png", 16, 16, "fireball");
             l.loadSpritesheet("./resources/textures/sprites/smoke_16x6.png", 16, 16, "smoke");
-            l.loadSpritesheet("./resources/textures/sprites/xbox_buttons_16x16.png", 16, 16, "xbox_buttons");
             l.loadSpritesheet("./resources/textures/sprites/xbox_buttons_sorted.png", 16, 16, "xbox_buttons_sorted");
             l.loadSpritesheet("./resources/textures/sprites/lantern-Sheet.png", 16, 16, "item_lamp");
-            //l.loadSpritesheet("./resources/textures/sprites/door_closed_sheet.png", 32, 32, "doors_closed");
-            //l.loadSpritesheet("./resources/textures/sprites/door_locked_sheet.png", 32, 32, "doors_locked");
             l.loadSpritesheet("./resources/textures/sprites/simple_dungeon_doors_locked.png", 32, 32, "doors_locked");
             l.loadSpritesheet("./resources/textures/sprites/simple_dungeon_doors_closed.png", 32, 32, "doors_closed");
-            //l.loadSpritesheet("./resources/textures/sprites/boss_door_locked_sheet.png", 32, 32, "boss_doors_locked");
             l.loadSpritesheet("./resources/textures/sprites/boss_doors_locked.png", 32, 32, "boss_doors_locked");
             l.loadSpritesheet("./resources/textures/sprites/normal_dude_1_idle.png", 16, 24, "normal_dude_1_idle");
             l.loadSpritesheet("./resources/textures/sprites/normal_dude_1_run.png", 16, 24, "normal_dude_1_run");
@@ -231,20 +220,16 @@ void Preload::startup()
     // load the tileset (the textures)
     game.loader.loadQueue.emplace("Loading tilesets", [&]() {
         l.LoadtilesetFromTiled("./resources/tilemaps/test.tsj");
-        l.LoadtilesetFromTiled("./resources/tilemaps/dungeon.tsj");
-        l.LoadtilesetFromTiled("./resources/tilemaps/dungeon_topdown.tsj");
-        l.LoadtilesetFromTiled("./resources/tilemaps/fields.tsj");
         l.LoadtilesetFromTiled("./resources/tilemaps/simple_grassland.tsj");
         l.LoadtilesetFromTiled("./resources/tilemaps/simple_dungeon.tsj");
         l.LoadtilesetFromTiled("./resources/tilemaps/simple_interior.tsj");
 
         // load minified versions for the minimap
         // key has to be [tileset_image_file]_mini
-        l.loadTextures({ {"fields_mini", { "./resources/textures/tilesets/fields_mini.png"} } });
-        l.loadTextures({ {"top-down-dungeon-tileset_mini", { "./resources/textures/tilesets/top-down-dungeon-tileset_mini.png"} } });
-        l.loadTextures({ {"dungeon_mini", { "./resources/textures/tilesets/dungeon_mini.png"} } });
+        l.loadTextures({ {"simple_dungeon_tiles_mini", { "./resources/textures/tilesets/simple_dungeon_tiles_mini.png"} } });
         l.loadTextures({ {"simple_grassland_tiles_mini", { "./resources/textures/tilesets/simple_grassland_tiles_mini.png"} } });
         });
+
     // load the tile maps from text files
     game.loader.loadQueue.emplace("Loading tilemaps", [&]() {
         l.loadTilemapsFromDirectory("./resources/tilemaps");
