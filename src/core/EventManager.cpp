@@ -8,14 +8,19 @@ EventManager::EventManager() : events{}, listeners{}, delayedEvents{}
 void EventManager::pushEvent(const int key, std::any value)
 {
     events[key] = value;
-    // also call the listeners
     auto it = listeners.find(key);
     if (it != listeners.end())
     {
-        for (auto& callback : it->second)
-        {
-            callback(value);
-        }
+        // copy entries to avoid issues if a callback modifies the listener list
+        auto entries = it->second;
+        for (auto& entry : entries)
+            entry.callback(value);
+
+        // remove non-persistent listeners that just fired
+        auto& vec = it->second;
+        vec.erase(std::remove_if(vec.begin(), vec.end(),
+            [](const ListenerEntry& e) { return !e.persistent; }),
+            vec.end());
     }
 }
 
@@ -24,9 +29,9 @@ void EventManager::pushDelayedEvent(const int key, float delay, std::any value, 
     delayedEvents.push_back({ key, delay, value, callback });
 }
 
-void EventManager::addListener(const int key, std::function<void(std::any)> callback)
+void EventManager::addListener(const int key, std::function<void(std::any)> callback, bool persistent)
 {
-    listeners[key].push_back(callback);
+    listeners[key].push_back({ callback, persistent });
     TraceLog(LOG_INFO, "Adding an event listener for %s. Listener count: %zu", GetEventNameString(static_cast<EventName>(key)), listeners[key].size());
 }
 

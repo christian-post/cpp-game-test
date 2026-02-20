@@ -164,6 +164,9 @@ void DungeonMenu::end()
             game.loader.loadQueue.front().second(); // execute callback
             game.loader.loadQueue.pop();
         }
+
+        // resolve sprite inheritance
+        game.loader.postprocessSpriteData();
     }
 
     reloadRequired = false;

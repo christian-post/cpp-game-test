@@ -355,13 +355,14 @@ void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, 
                 }
                 else if (obj.properties.value("opensOnEnemiesDefeated", false))
                 {
-                    // TODO dispatch this event in the InGame scene
                     game.eventManager.addListener(ENEMIES_DEFEATED, [&, sprite = sprite.get()](std::any){
                         // TODO play a short cutscene
                         objectStates[obj.id].isOpened = true;
                         sprite->visible = false;
                         sprite->staticCollision = false;
-                        });
+                        }, 
+                        false
+                    );
                 }
 
                 // external door trigger
@@ -369,7 +370,9 @@ void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, 
                     objectStates[obj.id].isOpened = true;
                     sprite->visible = false;
                     sprite->staticCollision = false;
-                    });
+                    },
+                    false
+                );
             }
             else
             {

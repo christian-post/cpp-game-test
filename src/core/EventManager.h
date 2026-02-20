@@ -16,7 +16,12 @@ private:
     // store a list of events (key : data), data can be of any type or NULL
     std::unordered_map<int, std::any> events;
     // store a list of event listeners (callbacks that are triggered by an event with that key)
-    std::unordered_map<int, std::vector<std::function<void(std::any)>>> listeners;
+    struct ListenerEntry
+    {
+        std::function<void(std::any)> callback;
+        bool persistent;
+    };
+    std::unordered_map<int, std::vector<ListenerEntry>> listeners;
     // a list of previous events
 
     // callbacks that fire after a given amount of time
@@ -55,7 +60,7 @@ public:
     void pushEvent(const int key, std::any value = std::any{});
     void pushDelayedEvent(const int key, float delay, std::any value, std::function<void()> callback = nullptr);
     void pushRepeatedEvent(const int key, float interval, std::any value, std::function<void()> callback, int numRepeats, std::function<void()> onComplete = nullptr);
-    void addListener(const int key, std::function<void(std::any)> callback);
+    void addListener(const int key, std::function<void(std::any)> callback, bool persistent = true);
     void removeListeners(const int key);
     void cancelRepeatedEvent(const int key);
     void update(float deltaTime); // used to advance timers

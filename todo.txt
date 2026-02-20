@@ -6,6 +6,7 @@
 - hitbox offset in Sprite data does not work
 - "restart game" breaks fullscreen mode (on 2nd display?)
 - need to reload npcs.json, dungeons.json and texts.json after dungeon generation
+- check instances of EventManager::addListener for persistence
 
 ## FEATURES/REFACTORS:
 - Gameplay
@@ -48,7 +49,6 @@
 
 # NOT SO IMPORTANT:
 ## FEATURES/REFACTORS:
-- add a "persistent" property to event listeners (non-persistent listeners are removed after one event)
 - Too much coupling between Game and Sprite?
 - when predrawing the Tilemap chunks, don't store textures that are completely transparent
 - does it make sense for Behaviors to have a draw method, or can this be solved differently?
