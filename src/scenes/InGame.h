@@ -15,6 +15,7 @@
 struct SaveGame;
 struct Emitter;
 class LuaEventManager;
+class EventTriggerManager;
 
 class InGame : public Scene {
 public:
@@ -33,6 +34,7 @@ public:
     TilemapRenderer tilemapRenderer;
     CameraController cameraController;
     std::unique_ptr<LuaEventManager> luaEventManager; // Lua API layer
+    std::unique_ptr<EventTriggerManager> eventTriggerManager; // processes event triggers for the luaEventManager
 
     // keep a player variable for direct frequent access
     std::shared_ptr<Sprite> player;

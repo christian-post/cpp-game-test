@@ -31,46 +31,6 @@ void setupConditionalEvents(InGame& inGame)
 
     game.eventManager.pushConditionalEvent(
         [&]() {
-            // this happens in the first room after the player obtained the sword from another room
-            const TileMap* tm = game.currentWorld->getCurrentTileMap();
-
-            if (!tm)
-                return false;
-
-            const std::string& roomID = tm->getRoomID();
-            return (roomID == "starting_room" && game.inventory.getItemQuantity("weapon_sword") > 0);
-            },
-        [&]() {
-            if (game.spriteMap.find("elfCompanion2") == game.spriteMap.end() || game.currentWorld->getCurrentRoom()->state >= 6)
-                return;
-            game.eventManager.pushDelayedEvent(UNNAMED, 0.1f, nullptr, [&]() {
-                Sprite& npcRef = *game.spriteMap["elfCompanion2"];               
-                game.eventManager.pushEvent(HIDE_HUD);
-                game.cutsceneManager.queueCommand(new Command_Letterbox(float(game.gameScreenWidth), float(game.gameScreenHeight), 1.0f), false);
-                float npcX = 12.0f * static_cast<float>(inGame.tilemapRenderer.getTileSize());
-                float npcY = 8.0f * static_cast<float>(inGame.tilemapRenderer.getTileSize());
-                game.cutsceneManager.queueCommand(new Command_Wait(1.0f));
-                game.cutsceneManager.queueCommand(new Command_MoveTo(npcRef, npcX, npcY, 2.0f));
-                game.cutsceneManager.queueCommand(new Command_Wait(0.5f));
-                std::string textKey = "elfCutscene1";
-                std::vector<std::string> texts = game.loader.getText(textKey);
-                game.cutsceneManager.queueCommand(new Command_Textbox(game, texts[0], "powerUp4", true)); // TODO pass the key to texts.json directly instead of the actual dialogue string... 
-                game.cutsceneManager.queueCommand(new Command_Callback([&]() {
-                    game.eventManager.pushEvent(SHOW_HUD);
-                    game.currentWorld->advanceRoomState();
-                    if (!npcRef.persistent) {
-                        npcRef.persistent = true;
-                        npcRef.followsPlayer = true;
-                        npcRef.speed = game.getSetting<float>("npcFollowSpeed");
-                        npcRef.addBehavior(std::make_unique<ChaseBehavior>(game, game.spriteMap["elfCompanion2"], game.spriteMap["player"], 20.0f));
-                    }
-                    }));
-                });
-        }
-    );
-
-    game.eventManager.pushConditionalEvent(
-        [&]() {
             // this event sets the position of the elf companion next to the player after loading the first room
             const TileMap* tm = game.currentWorld->getCurrentTileMap();
 

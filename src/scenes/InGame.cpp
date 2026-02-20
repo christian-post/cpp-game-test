@@ -10,9 +10,11 @@
 #include "WeaponBehavior.h"
 #include "raymath.h"
 #include "LuaEventManager.h"
+#include "EventTriggerManager.h"
 
 
-InGame::InGame(Game& game, const std::string& name) : Scene(game, name), tileMap(nullptr), tilemapRenderer(game), cameraController(game), luaEventManager(std::make_unique<LuaEventManager>(game, *this)) {}
+InGame::InGame(Game& game, const std::string& name) : Scene(game, name), tileMap(nullptr), tilemapRenderer(game), cameraController(game), luaEventManager(std::make_unique<LuaEventManager>(game, *this)), eventTriggerManager(std::make_unique<EventTriggerManager>(game)) 
+{}
 
 void InGame::startup()
 {
@@ -64,6 +66,9 @@ void InGame::startup()
     // Event listeners specific to the InGame scene
     setupEventListeners();
     setupConditionalEvents(*this);
+
+    // listeners for lua scripted events
+    eventTriggerManager->loadTriggers("./resources/event_triggers.json");
 }
 
 void InGame::setupEventListeners()
@@ -165,6 +170,13 @@ void InGame::setupEventListeners()
             loadTilemap();
             player->moveTo(targetPos.x, targetPos.y);
         }
+        });
+
+    game.eventManager.addListener(EXECUTE_LUA_CUTSCENE, [this](const std::any& data) {
+        // event raised by the EventTriggerManager which checks event conditions.
+        // Executes a given lua script
+        std::string scriptPath = std::any_cast<std::string>(data);
+        luaEventManager->executeEvent(scriptPath);
         });
 }
 
@@ -552,6 +564,9 @@ void InGame::loadTilemap()
 
 void InGame::update(float deltaTime)
 {
+    // check for scripted events
+    eventTriggerManager->update();
+
     // control the sprites and apply physics
     handleDeadSprites();
     // if a cutscene is active, it takes control over the player

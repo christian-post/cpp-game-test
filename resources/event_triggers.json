@@ -1,0 +1,22 @@
+{
+  "triggers": [
+    {
+      "id": "elf_sword_cutscene",
+      "script": "scripts/cutscenes/elf_sword_cutscene.lua",
+      "conditions": {
+        "roomID": "starting_room",
+        "hasItem": "weapon_sword",
+        "maxRoomState": 5
+      }
+    },
+    {
+      "id": "enemies_defeated_room004",
+      "script": "scripts/cutscenes/door_open_004.lua",
+      "conditions": {
+        "roomName": "dungeon004",
+        "maxRoomState": 1,
+        "noEnemies": true
+      }
+    }
+  ]
+}

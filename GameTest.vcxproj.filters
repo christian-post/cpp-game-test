@@ -318,6 +318,9 @@
     <ClCompile Include="src\scenes\DungeonMenu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\lua\EventTriggerManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\scenes\TitleScreen.h">
@@ -614,6 +617,9 @@
     <ClInclude Include="src\scenes\DungeonMenu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\lua\EventTriggerManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="todo.txt" />
@@ -661,6 +667,8 @@
     <None Include="scripts\dungeon\debug_helper.lua" />
     <None Include="scripts\dungeon\hint_generator.lua" />
     <None Include="scripts\dungeon\direction_utils.lua" />
+    <None Include="resources\event_triggers.json" />
+    <None Include="scripts\cutscenes\elf_sword_cutscene.lua" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="github\hero.gif">
