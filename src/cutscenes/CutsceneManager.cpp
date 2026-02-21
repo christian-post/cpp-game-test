@@ -4,6 +4,7 @@
 
 void CutsceneManager::queueCommand(Command* cmd, bool blocking)
 {
+    cmd->setCutsceneManager(this);
     commands.push({ cmd, blocking });
     active = true;
 }

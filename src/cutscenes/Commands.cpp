@@ -5,7 +5,8 @@
 
 Command_Wait::Command_Wait(float duration) : duration(duration)
 {
-    started = true; name = "wait";
+    name = "wait";
+    started = true; 
 }
 
 void Command_Wait::update(float deltaTime)
@@ -145,28 +146,48 @@ void Command_Callback::update(float deltaTime)
     }
 }
 
-Command_Letterbox::Command_Letterbox(float screenWidth, float screenHeight, float duration)
-    : screenWidth(screenWidth), screenHeight(screenHeight), speed(24.0f / duration)
+Command_Letterbox::Command_Letterbox(float screenWidth, float screenHeight, float duration, bool reverse)
+    : screenWidth(screenWidth), screenHeight(screenHeight), speed(24.0f / duration), reverse(reverse)
 {
-    started = true; 
-    name = "Letterbox"; 
-    persistent = true;
+    name = "Letterbox";
+    persistent = !reverse; // only persist when fading in; not when fading out
 }
 
 void Command_Letterbox::update(float deltaTime)
 {
-    if (barHeight < 24.0f) 
-        barHeight = std::min(24.0f, barHeight + deltaTime * speed);
-    else 
-        done = true;
+    if (done)
+        return;
+
+    // barHeight needs to be re-initialized here
+    if (!started)
+    {
+        if (reverse)
+            cutsceneManager->letterBoxBarHeight = 24.0f;
+        started = true;
+    }
+
+    if (!reverse)
+    {
+        if (cutsceneManager->letterBoxBarHeight < 24.0f)
+            cutsceneManager->letterBoxBarHeight = std::min(24.0f, cutsceneManager->letterBoxBarHeight + deltaTime * speed);
+        else
+            done = true;
+    }
+    else
+    {
+        if (cutsceneManager->letterBoxBarHeight > 0.0f)
+            cutsceneManager->letterBoxBarHeight = std::max(0.0f, cutsceneManager->letterBoxBarHeight - deltaTime * speed);
+        else
+            done = true;
+    }
 }
 
 void Command_Letterbox::draw()
 {
-    if (barHeight > 0.0f)
+    if (cutsceneManager->letterBoxBarHeight > 0.0f)
     {
-        DrawRectangle(0, 0, (int)screenWidth, (int)barHeight, BLACK);
-        DrawRectangle(0, (int)(screenHeight - barHeight), (int)screenWidth, (int)barHeight, BLACK);
+        DrawRectangle(0, 0, (int)screenWidth, (int)std::ceil(cutsceneManager->letterBoxBarHeight), BLACK);
+        DrawRectangle(0, (int)(screenHeight - cutsceneManager->letterBoxBarHeight), (int)screenWidth, (int)std::ceil(cutsceneManager->letterBoxBarHeight), BLACK);
     }
 }
 

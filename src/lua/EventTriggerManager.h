@@ -16,6 +16,13 @@ struct EventTrigger
     bool checkConditions(Game& game) const;
 };
 
+struct TriggerContext
+{
+    std::string scriptPath;
+    std::string triggerID;
+    std::string roomID;
+}; // passes information from the json to the lua script
+
 class EventTriggerManager
 {
 public:

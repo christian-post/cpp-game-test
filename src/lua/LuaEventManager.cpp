@@ -4,6 +4,7 @@
 #include "InGame.h"
 #include "raylib.h"
 #include "LuaDungeonGenerator.h"
+#include "EventTriggerManager.h"
 
 LuaEventManager::LuaEventManager(Game& game, InGame& inGame)
     : game(game), inGame(inGame)
@@ -14,15 +15,19 @@ LuaEventManager::LuaEventManager(Game& game, InGame& inGame)
     setupBindings();
 }
 
-void LuaEventManager::executeEvent(const std::string& scriptPath)
+void LuaEventManager::executeEvent(const TriggerContext& context)
 {
-    auto result = lua.safe_script_file(scriptPath);
+    auto result = lua.safe_script_file(context.scriptPath);
     if (!result.valid())
     {
         sol::error err = result;
         TraceLog(LOG_ERROR, "Lua script load error: %s", err.what());
         return;
     }
+
+    // make context data accesible to lua
+    lua["triggerID"] = context.triggerID;
+    lua["roomID"] = context.roomID;
 
     sol::protected_function execute = lua["execute"];
     if (execute.valid())
@@ -36,7 +41,7 @@ void LuaEventManager::executeEvent(const std::string& scriptPath)
     }
     else
     {
-        TraceLog(LOG_WARNING, "Script %s has no execute() function", scriptPath.c_str());
+        TraceLog(LOG_WARNING, "Script %s has no execute() function", context.scriptPath.c_str());
     }
 }
 

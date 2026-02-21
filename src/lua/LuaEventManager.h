@@ -5,6 +5,7 @@
 
 class Game;
 class InGame;
+struct TriggerContext;
 
 class LuaEventManager
     // processes Lua script that control events (cutscenes etc) in the InGame scene
@@ -12,7 +13,7 @@ class LuaEventManager
 public:
     LuaEventManager(Game& game, InGame& inGame);
 
-    void executeEvent(const std::string& scriptPath);
+    void executeEvent(const TriggerContext& context);
 
 private:
     Game& game;

@@ -28,6 +28,8 @@ void bindSpriteOperations(sol::state& lua, Game& game, InGame& inGame)
         if (game.spriteMap.find(spriteName) == game.spriteMap.end())
             return;
 
+        // TODO add more behaviors
+
         if (behaviorType == "ChaseBehavior")
         {
             std::string targetName = config["target"].get_or(std::string("player"));

@@ -146,6 +146,9 @@ void DungeonMenu::end()
     // reload some of the files that got modified during dungeon generation
     if (reloadRequired)
     {
+        // event triggers
+        game.eventManager.pushEvent(RELOAD_EVENT_TRIGGERS);
+
         // JSON
         game.loader.loadQueue.emplace("Loading JSON files", [&]() {
             game.loader.loadSpriteData("./resources/npcs.json");

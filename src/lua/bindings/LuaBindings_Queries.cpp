@@ -44,8 +44,7 @@ void bindGameQueries(sol::state& lua, Game& game, InGame& inGame)
         });
 
     lua.set_function("getPlayerPosition", [&lua]() -> sol::table {
-        // Note: you'll need to add this - getting player position
-        // For now returning a dummy table structure
+        // TODO just a dummy, add later
         auto table = lua.create_table();
         table["x"] = 0.0f;
         table["y"] = 0.0f;

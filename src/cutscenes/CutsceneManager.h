@@ -14,11 +14,6 @@ struct QueuedCommand
 
 class CutsceneManager
 {
-    std::queue<QueuedCommand> commands;
-    std::vector<Command*> nonBlocking;
-    bool active = false;
-    bool controlsCamera = false;
-
 public:
     void queueCommand(Command* cmd, bool blocking = true);
     void update(float deltaTime);
@@ -33,4 +28,13 @@ public:
             return commands.front().cmd->name;
         return "empty";
     }
+
+    // internal state that is manipulated by the commands
+    float letterBoxBarHeight = 0.0f; // draw black bars when in letterbox mode
+
+private:
+    std::queue<QueuedCommand> commands;
+    std::vector<Command*> nonBlocking;
+    bool active = false;
+    bool controlsCamera = false;
 };

@@ -29,7 +29,7 @@
       "elf_f_run"
     ],
     "health": 100,
-    "speed": 18.0,
+    "speed": 10.0,
     "behaviors": [ "RandomWalk", "Dialogue" ],
     "behaviorData": {
       "dialogue": "elfDialogue1",
@@ -39,14 +39,12 @@
   "elfCompanion2": {
     "inherits": "elfCompanion1",
     "persistent": true,
-    "followsPlayer": true,
+    "speed": 18.0,
     "hitbox": [ 12.0, 12.0 ],
     "hitboxOffset": [ 2.0, 0.0 ],
-    "behaviors": [ "Watch", "Dialogue", "Chase" ],
+    "behaviors": [ "Watch", "Dialogue" ],
     "behaviorData": {
       "watchTarget": "player",
-      "chaseTarget": "player",
-      "minDist": 20.0,
       "dialogue": "elfDialogue2",
       "voice": "powerUp4"
     }

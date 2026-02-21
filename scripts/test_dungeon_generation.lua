@@ -168,7 +168,7 @@ local function process_tilemaps(dungeon_key, output_dir)
     print("\nStep 9: Processing tilemaps...")
     update_progress("Processing Tilemaps...")
     
-    TilemapModifier.process_dungeon("resources/dungeons.json", dungeon_key, "resources/tilemaps/base", output_dir, ObjectTemplates)
+    TilemapModifier.process_dungeon("resources/dungeons.json", dungeon_key, "resources/tilemaps/base", output_dir, ObjectTemplates, "resources/event_triggers.json")
 end
 
 function execute()

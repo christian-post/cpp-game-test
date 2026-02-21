@@ -6,6 +6,7 @@
 
 class Game;
 class TextBox;
+class CutsceneManager;
 
 class Command
 {
@@ -17,11 +18,13 @@ public:
     bool isDone() const { return done; }
     std::string name = "base";
     bool isPersistent() const { return persistent; }
+    void setCutsceneManager(CutsceneManager* cm) { cutsceneManager = cm; }
 
 protected:
     bool started = false;
     bool persistent = false;
     bool done = false;
+    CutsceneManager* cutsceneManager = nullptr;
 };
 
 class Command_Wait : public Command
@@ -112,14 +115,15 @@ class Command_Letterbox : public Command
 {
     // displays black bars on the top and bottom of the screen
     // the "duration" argument controls how long it takes the bars to move to their final position
-    // TODO: make a function to fade out the letterbox
 public:
-    Command_Letterbox(float screenWidth, float screenHeight, float duration);
+    Command_Letterbox(float screenWidth, float screenHeight, float duration, bool reverse);
     void update(float deltaTime) override;
     void draw() override;
 
 private:
-    float screenWidth, screenHeight, barHeight = 0.0f, speed;
+    float screenWidth, screenHeight, speed;
+    //static inline float barHeight = 0.0f; // static because it is shared across all instances of Command_letterbox
+    bool reverse = false;
 };
 
 class Command_CameraPan : public Command

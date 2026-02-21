@@ -7,6 +7,7 @@
 - "restart game" breaks fullscreen mode (on 2nd display?)
 - need to reload npcs.json, dungeons.json and texts.json after dungeon generation
 - check instances of EventManager::addListener for persistence
+- teleporting to a room that is smaller than the player's current x,y position causes a crash
 
 ## FEATURES/REFACTORS:
 - Gameplay
@@ -27,6 +28,9 @@
 -- collision objects should be able to span multiple layers
 -- auto load most of the assets instead of manually adding them to Preload.cpp
 -- constants.h for global magic numbers?
+
+- Cutscenes
+-- give CutsceneManager internal state (like drawing letterbox) that it manages
 
 - World
 -- dynamically show a shadow over a room entrance if the adjacent room is dark

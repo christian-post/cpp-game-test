@@ -69,7 +69,10 @@ bool EventTrigger::checkConditions(Game& game) const
         if (key == "noEnemies" && value.get<bool>())
         {
             bool hasEnemies = std::any_of(game.sprites.begin(), game.sprites.end(),
-                [](const std::shared_ptr<Sprite>& s) { return s->isEnemy; });
+                [](const std::shared_ptr<Sprite>& s) { 
+                    return s->isEnemy; 
+                });
+
             if (hasEnemies)
                 return false;
         }
@@ -86,7 +89,14 @@ void EventTriggerManager::update()
         {
             trigger.hasTriggered = true;
             TraceLog(LOG_INFO, "Lua event trigger fired: %s", trigger.id.c_str());
-            game.eventManager.pushEvent(EXECUTE_LUA_CUTSCENE, trigger.scriptPath);
+
+            // add the trigger context
+            TriggerContext context;
+            context.scriptPath = trigger.scriptPath;
+            context.triggerID = trigger.id;
+            context.roomID = game.currentWorld->getCurrentTileMap()->getRoomID(); //TODO might throw an error
+
+            game.eventManager.pushEvent(EXECUTE_LUA_CUTSCENE, context);
         }
     }
 }

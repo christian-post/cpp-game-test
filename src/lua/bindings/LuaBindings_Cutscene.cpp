@@ -7,19 +7,23 @@
 void bindCutsceneCommands(sol::state& lua, Game& game, InGame& inGame)
 {
     lua.set_function("hideHUD", [&]() {
-        game.eventManager.pushEvent(HIDE_HUD);
+        game.cutsceneManager.queueCommand(new Command_Callback([&]() {
+            game.eventManager.pushEvent(HIDE_HUD);
+            }));
         });
 
     lua.set_function("showHUD", [&]() {
-        game.eventManager.pushEvent(SHOW_HUD);
+        game.cutsceneManager.queueCommand(new Command_Callback([&]() {
+            game.eventManager.pushEvent(SHOW_HUD);
+            }));
         });
 
     lua.set_function("wait", [&](float duration) {
         game.cutsceneManager.queueCommand(new Command_Wait(duration));
         });
 
-    lua.set_function("letterbox", [&](float width, float height, float duration) {
-        game.cutsceneManager.queueCommand(new Command_Letterbox(width, height, duration), false);
+    lua.set_function("letterbox", [&](float width, float height, float duration, sol::optional<bool> reverse) {
+        game.cutsceneManager.queueCommand(new Command_Letterbox(width, height, duration, reverse.value_or(false)), false);
         });
 
     lua.set_function("moveSpriteTo", [&](const std::string& name, float x, float y, float duration) {
@@ -43,20 +47,28 @@ void bindCutsceneCommands(sol::state& lua, Game& game, InGame& inGame)
         });
 
     lua.set_function("releaseCameraControl", [&]() {
-        game.cutsceneManager.setCameraControl(false);
+        game.cutsceneManager.queueCommand(new Command_Callback([&]() {
+            game.cutsceneManager.setCameraControl(false);
+            }));
         });
 
     lua.set_function("playSound", [&](const std::string& soundName) {
-        game.playSound(soundName);
+        game.cutsceneManager.queueCommand(new Command_Callback([&, soundName]() {
+            game.playSound(soundName);
+            }));
         });
 
     lua.set_function("triggerEvent", [&](const std::string& eventKey) {
         int key = EventKeyRegistry::getEventKey(eventKey);
-        game.eventManager.pushEvent(key);
+        game.cutsceneManager.queueCommand(new Command_Callback([&, key]() {
+            game.eventManager.pushEvent(key);
+            }));
         });
 
     lua.set_function("reloadRoom", [&]() {
-        game.eventManager.pushEvent(RELOAD_ROOM);
+        game.cutsceneManager.queueCommand(new Command_Callback([&]() {
+            game.eventManager.pushEvent(RELOAD_ROOM);
+            }));
         });
 
     lua.set_function("onCutsceneComplete", [&](sol::function callback) {

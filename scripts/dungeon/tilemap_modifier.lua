@@ -126,6 +126,12 @@ local function normalize_sparse_layers(room)
     end
 end
 
+local function set_room_id(room, id)
+    if not room.properties then
+        room.properties = {}
+    end
+    table.insert(room.properties, {name = "roomID", type = "string", value = id})
+end
 
 local function load_tilemap(tilemap_base_path, doors, randomize)
     local tilemap_path = tilemap_base_path .. "/room_" .. doors .. ".json"
@@ -212,16 +218,6 @@ local function process_starting_room(tilemap_base_path, doors, tilemap_name, Obj
     
     local room = load_tilemap(tilemap_base_path, modified_doors, true)
     
-    -- add roomID property
-    if not room.properties then
-        room.properties = {}
-    end
-    table.insert(room.properties, {
-        name = "roomID",
-        type = "string",
-        value = "starting_room"
-    })
-    
     -- add NPCs and teleport to overworld (TODO: modify teleport target based on the dungeon config)
     for _, layer in ipairs(room.layers) do
         if layer.name == "sprites" then
@@ -280,7 +276,7 @@ local function process_normal_room(tilemap_base_path, doors, tilemap_name, level
     return room, string.format("L%d_R%d_C%d.json", level, row, col)
 end
 
-local function add_combat_encounter_to_room(room, combat_locks, ObjectTemplates, level_idx)
+local function add_combat_encounter_to_room(room, combat_locks, ObjectTemplates, level_idx, trigger_id)
     -- add enemy objects
     -- modify the door at the edge to be closed
 
@@ -307,7 +303,9 @@ local function add_combat_encounter_to_room(room, combat_locks, ObjectTemplates,
         print(lock_info.direction + 1)
         print(string.format("placing a door (%s) at %f, %f", direction_names[lock_info.direction + 1], closed_door.x, closed_door.y))
         
+        --[[
         -- create normalized event ID from edge coordinates
+        -- TODO obsolete
         local r1, c1 = lock_info.from_room[1], lock_info.from_room[2]
         local r2, c2 = lock_info.to_room[1], lock_info.to_room[2]
         -- normalize: ensure smaller coordinates come first for consistency
@@ -315,13 +313,14 @@ local function add_combat_encounter_to_room(room, combat_locks, ObjectTemplates,
             r1, c1, r2, c2 = r2, c2, r1, c1
         end
         local event_id = string.format("door_%d_%d_%d_%d_%d_opened", level_idx, r1, c1, r2, c2)
+        ]]
         
         -- set properties by name
         for _, prop in ipairs(closed_door.properties) do
             if prop.name == "direction" then
                 prop.value = lock_info.direction
             elseif prop.name == "event" then
-                prop.value = event_id
+                prop.value = trigger_id
             end
         end
         
@@ -406,7 +405,16 @@ end
 -- Main Processing Function
 -- ============================================================================
 
-function TilemapModifier.process_dungeon(dungeon_json_path, dungeon_name, tilemap_base_path, output_path, ObjectTemplates)
+function TilemapModifier.process_dungeon(dungeon_json_path, dungeon_name, tilemap_base_path, output_path, ObjectTemplates, event_triggers_path)
+    -- load event triggers
+    local triggers_file = io.open(event_triggers_path, "r")
+    if not triggers_file then
+        error("Could not open event triggers file: " .. event_triggers_path)
+    end
+    local triggers_content = triggers_file:read("*all")
+    triggers_file:close()
+    local event_triggers = json.decode(triggers_content)
+
     -- load dungeon data
     local file = io.open(dungeon_json_path, "r")
     if not file then
@@ -469,6 +477,21 @@ function TilemapModifier.process_dungeon(dungeon_json_path, dungeon_name, tilema
                 end
             end
 
+            local room_id = filename:gsub("%.json$", "")
+            set_room_id(room, room_id)
+
+            -- update elf sword cutscene trigger to match starting room ID
+            if level_idx == starting_level and
+               room_coords[1] == starting_room[1] and
+               room_coords[2] == starting_room[2] then
+                for _, trigger in ipairs(event_triggers.triggers) do
+                    if trigger.id == "elf_sword_cutscene" then
+                        trigger.conditions.roomID = room_id
+                        break
+                    end
+                end
+            end
+
             -- check for locked edges
             local locked_edges = find_locked_edges(dungeon_data, level_idx, room_coords)
             if #locked_edges > 0 then
@@ -502,7 +525,29 @@ function TilemapModifier.process_dungeon(dungeon_json_path, dungeon_name, tilema
     
                 -- TODO: implement later
                 if #combat_locks > 0 then
-                    add_combat_encounter_to_room(room, combat_locks, ObjectTemplates, level_idx)
+                    local trigger_id = room_id .. "_enemies_defeated"
+
+                    add_combat_encounter_to_room(room, combat_locks, ObjectTemplates, level_idx, trigger_id)
+
+                    -- define the trigger
+                    local already_exists = false
+                    for _, trigger in ipairs(event_triggers.triggers) do
+                        if trigger.id == trigger_id then
+                            already_exists = true
+                            break
+                        end
+                    end
+                    if not already_exists then
+                        table.insert(event_triggers.triggers, {
+                            id = trigger_id,
+                            script = "scripts/cutscenes/enemies_defeated.lua",
+                            conditions = {
+                                roomID = room_id,
+                                noEnemies = true,
+                                maxRoomState = 1
+                            }
+                        })
+                    end
                 end
             end
             
@@ -519,6 +564,11 @@ function TilemapModifier.process_dungeon(dungeon_json_path, dungeon_name, tilema
         end
     end
     
+    -- save updated event triggers
+    local triggers_out = io.open(event_triggers_path, "w")
+    triggers_out:write(json.encode(event_triggers, 2))
+    triggers_out:close()
+
     -- save updated dungeon data
     all_dungeons[dungeon_name] = dungeon_data
     local dungeon_out = io.open(dungeon_json_path, "w")

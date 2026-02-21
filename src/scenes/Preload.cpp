@@ -223,6 +223,7 @@ void Preload::startup()
         l.LoadtilesetFromTiled("./resources/tilemaps/simple_grassland.tsj");
         l.LoadtilesetFromTiled("./resources/tilemaps/simple_dungeon.tsj");
         l.LoadtilesetFromTiled("./resources/tilemaps/simple_interior.tsj");
+        l.LoadtilesetFromTiled("./resources/tilemaps/test.tsj");
 
         // load minified versions for the minimap
         // key has to be [tileset_image_file]_mini

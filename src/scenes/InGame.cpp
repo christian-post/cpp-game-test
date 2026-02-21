@@ -175,8 +175,13 @@ void InGame::setupEventListeners()
     game.eventManager.addListener(EXECUTE_LUA_CUTSCENE, [this](const std::any& data) {
         // event raised by the EventTriggerManager which checks event conditions.
         // Executes a given lua script
-        std::string scriptPath = std::any_cast<std::string>(data);
-        luaEventManager->executeEvent(scriptPath);
+        TriggerContext context = std::any_cast<TriggerContext>(data);
+
+        luaEventManager->executeEvent(context);
+        });
+
+    game.eventManager.addListener(RELOAD_EVENT_TRIGGERS, [this](const std::any) {
+        eventTriggerManager->loadTriggers("./resources/event_triggers.json");
         });
 }
 
@@ -511,10 +516,10 @@ void InGame::loadTilemap()
 
     tilemapRenderer.loadTilemap(tileMap);
 
-    game.setWorldBounds(
-        tilemapRenderer.getWorldWidth() * tilemapRenderer.getTileSize(),
-        tilemapRenderer.getWorldHeight() * tilemapRenderer.getTileSize()
-    );
+    size_t mapW = tilemapRenderer.getWorldWidth() * tilemapRenderer.getTileSize();
+    size_t mapH = tilemapRenderer.getWorldHeight() * tilemapRenderer.getTileSize();
+
+    game.setWorldBounds(mapW, mapH);
 
     Room* room = game.currentWorld->getCurrentRoom();
     room->visited = true;
@@ -551,11 +556,18 @@ void InGame::loadTilemap()
         if (sprite->followsPlayer)
             sprite->moveTo(player->position.x, player->position.y);
     }
-    // TODO check if the player holds a weapon
+    // check if the player holds a weapon
     for (size_t wpnIdx = 0; wpnIdx < 2; wpnIdx++)
     {
         if (currentWeapon[wpnIdx].has_value() && currentWeapon[wpnIdx]->second == true)
             spawnWeapon(wpnIdx);
+    }
+
+    // fallback check if the player is even on the map or out of bounds
+    // TODO there might be a better way to do this
+    if (player->position.x < 0.0 || player->position.x > mapW || player->position.y < 0.0 || player->position.y > mapH)
+    {
+        player->moveTo(static_cast<float>(mapW) * 0.5f, static_cast<float>(mapH) * 0.5f);
     }
 
     checkEnemyCount = true; // start checking for live enemies again
@@ -768,7 +780,8 @@ void InGame::update(float deltaTime)
         game.startScene("GameOver");
     }
 
-    // check if all enemies are dead
+    // fire once when all enemies are dead
+    // TODO do I need this when I also check for it in EventTriggerManager.cpp?
     if (checkEnemyCount && std::none_of(game.sprites.begin(), game.sprites.end(),
         [](const std::shared_ptr<Sprite>& s) {
             return s->isEnemy;

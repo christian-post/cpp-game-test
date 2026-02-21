@@ -2,15 +2,12 @@ function execute()
     if not spriteExists("elfCompanion2") then
         return
     end
-    
-    local tileSize = getTileSize()
-    local npcX = 12.0 * tileSize
-    local npcY = 8.0 * tileSize
-    
+
     hideHUD()
     letterbox(getScreenWidth(), getScreenHeight(), 1.0)
-    wait(1.0)
-    moveSpriteTo("elfCompanion2", npcX, npcY, 2.0)
+    wait(0.5)
+    moveSpriteTo("player", 124, 64, 1.0)
+    moveSpriteTo("elfCompanion2", 142, 64, 1.5)
     wait(0.5)
     showTextbox("elfCutscene1", "powerUp4")
     
@@ -27,4 +24,5 @@ function execute()
             distance = 20.0
         })
     end)
+
 end

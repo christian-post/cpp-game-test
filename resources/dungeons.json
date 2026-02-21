@@ -910,13 +910,19 @@
             "doors": "1111",
             "row": 1,
             "tilemap": "fields_2"
+          },
+          {
+            "column": 9,
+            "doors": "0000",
+            "row": 9,
+            "tilemap": "test_room"
           }
         ]
       }
     ],
     "num_levels": 1,
-    "rooms_h": 2,
-    "rooms_w": 2,
+    "rooms_h": 10,
+    "rooms_w": 10,
     "starting_level": 0,
     "starting_position": {
       "x": 448,

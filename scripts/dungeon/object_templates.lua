@@ -34,30 +34,6 @@ local templates = {
         x = 128,
         y = 80
     },
-    
-    stairs = {
-        height = 16,
-        id = 56,
-        name = "stairs",
-        properties = {
-            {
-                name = "level",
-                type = "int",
-                value = 0
-            },
-            {
-                name = "spriteName",
-                type = "string",
-                value = nil
-            }
-        },
-        rotation = 0,
-        type = "sprite",
-        visible = true,
-        width = 16,
-        x = 208,
-        y = 144
-    },
 
     stairs = {
         height = 16,
@@ -293,8 +269,8 @@ local templates = {
         type = "sprite",
         visible = true,
         width = 16,
-        x = 112,
-        y = 96
+        x = 144,
+        y = 112
     },
 
     teleport = {

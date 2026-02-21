@@ -353,17 +353,17 @@ void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, 
                 {
                     sprite->addBehavior(std::make_unique<OpenLockBehavior>(game, sprite, game.spriteMap["player"], eventKey, obj.properties.value("itemName", "NOT FOUND")));
                 }
-                else if (obj.properties.value("opensOnEnemiesDefeated", false))
-                {
-                    game.eventManager.addListener(ENEMIES_DEFEATED, [&, sprite = sprite.get()](std::any){
-                        // TODO play a short cutscene
-                        objectStates[obj.id].isOpened = true;
-                        sprite->visible = false;
-                        sprite->staticCollision = false;
-                        }, 
-                        false
-                    );
-                }
+                //else if (obj.properties.value("opensOnEnemiesDefeated", false))
+                //{
+                //    game.eventManager.addListener(ENEMIES_DEFEATED, [&, sprite = sprite.get()](std::any){
+                //        // TODO this is broken, will trigger when you just leave the room and the other room has no enemies
+                //        objectStates[obj.id].isOpened = true;
+                //        sprite->visible = false;
+                //        sprite->staticCollision = false;
+                //        }, 
+                //        false
+                //    );
+                //}
 
                 // external door trigger
                 game.eventManager.addListener(eventKey, [&, sprite = sprite.get()](std::any) {
