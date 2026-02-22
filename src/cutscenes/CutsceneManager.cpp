@@ -1,6 +1,10 @@
+#include "Game.h"
 #include "CutsceneManager.h"
 #include "Commands.h"
 
+
+CutsceneManager::CutsceneManager(Game& game) : game{ game } 
+{}
 
 void CutsceneManager::queueCommand(Command* cmd, bool blocking)
 {
@@ -76,5 +80,12 @@ void CutsceneManager::draw()
     for (auto* cmd : nonBlocking)
     {
         cmd->draw();
+    }
+
+    // global visuals
+    if (letterBoxBarHeight > 0.0f)
+    {
+        DrawRectangle(0, 0, (int)game.gameScreenWidth, (int)std::ceil(letterBoxBarHeight), BLACK);
+        DrawRectangle(0, (int)(game.gameScreenHeight - letterBoxBarHeight), (int)game.gameScreenWidth, (int)std::ceil(letterBoxBarHeight), BLACK);
     }
 }

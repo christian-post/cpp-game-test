@@ -6,10 +6,6 @@
 
 void bindSpriteOperations(sol::state& lua, Game& game, InGame& inGame)
 {
-    lua.set_function("advanceRoomState", [&]() {
-        game.currentWorld->advanceRoomState();
-        });
-
     lua.set_function("setSpriteProperty", [&](std::string spriteName, std::string property, sol::object value) {
         if (game.spriteMap.find(spriteName) == game.spriteMap.end())
             return;

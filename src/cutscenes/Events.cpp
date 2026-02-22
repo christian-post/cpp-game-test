@@ -30,6 +30,7 @@ void setupConditionalEvents(InGame& inGame)
         }
     );
 
+    /*
     game.eventManager.pushConditionalEvent(
         [&]() {
             // TODO just a test
@@ -47,16 +48,16 @@ void setupConditionalEvents(InGame& inGame)
                     game.eventManager.pushEvent(HIDE_HUD);
                     }));
 
-                game.cutsceneManager.queueCommand(new Command_Letterbox(game.gameScreenWidth, game.gameScreenHeight, 2.0f, false), false); // first letterbox command needs to be non-blocking
+                game.cutsceneManager.queueCommand(new Command_Letterbox(game.gameScreenWidth, game.gameScreenHeight, 2.0f, false));
                 game.cutsceneManager.queueCommand(new Command_Wait(1.0f));
 
                 game.cutsceneManager.queueCommand(new Command_Callback([&]() {
                     TraceLog(LOG_INFO, "SOME EVENT");
                     }));
 
-                game.cutsceneManager.queueCommand(new Command_Wait(5.0f));
+                game.cutsceneManager.queueCommand(new Command_Wait(1.0f));
 
-                game.cutsceneManager.queueCommand(new Command_Letterbox(game.gameScreenWidth, game.gameScreenHeight, 2.0f, true), true);
+                game.cutsceneManager.queueCommand(new Command_Letterbox(game.gameScreenWidth, game.gameScreenHeight, 2.0f, true));
 
                 game.cutsceneManager.queueCommand(new Command_Callback([&]() {
                     game.eventManager.pushEvent(SHOW_HUD);
@@ -65,6 +66,7 @@ void setupConditionalEvents(InGame& inGame)
             });
         }
     );
+    */
 
     //game.eventManager.pushConditionalEvent(
     //    [&]() {

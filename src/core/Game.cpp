@@ -29,7 +29,7 @@
 #include <ctime>
 
 
-Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this), luaDungeonGen(std::make_unique<LuaDungeonGenerator>(*this))
+Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this), luaDungeonGen(std::make_unique<LuaDungeonGenerator>(*this)), cutsceneManager(*this)
 {
     loader.loadSettings("./resources/settings.json");
     settings = &loader.getSettings();

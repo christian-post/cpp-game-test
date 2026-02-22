@@ -5,6 +5,8 @@
 #include <memory>
 #include <string>
 
+class Game;
+
 
 struct QueuedCommand
 {
@@ -15,6 +17,7 @@ struct QueuedCommand
 class CutsceneManager
 {
 public:
+    CutsceneManager(Game& game);
     void queueCommand(Command* cmd, bool blocking = true);
     void update(float deltaTime);
     void draw();
@@ -37,4 +40,5 @@ private:
     std::vector<Command*> nonBlocking;
     bool active = false;
     bool controlsCamera = false;
+    Game& game;
 };

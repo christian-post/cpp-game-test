@@ -118,7 +118,6 @@ class Command_Letterbox : public Command
 public:
     Command_Letterbox(float screenWidth, float screenHeight, float duration, bool reverse);
     void update(float deltaTime) override;
-    void draw() override;
 
 private:
     float screenWidth, screenHeight, speed;

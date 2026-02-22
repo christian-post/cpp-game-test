@@ -23,7 +23,7 @@ void bindCutsceneCommands(sol::state& lua, Game& game, InGame& inGame)
         });
 
     lua.set_function("letterbox", [&](float width, float height, float duration, sol::optional<bool> reverse) {
-        game.cutsceneManager.queueCommand(new Command_Letterbox(width, height, duration, reverse.value_or(false)), false);
+        game.cutsceneManager.queueCommand(new Command_Letterbox(width, height, duration, reverse.value_or(false)));
         });
 
     lua.set_function("moveSpriteTo", [&](const std::string& name, float x, float y, float duration) {
@@ -68,6 +68,12 @@ void bindCutsceneCommands(sol::state& lua, Game& game, InGame& inGame)
     lua.set_function("reloadRoom", [&]() {
         game.cutsceneManager.queueCommand(new Command_Callback([&]() {
             game.eventManager.pushEvent(RELOAD_ROOM);
+            }));
+        });
+
+    lua.set_function("advanceRoomState", [&]() {
+        game.cutsceneManager.queueCommand(new Command_Callback([&]() {
+            game.currentWorld->advanceRoomState();
             }));
         });
 

@@ -10,10 +10,11 @@ function execute()
     moveSpriteTo("elfCompanion2", 142, 64, 1.5)
     wait(0.5)
     showTextbox("elfCutscene1", "powerUp4")
-    
+    letterbox(getScreenWidth(), getScreenHeight(), 1.0, true)
+    showHUD()
+    advanceRoomState()
+
     onCutsceneComplete(function()
-        showHUD()
-        advanceRoomState()
         
         setSpriteProperty("elfCompanion2", "persistent", true)
         setSpriteProperty("elfCompanion2", "followsPlayer", true)

@@ -912,17 +912,17 @@
             "tilemap": "fields_2"
           },
           {
-            "column": 9,
+            "column": 0,
             "doors": "0000",
-            "row": 9,
+            "row": 2,
             "tilemap": "test_room"
           }
         ]
       }
     ],
     "num_levels": 1,
-    "rooms_h": 10,
-    "rooms_w": 10,
+    "rooms_h": 3,
+    "rooms_w": 2,
     "starting_level": 0,
     "starting_position": {
       "x": 448,

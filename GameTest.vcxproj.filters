@@ -669,6 +669,7 @@
     <None Include="resources\event_triggers.json" />
     <None Include="scripts\cutscenes\elf_sword_cutscene.lua" />
     <None Include="scripts\cutscenes\enemies_defeated.lua" />
+    <None Include="scripts\cutscenes\test_cutscene.lua" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="github\hero.gif">

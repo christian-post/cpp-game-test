@@ -182,15 +182,6 @@ void Command_Letterbox::update(float deltaTime)
     }
 }
 
-void Command_Letterbox::draw()
-{
-    if (cutsceneManager->letterBoxBarHeight > 0.0f)
-    {
-        DrawRectangle(0, 0, (int)screenWidth, (int)std::ceil(cutsceneManager->letterBoxBarHeight), BLACK);
-        DrawRectangle(0, (int)(screenHeight - cutsceneManager->letterBoxBarHeight), (int)screenWidth, (int)std::ceil(cutsceneManager->letterBoxBarHeight), BLACK);
-    }
-}
-
 Command_CameraPan::Command_CameraPan(Game& game, float targetX, float targetY, float duration) : game{ game }, targetX{ targetX }, targetY{ targetY }, duration{ duration }
 {
     started = true;
