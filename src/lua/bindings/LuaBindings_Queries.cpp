@@ -13,8 +13,16 @@ void bindGameQueries(sol::state& lua, Game& game, InGame& inGame)
         return game.currentWorld->getCurrentRoom()->state;
         });
 
-    lua.set_function("hasItem", [&](const std::string& item) {
-        return game.inventory.getItemQuantity(item) > 0;
+    lua.set_function("getCurrentLevel", [&]() {
+        return game.currentWorld->currentLevel;
+        });
+
+    lua.set_function("getCurrentRoomIndex", [&]() {
+        return game.currentWorld->currentRoomIndex;
+        });
+
+    lua.set_function("getStartingRoomIndex", [&]() {
+        return game.currentWorld->startingRoomIndex;
         });
 
     lua.set_function("getCurrentRoomID", [&]() -> std::string {
@@ -25,6 +33,10 @@ void bindGameQueries(sol::state& lua, Game& game, InGame& inGame)
     lua.set_function("getCurrentRoomName", [&]() -> std::string {
         const TileMap* tm = game.currentWorld->getCurrentTileMap();
         return tm ? tm->getName() : "";
+        });
+
+    lua.set_function("hasItem", [&](const std::string& item) {
+        return game.inventory.getItemQuantity(item) > 0;
         });
 
     lua.set_function("getTileSize", [&]() {

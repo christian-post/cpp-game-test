@@ -10,7 +10,7 @@ function execute()
     moveSpriteTo("elfCompanion2", 142, 64, 1.5)
     wait(0.5)
     showTextbox("elfCutscene1", "powerUp4")
-    letterbox(getScreenWidth(), getScreenHeight(), 1.0, true)
+    letterbox(getScreenWidth(), getScreenHeight(), 0.5, true)
     showHUD()
     advanceRoomState()
 

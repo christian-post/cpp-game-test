@@ -71,9 +71,12 @@ void bindCutsceneCommands(sol::state& lua, Game& game, InGame& inGame)
             }));
         });
 
-    lua.set_function("advanceRoomState", [&]() {
-        game.cutsceneManager.queueCommand(new Command_Callback([&]() {
-            game.currentWorld->advanceRoomState();
+    lua.set_function("advanceRoomState", [&](sol::optional<size_t> level, sol::optional<size_t> index) {
+        game.cutsceneManager.queueCommand(new Command_Callback([&, level, index]() {
+            if (level.has_value() && index.has_value())
+                game.currentWorld->advanceRoomState(level.value(), index.value());
+            else
+                game.currentWorld->advanceRoomState();
             }));
         });
 

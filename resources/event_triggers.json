@@ -20,6 +20,14 @@
     },
     {
       "conditions": {
+        "roomID": "L0_R0_C2_item",
+        "hasItem": "weapon_sword"
+      },
+      "id": "L0_R0_C2_item_sword_get",
+      "script": "scripts/cutscenes/sword_get.lua"
+    },
+    {
+      "conditions": {
         "maxRoomState": 1,
         "roomID": "test_room"
       },

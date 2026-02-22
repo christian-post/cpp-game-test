@@ -622,6 +622,12 @@
             "doors": "0000",
             "row": 0,
             "tilemap": "shop"
+          },
+          {
+            "column": 2,
+            "doors": "0000",
+            "row": 0,
+            "tilemap": "random_house_2"
           }
         ]
       }
@@ -903,7 +909,7 @@
             "column": 0,
             "doors": "1111",
             "row": 1,
-            "tilemap": "test_fields"
+            "tilemap": "fields_single_house"
           },
           {
             "column": 1,

@@ -5,9 +5,6 @@
 - Signpost "dialogue" property does not overwrite npcs.json
 - hitbox offset in Sprite data does not work
 - "restart game" breaks fullscreen mode (on 2nd display?)
-- need to reload npcs.json, dungeons.json and texts.json after dungeon generation
-- check instances of EventManager::addListener for persistence
-- teleporting to a room that is smaller than the player's current x,y position causes a crash
 
 ## FEATURES/REFACTORS:
 - Gameplay
@@ -19,7 +16,6 @@
 --- Pendant that gives you +2 hearts
 --- Pendant that makes your weapons stronger, but longer cooldown
 --- etc
--- NPCs in overworld or houses that give you hints (randomly)
 -- fortune teller gives you one hint (that is solvable) for money. "you will get the XY in Z" Resets after some time. Rewards you if you actually got the item.
 
 - Core
@@ -27,10 +23,9 @@
 -- do I need a base GameObject class? Or is that too much overhead for too little gain?
 -- collision objects should be able to span multiple layers
 -- auto load most of the assets instead of manually adding them to Preload.cpp
--- constants.h for global magic numbers?
 
 - Cutscenes
--- give CutsceneManager internal state (like drawing letterbox) that it manages
+-- modify sword_get.lua script from the dungeon generation script
 
 - World
 -- dynamically show a shadow over a room entrance if the adjacent room is dark
@@ -81,4 +76,5 @@
 - hand painted title image
 - consistent source code formatting (brackets!)
 -- should all enums be UPPERCASE?
-- refactor "goto" statements in Lua scripts
+- check instances of EventManager::addListener for persistence logic
+- always use constexpr for magic numbers

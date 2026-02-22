@@ -1,6 +1,6 @@
+#include "Game.h"
 #include "InGame.h"
 #include "Controls.h"
-#include "Events.h"
 #include "Utils.h"
 #include "TileMap.h"
 #include "Savegame.h"
@@ -65,7 +65,6 @@ void InGame::startup()
      
     // Event listeners specific to the InGame scene
     setupEventListeners();
-    setupConditionalEvents(*this);
 
     // listeners for lua scripted events
     eventTriggerManager->loadTriggers("./resources/event_triggers.json");
