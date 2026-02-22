@@ -212,12 +212,12 @@
   "exampleCircleParticle": {
     "type": "particle",
     "primitiveType": "circle",
-    "primitiveSize": 3.0,
+    "primitiveSize": 8.0,
     "velocityX": 0.0,
     "velocityY": 0.0,
     "startAlpha": 1.0,
     "endAlpha": 0.0,
-    "lifetime": 1.0,
+    "lifetime": 0.5,
     "startSize": 1.0,
     "endSize": 0.2
   },
@@ -247,18 +247,18 @@
     "particleKey": "exampleCircleParticle",
     "maxParticles": 30,
     "spawnInterval": 1.0,
-    "spawnDelay": 0.5,
+    "spawnDelay": 0.2,
     "burstSize": 25,
     "emitterLifetime": -1.0,
-    "spawnRadius": 0.1,
-    "spawnRadiusVariance": 2.0,
+    "spawnRadius": 20.0,
+    "spawnRadiusVariance": 4.0,
     "lifetimeVariance": 0.2,
     "alphaVariance": 0.3,
     "startSizeVariance": 0.3,
     "endSizeVariance": 0.0,
-    "speed": -50.0,
+    "speed": 120.0,
     "speedVariance": 10.0,
-    "velocityEasing": "quadIn"
+    "velocityEasing": "quadOut"
   },
   "fireParticleGradient": {
     "type": "particle",

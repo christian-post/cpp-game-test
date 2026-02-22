@@ -205,7 +205,7 @@
                         {
                          "name":"spriteName",
                          "type":"string",
-                         "value":"randomNPC2"
+                         "value":"villager1"
                         }],
                  "rotation":0,
                  "type":"sprite",

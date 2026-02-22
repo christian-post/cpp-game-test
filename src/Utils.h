@@ -13,6 +13,7 @@ class Game;
 struct CollisionObject;
 
 Vector2 GetRectCenter(Rectangle rect);
+Rectangle CenterOnRect(Rectangle inner, Rectangle outer);
 bool isPathClear(const Rectangle& currentRect, Vector2 targetPos, const std::vector<std::unique_ptr<CollisionObject>>& walls, int spriteLayer = 0);
 void applyKnockback(Sprite& sourceSprite, Sprite& targetSprite, float strength);
 std::vector<std::string> splitCSV(const std::string& input);

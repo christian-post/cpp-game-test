@@ -240,6 +240,7 @@ void WeaponBehavior::draw()
 {
     if (!isNotched)
         return;
+
     auto s = self.lock();
     auto o = owner.lock();
     if (!s || !o)

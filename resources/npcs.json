@@ -160,5 +160,28 @@
       "normal_dude_2_idle",
       "normal_dude_2_run"
     ]
+  },
+  "villager1": {
+    "behaviorData": {
+      "dialogue": "placeholder",
+      "voice": "powerUp4"
+    },
+    "behaviors": [
+      "RandomWalk",
+      "Dialogue"
+    ],
+    "inherits": "sprite_default",
+    "textures": [
+      "normal_dude_1_idle",
+      "normal_dude_1_run"
+    ]
+  },
+  "bomb_sprite": {
+    "textures": [
+      "bomb"
+    ],
+    "behaviors": [
+
+    ]
   }
 }

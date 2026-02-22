@@ -21,6 +21,7 @@ enum ItemType
 struct ItemData
 {
     ItemType type;
+    std::string key;
     std::string displayName;
     std::string textureKey;
     std::function<bool()> onConsume = nullptr;

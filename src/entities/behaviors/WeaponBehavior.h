@@ -26,9 +26,13 @@ struct weaponData {
     float HurtboxHeight;
     float lifetime;
     std::string soundKey;
+    // projectiles
     std::string projectileKey;
     std::string projectileTrailEmitterKey;
     std::string projectileImpactEmitterKey;
+    // ammunition
+    bool needsAmmo;
+    std::string ammoType;
     // optional callbacks 
     std::function<void()> onCreate;
     std::function<void()> onDestroy;
@@ -57,5 +61,5 @@ private:
     bool isNotched = false;
     direction notchedDirection = RIGHT;
     Vector2 aimDirection = { 1.0f, 0.0f };
-    bool isInAimMode() const { return isNotched; } // for bows
+    bool isInAimMode() const { return isNotched; } // for bows etc
 };

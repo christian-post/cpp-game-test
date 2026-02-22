@@ -28,6 +28,15 @@ enum AnimState
     NUM_ANIM_STATES
 };
 
+enum DamageType : uint32_t
+{
+    DAMAGE_NONE = 0,
+    DAMAGE_NORMAL = 1 << 0,
+    DAMAGE_BOMB = 1 << 1,
+    DAMAGE_FIRE = 1 << 2,
+    DAMAGE_ICE = 1 << 3,
+}; // types of damage that trigger certain behavior
+
 
 class Sprite
 {
@@ -83,6 +92,7 @@ public:
     bool followsPlayer = false;
     bool isEnemy = false;
     uint32_t damage = 0;
+    uint32_t damageType = DAMAGE_NORMAL;
     float knockback = 10.0f; // knockback that the sprite inflicts to others
     int weight = 1; // influences the knockback that the sprite iselfs experiences
     bool dying = false; // flag for the death animation

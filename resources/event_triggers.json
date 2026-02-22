@@ -28,7 +28,7 @@
     },
     {
       "conditions": {
-        "maxRoomState": 1,
+        "roomState": 256,
         "roomID": "test_room"
       },
       "id": "test_room_trigger",

@@ -8,6 +8,7 @@
 #include "Behavior.h"
 #include "DeathBehavior.h"
 #include "WeaponBehavior.h"
+#include "BombBehavior.h"
 #include "raymath.h"
 #include "LuaEventManager.h"
 #include "EventTriggerManager.h"
@@ -104,6 +105,18 @@ void InGame::setupEventListeners()
 
     game.eventManager.addListener(LAMP_OFF, [this](const std::any& data) {
         lampIsOn = false;
+        });
+
+    game.eventManager.addListener(THROW_BOMB, [this](const std::any& data) {
+        // player has thrown a bomb, now create a sprite
+        // TODO now I need the Sprite::fromJson method...
+        game.eventManager.pushDelayedEvent(UNNAMED, 0.0f, nullptr, [&] {
+            std::shared_ptr<Sprite> bombSprite = std::make_shared<Sprite>(game, 0.0f, 0.0f, 16.0f, 16.0f, "bomb_sprite");
+            bombSprite->moveTo(player->position.x, player->position.y);
+            bombSprite->setTextures({ "bomb" });
+            bombSprite->addBehavior(std::make_unique<BombBehavior>(game, bombSprite));
+            game.sprites.emplace_back(bombSprite);
+            });
         });
 
     game.eventManager.addListener(LOCK_PLAYER_MOVEMENT, [this](const std::any&) {
@@ -423,6 +436,17 @@ void InGame::spawnWeapon(size_t index)
 
     const weaponData& wpnData = *it->second.weaponBehavior;
 
+    // check if ammo is needed
+    if (wpnData.needsAmmo)
+    {
+        uint32_t qty = game.inventory.getItemQuantity(wpnData.ammoType);
+        if (qty == 0)
+            return;
+        else
+            // consume 1 ammo
+            game.eventManager.pushEvent(REMOVE_ITEM, std::make_any<std::pair<std::string, uint32_t>>(wpnData.ammoType, 1));
+    }
+
     // Create sprite with pre-computed data
     auto wpn = std::make_shared<Sprite>(
         game, 0.0f, 0.0f, 16.0f, 16.0f, weaponKey
@@ -430,7 +454,7 @@ void InGame::spawnWeapon(size_t index)
     game.spriteMap[weaponKey] = wpn;
     game.sprites.emplace_back(wpn);
 
-    wpn->setTextures({ weaponKey });
+    wpn->setTextures({ it->second.textureKey });
     wpn->setHurtbox(-1.0f, -1.0f, wpnData.HurtboxWidth, wpnData.HurtboxHeight);
     wpn->hurtboxOffset = { wpnData.HurtboxOffsetX, wpnData.HurtboxOffsetY };
     wpn->isColliding = false;
@@ -504,7 +528,6 @@ void InGame::checkRoomTransition()
 void InGame::loadTilemap()
 {
     tileMap = game.currentWorld->getCurrentTileMap();
-    TraceLog(LOG_INFO, "Loading Tilemap \"%s\"", tileMap->getName().c_str());
     // remove static and dynamic (non-persistent) objects
     game.walls.clear(); // walls are deleted instantly
     game.clearEmitters();
@@ -512,6 +535,8 @@ void InGame::loadTilemap()
     // check if there even is a valid tile map
     if (!tileMap)
         return;
+
+    TraceLog(LOG_INFO, "Loading Tilemap \"%s\"", tileMap->getName().c_str());
 
     tilemapRenderer.loadTilemap(tileMap);
 

@@ -60,10 +60,19 @@ bool EventTrigger::checkConditions(Game& game) const
         if (key == "roomName" && tm->getName() != value.get<std::string>())
             return false;
 
-        if (key == "hasItem" && game.inventory.getItemQuantity(value.get<std::string>()) <= 0)
+        if (key == "roomState" && game.currentWorld->getCurrentRoom()->state != value.get<int>())
+            // match exact room state
             return false;
 
         if (key == "maxRoomState" && game.currentWorld->getCurrentRoom()->state > value.get<int>())
+            // triggers up to a certain room state
+            return false;
+
+        if (key == "minRoomState" && game.currentWorld->getCurrentRoom()->state < value.get<int>())
+            // triggers only in this state and above
+            return false;
+
+        if (key == "hasItem" && game.inventory.getItemQuantity(value.get<std::string>()) <= 0)
             return false;
 
         if (key == "noEnemies" && value.get<bool>())

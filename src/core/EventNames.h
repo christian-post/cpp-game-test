@@ -11,7 +11,7 @@ enum EventName
     LOAD_GAME,
     ADD_ITEM,
     REMOVE_ITEM,
-    CONSUME_ITEM,
+    CONSUME_ITEM, // remove 1 from the given item. data: item_key (string)
     HIDE_HUD,
     SHOW_HUD,
     WEAPON_SET,
@@ -31,6 +31,7 @@ enum EventName
     LOADING_SAVEGAME_SUCCESS,
     LAMP_ON, // player activates the lamp
     LAMP_OFF, // player deactivates the lamp
+    THROW_BOMB, // tell the InGame scene to throw a bomb where the player is
     LOCK_PLAYER_MOVEMENT, // the user can't steer the player sprite
     UNLOCK_PLAYER_MOVEMENT,
     INTERMEDIATE_LOADING_FINISHED, // signals that loading during the game has finished TODO unused
@@ -72,6 +73,7 @@ inline const char* EventNameStrings[] = {
     "LOADING_SAVEGAME_SUCCESS",
     "LAMP_ON",
     "LAMP_OFF",
+    "THROW_BOMB",
     "LOCK_PLAYER_MOVEMENT",
     "UNLOCK_PLAYER_MOVEMENT",
     "INTERMEDIATE_LOADING_FINISHED",

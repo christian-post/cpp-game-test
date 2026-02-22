@@ -16,6 +16,14 @@ Vector2 GetRectCenter(Rectangle rect)
     return { rect.x + rect.width / 2.0f, rect.y + rect.height / 2.0f };
 }
 
+Rectangle CenterOnRect(Rectangle inner, Rectangle outer)
+{
+    // centers the inner on the outer
+    inner.x = outer.x + (outer.width - inner.width) / 2.0f;
+    inner.y = outer.y + (outer.height - inner.height) / 2.0f;
+    return inner;
+}
+
 bool isPathClear(const Rectangle& currentRect, Vector2 targetPos, const std::vector<std::unique_ptr<CollisionObject>>& walls, int spriteLayer) 
 {
     Rectangle sweptRect = {

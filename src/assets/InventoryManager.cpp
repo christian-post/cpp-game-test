@@ -26,10 +26,10 @@ void InventoryManager::initialize()
         // execute the callback for the specified item
         if (const auto* key = std::any_cast<std::string>(&data)) {
             for (auto it = items[CONSUMABLE].begin(); it != items[CONSUMABLE].end(); ++it) {
-                if (it->second.first->textureKey == *key && it->second.second > 0) {
+                if (it->second.first->key == *key && it->second.second > 0) {
                     if (!it->second.first->onConsume || !it->second.first->onConsume())
                         break;
-                    it->second.second--;
+                    it->second.second--; // decrease quantity
                     if (it->second.second == 0) {
                         items[CONSUMABLE].erase(it);
                     }

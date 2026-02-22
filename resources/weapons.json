@@ -12,7 +12,9 @@
     "sound": "slash",
     "projectile": "",
     "projectileTrailEmitter": "",
-    "projectileImpactEmitter": ""
+    "projectileImpactEmitter": "",
+    "needsAmmo": false,
+    "ammoType": ""
   },
   "weapon_sword": {
     "posOffsetX": 0.0,
@@ -24,7 +26,8 @@
     "damage": 2,
     "lifetime": 0.4,
     "type": 0,
-    "sound": "slash"
+    "sound": "slash",
+    "needsAmmo": false
   },
   "weapon_double_axe": {
     "posOffsetX": 0.0,
@@ -36,7 +39,8 @@
     "damage": 10,
     "lifetime": 0.5,
     "type": 0,
-    "sound": "slash"
+    "sound": "slash",
+    "needsAmmo": false
   },
   "weapon_spear": {
     "posOffsetX": 0.0,
@@ -48,7 +52,8 @@
     "damage": 2,
     "lifetime": 0.4,
     "type": 1,
-    "sound": "slash"
+    "sound": "slash",
+    "needsAmmo": false
   },
   "weapon_hammer": {
     "posOffsetX": 0.0,
@@ -60,7 +65,8 @@
     "damage": 24,
     "lifetime": 0.6,
     "type": 3,
-    "sound": "hammer"
+    "sound": "hammer",
+    "needsAmmo": false
   },
   "item_lamp": {
     "posOffsetX": 8.0,
@@ -72,7 +78,22 @@
     "damage": 0,
     "lifetime": -1.0,
     "type": 4,
-    "sound": "slash"
+    "sound": "slash",
+    "needsAmmo": false
+  },
+  "weapon_bomb": {
+    "posOffsetX": 8.0,
+    "posOffsetY": 0.0,
+    "HurtboxOffsetX": 0.0,
+    "HurtboxOffsetY": 0.0,
+    "HurtboxWidth": 1.0,
+    "HurtboxHeight": 1.0,
+    "damage": 0,
+    "lifetime": 0.1,
+    "type": 4,
+    "sound": "slash",
+    "needsAmmo": true,
+    "ammoType": "bombs"
   },
   "weapon_bow": {
     "posOffsetX": 4.0,
@@ -87,6 +108,8 @@
     "sound": "slash",
     "projectile": "weapon_arrow",
     "projectileTrailEmitter": "",
-    "projectileImpactEmitter": "projectileImpactSingle"
+    "projectileImpactEmitter": "projectileImpactSingle",
+    "needsAmmo": true,
+    "ammoType": "arrows"
   }
 }

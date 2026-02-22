@@ -28,6 +28,14 @@ static weaponData createWeaponDataFromJSON(const nlohmann::json& weaponJSON, con
     wpnData.HurtboxWidth = data.at("HurtboxWidth");
     wpnData.HurtboxHeight = data.at("HurtboxHeight");
     wpnData.soundKey = data.at("sound");
+
+    if (data.at("needsAmmo"))
+    {
+        wpnData.needsAmmo = true;
+        wpnData.ammoType = data.at("ammoType");
+    }
+
+    // projectiles
     if (wpnData.type == SHOOT || wpnData.type == BOW)
     {
         wpnData.projectileKey = data.at("projectile");
@@ -43,24 +51,28 @@ std::map<std::string, ItemData> createItemData(Game& game)
 {
     std::map<std::string, ItemData> data;
 
-    data["weapon_sword"] = ItemData{ WEAPON, "Sword", "weapon_sword" };
-    data["weapon_double_axe"] = ItemData{ WEAPON, "Double Axe", "weapon_double_axe" };
-    data["weapon_bow"] = ItemData{ WEAPON, "Bow", "weapon_bow" };
-    data["weapon_hammer"] = ItemData{ WEAPON, "Hammer", "weapon_hammer" };
-    data["weapon_mace"] = ItemData{ WEAPON, "Mace", "weapon_mace" };
-    data["weapon_spear"] = ItemData{ WEAPON, "Spear", "weapon_spear" };
-    data["weapon_baton_with_spikes"] = ItemData{ WEAPON, "Spiked Baton", "weapon_baton_with_spikes" };
-    data["item_lamp"] = ItemData{ WEAPON, "Lamp", "item_lamp" },
-    data["red_potion"] = ItemData{ CONSUMABLE, "Red Potion", "flask_big_red" };
-    data["green_potion"] = ItemData{ CONSUMABLE, "Green Potion", "flask_big_green" };
-    data["blue_potion"] = ItemData{ CONSUMABLE, "Blue Potion", "flask_big_blue" };
-    data["bomb"] = ItemData{ CONSUMABLE, "Bomb", "bomb" };
-    data["coin"] = ItemData{ PASSIVE, "Coin", "itemDropCoin" };
-    data["weapon_arrow"] = ItemData{ PASSIVE, "Arrows", "weapon_arrow" };
-    data["key"] = ItemData{ PASSIVE, "Key", "item_key" };
-    data["boss_key"] = ItemData{ PASSIVE, "Boss Key", "item_boss_key" };
-    data["heart_drop"] = ItemData{ IMMEDIATE, "Heart", "itemDropHeart" };
-    data["heart_1up"] = ItemData{ CONSUMABLE, "Heart 1UP", "heart_1up" };
+    data["weapon_sword"] = ItemData{ WEAPON, "weapon_sword", "Sword", "weapon_sword" };
+    data["weapon_double_axe"] = ItemData{ WEAPON, "weapon_double_axe", "Double Axe", "weapon_double_axe" };
+    data["weapon_bow"] = ItemData{ WEAPON, "weapon_bow", "Bow", "weapon_bow" };
+    data["weapon_hammer"] = ItemData{ WEAPON, "weapon_hammer", "Hammer", "weapon_hammer" };
+    data["weapon_mace"] = ItemData{ WEAPON, "weapon_mace", "Mace", "weapon_mace" };
+    data["weapon_spear"] = ItemData{ WEAPON, "weapon_spear", "Spear", "weapon_spear" };
+    data["weapon_baton_with_spikes"] = ItemData{ WEAPON, "weapon_baton_with_spikes", "Spiked Baton", "weapon_baton_with_spikes" };
+    data["weapon_bomb"] = ItemData{ WEAPON, "weapon_bomb", "Bomb", "bomb" };
+    data["item_lamp"] = ItemData{ WEAPON, "item_lamp", "Lamp", "item_lamp" };
+
+    data["red_potion"] = ItemData{ CONSUMABLE, "red_potion", "Red Potion", "flask_big_red" };
+    data["green_potion"] = ItemData{ CONSUMABLE, "green_potion", "Green Potion", "flask_big_green" };
+    data["blue_potion"] = ItemData{ CONSUMABLE, "blue_potion", "Blue Potion", "flask_big_blue" };
+    data["heart_1up"] = ItemData{ CONSUMABLE, "heart_1up", "Heart 1UP", "heart_1up" };
+
+    data["bombs"] = ItemData{ PASSIVE, "bombs", "Bombs", "bomb" }; // TODO use different sprite
+    data["arrows"] = ItemData{ PASSIVE, "arrows", "Arrows", "weapon_arrow" };
+    data["key"] = ItemData{ PASSIVE, "key", "Key", "item_key" };
+    data["boss_key"] = ItemData{ PASSIVE, "boss_key", "Boss Key", "item_boss_key" };
+    data["coin"] = ItemData{ PASSIVE, "coin", "Coin", "itemDropCoin" };
+
+    data["heart_drop"] = ItemData{ IMMEDIATE, "heart_drop", "Heart", "itemDropHeart" };
 
     // consumables callbacks
     data["red_potion"].onConsume = [&game]() {
@@ -128,7 +140,14 @@ std::map<std::string, ItemData> createItemData(Game& game)
                     game.eventManager.pushEvent(LAMP_OFF);
                     };
             }
+            else if (key == "weapon_bomb")
+            {
+                wpnData.onCreate = [&game]() {
+                    game.eventManager.pushEvent(THROW_BOMB);
+                    };
+            }
             // TOTO: Add other weapon-specific callbacks here as needed...
+            // Or maybe organize them differently
 
             // Attach the weaponData to the existing ItemData
             item.weaponBehavior = wpnData;

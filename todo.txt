@@ -5,8 +5,12 @@
 - Signpost "dialogue" property does not overwrite npcs.json
 - hitbox offset in Sprite data does not work
 - "restart game" breaks fullscreen mode (on 2nd display?)
+- bow weapon sprite is wrong
+- change how the weapon texture keys are obtained in HUD.cpp
 
 ## FEATURES/REFACTORS:
+-- rename "npcs.json" to "sprites.json"
+
 - Gameplay
 -- Shop in town with randomized item
 -- Chest in overworld (integrate into graph)
@@ -17,6 +21,7 @@
 --- Pendant that makes your weapons stronger, but longer cooldown
 --- etc
 -- fortune teller gives you one hint (that is solvable) for money. "you will get the XY in Z" Resets after some time. Rewards you if you actually got the item.
+--- show amount of arrows, bombs etc on the HUD
 
 - Core
 -- load weapons.json data into weaponData structs in Preload

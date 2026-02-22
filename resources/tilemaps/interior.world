@@ -13,6 +13,13 @@
             "width": 320,
             "x": 320,
             "y": 0
+        },
+        {
+            "fileName": "random_house_2.json",
+            "height": 256,
+            "width": 320,
+            "x": 640,
+            "y": 0
         }
     ],
     "onlyShowAdjacentMaps": false,

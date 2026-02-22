@@ -931,11 +931,11 @@
     "rooms_w": 2,
     "starting_level": 0,
     "starting_position": {
-      "x": 448,
-      "y": 256
+      "x": 100,
+      "y": 100
     },
     "starting_room": [
-      0,
+      2,
       0
     ]
   }

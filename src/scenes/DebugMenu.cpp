@@ -1,5 +1,6 @@
 #include "Game.h"
 #include "DebugMenu.h"
+#include "Controls.h"
 #include <functional>
 #include <string>
 #include <map>
@@ -133,6 +134,15 @@ void DebugMenu::update(float deltaTime)
             menus[static_cast<size_t>(MenuType::ItemCheat)]->updateItemText(index, key + " x " + std::to_string(qty));
             index++;
         }
+    }
+
+    // leave the menu via button press
+    // TODO this should only let the current menu finish
+    // maybe put this in MenuSelect with a "done" flag or event
+    if (game.buttonsPressed & CONTROL_CANCEL)
+    {
+        game.eventManager.pushEvent(SELECT_MENU_DONE);
+        game.stopScene(getName());
     }
 }
 

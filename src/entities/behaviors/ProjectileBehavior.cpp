@@ -49,7 +49,7 @@ void ProjectileBehavior::update(float deltaTime)
     if (!s)
         return;
 
-    if (s->isMarkedForDeletion() || t->isMarkedForDeletion())
+    if (s->isMarkedForDeletion() || (t && t->isMarkedForDeletion()))
         return;
 
     if (impactEmitter)

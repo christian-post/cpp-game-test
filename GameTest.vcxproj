@@ -160,6 +160,7 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <ClCompile Include="src\cutscenes\Commands.cpp" />
     <ClCompile Include="src\cutscenes\CutsceneManager.cpp" />
     <ClCompile Include="src\entities\Behavior.cpp" />
+    <ClCompile Include="src\entities\behaviors\BombBehavior.cpp" />
     <ClCompile Include="src\entities\behaviors\ChaseBehavior.cpp" />
     <ClCompile Include="src\entities\behaviors\ChestBehavior.cpp" />
     <ClCompile Include="src\entities\behaviors\CollectItemBehavior.cpp" />
@@ -390,6 +391,7 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <ClInclude Include="src\cutscenes\Commands.h" />
     <ClInclude Include="src\cutscenes\CutsceneManager.h" />
     <ClInclude Include="src\entities\Behavior.h" />
+    <ClInclude Include="src\entities\behaviors\BombBehavior.h" />
     <ClInclude Include="src\entities\behaviors\ChaseBehavior.h" />
     <ClInclude Include="src\entities\behaviors\ChestBehavior.h" />
     <ClInclude Include="src\entities\behaviors\CollectItemBehavior.h" />

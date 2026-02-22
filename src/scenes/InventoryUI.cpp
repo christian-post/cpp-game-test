@@ -137,7 +137,7 @@ void InventoryUI::update(float deltaTime)
             // choose the appropriate action for the selected item
             const auto* selected = flatItems[index];
             if (selected->first->type == CONSUMABLE) {
-                game.eventManager.pushEvent(CONSUME_ITEM, selected->first->textureKey);
+                game.eventManager.pushEvent(CONSUME_ITEM, selected->first->key);
             }
         }
 
@@ -145,7 +145,7 @@ void InventoryUI::update(float deltaTime)
         if (game.buttonsPressed & CONTROL_ACTION2) {
             const auto* selected = flatItems[index];
             if (selected->first->type == WEAPON) {
-                game.eventManager.pushEvent(WEAPON_SET, std::pair<std::string, size_t>(selected->first->textureKey, 0));
+                game.eventManager.pushEvent(WEAPON_SET, std::pair<std::string, size_t>(selected->first->key, 0));
                 game.playSound("menuSelect");
             }
         }
@@ -154,7 +154,7 @@ void InventoryUI::update(float deltaTime)
         if (game.buttonsPressed & CONTROL_ACTION3) {
             const auto* selected = flatItems[index];
             if (selected->first->type == WEAPON) {
-                game.eventManager.pushEvent(WEAPON_SET, std::pair<std::string, size_t>(selected->first->textureKey, 1));
+                game.eventManager.pushEvent(WEAPON_SET, std::pair<std::string, size_t>(selected->first->key, 1));
                 game.playSound("menuSelect");
             }
         }

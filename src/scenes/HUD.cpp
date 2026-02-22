@@ -123,11 +123,19 @@ void HUD::draw()
         weaponX += int(slot * weaponSlotMargin);
         DrawTexture(frameTex, weaponX - frameTex.width / 2, weaponY - frameTex.height / 2, WHITE);
         // draw weapon
-        auto& textures = game.loader.getTextures(equippedWeapons[slot]);
-        if (!textures.empty())
+        // TODO texture keys don't always match the weapon key
+        auto& itemData = game.inventory.getItemData();
+        auto it = itemData.find(equippedWeapons[slot]);
+        if (it != itemData.end())
         {
-            const auto& wpnTex = textures[0];
-            DrawTexture(wpnTex, weaponX - wpnTex.width / 2, weaponY - wpnTex.height / 2, WHITE);
+            // TODO store the key so this doesn't have to search every frame
+            auto& textures = game.loader.getTextures(it->second.textureKey);
+            //auto& textures = game.loader.getTextures(equippedWeapons[slot]);
+            if (!textures.empty())
+            {
+                const auto& wpnTex = textures[0];
+                DrawTexture(wpnTex, weaponX - wpnTex.width / 2, weaponY - wpnTex.height / 2, WHITE);
+            }
         }
         // show the corresponding button or key
         if (WasGamepadUsedLast())
