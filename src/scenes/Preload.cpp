@@ -168,6 +168,7 @@ void Preload::startup()
             { "blob", { "./resources/textures/sprites/blob.png" }},
             { "ladder_up", { "./resources/textures/sprites/ladder_up.png" }},
             { "ladder_down", { "./resources/textures/sprites/ladder_down.png" }},
+            { "rock", { "./resources/textures/sprites/rock.png" }},
 
             // inventory sprites
             {

@@ -112,6 +112,20 @@
   "screenShake": true,
   "sfxVolume": 70,
   "soundOn": false,
+  "startingInventory": [
+    [
+      "weapon_sword",
+      1
+    ],
+    [
+      "weapon_bomb",
+      1
+    ],
+    [
+      "bombs",
+      10
+    ]
+  ],
   "targetFPS": 120,
   "textDelay": 0.02,
   "textboxHeight": 64,

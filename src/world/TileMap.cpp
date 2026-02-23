@@ -32,6 +32,17 @@ void Level::insertRoom(size_t index, Room&& room)
     rooms[index] = std::move(room);
 }
 
+
+uint32_t parseDamageType(const std::string& str)
+// helper function that converts damage info from json to the bitflag
+{
+    if (str == "normal") return DAMAGE_NORMAL;
+    if (str == "bomb")   return DAMAGE_BOMB;
+    if (str == "fire")   return DAMAGE_FIRE;
+    if (str == "ice")    return DAMAGE_ICE;
+    return DAMAGE_NONE;
+}
+
 TileLayer::TileLayer(const nlohmann::json& layerJson)
 {
     name = layerJson["name"];
@@ -217,7 +228,17 @@ void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, 
         sprite->knockback = getWithDefault<float>(data, defaultData, "knockback");
         sprite->weight = getWithDefault<float>(data, defaultData, "weight");
         sprite->emitsLight = getWithDefault<bool>(data, defaultData, "emitsLight");
+        sprite->staticCollision = getWithDefault<bool>(data, defaultData, "staticCollision");
         sprite->hitboxOffset = getWithDefault<Vector2>(data, defaultData, "hitboxOffset");
+
+        // damage types and immunities
+        const auto& immunityData = data.contains("immunities") ? data.at("immunities") : defaultData.at("immunities");
+        uint32_t immunities = DAMAGE_NONE;
+        for (const auto& entry : immunityData)
+        {
+            immunities |= parseDamageType(entry.get<std::string>());
+        }
+        sprite->immunities = immunities;
 
         // attributes from Tiled data (instance-specific, overwrite JSON data)
         sprite->speed = obj.properties.value("speed", sprite->speed);

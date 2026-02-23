@@ -69,6 +69,15 @@ void InGame::startup()
 
     // listeners for lua scripted events
     eventTriggerManager->loadTriggers("./resources/event_triggers.json");
+
+    // give the player starting items
+    // TODO this is mainly for debugging
+    for (const auto& entry : game.getSetting<nlohmann::json>("startingInventory"))
+    {
+        std::string key = entry[0].get<std::string>();
+        int quantity = entry[1].get<int>();
+        game.eventManager.pushEvent(ADD_ITEM, std::make_any<std::pair<std::string, uint32_t>>(key, quantity));
+    }
 }
 
 void InGame::setupEventListeners()
@@ -714,10 +723,11 @@ void InGame::update(float deltaTime)
         {
             for (const auto& target : game.sprites)
             {
+                // bunch of checks before damage can be applied
                 if (target->isEnemy && target != sprite && target->iFrameTimer < 0.001f &&
-                    target->health > 0 && CheckCollisionRecs(sprite->hurtbox, target->rect))
+                    target->health > 0 && !(sprite->damageType & target->immunities) 
+                    && CheckCollisionRecs(sprite->hurtbox, target->rect))
                 {
-
                     target->health = (sprite->damage > target->health) ? 0 : target->health - sprite->damage;
                     target->iFrameTimer = 0.5f;
 
@@ -740,8 +750,9 @@ void InGame::update(float deltaTime)
             if (sprite->isEnemy && currentWeapon[wpnIdx].has_value())
             {
                 Sprite* weapon = getSprite(currentWeapon[wpnIdx]->first);
-                if (weapon && sprite->iFrameTimer < 0.001f && sprite->health > 0 &&
-                    CheckCollisionRecs(weapon->hurtbox, sprite->rect))
+                if (weapon && sprite->iFrameTimer < 0.001f && sprite->health > 0 
+                    && !(weapon->damageType & sprite->immunities) 
+                    && CheckCollisionRecs(weapon->hurtbox, sprite->rect))
                 {
                     sprite->health = (weapon->damage > sprite->health) ? 0 : sprite->health - weapon->damage;
                     sprite->iFrameTimer = 0.5f;

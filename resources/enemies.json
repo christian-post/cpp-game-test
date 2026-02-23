@@ -43,101 +43,6 @@
       ]
     }
   },
-  "enemy_test_emitter2": {
-    "inherits": "enemy_test_emitter",
-    "stateMachine": {
-      "initialState": "test1",
-      "states": [
-        {
-          "name": "test1",
-          "behaviors": [ "Emitter" ],
-          "behaviorData": {
-            "emitter": "exampleBurst",
-            "emitterData": {
-              "velocityEasing": "quadOut",
-              "tint": [ 255, 0, 0, 255 ]
-            }
-          }
-        }
-      ]
-    }
-  },
-  "enemy_test_emitter3": {
-    "inherits": "enemy_test_emitter",
-    "stateMachine": {
-      "initialState": "test1",
-      "states": [
-        {
-          "name": "test1",
-          "behaviors": [ "Emitter" ],
-          "behaviorData": {
-            "emitter": "exampleBurst",
-            "emitterData": {
-              "velocityEasing": "quadInOut",
-              "tint": [ 0, 255, 0, 255 ]
-            }
-          }
-        }
-      ]
-    }
-  },
-  "enemy_test_emitter4": {
-    "inherits": "enemy_test_emitter",
-    "stateMachine": {
-      "initialState": "test1",
-      "states": [
-        {
-          "name": "test1",
-          "behaviors": [ "Emitter" ],
-          "behaviorData": {
-            "emitter": "exampleBurst",
-            "emitterData": {
-              "velocityEasing": "cubicIn",
-              "tint": [ 0, 0, 255, 255 ]
-            }
-          }
-        }
-      ]
-    }
-  },
-  "enemy_test_emitter5": {
-    "inherits": "enemy_test_emitter",
-    "stateMachine": {
-      "initialState": "test1",
-      "states": [
-        {
-          "name": "test1",
-          "behaviors": [ "Emitter" ],
-          "behaviorData": {
-            "emitter": "exampleBurst",
-            "emitterData": {
-              "velocityEasing": "cubicOut",
-              "tint": [ 255, 255, 0, 255 ]
-            }
-          }
-        }
-      ]
-    }
-  },
-  "enemy_test_emitter6": {
-    "inherits": "enemy_test_emitter",
-    "stateMachine": {
-      "initialState": "test1",
-      "states": [
-        {
-          "name": "test1",
-          "behaviors": [ "Emitter" ],
-          "behaviorData": {
-            "emitter": "exampleBurst",
-            "emitterData": {
-              "velocityEasing": "cubicInOut",
-              "tint": [ 0, 255, 255, 255 ]
-            }
-          }
-        }
-      ]
-    }
-  },
   "skelet": {
     "inherits": "sprite_default",
     "textures": [
@@ -650,5 +555,18 @@
     "itemDrops": [
       [ "heart_1up", 1.0 ]
     ]
+  },
+  "rock": {
+    "textures": [
+      "rock"
+    ],
+    "health": 1,
+    "knockback": 0.0,
+    "weight": -1,
+    "speed": 0.0,
+    "hitbox": [ 32.0, 32.0 ],
+    "staticCollision": true,
+    "collides": 0,
+    "immunities": ["normal", "fire", "ice"]
   }
 }

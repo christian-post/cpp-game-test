@@ -53,7 +53,8 @@ void BombBehavior::update(float deltaTime)
         explosion->canHurtPlayer = false;
         explosion->canHurtEnemies = true;
         explosion->damage = config.damage;
-        explosion->damageType |= DAMAGE_BOMB; // modify damage type
+        explosion->isColliding = false;
+        explosion->damageType = DAMAGE_BOMB; // modify damage type
         explosion->speed = 0.0f; // hurtbox stays in place
         explosionSprite = explosion;
     }
