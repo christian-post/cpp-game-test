@@ -186,7 +186,10 @@
         }
       ]
     },
-    "itemDrops": [ [ "coin", 0.75 ] ]
+    "itemDrops": [
+      [ "coin", 0.75 ],
+      [ "bombs", 0.05 ]
+    ]
   },
   "turret": {
     "inherits": "sprite_default",

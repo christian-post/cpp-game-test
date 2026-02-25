@@ -922,12 +922,30 @@
             "doors": "0000",
             "row": 2,
             "tilemap": "test_room"
+          },
+          {
+            "column": 1,
+            "doors": "1111",
+            "row": 2,
+            "tilemap": "fields_bomb_chest"
+          },
+          {
+            "column": 0,
+            "doors": "1111",
+            "row": 3,
+            "tilemap": "fields_blocked_gorge"
+          },
+          {
+            "column": 1,
+            "doors": "1111",
+            "row": 3,
+            "tilemap": "fields_river_bridge_broken"
           }
         ]
       }
     ],
     "num_levels": 1,
-    "rooms_h": 3,
+    "rooms_h": 4,
     "rooms_w": 2,
     "starting_level": 0,
     "starting_position": {

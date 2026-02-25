@@ -36,11 +36,17 @@ static weaponData createWeaponDataFromJSON(const nlohmann::json& weaponJSON, con
     }
 
     // projectiles
-    if (wpnData.type == SHOOT || wpnData.type == BOW)
+    if (wpnData.type == SHOOT || wpnData.type == BOW || wpnData.type == HOOKSHOT)
     {
         wpnData.projectileKey = data.at("projectile");
         wpnData.projectileTrailEmitterKey = data.at("projectileTrailEmitter");
         wpnData.projectileImpactEmitterKey = data.at("projectileImpactEmitter");
+    }
+
+    if (wpnData.type == HOOKSHOT)
+    {
+        wpnData.maxHookshotRange = data.value("maxHookshotRange", 80.0f);
+        wpnData.hookshotPullSpeed = data.value("hookshotPullSpeed", 160.0f);
     }
 
     return wpnData;
@@ -54,6 +60,7 @@ std::map<std::string, ItemData> createItemData(Game& game)
     data["weapon_sword"] = ItemData{ WEAPON, "weapon_sword", "Sword", "weapon_sword" };
     data["weapon_double_axe"] = ItemData{ WEAPON, "weapon_double_axe", "Double Axe", "weapon_double_axe" };
     data["weapon_bow"] = ItemData{ WEAPON, "weapon_bow", "Bow", "weapon_bow" };
+    data["weapon_hookshot"] = ItemData{ WEAPON, "weapon_hookshot", "Hookshot", "weapon_hookshot" };
     data["weapon_hammer"] = ItemData{ WEAPON, "weapon_hammer", "Hammer", "weapon_hammer" };
     data["weapon_mace"] = ItemData{ WEAPON, "weapon_mace", "Mace", "weapon_mace" };
     data["weapon_spear"] = ItemData{ WEAPON, "weapon_spear", "Spear", "weapon_spear" };

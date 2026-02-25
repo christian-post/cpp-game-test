@@ -111,5 +111,24 @@
     "projectileImpactEmitter": "projectileImpactSingle",
     "needsAmmo": true,
     "ammoType": "arrows"
+  },
+  "weapon_hookshot": {
+    "posOffsetX": 0.0,
+    "posOffsetY": 0.0,
+    "HurtboxOffsetX": 0.0,
+    "HurtboxOffsetY": 0.0,
+    "HurtboxWidth": 1.0,
+    "HurtboxHeight": 1.0,
+    "damage": 0,
+    "lifetime": -1.0,
+    "type": 6,
+    "sound": "powerUp1",
+    "projectile": "hookshot_hook",
+    "projectileTrailEmitter": "",
+    "projectileImpactEmitter": "",
+    "needsAmmo": false,
+    "ammoType": "arrows",
+    "maxHookshotRange": 120.0,
+    "hookshotPullSpeed": 260.0
   }
 }

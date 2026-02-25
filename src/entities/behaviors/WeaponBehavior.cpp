@@ -1,5 +1,6 @@
 #include "WeaponBehavior.h"
 #include "ProjectileBehavior.h"
+#include "HookshotProjectileBehavior.h"
 #include "EmitterBehavior.h"
 #include "Sprite.h"
 #include "Game.h"
@@ -230,6 +231,148 @@ void WeaponBehavior::update(float deltaTime)
             }
             break;
         }
+        case HOOKSHOT:
+        {
+            float offset = std::sin(progress * 3.14159f) * 10.0f; // TODO does not work for hookshot sprite
+            if (o->lastDirection == RIGHT)
+            {
+                //s->position.x += offset;
+                s->rotationAngle = 90;
+            }
+            else
+            {
+                //s->position.x -= offset;
+                s->rotationAngle = -90;
+            }
+
+            // cancel if button pressed while active
+            if (hookshotState != HookshotState::IDLE && (game.buttonsPressed & controlBindings[slot]))
+            {
+                if (auto hook = hookProjectile.lock())
+                    hook->markForDeletion();
+                game.eventManager.removeListeners(HOOKSHOT_LATCHED);
+                game.eventManager.removeListeners(HOOKSHOT_MISSED);
+                game.eventManager.removeListeners(HOOKSHOT_RETRACT);
+                game.eventManager.pushEvent(UNLOCK_PLAYER_MOVEMENT);
+                int eventKey = EventKeyRegistry::getIndexedEventKey(KILL_WEAPON, slot);
+                game.eventManager.pushEvent(eventKey);
+                done = true;
+                hookshotState = HookshotState::IDLE;
+                break;
+            }
+
+            if (hookshotState == HookshotState::IDLE && (game.buttonsPressed & controlBindings[slot]))
+            {
+                // fire hookshot
+                s->visible = false; // TODO make a hookshot sprite without the hook and show it here
+
+                Vector2 oCenter = GetRectCenter(o->rect);
+                Vector2 fireDir = { o->lastDirection == RIGHT ? 1.0f : -1.0f, 0.0f };
+                float hookSize = 4.0f;
+                Rectangle hookRect = {
+                    oCenter.x - hookSize / 2.0f,
+                    oCenter.y - hookSize / 2.0f,
+                    hookSize,
+                    hookSize
+                };
+
+                auto hook = game.createSprite("hookshot_hook", hookRect);
+
+                hook->setTextures({ "hookshot_hook", "hookshot_hook" });
+                if (o->lastDirection == RIGHT)
+                    hook->rotationAngle = 90;
+                else
+                    hook->rotationAngle = -90;
+
+                hook->isColliding = false;
+                hook->castsShadow = false;
+                hook->addBehavior(std::make_unique<HookshotProjectileBehavior>(game, hook, o, fireDir, data.maxHookshotRange));
+                hookProjectile = hook;
+                hookshotState = HookshotState::FIRED;
+
+                game.eventManager.pushEvent(LOCK_PLAYER_MOVEMENT);
+
+                game.eventManager.addListener(HOOKSHOT_LATCHED, [this](std::any eventData)
+                    {
+                        auto ld = std::any_cast<HookshotLatchData>(eventData);
+                        latchPosition = ld.latchPosition;
+                        latchedEnemy = ld.latchedEnemy;
+                        if (!latchedEnemy.expired())
+                            hookshotState = HookshotState::LATCHED_ENEMY;
+                        else
+                            hookshotState = HookshotState::LATCHED_WORLD;
+                        //game.eventManager.removeListeners(HOOKSHOT_MISSED);
+                    }, false);
+
+                game.eventManager.addListener(HOOKSHOT_MISSED, [this](std::any)
+                    {
+                        hookshotState = HookshotState::IDLE;
+                        game.eventManager.removeListeners(HOOKSHOT_LATCHED);
+                        game.eventManager.removeListeners(HOOKSHOT_RETRACT);
+                        game.eventManager.pushEvent(UNLOCK_PLAYER_MOVEMENT);
+                        int eventKey = EventKeyRegistry::getIndexedEventKey(KILL_WEAPON, slot);
+                        game.eventManager.pushEvent(eventKey);
+                        done = true;
+                    }, false);
+            }
+            else if (hookshotState == HookshotState::LATCHED_WORLD)
+            {
+                Vector2 oCenter = GetRectCenter(o->rect);
+                float dx = latchPosition.x - oCenter.x;
+                float dy = latchPosition.y - oCenter.y;
+                float dist = std::sqrt(dx * dx + dy * dy);
+
+                auto hook = hookProjectile.lock();
+                float threshold = (o->lastDirection == RIGHT || o->lastDirection == LEFT) ? o->rect.width : o->rect.height;
+                // check if the player (o) is within a certain distance of the hook projectile
+                // this cancels the hooking
+                if (dist < threshold)
+                {
+                    hookshotState = HookshotState::RETRACTING;
+                    game.eventManager.pushEvent(HOOKSHOT_RETRACT);
+                }
+                else
+                {
+                    float invDist = 1.0f / dist;
+                    o->vel = { dx * invDist * data.hookshotPullSpeed * deltaTime, dy * invDist * data.hookshotPullSpeed * deltaTime };
+                    o->acc = { 0.0f, 0.0f };
+                }
+            }
+            else if (hookshotState == HookshotState::LATCHED_ENEMY)
+            {
+                auto enemy = latchedEnemy.lock();
+                if (!enemy || enemy->isMarkedForDeletion())
+                {
+                    hookshotState = HookshotState::RETRACTING;
+                    game.eventManager.pushEvent(HOOKSHOT_RETRACT);
+                }
+                else
+                {
+                    Vector2 oCenter = GetRectCenter(o->rect);
+                    Vector2 eCenter = GetRectCenter(enemy->rect);
+                    float dx = oCenter.x - eCenter.x;
+                    float dy = oCenter.y - eCenter.y;
+                    float dist = std::sqrt(dx * dx + dy * dy);
+
+                    if (dist < 8.0f)
+                    {
+                        hookshotState = HookshotState::RETRACTING;
+                        game.eventManager.pushEvent(HOOKSHOT_RETRACT);
+                    }
+                    else
+                    {
+                        float invDist = 1.0f / dist;
+                        enemy->vel = { dx * invDist * data.hookshotPullSpeed * deltaTime, dy * invDist * data.hookshotPullSpeed * deltaTime };
+                        enemy->acc = { 0.0f, 0.0f };
+                    }
+                }
+            }
+            else if (hookshotState == HookshotState::RETRACTING)
+            {
+                // waiting for the hook to travel back — HOOKSHOT_MISSED fires on arrival
+            }
+            break;
+        }
         default:
             break;
         }
@@ -238,6 +381,23 @@ void WeaponBehavior::update(float deltaTime)
 
 void WeaponBehavior::draw() 
 {
+    // TODO this logic is quite messy...
+    // 
+    // hookshot
+    if (hookshotState != HookshotState::IDLE && hookshotState != HookshotState::RETRACTING)
+    {
+        auto hook = hookProjectile.lock();
+        auto o = owner.lock();
+        if (hook && o)
+        {
+            Vector2 from = GetRectCenter(o->rect);
+            from.y += o->z;
+            Vector2 to = GetRectCenter(hook->rect);
+            DrawLineEx(from, to, 2.0f, GRAY);
+        }
+    }
+
+    // BOW
     if (!isNotched)
         return;
 
@@ -247,6 +407,7 @@ void WeaponBehavior::draw()
         return;
 
     // draw the projectile at the weapon's position
+    // TODO should this also work for the hookshot?
     const auto& projectileTextures = game.loader.getTextures(data.projectileKey);
     if (!projectileTextures.empty()) {
         const Texture2D& projectileTex = projectileTextures[0];

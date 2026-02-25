@@ -122,6 +122,10 @@
       1
     ],
     [
+      "weapon_hookshot",
+      1
+    ],
+    [
       "bombs",
       10
     ]
@@ -134,8 +138,8 @@
   "vignetteIntensity": 0.3,
   "vignetteSmoothness": 0.5,
   "vsync": true,
-  "windowHeight": 863,
+  "windowHeight": 820,
   "windowWidth": 1094,
-  "windowX": 706.0,
-  "windowY": 128.0
+  "windowX": 729.0,
+  "windowY": 121.0
 }

@@ -43,6 +43,9 @@ enum EventName
     ENEMIES_DEFEATED, // all enemies in the current room have been defeated
     EXECUTE_LUA_CUTSCENE, // start executing the attached lua script when a trigger condition has been met
     RELOAD_EVENT_TRIGGERS, // reload the event_triggers.json file from InGame
+    HOOKSHOT_LATCHED,
+    HOOKSHOT_MISSED,
+    HOOKSHOT_RETRACT,
     UNNAMED, // used whenever no name is needed (delayed or repeated events that have no listeners)
     STATIC_EVENT_COUNT // needs to be at the last position
 };
@@ -85,6 +88,9 @@ inline const char* EventNameStrings[] = {
     "ENEMIES_DEFEATED",
     "EXECUTE_LUA_CUTSCENE",
     "RELOAD_EVENT_TRIGGERS",
+    "HOOKSHOT_LATCHED",
+    "HOOKSHOT_MISSED",
+    "HOOKSHOT_RETRACT",
     "UNNAMED"
 };
 

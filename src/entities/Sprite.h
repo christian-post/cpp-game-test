@@ -97,6 +97,7 @@ public:
     float knockback = 10.0f; // knockback that the sprite inflicts to others
     int weight = 1; // influences the knockback that the sprite iselfs experiences
     bool dying = false; // flag for the death animation
+    bool hookshottable = false; // can the hookshot's hook grab onto this?
     
     Sprite(Game& game, float x, float y, float w, float h, const std::string& spriteName);
     ~Sprite();

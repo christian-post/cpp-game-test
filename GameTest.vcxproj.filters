@@ -321,6 +321,9 @@
     <ClCompile Include="src\entities\behaviors\BombBehavior.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\entities\behaviors\HookshotProjectileBehavior.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\scenes\TitleScreen.h">
@@ -618,6 +621,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\entities\behaviors\BombBehavior.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\entities\behaviors\HookshotProjectileBehavior.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

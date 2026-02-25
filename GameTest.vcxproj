@@ -168,6 +168,7 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <ClCompile Include="src\entities\behaviors\DialogueBehavior.cpp" />
     <ClCompile Include="src\entities\behaviors\EmitterBehavior.cpp" />
     <ClCompile Include="src\entities\behaviors\HealBehavior.cpp" />
+    <ClCompile Include="src\entities\behaviors\HookshotProjectileBehavior.cpp" />
     <ClCompile Include="src\entities\behaviors\KiteBehavior.cpp" />
     <ClCompile Include="src\entities\behaviors\LungeBehavior.cpp" />
     <ClCompile Include="src\entities\behaviors\OpenLockBehavior.cpp" />
@@ -399,6 +400,7 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <ClInclude Include="src\entities\behaviors\DialogueBehavior.h" />
     <ClInclude Include="src\entities\behaviors\EmitterBehavior.h" />
     <ClInclude Include="src\entities\behaviors\HealBehavior.h" />
+    <ClInclude Include="src\entities\behaviors\HookshotProjectileBehavior.h" />
     <ClInclude Include="src\entities\behaviors\KiteBehavior.h" />
     <ClInclude Include="src\entities\behaviors\LungeBehavior.h" />
     <ClInclude Include="src\entities\behaviors\OpenLockBehavior.h" />

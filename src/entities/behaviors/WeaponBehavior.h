@@ -11,7 +11,8 @@ enum weaponType {
     SHOOT = 2,
     WHACK = 3,
     HOLD = 4,
-    BOW = 5
+    BOW = 5,
+    HOOKSHOT = 6
 };
 
 struct weaponData {
@@ -33,6 +34,9 @@ struct weaponData {
     // ammunition
     bool needsAmmo;
     std::string ammoType;
+    // hookshot config
+    float maxHookshotRange = 80.0f;
+    float hookshotPullSpeed = 160.0f; // pixels per second
     // optional callbacks 
     std::function<void()> onCreate;
     std::function<void()> onDestroy;
@@ -62,4 +66,18 @@ private:
     direction notchedDirection = RIGHT;
     Vector2 aimDirection = { 1.0f, 0.0f };
     bool isInAimMode() const { return isNotched; } // for bows etc
+
+    // hookshot specific fields
+    enum class HookshotState
+    {
+        IDLE,
+        FIRED,
+        LATCHED_WORLD,
+        LATCHED_ENEMY,
+        RETRACTING
+    };
+    HookshotState hookshotState = HookshotState::IDLE;
+    std::weak_ptr<Sprite> hookProjectile;
+    Vector2 latchPosition = { 0.0f, 0.0f };
+    std::weak_ptr<Sprite> latchedEnemy;
 };

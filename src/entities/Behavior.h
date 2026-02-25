@@ -46,6 +46,12 @@ struct TeleportEvent
     Vector2 targetPos;
 };
 
+struct HookshotLatchData
+{
+    Vector2 latchPosition;
+    std::weak_ptr<Sprite> latchedEnemy; // empty if wall or hookshottable target
+};
+
 
 // Behavior base class
 class Behavior

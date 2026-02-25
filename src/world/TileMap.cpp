@@ -230,6 +230,7 @@ void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, 
         sprite->emitsLight = getWithDefault<bool>(data, defaultData, "emitsLight");
         sprite->staticCollision = getWithDefault<bool>(data, defaultData, "staticCollision");
         sprite->hitboxOffset = getWithDefault<Vector2>(data, defaultData, "hitboxOffset");
+        sprite->hookshottable = getWithDefault<bool>(data, defaultData, "hookshottable");
 
         // damage types and immunities
         const auto& immunityData = data.contains("immunities") ? data.at("immunities") : defaultData.at("immunities");
@@ -241,6 +242,7 @@ void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, 
         sprite->immunities = immunities;
 
         // attributes from Tiled data (instance-specific, overwrite JSON data)
+        // TODO what happens when a default parameter here overwrites a value from the JSON? This should instead check if the Tiled data has this field or not
         sprite->speed = obj.properties.value("speed", sprite->speed);
         sprite->damage = obj.properties.value("damage", sprite->damage);
         sprite->knockback = obj.properties.value("knockback", sprite->knockback);
@@ -248,6 +250,8 @@ void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, 
         sprite->drawLayer = obj.properties.value("drawLayer", 0);
         sprite->emitsLight = obj.properties.value("emitsLight", false);
         sprite->castsShadow = obj.properties.value("castsShadow", true);
+        sprite->hookshottable = obj.properties.value("hookshottable", false);
+        //sprite->staticCollision = obj.properties.value("staticCollision", false);
 
         float hurtboxW = obj.properties.value("hurtboxW", 0.0f);
         float hurtboxH = obj.properties.value("hurtboxH", 0.0f);

@@ -22,7 +22,8 @@
     "hitboxOffset": [ 0.0, 0.0 ],
     "itemDrops": [],
     "emitsLight": false,
-    "staticCollision": false
+    "staticCollision": false,
+    "hookshottable": false
   },
   "elfCompanion1": {
     "inherits": "sprite_default",
@@ -177,6 +178,13 @@
       "normal_dude_1_idle",
       "normal_dude_1_run"
     ]
+  },
+  "highwayman1": {
+    "inherits": "villager1",
+    "behaviorData": {
+      "dialogue": "npcBlockedGorge",
+      "voice": "powerUp4"
+    }
   },
   "bomb_sprite": {
     "textures": [
