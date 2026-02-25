@@ -25,11 +25,15 @@ WeaponBehavior::WeaponBehavior(Game& game, std::shared_ptr<Sprite> sprite, std::
         s->lastDirection = o->lastDirection;
         s->hurtboxOffset.x *= (s->lastDirection == LEFT) ? -1.0f : 1.0f;
         s->drawLayer = (s->lastDirection == LEFT) ? 1 : -1;
+        // initialize aim dir from current player/owner direction
+        aimDirection = { o->lastDirection == RIGHT ? 1.0f : -1.0f, 0.0f };  
     }
 }
 
 void WeaponBehavior::update(float deltaTime) 
 {
+    timer += deltaTime;
+
     if (auto s = self.lock(), o = owner.lock(); s && o) 
     {
         if (o->isMarkedForDeletion())
@@ -51,6 +55,7 @@ void WeaponBehavior::update(float deltaTime)
         float progress = 1.0f - (lifetime / originalLifetime);
         if (lifetime < 0.0f)
             return;
+
         // weapon specific behavior
         switch (data.type)
         {
@@ -104,14 +109,11 @@ void WeaponBehavior::update(float deltaTime)
             {
                 // first press enters aim mode
                 isNotched = true;
-                aimDirection = { o->lastDirection == RIGHT ? 1.0f : -1.0f, 0.0f };  // initialize from current direction
                 //o->setAnimState(CHARGE, true); // TODO
                 game.eventManager.pushEvent(LOCK_PLAYER_MOVEMENT);
             }
             else if (isNotched)
             {
-                timer += deltaTime;
-
                 // update aim direction based on input
                 Vector2 inputDir = { 0.0f, 0.0f };
                 if (game.buttonsDown & CONTROL_RIGHT)
@@ -233,17 +235,10 @@ void WeaponBehavior::update(float deltaTime)
         }
         case HOOKSHOT:
         {
-            float offset = std::sin(progress * 3.14159f) * 10.0f; // TODO does not work for hookshot sprite
-            if (o->lastDirection == RIGHT)
-            {
-                //s->position.x += offset;
-                s->rotationAngle = 90;
-            }
-            else
-            {
-                //s->position.x -= offset;
-                s->rotationAngle = -90;
-            }
+            // update weapon rotation to match aim direction
+            s->rotationAngle = std::atan2(aimDirection.y, aimDirection.x) * RAD2DEG + 90;
+            // incorporate potential jumping
+            s->position.y = s->position.y + o->z;
 
             // cancel if button pressed while active
             if (hookshotState != HookshotState::IDLE && (game.buttonsPressed & controlBindings[slot]))
@@ -261,59 +256,93 @@ void WeaponBehavior::update(float deltaTime)
                 break;
             }
 
-            if (hookshotState == HookshotState::IDLE && (game.buttonsPressed & controlBindings[slot]))
+            if (hookshotState == HookshotState::IDLE)
             {
-                // fire hookshot
-                s->visible = false; // TODO make a hookshot sprite without the hook and show it here
-
-                Vector2 oCenter = GetRectCenter(o->rect);
-                Vector2 fireDir = { o->lastDirection == RIGHT ? 1.0f : -1.0f, 0.0f };
-                float hookSize = 4.0f;
-                Rectangle hookRect = {
-                    oCenter.x - hookSize / 2.0f,
-                    oCenter.y - hookSize / 2.0f,
-                    hookSize,
-                    hookSize
-                };
-
-                auto hook = game.createSprite("hookshot_hook", hookRect);
-
-                hook->setTextures({ "hookshot_hook", "hookshot_hook" });
-                if (o->lastDirection == RIGHT)
-                    hook->rotationAngle = 90;
-                else
-                    hook->rotationAngle = -90;
-
-                hook->isColliding = false;
-                hook->castsShadow = false;
-                hook->addBehavior(std::make_unique<HookshotProjectileBehavior>(game, hook, o, fireDir, data.maxHookshotRange));
-                hookProjectile = hook;
-                hookshotState = HookshotState::FIRED;
-
                 game.eventManager.pushEvent(LOCK_PLAYER_MOVEMENT);
+                isNotched = true;
 
-                game.eventManager.addListener(HOOKSHOT_LATCHED, [this](std::any eventData)
-                    {
-                        auto ld = std::any_cast<HookshotLatchData>(eventData);
-                        latchPosition = ld.latchPosition;
-                        latchedEnemy = ld.latchedEnemy;
-                        if (!latchedEnemy.expired())
-                            hookshotState = HookshotState::LATCHED_ENEMY;
-                        else
-                            hookshotState = HookshotState::LATCHED_WORLD;
-                        //game.eventManager.removeListeners(HOOKSHOT_MISSED);
-                    }, false);
+                // update aim direction based on input
+                Vector2 inputDir = { 0.0f, 0.0f };
+                if (game.buttonsDown & CONTROL_RIGHT)
+                    inputDir.x = 1.0f;
+                if (game.buttonsDown & CONTROL_LEFT)
+                    inputDir.x = -1.0f;
+                if (game.buttonsDown & CONTROL_DOWN)
+                    inputDir.y = 1.0f;
+                if (game.buttonsDown & CONTROL_UP)
+                    inputDir.y = -1.0f;
 
-                game.eventManager.addListener(HOOKSHOT_MISSED, [this](std::any)
+                // restrict to either horizontal or vertical
+                if (inputDir.x != 0.0f || inputDir.y != 0.0f)
+                {
+                    if (std::abs(inputDir.x) >= std::abs(inputDir.y))
                     {
-                        hookshotState = HookshotState::IDLE;
-                        game.eventManager.removeListeners(HOOKSHOT_LATCHED);
-                        game.eventManager.removeListeners(HOOKSHOT_RETRACT);
-                        game.eventManager.pushEvent(UNLOCK_PLAYER_MOVEMENT);
-                        int eventKey = EventKeyRegistry::getIndexedEventKey(KILL_WEAPON, slot);
-                        game.eventManager.pushEvent(eventKey);
-                        done = true;
-                    }, false);
+                        aimDirection.x = (inputDir.x > 0.0f) ? 1.0f : -1.0f;
+                        aimDirection.y = 0.0f;
+                    }
+                    else
+                    {
+                        aimDirection.x = 0.0f;
+                        aimDirection.y = (inputDir.y > 0.0f) ? 1.0f : -1.0f;
+                    }
+                }
+
+                if (game.buttonsPressed & controlBindings[slot])
+                {
+                    // fire the hookshot
+                    s->visible = false; // TODO make a hookshot sprite without the hook and show it here
+                    isNotched = false;
+
+                    Vector2 oCenter = GetRectCenter(o->rect);
+                    //Vector2 fireDir = { o->lastDirection == RIGHT ? 1.0f : -1.0f, 0.0f };
+                    float hookSize = 4.0f;
+                    Rectangle hookRect = {
+                        oCenter.x - hookSize / 2.0f,
+                        oCenter.y - hookSize / 2.0f,
+                        hookSize,
+                        hookSize
+                    };
+
+                    auto hook = game.createSprite("hookshot_hook", hookRect);
+
+                    hook->setTextures({ "hookshot_hook", "hookshot_hook" });
+                    if (o->lastDirection == RIGHT)
+                        hook->rotationAngle = 90;
+                    else
+                        hook->rotationAngle = -90;
+
+                    hook->isColliding = false;
+                    hook->castsShadow = false;
+                    hook->rotationAngle = std::atan2(aimDirection.y, aimDirection.x) * RAD2DEG + 90.0f;
+                    hook->addBehavior(std::make_unique<HookshotProjectileBehavior>(game, hook, o, aimDirection, data.maxHookshotRange));
+                    hookProjectile = hook;
+                    hookshotState = HookshotState::FIRED;
+
+                    game.eventManager.pushEvent(LOCK_PLAYER_MOVEMENT);
+
+                    game.eventManager.addListener(HOOKSHOT_LATCHED, [this, o](std::any eventData)
+                        {
+                            auto ld = std::any_cast<HookshotLatchData>(eventData);
+                            latchPosition = ld.latchPosition;
+                            latchedEnemy = ld.latchedEnemy;
+                            if (!latchedEnemy.expired())
+                                hookshotState = HookshotState::LATCHED_ENEMY;
+                            else
+                                hookshotState = HookshotState::LATCHED_WORLD;
+                                o->isColliding = false; // disable player collision
+                        }, false);
+
+                    game.eventManager.addListener(HOOKSHOT_MISSED, [this](std::any)
+                        {
+                            hookshotState = HookshotState::IDLE;
+                            game.eventManager.removeListeners(HOOKSHOT_LATCHED);
+                            game.eventManager.removeListeners(HOOKSHOT_RETRACT);
+                            game.eventManager.pushEvent(UNLOCK_PLAYER_MOVEMENT);
+                            int eventKey = EventKeyRegistry::getIndexedEventKey(KILL_WEAPON, slot);
+                            game.eventManager.pushEvent(eventKey);
+                            done = true;
+                        }, false);
+                }
             }
             else if (hookshotState == HookshotState::LATCHED_WORLD)
             {
@@ -330,6 +359,7 @@ void WeaponBehavior::update(float deltaTime)
                 {
                     hookshotState = HookshotState::RETRACTING;
                     game.eventManager.pushEvent(HOOKSHOT_RETRACT);
+                    o->isColliding = true;
                 }
                 else
                 {
@@ -381,14 +411,18 @@ void WeaponBehavior::update(float deltaTime)
 
 void WeaponBehavior::draw() 
 {
+    auto s = self.lock();
+    auto o = owner.lock();
+    if (!s || !o)
+        return;
+
     // TODO this logic is quite messy...
     // 
     // hookshot
     if (hookshotState != HookshotState::IDLE && hookshotState != HookshotState::RETRACTING)
     {
         auto hook = hookProjectile.lock();
-        auto o = owner.lock();
-        if (hook && o)
+        if (hook)
         {
             Vector2 from = GetRectCenter(o->rect);
             from.y += o->z;
@@ -398,114 +432,112 @@ void WeaponBehavior::draw()
     }
 
     // BOW
-    if (!isNotched)
-        return;
-
-    auto s = self.lock();
-    auto o = owner.lock();
-    if (!s || !o)
-        return;
-
-    // draw the projectile at the weapon's position
-    // TODO should this also work for the hookshot?
-    const auto& projectileTextures = game.loader.getTextures(data.projectileKey);
-    if (!projectileTextures.empty()) {
-        const Texture2D& projectileTex = projectileTextures[0];
-        const auto& weaponTextures = s->frames[s->currentAnimState];
-        if (weaponTextures.empty())
-            return;
-
-        const Texture2D& weaponTex = weaponTextures[s->currentFrame];
-        float wpnTexHeight = static_cast<float>(weaponTex.height);
-
-        // calculate the rotation pivot (center-bottom of weapon texture)
-        Vector2 rotationPivot = {
-            s->position.x + s->rect.width / 2.0f + s->hitboxOffset.x,
-            s->position.y + s->rect.height + s->hitboxOffset.y + o->z
-        };
-
-        // the visual center is offset from the pivot before rotation
-        // offset from center-bottom to center is (0, -height/2)
-        float localOffsetX = 0.0f;
-        float localOffsetY = -wpnTexHeight / 2.0f;
-
-        // apply rotation to this offset
-        float angleRad = s->rotationAngle * DEG2RAD;
-        float rotatedOffsetX = localOffsetX * std::cos(angleRad) - localOffsetY * std::sin(angleRad);
-        float rotatedOffsetY = localOffsetX * std::sin(angleRad) + localOffsetY * std::cos(angleRad);
-
-        // calculate the actual visual center after rotation
-        Vector2 weaponVisualCenter = {
-            rotationPivot.x + rotatedOffsetX,
-            rotationPivot.y + rotatedOffsetY
-        };
-
-        // place arrow along the aim direction from the visual center
-        float arrowDistance = 8.0f;
-        Vector2 arrowPos = {
-            weaponVisualCenter.x + aimDirection.x * arrowDistance,
-            weaponVisualCenter.y + aimDirection.y * arrowDistance
-        };
-
-        Rectangle source = { 0.0f, 0.0f, static_cast<float>(projectileTex.width), static_cast<float>(projectileTex.height) };
-        Rectangle dest = {
-            arrowPos.x,
-            arrowPos.y,
-            static_cast<float>(projectileTex.width),
-            static_cast<float>(projectileTex.height)
-        };
-        Vector2 origin = { static_cast<float>(projectileTex.width) / 2.0f, static_cast<float>(projectileTex.height) / 2.0f };
-
-        DrawTexturePro(projectileTex, source, dest, origin, s->rotationAngle + 90.0f, WHITE);
-    }
-
-    // draw aim line with moving dashes
-    Vector2 ownerCenter = GetRectCenter(o->rect);
-    ownerCenter.y += o->z;  // account for potential jumping
-
-    float lineLength = 200.0f;
-
-    // animated pulsing effect
-    float pulse = (std::sin(timer * 5.0f) + 1.0f) * 0.5f;  // 0.0 to 1.0
-    float alpha = 0.1f + pulse * 0.5f;
-
-    // dash parameters
-    float dashLength = 12.0f;
-    float gapLength = 2.0f;
-    float segmentLength = dashLength + gapLength;
-
-    // animate the dashes moving forward
-    float animationSpeed = 20.0f;
-    float offset = fmod(timer * animationSpeed, segmentLength);
-
-    // calculate number of segments needed
-    float totalLength = lineLength;
-    int numSegments = (int)(totalLength / segmentLength) + 2;
-
-    // draw each dash
-    for (int i = 0; i < numSegments; i++)
+    if (isNotched && data.projectileKey != "hookshot_hook") // TODO should this also work for the hookshot?
     {
-        float startDist = i * segmentLength + offset;
-        float endDist = startDist + dashLength;
+        // draw the projectile at the weapon's position
+        const auto& projectileTextures = game.loader.getTextures(data.projectileKey);
+        if (!projectileTextures.empty()) {
+            const Texture2D& projectileTex = projectileTextures[0]; // TODO animate?
+            const auto& weaponTextures = s->frames[s->currentAnimState];
+            if (weaponTextures.empty())
+                return;
 
-        // skip if segment is completely before or after the line
-        if (endDist < 0.0f || startDist > totalLength)
-            continue;
+            const Texture2D& weaponTex = weaponTextures[s->currentFrame];
+            float wpnTexHeight = static_cast<float>(weaponTex.height);
 
-        // clamp to line bounds
-        startDist = fmax(startDist, 0.0f);
-        endDist = fmin(endDist, totalLength);
+            // calculate the rotation pivot (center-bottom of weapon texture)
+            Vector2 rotationPivot = {
+                s->position.x + s->rect.width / 2.0f + s->hitboxOffset.x,
+                s->position.y + s->rect.height + s->hitboxOffset.y + o->z
+            };
 
-        Vector2 segStart = {
-            ownerCenter.x + aimDirection.x * startDist,
-            ownerCenter.y + aimDirection.y * startDist
-        };
-        Vector2 segEnd = {
-            ownerCenter.x + aimDirection.x * endDist,
-            ownerCenter.y + aimDirection.y * endDist
-        };
+            // the visual center is offset from the pivot before rotation
+            // offset from center-bottom to center is (0, -height/2)
+            float localOffsetX = 0.0f;
+            float localOffsetY = -wpnTexHeight / 2.0f;
 
-        DrawLineEx(segStart, segEnd, 2.0f, Fade(GRAY, alpha));
+            // apply rotation to this offset
+            float angleRad = s->rotationAngle * DEG2RAD;
+            float rotatedOffsetX = localOffsetX * std::cos(angleRad) - localOffsetY * std::sin(angleRad);
+            float rotatedOffsetY = localOffsetX * std::sin(angleRad) + localOffsetY * std::cos(angleRad);
+
+            // calculate the actual visual center after rotation
+            Vector2 weaponVisualCenter = {
+                rotationPivot.x + rotatedOffsetX,
+                rotationPivot.y + rotatedOffsetY
+            };
+
+            // place arrow along the aim direction from the visual center
+            float arrowDistance = 8.0f;
+            Vector2 arrowPos = {
+                weaponVisualCenter.x + aimDirection.x * arrowDistance,
+                weaponVisualCenter.y + aimDirection.y * arrowDistance
+            };
+
+            Rectangle source = { 0.0f, 0.0f, static_cast<float>(projectileTex.width), static_cast<float>(projectileTex.height) };
+            Rectangle dest = {
+                arrowPos.x,
+                arrowPos.y,
+                static_cast<float>(projectileTex.width),
+                static_cast<float>(projectileTex.height)
+            };
+            Vector2 origin = { static_cast<float>(projectileTex.width) / 2.0f, static_cast<float>(projectileTex.height) / 2.0f };
+
+            DrawTexturePro(projectileTex, source, dest, origin, s->rotationAngle + 90.0f, WHITE);
+        }
+    }
+    
+
+    if (isNotched)
+    {
+        // draw aim line with moving dashes
+        Vector2 ownerCenter = GetRectCenter(o->rect);
+        ownerCenter.y += o->z;  // account for potential jumping
+
+        float lineLength = 200.0f;
+
+        // animated pulsing effect
+        float pulse = (std::sin(timer * 5.0f) + 1.0f) * 0.5f;  // 0.0 to 1.0
+        float alpha = 0.1f + pulse * 0.5f;
+
+        // dash parameters
+        float dashLength = 12.0f;
+        float gapLength = 2.0f;
+        float segmentLength = dashLength + gapLength;
+
+        // animate the dashes moving forward
+        float animationSpeed = 20.0f;
+        float offset = fmod(timer * animationSpeed, segmentLength);
+
+        // calculate number of segments needed
+        float totalLength = lineLength;
+        int numSegments = (int)(totalLength / segmentLength) + 2;
+
+        // draw each dash
+        for (int i = 0; i < numSegments; i++)
+        {
+            float startDist = i * segmentLength + offset;
+            float endDist = startDist + dashLength;
+
+            // skip if segment is completely before or after the line
+            if (endDist < 0.0f || startDist > totalLength)
+                continue;
+
+            // clamp to line bounds
+            startDist = fmax(startDist, 0.0f);
+            endDist = fmin(endDist, totalLength);
+
+            Vector2 segStart = {
+                ownerCenter.x + aimDirection.x * startDist,
+                ownerCenter.y + aimDirection.y * startDist
+            };
+            Vector2 segEnd = {
+                ownerCenter.x + aimDirection.x * endDist,
+                ownerCenter.y + aimDirection.y * endDist
+            };
+
+            DrawLineEx(segStart, segEnd, 2.0f, Fade(GRAY, alpha));
+        }
     }
 }
 

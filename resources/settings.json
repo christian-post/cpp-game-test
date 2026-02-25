@@ -126,8 +126,16 @@
       1
     ],
     [
+      "weapon_bow",
+      1
+    ],
+    [
       "bombs",
       10
+    ],
+    [
+      "arrows",
+      30
     ]
   ],
   "targetFPS": 120,

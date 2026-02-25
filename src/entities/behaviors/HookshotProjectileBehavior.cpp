@@ -79,9 +79,13 @@ void HookshotProjectileBehavior::update(float deltaTime)
 
     for (const auto& wall : game.walls)
     {
+        if (wall->layer != 0) 
+            continue; // excludes walls on other layers
+
         if (CheckCollisionRecs(s->rect, wall->getRect()))
         {
-            latchAt(GetRectCenter(s->rect));
+            // TODO particle effect
+            game.eventManager.pushEvent(HOOKSHOT_RETRACT);
             return;
         }
     }

@@ -7,9 +7,11 @@
 - "restart game" breaks fullscreen mode (on 2nd display?)
 - bow weapon sprite is wrong
 - change how the weapon texture keys are obtained in HUD.cpp
+- room transitions break when the adjacent rooms are not of equal size (player position goes out of bounds?)
 
 ## FEATURES/REFACTORS:
 -- rename "npcs.json" to "sprites.json"
+-- rename "dungeons.json" to "worlds.json"
 
 - Gameplay
 -- Shop in town with randomized item
@@ -37,6 +39,7 @@
 -- unify Room::objectStates and TileMap::dynamicObjects? same data, two different places
 -- Mask room transitions to reduce visual artifacts
 -- Buffer the Tilemap chunks of multiple adjacent rooms to reduce loading/unloading?
+-- in dungeons.json, store the x,y offset of a map if it's smaller or bigger than the adjacent maps?
 
 - Sprites
 -- drawing priority/layer system
