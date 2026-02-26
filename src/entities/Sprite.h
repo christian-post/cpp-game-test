@@ -2,6 +2,7 @@
 #include "Behavior.h"
 #include "StateMachine.h"
 #include "raylib.h"
+#include "json.hpp"
 #include <unordered_map>
 #include <string>
 #include <vector>
@@ -107,6 +108,8 @@ public:
     void LockAnimState() { lockedAnimState = true; }
     void unlockAnimState() { lockedAnimState = false; }
     void setHurtbox(float x = -1.0f, float y = -1.0f, float width = -1.0f, float height = -1.0f, bool center = false);
+    void fromJSON(const nlohmann::json& data, const nlohmann::json& defaultData);
+    void applyTiledProperties(float x, float y, float w, float h, const nlohmann::json& properties);
     void getControls();
     void update(float deltaTime);
     void drawShadow();

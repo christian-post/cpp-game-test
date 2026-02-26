@@ -39,6 +39,9 @@
   "placeholder": [
     "Looks like someone forgot to modify my dialogue data."
   ],
+  "secretRoom": [
+    "Hi, I'm Bagu. This is my top secret room.\nKeep it between us, OK?"
+  ],
   "sign1": [
     "This is a helpful sign. You are reading it right now."
   ],

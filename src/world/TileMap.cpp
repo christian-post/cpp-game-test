@@ -32,17 +32,6 @@ void Level::insertRoom(size_t index, Room&& room)
     rooms[index] = std::move(room);
 }
 
-
-uint32_t parseDamageType(const std::string& str)
-// helper function that converts damage info from json to the bitflag
-{
-    if (str == "normal") return DAMAGE_NORMAL;
-    if (str == "bomb")   return DAMAGE_BOMB;
-    if (str == "fire")   return DAMAGE_FIRE;
-    if (str == "ice")    return DAMAGE_ICE;
-    return DAMAGE_NONE;
-}
-
 TileLayer::TileLayer(const nlohmann::json& layerJson)
 {
     name = layerJson["name"];
@@ -203,64 +192,10 @@ void processTileObject(Game& game, const TileObject& obj, uint8_t currentState, 
             textureKeys = defaultData.at("textures").get<std::vector<std::string>>();
         }
 
-        // get the hitbox dimensions for the constructor
-        // if not specified in the JSON data, it takes the dimensions from the Tiled object data
-        Vector2 hitboxSize = data.contains("hitbox") ?
-            Vector2{ data.at("hitbox")[0].get<float>(), data.at("hitbox")[1].get<float>() } :
-            Vector2{ obj.width, obj.height };
-
-        // overwrite with Tiled data if the rect size differs from the tile size
-        // TODO this is probably only a temporary fix
-        if (obj.width != 16.0f)
-            hitboxSize.x = obj.width;
-        if (obj.height != 16.0f)
-            hitboxSize.y = obj.height;
-
-        // instanciate the sprite
-        auto sprite = std::make_shared<Sprite>(game, obj.x, obj.y, hitboxSize.x, hitboxSize.y, spriteName);
-
-        // generic attributes from JSON data
-        sprite->persistent = getWithDefault<bool>(data, defaultData, "persistent");
-        sprite->followsPlayer = getWithDefault<bool>(data, defaultData, "followsPlayer");
-        sprite->health = getWithDefault<int>(data, defaultData, "health");
-        sprite->damage = getWithDefault<int>(data, defaultData, "damage");
-        sprite->speed = getWithDefault<float>(data, defaultData, "speed");
-        sprite->knockback = getWithDefault<float>(data, defaultData, "knockback");
-        sprite->weight = getWithDefault<float>(data, defaultData, "weight");
-        sprite->emitsLight = getWithDefault<bool>(data, defaultData, "emitsLight");
-        sprite->staticCollision = getWithDefault<bool>(data, defaultData, "staticCollision");
-        sprite->hitboxOffset = getWithDefault<Vector2>(data, defaultData, "hitboxOffset");
-        sprite->hookshottable = getWithDefault<bool>(data, defaultData, "hookshottable");
-
-        // damage types and immunities
-        const auto& immunityData = data.contains("immunities") ? data.at("immunities") : defaultData.at("immunities");
-        uint32_t immunities = DAMAGE_NONE;
-        for (const auto& entry : immunityData)
-        {
-            immunities |= parseDamageType(entry.get<std::string>());
-        }
-        sprite->immunities = immunities;
-
-        // attributes from Tiled data (instance-specific, overwrite JSON data)
-        // TODO what happens when a default parameter here overwrites a value from the JSON? This should instead check if the Tiled data has this field or not
-        sprite->speed = obj.properties.value("speed", sprite->speed);
-        sprite->damage = obj.properties.value("damage", sprite->damage);
-        sprite->knockback = obj.properties.value("knockback", sprite->knockback);
+        auto sprite = std::make_shared<Sprite>(game, 0.0f, 0.0f, 16.0f, 16.0f, spriteName);
+        sprite->fromJSON(data, defaultData);
+        sprite->applyTiledProperties(obj.x, obj.y, obj.width, obj.height, obj.properties);
         sprite->tileMapID = obj.id;
-        sprite->drawLayer = obj.properties.value("drawLayer", 0);
-        sprite->emitsLight = obj.properties.value("emitsLight", false);
-        sprite->castsShadow = obj.properties.value("castsShadow", true);
-        sprite->hookshottable = obj.properties.value("hookshottable", false);
-        //sprite->staticCollision = obj.properties.value("staticCollision", false);
-
-        float hurtboxW = obj.properties.value("hurtboxW", 0.0f);
-        float hurtboxH = obj.properties.value("hurtboxH", 0.0f);
-        if (hurtboxW != 0.0f && hurtboxH != 0.0f)
-            sprite->setHurtbox(-1.0f, -1.0f, hurtboxW, hurtboxH);
-
-        // collision with other objects
-        if (data.contains("collides"))
-            sprite->isColliding = static_cast<bool>(data.at("collides").get<int>()); //TODO shouldn't this also be a bool in the data?
 
         // specific sprite attributes
         // TODO: for persistent sprites, check if they exist in the spriteMap

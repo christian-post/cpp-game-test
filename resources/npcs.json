@@ -17,7 +17,7 @@
     "behaviorData": {
       "voice": "powerUp4"
     },
-    "collides": 1,
+    "collides": true,
     "hitbox": [ 16.0, 16.0 ],
     "hitboxOffset": [ 0.0, 0.0 ],
     "itemDrops": [],
@@ -75,7 +75,7 @@
       "voice": "tone",
       "dialogue": "testTextures"
     },
-    "collides": 0
+    "collides": false
   },
   "chest": {
     "inherits": "sprite_default",
@@ -113,14 +113,14 @@
     "textures": [
       "wall_fountain_basin"
     ],
-    "collides": 0
+    "collides": false
   },
   "wall_fountain_mid": {
     "inherits": "sprite_default",
     "textures": [
       "wall_fountain_mid"
     ],
-    "collides": 0
+    "collides": false
   },
   "ladder_up": {
     "textures": [
@@ -162,6 +162,20 @@
     "textures": [
       "normal_dude_2_idle",
       "normal_dude_2_run"
+    ]
+  },
+  "secretNPC": {
+    "behaviorData": {
+      "dialogue": "secretRoom",
+      "voice": "powerUp4"
+    },
+    "behaviors": [
+      "Dialogue"
+    ],
+    "inherits": "sprite_default",
+    "textures": [
+      "dwarf_f_idle",
+      "dwarf_f_run"
     ]
   },
   "villager1": {

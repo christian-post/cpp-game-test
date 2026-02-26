@@ -569,7 +569,7 @@
     "speed": 0.0,
     "hitbox": [ 32.0, 32.0 ],
     "staticCollision": true,
-    "collides": 0,
+    "collides": false,
     "immunities": ["normal", "fire", "ice"]
   }
 }

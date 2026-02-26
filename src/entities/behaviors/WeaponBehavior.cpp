@@ -501,8 +501,8 @@ void WeaponBehavior::draw()
         float alpha = 0.1f + pulse * 0.5f;
 
         // dash parameters
-        float dashLength = 12.0f;
-        float gapLength = 2.0f;
+        float dashLength = 2.0f;
+        float gapLength = 4.0f;
         float segmentLength = dashLength + gapLength;
 
         // animate the dashes moving forward
@@ -536,7 +536,7 @@ void WeaponBehavior::draw()
                 ownerCenter.y + aimDirection.y * endDist
             };
 
-            DrawLineEx(segStart, segEnd, 2.0f, Fade(GRAY, alpha));
+            DrawLineEx(segStart, segEnd, 2.0f, Fade(WHITE, alpha));
         }
     }
 }

@@ -6,6 +6,106 @@
 #include <iostream>
 
 
+static uint32_t parseDamageType(const std::string& str)
+// converts a damage type string to its bitmask flag
+{
+    if (str == "normal") return DAMAGE_NORMAL;
+    if (str == "bomb")   return DAMAGE_BOMB;
+    if (str == "fire")   return DAMAGE_FIRE;
+    if (str == "ice")    return DAMAGE_ICE;
+    return DAMAGE_NONE;
+}
+
+void Sprite::fromJSON(const nlohmann::json& data, const nlohmann::json& defaultData)
+{
+    persistent = getWithDefault<bool>(data, defaultData, "persistent");
+    followsPlayer = getWithDefault<bool>(data, defaultData, "followsPlayer");
+    health = getWithDefault<int>(data, defaultData, "health");
+    maxHealth = health;
+    damage = getWithDefault<int>(data, defaultData, "damage");
+    speed = getWithDefault<float>(data, defaultData, "speed");
+    knockback = getWithDefault<float>(data, defaultData, "knockback");
+    weight = getWithDefault<int>(data, defaultData, "weight");
+    emitsLight = getWithDefault<bool>(data, defaultData, "emitsLight");
+    staticCollision = getWithDefault<bool>(data, defaultData, "staticCollision");
+    hookshottable = getWithDefault<bool>(data, defaultData, "hookshottable");
+    hitboxOffset = getWithDefault<Vector2>(data, defaultData, "hitboxOffset");
+
+    if (data.contains("collides"))
+        isColliding = data.at("collides").get<bool>();
+    else if (defaultData.contains("collides"))
+        isColliding = defaultData.at("collides").get<bool>();
+
+    if (data.contains("hitbox"))
+    {
+        rect.width = data.at("hitbox")[0].get<float>();
+        rect.height = data.at("hitbox")[1].get<float>();
+        hurtbox.width = rect.width;
+        hurtbox.height = rect.height;
+    }
+
+    const auto& immunityData = data.contains("immunities")
+        ? data.at("immunities")
+        : defaultData.at("immunities");
+    uint32_t totalImmunities = DAMAGE_NONE;
+    for (const auto& entry : immunityData)
+    {
+        totalImmunities |= parseDamageType(entry.get<std::string>());
+    }
+    immunities = totalImmunities;
+}
+
+void Sprite::applyTiledProperties(float x, float y, float w, float h, const nlohmann::json& properties)
+{
+    // only override hitbox size if tiled value differs from default tile size,
+    // otherwise the value from npcs.json wins
+    if (w != 16.0f)
+        rect.width = w;
+    if (h != 16.0f)
+        rect.height = h;
+
+    moveTo(x, y);
+
+    if (properties.contains("speed"))
+        speed = properties.at("speed").get<float>();
+    if (properties.contains("damage"))
+        damage = properties.at("damage").get<uint32_t>();
+    if (properties.contains("knockback"))
+        knockback = properties.at("knockback").get<float>();
+    if (properties.contains("drawLayer"))
+        drawLayer = properties.at("drawLayer").get<int>();
+    if (properties.contains("emitsLight"))
+        emitsLight = properties.at("emitsLight").get<bool>();
+    if (properties.contains("castsShadow"))
+        castsShadow = properties.at("castsShadow").get<bool>();
+    if (properties.contains("hookshottable"))
+        hookshottable = properties.at("hookshottable").get<bool>();
+    if (properties.contains("health"))
+    {
+        health = properties.at("health").get<uint32_t>();
+        maxHealth = health;
+    }
+    if (properties.contains("weight"))
+        weight = properties.at("weight").get<int>();
+    if (properties.contains("persistent"))
+        persistent = properties.at("persistent").get<bool>();
+    if (properties.contains("staticCollision"))
+        staticCollision = properties.at("staticCollision").get<bool>();
+    if (properties.contains("collides"))
+        isColliding = properties.at("collides").get<bool>();
+    if (properties.contains("hitboxOffset"))
+    {
+        hitboxOffset.x = properties.at("hitboxOffset")[0].get<float>();
+        hitboxOffset.y = properties.at("hitboxOffset")[1].get<float>();
+    }
+
+    float hurtboxW = properties.value("hurtboxW", 0.0f);
+    float hurtboxH = properties.value("hurtboxH", 0.0f);
+    if (hurtboxW != 0.0f && hurtboxH != 0.0f)
+        setHurtbox(-1.0f, -1.0f, hurtboxW, hurtboxH);
+}
+
+
 Sprite::Sprite(Game& game, float x, float y, float w, float h, const std::string& spriteName)
     : game(game),
     rect{ x, y, w, h },

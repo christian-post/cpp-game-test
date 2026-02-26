@@ -33,7 +33,8 @@ private:
 public:
     Game();
     ~Game();
-    // in-game resolution (stays constant, gets scaled up to window size)
+    // in-game resolution (gets scaled up to window size)
+    // is changed by settings.json
     uint32_t gameScreenWidth = 256;
     uint32_t gameScreenHeight = 192;
     bool isFullscreen = false;  // start in windowed mode, TODO put this in settings.json
