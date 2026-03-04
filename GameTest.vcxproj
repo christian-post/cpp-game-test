@@ -497,6 +497,12 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <None Include="scripts\dungeon\world_graph.lua" />
     <None Include="scripts\lib\cutscene_helpers.lua" />
     <None Include="scripts\lib\utils.lua" />
+    <None Include="scripts\other_tests.lua" />
+    <None Include="scripts\overworld\tilemap_modifier.lua" />
+    <None Include="scripts\test_overworld_generation.lua" />
+    <None Include="scripts\overworld\overworld_builder.lua" />
+    <None Include="scripts\overworld\overworld_generator.lua" />
+    <None Include="scripts\overworld\overworld_zone_generator.lua" />
     <None Include="scripts\test_dungeon_generation.lua" />
     <None Include="src\readme.md" />
   </ItemGroup>

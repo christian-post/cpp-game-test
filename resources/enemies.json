@@ -170,7 +170,7 @@
           },
           "transitions": [
             {
-              "to": "patrol",
+              "to": "watch",
               "requiresAll": false,
               "conditions": [
                 {

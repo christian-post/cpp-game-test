@@ -95,6 +95,11 @@ void LuaDungeonGenerator::setupBindings()
             }
         };
 
+    lua["set_dungeon_seed"] = [this](int s)
+        {
+            setSeed(s);
+        };
+
     // filesystem operations
     lua["filesystem"] = lua.create_table();
 

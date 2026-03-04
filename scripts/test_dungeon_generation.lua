@@ -139,7 +139,7 @@ local function export_dungeon_data(layout, edges, graph, item_pool, stairway_roo
     return dungeon_data
 end
 
-local function generate_base_rooms_if_needed()
+local function generate_base_rooms()
     local GenerateBaseRooms = require("dungeon.generate_base_rooms")
     
     print("\nStep 7: Checking base room tilemaps...")
@@ -178,7 +178,7 @@ function execute()
     local HintGenerator = require("dungeon.hint_generator")
     
     print("=== Modular Dungeon Generation Test ===\n")
-    dungeon_generation_start()
+    dungeon_generation_start() -- emits DUNGEON_GENERATION_START event
     
     local dungeon_key = "lua_dungeon"
     local output_dir = "resources/tilemaps/generated/" .. dungeon_key
@@ -229,13 +229,17 @@ function execute()
         DebugHelper.print_final_report(best_score, best_report, Analyzer)
         
         local dungeon_data = export_dungeon_data(layout, edges, graph, item_pool, stairway_rooms, dungeon_key, DungeonGenerator)
-        generate_base_rooms_if_needed()
+        generate_base_rooms()
         print("display name" .. dungeon_data.display_name)
         HintGenerator.generate(graph, layout, dungeon_key, dungeon_data.display_name)
         process_tilemaps(dungeon_key, output_dir)
         
         print("\n=== Dungeon Generation Complete! ===")
         dungeon_generation_complete(true)
+
+        print("\n=== Testing graph simplification ===")
+        local reduced = graph:reduce()
+        reduced:print_graph()
         
         return graph, layout, best_score, best_report
     else

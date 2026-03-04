@@ -40,6 +40,8 @@
 -- Mask room transitions to reduce visual artifacts
 -- Buffer the Tilemap chunks of multiple adjacent rooms to reduce loading/unloading?
 -- in dungeons.json, store the x,y offset of a map if it's smaller or bigger than the adjacent maps?
+-- Add tile-based collision/behavior? (trees, water etc)
+-- rate overworld generation based on different factors (evenly spaced out zones, town not adjacent)
 
 - Sprites
 -- drawing priority/layer system
@@ -86,3 +88,23 @@
 -- should all enums be UPPERCASE?
 - check instances of EventManager::addListener for persistence logic
 - always use constexpr for magic numbers
+
+
+
+# Notes to me
+
+overworld tilemap types
+
+- blocked vertically by item
+-- fields_blocked_gorge (bombs)
+-- fields_river_bridge_broken (hookshot) > needs adjacent river at 1010
+
+- blocked horizontally by item
+--
+
+- maps with locked items within
+-- fields_bomb_chest (bombs)
+-- fields_lake_dungeon (hookshot) > needs adjacent Lake zones at 1110
+
+- not blocked and no items
+-- fields_enemy_camp.json

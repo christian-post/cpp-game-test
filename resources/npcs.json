@@ -151,7 +151,7 @@
   },
   "randomNPC2": {
     "behaviorData": {
-      "dialogue": "placeholder",
+      "dialogue": "npcHintGeneric1",
       "voice": "powerUp4"
     },
     "behaviors": [

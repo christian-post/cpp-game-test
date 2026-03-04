@@ -1,0 +1,309 @@
+-- generates overworld layout from a zone grid, building edges
+-- constrained by zone transition rules
+
+local OverworldGenerator = {}
+
+local default_transition_rules = {
+    field_to_field       = { { max = nil, requirement = nil } },
+    field_to_forest      = { { max = 1,   requirement = nil } },
+    forest_to_forest     = { { max = nil, requirement = nil } },
+    field_to_mountain    = { { max = 2,   requirement = "bombs" } },
+    mountain_to_mountain = { { max = 2,   requirement = "hookshot" },
+                             { max = nil, requirement = nil } },
+    field_to_lake        = { { max = nil, requirement = nil } },
+    lake_to_lake         = { { max = nil, requirement = "boat" } },
+    forest_to_mountain   = { { max = 1,   requirement = nil } },
+    forest_to_lake       = { { max = 0,   requirement = nil } },
+    mountain_to_lake     = { { max = 0,   requirement = nil } },
+    town_to_town         = { { max = nil, requirement = nil } },
+    town_to_field        = { { max = nil, requirement = nil } },
+    town_to_forest       = { { max = 0,   requirement = nil } },
+    town_to_lake         = { { max = nil, requirement = nil } },
+    town_to_mountain     = { { max = 0,   requirement = nil } }
+}
+
+local function node_name(row, col)
+    return string.format("OW_%d_%d", row, col)
+end
+
+local function shuffle(list)
+    for i = #list, 2, -1 do
+        local j = dungeon_random(1, i)
+        list[i], list[j] = list[j], list[i]
+    end
+end
+
+local function get_rule(rules, zone_a, zone_b)
+    local key = zone_a .. "_to_" .. zone_b
+    local reverse_key = zone_b .. "_to_" .. zone_a
+    -- try the key, e.g. "field_to_mountain" or, if that fails try the reverse key
+    -- (so that I don't have to include duplicates for every reverse edge)
+    -- return the rules and the actual key used in the rules table
+    return rules[key] or rules[reverse_key], rules[key] and key or reverse_key
+end
+
+local function build_candidate_edges(zone_grid, width, height, rules)
+    -- collect all valid adjacent cell pairs grouped by transition type
+    local candidates_by_type = {}
+
+    local directions = { {0, 1}, {1, 0} }  -- right and down only to avoid duplicates
+
+    for row = 0, height - 1 do
+        for col = 0, width - 1 do
+            for _, dir in ipairs(directions) do
+                -- get neighboring row and column
+                local nr = row + dir[1]
+                local nc = col + dir[2]
+
+                if nr < height and nc < width then
+                    local zone_a = zone_grid[row][col]
+                    local zone_b = zone_grid[nr][nc]
+                    -- retrieves the zone edge rules from the transition_rules table
+                    -- the returned key can either be "[zone_a]_to_[zone_b]" or the reverse case, 
+                    -- depending on what's used in the table
+                    local rule, transition_key = get_rule(rules, zone_a, zone_b)
+
+                    if rule and (rule.max == nil or rule.max > 0) then
+                        if not candidates_by_type[transition_key] then
+                            candidates_by_type[transition_key] = {}
+                        end
+
+                        table.insert(candidates_by_type[transition_key], {
+                            from = node_name(row, col),
+                            to = node_name(nr, nc),
+                            requirement = rule.requirement
+                        })
+                    end
+                end
+            end
+        end
+    end
+
+    return candidates_by_type
+end
+
+local function select_edges(candidates_by_type, rules)
+    local selected = {}
+
+    -- sort keys so that the order is deterministic
+    local keys = {}
+    for key, _ in pairs(candidates_by_type) do
+        table.insert(keys, key)
+    end
+    table.sort(keys)
+
+    for _, transition_key in ipairs(keys) do
+        local candidates = candidates_by_type[transition_key]
+        shuffle(candidates)
+
+        local tiers = rules[transition_key] -- { max usage, requirements }
+        local remaining = candidates
+
+        for _, tier in ipairs(tiers) do
+            if #remaining == 0 then
+                break
+            end
+
+            local limit = tier.max ~= nil and tier.max or #remaining
+            local count = math.min(limit, #remaining)
+
+            for i = 1, count do
+                table.insert(selected, {
+                    from = remaining[i].from,
+                    to = remaining[i].to,
+                    requirement = tier.requirement
+                })
+            end
+
+            -- pass leftover candidates to next tier
+            local next_remaining = {}
+            for i = count + 1, #remaining do
+                table.insert(next_remaining, remaining[i])
+            end
+            remaining = next_remaining
+        end
+    end
+
+    return selected
+end
+
+local function ensure_connectivity(all_node_names, selected_edges, zone_grid, width, height, rules)
+    -- build adjacency from selected edges
+    local adjacency = {}
+    for _, name in ipairs(all_node_names) do
+        adjacency[name] = {}
+    end
+    for _, edge in ipairs(selected_edges) do
+        table.insert(adjacency[edge.from], edge.to)
+        table.insert(adjacency[edge.to], edge.from)
+    end
+
+    -- BFS from first node
+    local visited = {}
+    local queue = { all_node_names[1] }
+    visited[all_node_names[1]] = true
+    local qi = 1
+    while qi <= #queue do
+        local current = queue[qi]
+        qi = qi + 1
+        for _, neighbor in ipairs(adjacency[current]) do
+            if not visited[neighbor] then
+                visited[neighbor] = true
+                table.insert(queue, neighbor)
+            end
+        end
+    end
+
+    -- find isolated nodes and connect to nearest visited neighbor
+    for _, name in ipairs(all_node_names) do
+        if not visited[name] then
+            local row, col = name:match("OW_(%d+)_(%d+)")
+            row, col = tonumber(row), tonumber(col)
+
+            local neighbors = { {row - 1, col}, {row + 1, col}, {row, col - 1}, {row, col + 1} }
+            for _, n in ipairs(neighbors) do
+                local nr, nc = n[1], n[2]
+                if nr >= 0 and nr < height and nc >= 0 and nc < width then
+                    local neighbor_name = node_name(nr, nc)
+                    if visited[neighbor_name] then
+                        local zone_a = zone_grid[row][col]
+                        local zone_b = zone_grid[nr][nc]
+                        local rule, _ = get_rule(rules, zone_a, zone_b)
+                        local req = rule and rule.requirement or nil
+
+                        local edge = { from = name, to = neighbor_name, requirement = req }
+                        table.insert(selected_edges, edge)
+
+                        visited[name] = true
+                        table.insert(adjacency[name], neighbor_name)
+                        table.insert(adjacency[neighbor_name], name)
+
+                        print(string.format("  connectivity fallback: added edge %s <-> %s", name, neighbor_name))
+                        break
+                    end
+                end
+            end
+        end
+    end
+
+    return selected_edges
+end
+
+local function find_start(zone_grid, width, height)
+    local field_cells = {}
+    for row = 0, height - 1 do
+        for col = 0, width - 1 do
+            if zone_grid[row][col] == "field" then
+                table.insert(field_cells, {row = row, col = col})
+            end
+        end
+    end
+
+    if #field_cells == 0 then
+        error("No field cells available for start position")
+    end
+
+    return field_cells[dungeon_random(1, #field_cells)]
+end
+
+function OverworldGenerator.generate(zone_grid, width, height, config)
+    config = config or {}
+    -- see default_transition_rules at the top of this script
+    local rules = config.transition_rules or default_transition_rules
+
+    -- build node name list ("OW_[row]_[col]") in deterministic order
+    -- for now, each zone grid cell gets turned into one node
+    local all_node_names = {}
+    for row = 0, height - 1 do
+        for col = 0, width - 1 do
+            table.insert(all_node_names, node_name(row, col))
+        end
+    end
+
+    -- collect candidate edges grouped by transition type
+    local candidates_by_type = build_candidate_edges(zone_grid, width, height, rules)
+
+    -- apply max restrictions (how often an edge can be placed overall) and select edges
+    local selected_edges = select_edges(candidates_by_type, rules)
+
+    -- ensure full connectivity with fallback edges
+    selected_edges = ensure_connectivity(all_node_names, selected_edges, zone_grid, width, height, rules)
+
+    -- build layout compatible with DungeonBuilder/WorldGraph
+    local layout = {
+        rows      = height,
+        cols      = width,
+        levels    = 1,
+        positions = {},
+        zones     = zone_grid
+    }
+    for row = 0, height - 1 do
+        for col = 0, width - 1 do
+            layout.positions[node_name(row, col)] = { row = row, col = col, level = 0 }
+        end
+    end
+
+    -- pick random field cell as start
+    local start_pos  = find_start(zone_grid, width, height)
+    layout.start_row = start_pos.row
+    layout.start_col = start_pos.col
+
+    -- build edges table in dungeon format (bidirectional pairs)
+    local edges = {}
+    for _, edge in ipairs(selected_edges) do
+        local req = edge.requirement and { edge.requirement } or {}
+        table.insert(edges, { from = edge.from, to = edge.to,   requirements = req })
+        table.insert(edges, { from = edge.to,   to = edge.from, requirements = req })
+    end
+
+    -- overworld has no stairway rooms
+    local stairway_rooms = {}
+
+    return layout, edges, stairway_rooms
+end
+
+function OverworldGenerator.print_layout(zone_grid, width, height, edges)
+    local zone_chars = { mountain = "M", lake = "L", forest = "F", town = "T", field = "." }
+
+    -- build edge lookup
+    local edge_set = {}
+    for _, edge in ipairs(edges) do
+        local req = edge.requirements
+        edge_set[edge.from .. "->" .. edge.to] = req
+    end
+
+    local function edge_char(a, b)
+        local reqs = edge_set[a .. "->" .. b]
+        if not reqs then
+            return " "
+        end
+        if #reqs == 0 then
+            return "+"
+        end
+        return string.sub(reqs[1], 1, 1):upper()
+    end
+
+    for row = 0, height - 1 do
+        local line = "  "
+        for col = 0, width - 1 do
+            line = line .. (zone_chars[zone_grid[row][col]] or "?")
+            if col < width - 1 then
+                line = line .. edge_char(node_name(row, col), node_name(row, col + 1))
+            end
+        end
+        print(line)
+
+        if row < height - 1 then
+            local edge_line = "  "
+            for col = 0, width - 1 do
+                edge_line = edge_line .. edge_char(node_name(row, col), node_name(row + 1, col))
+                if col < width - 1 then
+                    edge_line = edge_line .. " "
+                end
+            end
+            print(edge_line)
+        end
+    end
+end
+
+return OverworldGenerator

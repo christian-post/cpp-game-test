@@ -2,6 +2,7 @@
 #include "Game.h"
 #include "Controls.h"
 #include "Utils.h"
+#include "LuaDungeonGenerator.h"
 
 StartMenu::StartMenu(Game& game, const std::string& name) 
     : Scene(game, name), menu(MenuSelect(game)) {
@@ -57,6 +58,17 @@ void StartMenu::startup() {
             [&]() {
                 game.startScene("SoundTest");
                 game.stopScene(getName());
+            }
+        });
+
+    menu.addItem({
+            "Lua Test Scripts",
+            MenuItemType::Action,
+            [&]() {
+                uint32_t seed = game.getSetting<int>("dungeonRngSeed");
+                game.luaDungeonGen->setSeed(seed);
+                //game.luaDungeonGen->executeScript("scripts/test_overworld_generation.lua");
+                game.luaDungeonGen->executeScript("scripts/other_tests.lua");
             }
         });
 

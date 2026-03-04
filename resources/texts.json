@@ -24,12 +24,12 @@
   "merchantDialogue1": [
     "Buy somethin' will ya!"
   ],
-  "npcHint1": [
-    "Did you alread find the [HINT:item] in the [HINT:loc]? That place is [HINT:dir]."
-  ],
   "npcBlockedGorge": [
     "The passage through the gorge is blocked by boulders. I called for a demolition squad, but it should take a couple of days until they arrive.",
     "Do you know anyone with access to explosives, perchance?"
+  ],
+  "npcHint1": [
+    "Did you alread find the [HINT:item] in the [HINT:loc]? That place is [HINT:dir]."
   ],
   "npcHintGeneric1": [
     "Did you know that you can press [TEX:xbox_buttons_sorted:12] twice to do a dodge roll?\f...You didn't? Well, that's because this game actually doesn't have a roll button. Bummer.",

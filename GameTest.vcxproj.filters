@@ -677,6 +677,12 @@
     <None Include="scripts\cutscenes\elf_sword_cutscene.lua" />
     <None Include="scripts\cutscenes\enemies_defeated.lua" />
     <None Include="scripts\cutscenes\test_cutscene.lua" />
+    <None Include="scripts\test_overworld_generation.lua" />
+    <None Include="scripts\overworld\overworld_zone_generator.lua" />
+    <None Include="scripts\overworld\overworld_generator.lua" />
+    <None Include="scripts\overworld\overworld_builder.lua" />
+    <None Include="scripts\overworld\tilemap_modifier.lua" />
+    <None Include="scripts\other_tests.lua" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="github\hero.gif">

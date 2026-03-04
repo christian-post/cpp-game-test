@@ -465,15 +465,22 @@ function WorldGraph:test_reachability()
     if num_reachable < total_nodes then
         local diff = total_nodes - num_reachable
         print(string.format("WARNING: There are %d unreachable nodes (out of %d).", diff, total_nodes))
-        
-        -- show which nodes are unreachable
+
         print("\nUnreachable nodes:")
         for name, _ in pairs(self.nodes) do
             if not reachable_names[name] then
                 print("  " .. name)
+                for _, edge in ipairs(self.nodes[name].edges) do
+                    local target_name = self.node_to_name[edge.target]
+                    if #edge.requirements > 0 then
+                        print(string.format("    <- %s [requires: %s]", target_name, table.concat(edge.requirements, ", ")))
+                    else
+                        print(string.format("    <- %s", target_name))
+                    end
+                end
             end
         end
-        
+
         return false
     else
         print(string.format("INFO: All %d nodes can be reached", total_nodes))
@@ -788,6 +795,147 @@ function WorldGraph:is_solvable(verbose)
     end
     
     return true, nil
+end
+
+function WorldGraph:reduce()
+    -- compresses the graph by collapsing nodes connected by free edges into zones.
+    -- the result is a new WorldGraph where each node represents one zone,
+    -- and only locked inter-zone edges are kept.
+
+    -- step 1: union-find to assign each node to a zone representative
+    local parent = {}
+    for name, _ in pairs(self.nodes) do
+        parent[name] = name
+    end
+
+    local function find(name)
+        if parent[name] ~= name then
+            parent[name] = find(parent[name])  -- path compression
+        end
+        return parent[name]
+    end
+
+    local function union(a, b)
+        local ra, rb = find(a), find(b)
+        if ra ~= rb then
+            parent[rb] = ra
+        end
+    end
+
+    -- merge nodes that share a free edge in both directions
+    for name, node in pairs(self.nodes) do
+        for _, edge in ipairs(node.edges) do
+            if #edge.requirements == 0 then
+                local target_name = self.node_to_name[edge.target]
+
+                -- only merge if the reverse is also free
+                local reverse_is_free = false
+                for _, reverse_edge in ipairs(edge.target.edges) do
+                    if self.node_to_name[reverse_edge.target] == name and #reverse_edge.requirements == 0 then
+                        reverse_is_free = true
+                        break
+                    end
+                end
+
+                if reverse_is_free then
+                    union(name, target_name)
+                end
+            end
+        end
+    end
+
+    -- step 2: collect zone members
+    local zone_members = {}  -- representative -> { node_name, ... }
+    for name, _ in pairs(self.nodes) do
+        local rep = find(name)
+        if not zone_members[rep] then
+            zone_members[rep] = {}
+        end
+        table.insert(zone_members[rep], name)
+    end
+
+    -- step 3: build reduced graph with one node per zone
+    local reduced = WorldGraph.new()
+
+    for rep, _ in pairs(zone_members) do
+        reduced:add_node(rep)
+    end
+
+    if self.start then
+        local start_name = self.node_to_name[self.start]
+        reduced:set_start(find(start_name))
+    end
+
+    if self.goal then
+        local goal_name = self.node_to_name[self.goal]
+        reduced:set_goal(find(goal_name))
+    end
+
+    -- step 4: add locked inter-zone edges (deduplicated)
+    local added_edges = {}
+    for name, node in pairs(self.nodes) do
+        for _, edge in ipairs(node.edges) do
+            if #edge.requirements > 0 then
+                local from_zone = find(name)
+                local to_zone   = find(self.node_to_name[edge.target])
+
+                if from_zone ~= to_zone then
+                    local req_str  = table.concat(edge.requirements, ",")
+                    local edge_key = from_zone .. "->" .. to_zone .. ":" .. req_str
+
+                    if not added_edges[edge_key] then
+                        added_edges[edge_key] = true
+                        reduced:add_one_way_edge(from_zone, to_zone, edge.requirements)
+                    end
+                end
+            end
+        end
+    end
+
+    -- propagate excluded rooms: if any member of a zone is excluded, the zone is excluded
+    for room_name, _ in pairs(self.excluded_rooms) do
+        reduced.excluded_rooms[find(room_name)] = true
+    end
+
+    -- store zone metadata for downstream use
+    reduced.zone_members  = zone_members   -- rep -> { original node names }
+    reduced.original_zone = {}             -- original node name -> rep
+    for name, _ in pairs(self.nodes) do
+        reduced.original_zone[name] = find(name)
+    end
+
+    return reduced
+end
+
+function WorldGraph:print_graph()
+    -- print all nodes and their edges
+    local sorted_names = {}
+    for name, _ in pairs(self.nodes) do
+        table.insert(sorted_names, name)
+    end
+    table.sort(sorted_names)
+
+    for _, name in ipairs(sorted_names) do
+        local node = self.nodes[name]
+        local value = node.value and (" [" .. node.value .. "]") or ""
+        local markers = ""
+        if self.start and self.start == node then
+            markers = markers .. " (start)"
+        end
+        if self.goal and self.goal == node then
+            markers = markers .. " (goal)"
+        end
+        print(string.format("  %s%s%s", name, value, markers))
+
+        for _, edge in ipairs(node.edges) do
+            local target_name = self.node_to_name[edge.target]
+            if #edge.requirements > 0 then
+                print(string.format("    -> %s [requires: %s]", target_name, table.concat(edge.requirements, ", ")))
+            else
+                print(string.format("    -> %s", target_name))
+            end
+        end
+    end
 end
 
 -- export

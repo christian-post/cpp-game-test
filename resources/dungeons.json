@@ -317,7 +317,7 @@
             "column": 0,
             "doors": "0000",
             "row": 2,
-            "tilemap": "test_room"
+            "tilemap": "fields_empty"
           },
           {
             "column": 1,
@@ -342,6 +342,12 @@
             "doors": "1111",
             "row": 4,
             "tilemap": "fields_lake_dungeon"
+          },
+          {
+            "column": 1,
+            "doors": "1111",
+            "row": 4,
+            "tilemap": "fields_enemy_camp"
           }
         ]
       }
