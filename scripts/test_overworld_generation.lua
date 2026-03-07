@@ -3,6 +3,7 @@ function execute()
     local OverworldZoneGenerator = require("overworld.overworld_zone_generator")
     local OverworldGenerator     = require("overworld.overworld_generator")
     local OverworldBuilder       = require("overworld.overworld_builder")
+    local TilemapModifier = require("overworld.tilemap_modifier")
 
     print("=== Overworld Generation Test ===\n")
 
@@ -111,7 +112,7 @@ function execute()
     -- Tilemap assignment
     -- =====================================
 
-    -- TODO
+    TilemapModifier.process_overworld(zone_grid, edges, width, height)
 
     print("\n=== Overworld Generation Complete! ===")
 end

@@ -238,6 +238,7 @@ void Preload::startup()
     game.loader.loadQueue.emplace("Loading tilemaps", [&]() {
         l.loadTilemapsFromDirectory("./resources/tilemaps");
         l.loadTilemapsFromDirectory("./resources/tilemaps/generated/lua_dungeon"); // TODO load the subfolders into a hash table with the dungeon name as key
+        l.loadTilemapsFromDirectory("./resources/tilemaps/generated/overworld");
         });
     // load the font
     game.loader.loadQueue.emplace("Loading fonts", [&]() {

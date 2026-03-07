@@ -291,70 +291,298 @@
         "rooms": [
           {
             "column": 0,
-            "doors": "1111",
+            "doors": "1001",
             "row": 0,
-            "tilemap": "fields_3"
+            "tilemap": "OW_0_0"
           },
           {
             "column": 1,
-            "doors": "1111",
+            "doors": "1011",
             "row": 0,
-            "tilemap": "fields_4"
+            "tilemap": "OW_0_1"
+          },
+          {
+            "column": 2,
+            "doors": "1011",
+            "row": 0,
+            "tilemap": "OW_0_2"
+          },
+          {
+            "column": 3,
+            "doors": "1010",
+            "row": 0,
+            "tilemap": "OW_0_3"
+          },
+          {
+            "column": 4,
+            "doors": "1010",
+            "row": 0,
+            "tilemap": "OW_0_4"
+          },
+          {
+            "column": 5,
+            "doors": "0010",
+            "row": 0,
+            "tilemap": "OW_0_5"
           },
           {
             "column": 0,
-            "doors": "1111",
+            "doors": "1100",
             "row": 1,
-            "tilemap": "fields_single_house"
+            "tilemap": "OW_1_0"
           },
           {
             "column": 1,
-            "doors": "1111",
+            "doors": "0111",
             "row": 1,
-            "tilemap": "fields_2"
+            "tilemap": "OW_1_1"
+          },
+          {
+            "column": 2,
+            "doors": "1101",
+            "row": 1,
+            "tilemap": "OW_1_2"
+          },
+          {
+            "column": 3,
+            "doors": "1011",
+            "row": 1,
+            "tilemap": "OW_1_3"
+          },
+          {
+            "column": 4,
+            "doors": "1011",
+            "row": 1,
+            "tilemap": "OW_1_4"
+          },
+          {
+            "column": 5,
+            "doors": "0011",
+            "row": 1,
+            "tilemap": "OW_1_5"
           },
           {
             "column": 0,
-            "doors": "0000",
+            "doors": "1001",
             "row": 2,
-            "tilemap": "fields_empty"
+            "tilemap": "OW_2_0"
           },
           {
             "column": 1,
+            "doors": "1110",
+            "row": 2,
+            "tilemap": "OW_2_1"
+          },
+          {
+            "column": 2,
+            "doors": "1110",
+            "row": 2,
+            "tilemap": "OW_2_2"
+          },
+          {
+            "column": 3,
+            "doors": "1110",
+            "row": 2,
+            "tilemap": "OW_2_3"
+          },
+          {
+            "column": 4,
             "doors": "1111",
             "row": 2,
-            "tilemap": "fields_bomb_chest"
+            "tilemap": "OW_2_4"
+          },
+          {
+            "column": 5,
+            "doors": "0111",
+            "row": 2,
+            "tilemap": "OW_2_5"
           },
           {
             "column": 0,
+            "doors": "1101",
+            "row": 3,
+            "tilemap": "OW_3_0"
+          },
+          {
+            "column": 1,
+            "doors": "1011",
+            "row": 3,
+            "tilemap": "OW_3_1"
+          },
+          {
+            "column": 2,
+            "doors": "1011",
+            "row": 3,
+            "tilemap": "OW_3_2"
+          },
+          {
+            "column": 3,
+            "doors": "1011",
+            "row": 3,
+            "tilemap": "OW_3_3"
+          },
+          {
+            "column": 4,
             "doors": "1111",
             "row": 3,
-            "tilemap": "fields_blocked_gorge"
+            "tilemap": "OW_3_4"
           },
           {
-            "column": 1,
-            "doors": "1111",
+            "column": 5,
+            "doors": "0111",
             "row": 3,
-            "tilemap": "fields_river_bridge_broken"
+            "tilemap": "OW_3_5"
           },
           {
             "column": 0,
-            "doors": "1111",
+            "doors": "0101",
             "row": 4,
-            "tilemap": "fields_lake_dungeon"
+            "tilemap": "OW_4_0"
+          },
+          {
+            "column": 1,
+            "doors": "1100",
+            "row": 4,
+            "tilemap": "OW_4_1"
+          },
+          {
+            "column": 2,
+            "doors": "1110",
+            "row": 4,
+            "tilemap": "OW_4_2"
+          },
+          {
+            "column": 3,
+            "doors": "0110",
+            "row": 4,
+            "tilemap": "OW_4_3"
+          },
+          {
+            "column": 4,
+            "doors": "1101",
+            "row": 4,
+            "tilemap": "OW_4_4"
+          },
+          {
+            "column": 5,
+            "doors": "0111",
+            "row": 4,
+            "tilemap": "OW_4_5"
+          },
+          {
+            "column": 0,
+            "doors": "0101",
+            "row": 5,
+            "tilemap": "OW_5_0"
+          },
+          {
+            "column": 1,
+            "doors": "1001",
+            "row": 5,
+            "tilemap": "OW_5_1"
+          },
+          {
+            "column": 2,
+            "doors": "1011",
+            "row": 5,
+            "tilemap": "OW_5_2"
+          },
+          {
+            "column": 3,
+            "doors": "0011",
+            "row": 5,
+            "tilemap": "OW_5_3"
+          },
+          {
+            "column": 4,
+            "doors": "1101",
+            "row": 5,
+            "tilemap": "OW_5_4"
+          },
+          {
+            "column": 5,
+            "doors": "0111",
+            "row": 5,
+            "tilemap": "OW_5_5"
+          },
+          {
+            "column": 0,
+            "doors": "1101",
+            "row": 6,
+            "tilemap": "OW_6_0"
           },
           {
             "column": 1,
             "doors": "1111",
-            "row": 4,
-            "tilemap": "fields_enemy_camp"
+            "row": 6,
+            "tilemap": "OW_6_1"
+          },
+          {
+            "column": 2,
+            "doors": "1111",
+            "row": 6,
+            "tilemap": "OW_6_2"
+          },
+          {
+            "column": 3,
+            "doors": "0111",
+            "row": 6,
+            "tilemap": "OW_6_3"
+          },
+          {
+            "column": 4,
+            "doors": "1101",
+            "row": 6,
+            "tilemap": "OW_6_4"
+          },
+          {
+            "column": 5,
+            "doors": "0111",
+            "row": 6,
+            "tilemap": "OW_6_5"
+          },
+          {
+            "column": 0,
+            "doors": "0100",
+            "row": 7,
+            "tilemap": "OW_7_0"
+          },
+          {
+            "column": 1,
+            "doors": "1100",
+            "row": 7,
+            "tilemap": "OW_7_1"
+          },
+          {
+            "column": 2,
+            "doors": "1110",
+            "row": 7,
+            "tilemap": "OW_7_2"
+          },
+          {
+            "column": 3,
+            "doors": "0110",
+            "row": 7,
+            "tilemap": "OW_7_3"
+          },
+          {
+            "column": 4,
+            "doors": "1100",
+            "row": 7,
+            "tilemap": "OW_7_4"
+          },
+          {
+            "column": 5,
+            "doors": "0110",
+            "row": 7,
+            "tilemap": "OW_7_5"
           }
         ]
       }
     ],
     "num_levels": 1,
-    "rooms_h": 5,
-    "rooms_w": 2,
+    "rooms_h": 8,
+    "rooms_w": 6,
     "starting_level": 0,
     "starting_position": {
       "x": 100,

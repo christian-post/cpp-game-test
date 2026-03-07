@@ -5,12 +5,12 @@ local OverworldGenerator = {}
 
 local default_transition_rules = {
     field_to_field       = { { max = nil, requirement = nil } },
-    field_to_forest      = { { max = 1,   requirement = nil } },
+    field_to_forest      = { { max = 2,   requirement = nil } },
     forest_to_forest     = { { max = nil, requirement = nil } },
     field_to_mountain    = { { max = 2,   requirement = "bombs" } },
     mountain_to_mountain = { { max = 2,   requirement = "hookshot" },
                              { max = nil, requirement = nil } },
-    field_to_lake        = { { max = nil, requirement = nil } },
+    field_to_lake        = { { max = 1,   requirement = "boat" } },
     lake_to_lake         = { { max = nil, requirement = "boat" } },
     forest_to_mountain   = { { max = 1,   requirement = nil } },
     forest_to_lake       = { { max = 0,   requirement = nil } },

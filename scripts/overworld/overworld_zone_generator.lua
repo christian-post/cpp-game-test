@@ -85,16 +85,22 @@ function OverworldZoneGenerator.generate(width, height)
     end
 
     -- place a town (1x2)
+    --[[
     local town_pos = place_random(grid, 1, 2, width, height, 5, "town")
     if not town_pos then
         return nil
     end
 
+    ]]
+
     -- place a second, smaller town (1x1)
+    --[[
     local small_town_pos = place_random(grid, 1, 1, width, height, 5, "town")
     if not small_town_pos then
         return nil
     end
+
+    ]]
 
     return grid
 end

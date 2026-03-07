@@ -2,13 +2,136 @@ local TilemapModifier = {}
 
 -- TODO maybe this has enough common code to be inside of the other tilemap_modifier script
 
--- base tiles. the name is [zone_name] ... _ ... doors (connections to adjacent rooms)
-local baseTilemaps = {
-    field = "fields_empty",
-    forest = "forest_middle",
-    lake = "lake_middle",
-    mountain = "mountain_middle"
-    -- "town" has no base tile, it's always the same tilemap
+-- base tilemap for each zone, loaded once and reused
+local base_tilemaps = {
+    field = "resources/tilemaps/base/overworld/fields_empty.json",
+    forest = "resources/tilemaps/base/overworld/fields_empty.json", -- TODO
+    lake = "resources/tilemaps/base/overworld/lake_base.json",
+    mountain = "resources/tilemaps/base/overworld/mountain_base.json",
+    town = "resources/tilemaps/base/overworld/mountain_base.json",
+}
+
+local border_tilemaps_inner = {
+    forest = "resources/tilemaps/base/overworld/forest_base_inner_corners.json",
+    lake = "resources/tilemaps/base/overworld/lake_base_inner_corners.json",
+    mountain = "resources/tilemaps/base/overworld/mountain_base_inner_corners.json",
+    lake_inverted = "resources/tilemaps/base/overworld/lake_base_inner_corners_inverted.json"
+}
+
+local boundary_tilemaps = {
+    lake = "resources/tilemaps/base/overworld/lake_world_boundaries.json",
+    mountain = "resources/tilemaps/base/overworld/mountain_world_boundaries.json",
+    field = "resources/tilemaps/base/overworld/fields_world_boundaries.json"
+    -- forest is the same as border_tilemaps_inner
+}
+
+-- transitions (free, or with requirement)
+local transition_tilemaps = {
+    field_to_lake = "resources/tilemaps/base/overworld/lake_base_transitions_inverted.json",
+    field_to_mountain = "resources/tilemaps/base/overworld/mountain_base_transitions.json",
+    field_to_forest = "resources/tilemaps/base/overworld/forest_base_transitions.json"
+}
+
+-- border_chunks[this_zone][neighbor_zone][side] defines what chunk to paste onto THIS room
+-- when a side is closed off toward a given neighbor zone (or "boundary").
+-- borders are asymmetric: e.g. a cliff is only pasted onto the field side, not the mountain side.
+-- a nil entry means this room gets nothing pasted on that side (the neighbor handles it, or no border needed).
+local CHUNK_SIZE = 20
+
+local CENTERS = {
+    north = { src_x = 10, src_y = 0,  dst_positions = { {dst_x = 0,  dst_y = 0},  {dst_x = 20, dst_y = 0}  } },
+    south = { src_x = 10, src_y = 20, dst_positions = { {dst_x = 0,  dst_y = 20}, {dst_x = 20, dst_y = 20} } },
+    east  = { src_x = 20, src_y = 10, dst_positions = { {dst_x = 20, dst_y = 0},  {dst_x = 20, dst_y = 20} } },
+    west  = { src_x = 0,  src_y = 10, dst_positions = { {dst_x = 0,  dst_y = 0},  {dst_x = 0,  dst_y = 20} } },
+}
+
+local CORNERS = {
+    NW = { src_x = 0,  src_y = 0,  dst_x = 0,  dst_y = 0  },
+    NE = { src_x = 20, src_y = 0,  dst_x = 20, dst_y = 0  },
+    SW = { src_x = 0,  src_y = 20, dst_x = 0,  dst_y = 20 },
+    SE = { src_x = 20, src_y = 20, dst_x = 20, dst_y = 20 },
+}
+
+-- which corner covers which center dst position
+local corner_covers = {
+    north = { [0] = "NW", [20] = "NE" },
+    south = { [0] = "SW", [20] = "SE" },
+    east  = { [0] = "NE", [20] = "SE" },
+    west  = { [0] = "NW", [20] = "SW" },
+}
+
+local border_chunks = {
+    field = {
+        forest = border_tilemaps_inner.forest,
+        mountain = border_tilemaps_inner.mountain,
+        lake = border_tilemaps_inner.lake_inverted,
+        town = nil,
+        boundary = boundary_tilemaps.field
+    },
+    forest = {
+        field = border_tilemaps_inner.forest,
+        mountain = border_tilemaps_inner.mountain,
+        town = border_tilemaps_inner.forest,
+        lake = border_tilemaps_inner.forest,
+        boundary = border_tilemaps_inner.forest
+    },
+    mountain = {
+        field = nil, -- cliff is on the field map
+        town = nil,
+        lake = nil,
+        forest = nil,
+        mountain = border_tilemaps_inner.mountain,
+        boundary = boundary_tilemaps.mountain
+    },
+    lake = {
+        field = nil, -- water edge is on the field map
+        town = nil,
+        forest = nil,
+        mountain = nil,
+        boundary = boundary_tilemaps.lake
+    },
+    town = {
+        field = border_tilemaps_inner.forest,
+        forest = border_tilemaps_inner.forest,
+        mountain = border_tilemaps_inner.mountain,
+        lake = border_tilemaps_inner.lake,
+        boundary = boundary_tilemaps.field
+    },
+}
+
+-- transition_chunks[my_zone][neighbor_zone] = source path, or nil for no transition tile
+local transition_chunks = {
+    field = {
+        lake     = transition_tilemaps.field_to_lake,
+        mountain = transition_tilemaps.field_to_mountain,
+        forest   = transition_tilemaps.field_to_forest,
+    },
+    forest = {
+        field    = transition_tilemaps.field_to_forest, -- symmetric, trees on both sides
+        mountain = nil,
+        lake     = nil,
+    },
+    mountain = {
+        field    = nil, -- transition is on the field map only
+        forest   = nil,
+    },
+    lake = {
+        field    = nil, -- transition is on the field map only
+        town     = nil,
+    },
+    town = {
+        field    = nil,
+        forest   = nil,
+        mountain = nil,
+        lake     = nil,
+    },
+}
+
+local TRANSITION_DST = {
+    north = { dst_x = 10, dst_y = 0  },
+    south = { dst_x = 10, dst_y = 20 },
+    east  = { dst_x = 20, dst_y = 10 },
+    west  = { dst_x = 0,  dst_y = 10 },
 }
 
 -- load a tilemap from a json file
@@ -220,39 +343,314 @@ function TilemapModifier.copy_region(dst, src, dst_x, dst_y, src_x, src_y, w, h)
     end
 end
 
+local function node_name(row, col)
+    return string.format("OW_%d_%d", row, col)
+end
 
-function TilemapModifier.process_overworld()
+local function build_edge_set(edges)
+    local set = {}
+    for _, edge in ipairs(edges) do
+        set[edge.from .. "->" .. edge.to] = true
+    end
+    return set
+end
 
-    -- TODO stitch tilemaps together based on the entrance config
-    -- example:
-    -- fields_0011 gets walled off to the right and up
-    -- Walls are chosen based on the adjacent zone (trees, rock or water)
+local function are_connected(edge_set, from_row, from_col, to_row, to_col)
+    local key = node_name(from_row, from_col) .. "->" .. node_name(to_row, to_col)
+    return edge_set[key] == true
+end
 
-    -- TODO just a quick test
-    local tilemap_src_inner = TilemapModifier.load("resources/tilemaps/base/overworld/forest_base_inner_corners.json")
-    local tilemap_src_outer = TilemapModifier.load("resources/tilemaps/base/overworld/forest_base_outer_corners.json")
-    local tilemap_dst = TilemapModifier.load("resources/tilemaps/base/overworld/fields_empty.json")
+local function get_neighbor_zone(zone_grid, row, col, dr, dc, grid_width, grid_height)
+    local nr = row + dr
+    local nc = col + dc
+    if nr < 0 or nr >= grid_height or nc < 0 or nc >= grid_width then
+        return "boundary"
+    end
+    return zone_grid[nr][nc]
+end
 
-    if tilemap_src_inner == nil or tilemap_src_outer == nil or tilemap_dst == nil then
-        print("source or destination is nil")
-        return
+-- cache of loaded source tilemaps to avoid redundant disk reads within a single room pass
+local src_map_cache = {}
+
+local function get_src_map(path)
+    if not src_map_cache[path] then
+        src_map_cache[path] = TilemapModifier.load(path)
+    end
+    return src_map_cache[path]
+end
+
+local function apply_center(dst_map, source_path, side)
+    local center = CENTERS[side]
+    local src_map = get_src_map(source_path)
+    for _, dst_pos in ipairs(center.dst_positions) do
+        TilemapModifier.copy_region(dst_map, src_map, dst_pos.dst_x, dst_pos.dst_y, center.src_x, center.src_y, CHUNK_SIZE, CHUNK_SIZE)
+    end
+end
+
+local function apply_corner(dst_map, corner, sources)
+    local c = CORNERS[corner]
+    local half_h = CHUNK_SIZE / 2  -- 10
+
+    if sources.source_h == sources.source_v then
+        -- same source, single paste
+        local src_map = get_src_map(sources.source_h)
+        TilemapModifier.copy_region(dst_map, src_map, c.dst_x, c.dst_y, c.src_x, c.src_y, CHUNK_SIZE, CHUNK_SIZE)
+    else
+        -- split: top 10x5 from horizontal side, bottom 10x5 from vertical side
+        if sources.source_h then
+            local src_map = get_src_map(sources.source_h)
+            TilemapModifier.copy_region(dst_map, src_map, c.dst_x, c.dst_y, c.src_x, c.src_y, half_h, 5)
+        end
+        if sources.source_v then
+            local src_map = get_src_map(sources.source_v)
+            TilemapModifier.copy_region(dst_map, src_map, c.dst_x, c.dst_y + 5, c.src_x, c.src_y + 5, half_h, 5)
+        end
+    end
+end
+
+local function apply_transition(dst_map, source_path, side)
+    local pos = TRANSITION_DST[side]
+    local center = CENTERS[side]
+    local src_map = get_src_map(source_path)
+    TilemapModifier.copy_region(dst_map, src_map, pos.dst_x, pos.dst_y, center.src_x, center.src_y, CHUNK_SIZE, CHUNK_SIZE)
+end
+
+local function trim_objects_in_region(dst_map, dst_x, dst_y, w, h)
+    local tile_w = dst_map.tilewidth
+    local tile_h = dst_map.tileheight
+    local rx  = dst_x * tile_w
+    local ry  = dst_y * tile_h
+    local rx2 = (dst_x + w) * tile_w
+    local ry2 = (dst_y + h) * tile_h
+
+    for _, layer in ipairs(dst_map.layers) do
+        if layer.type == "objectgroup" and layer.objects then
+            local kept = {}
+            for _, obj in ipairs(layer.objects) do
+                local ox2 = obj.x + obj.width
+                local oy2 = obj.y + obj.height
+
+                -- fully outside: keep as-is
+                if obj.x >= rx2 or ox2 <= rx or obj.y >= ry2 or oy2 <= ry then
+                    table.insert(kept, obj)
+                -- partially overlapping: clip it
+                elseif obj.x < rx or ox2 > rx2 or obj.y < ry or oy2 > ry2 then
+                    local new_x  = math.max(obj.x, rx)
+                    local new_y  = math.max(obj.y, ry)
+                    local new_x2 = math.min(ox2, rx2)
+                    local new_y2 = math.min(oy2, ry2)
+                    -- only keep if there's a meaningful remainder outside the region
+                    if obj.x < rx then
+                        local trimmed = {}
+                        for k, v in pairs(obj) do trimmed[k] = v end
+                        trimmed.width = rx - obj.x
+                        table.insert(kept, trimmed)
+                    end
+                    if ox2 > rx2 then
+                        local trimmed = {}
+                        for k, v in pairs(obj) do trimmed[k] = v end
+                        trimmed.x = rx2
+                        trimmed.width = ox2 - rx2
+                        table.insert(kept, trimmed)
+                    end
+                    if obj.y < ry then
+                        local trimmed = {}
+                        for k, v in pairs(obj) do trimmed[k] = v end
+                        trimmed.height = ry - obj.y
+                        table.insert(kept, trimmed)
+                    end
+                    if oy2 > ry2 then
+                        local trimmed = {}
+                        for k, v in pairs(obj) do trimmed[k] = v end
+                        trimmed.y = ry2
+                        trimmed.height = oy2 - ry2
+                        table.insert(kept, trimmed)
+                    end
+                end
+                -- fully inside: discard
+            end
+            layer.objects = kept
+        end
+    end
+end
+
+
+local directions = {
+    north = { dr = -1, dc = 0 },
+    south = { dr =  1, dc = 0 },
+    east  = { dr =  0, dc = 1 },
+    west  = { dr =  0, dc = -1 },
+}
+
+-- corner combinations: which two sides must both be closed, and which corner piece to use
+local corner_pairs = {
+    { corner = "NW", h_side = "north", v_side = "west" },
+    { corner = "NE", h_side = "north", v_side = "east" },
+    { corner = "SW", h_side = "south", v_side = "west" },
+    { corner = "SE", h_side = "south", v_side = "east" },
+}
+
+
+function TilemapModifier.process_overworld(zone_grid, edges, grid_width, grid_height)
+    assert(zone_grid, "process_overworld: zone_grid is nil")
+    assert(edges, "process_overworld: edges is nil")
+
+    filesystem.create_directory("resources/tilemaps/generated/overworld")
+
+    local edge_set = build_edge_set(edges)
+
+    local base_tilemap_cache = {}
+
+    for row = 0, grid_height - 1 do
+        for col = 0, grid_width - 1 do
+            local my_zone = zone_grid[row][col]
+            local base_path = base_tilemaps[my_zone]
+
+            if not base_path then
+                print(string.format("process_overworld: warning: no base tilemap for zone '%s' at (%d,%d), skipping", my_zone, row, col))
+                goto continue
+            end
+
+            if not base_tilemap_cache[my_zone] then
+                base_tilemap_cache[my_zone] = TilemapModifier.load(base_path)
+            end
+
+            local dst_map = json.decode(json.encode(base_tilemap_cache[my_zone]))
+
+            -- collect closed sides and their source paths
+            local closed = {} -- closed[side] = source_path, or nil if no border needed
+
+            for side, dir in pairs(directions) do
+                local neighbor_zone = get_neighbor_zone(zone_grid, row, col, dir.dr, dir.dc, grid_width, grid_height)
+                local is_closed = neighbor_zone == "boundary" or not are_connected(edge_set, row, col, row + dir.dr, col + dir.dc)
+
+                if is_closed then
+                    local source_path = border_chunks[my_zone] and border_chunks[my_zone][neighbor_zone] or nil
+                    -- use false as sentinel to distinguish "closed with no border" from "not closed"
+                    closed[side] = source_path or false
+                end
+            end
+
+            local active_corners = {}
+            for _, pair in ipairs(corner_pairs) do
+                local source_h = closed[pair.h_side]
+                local source_v = closed[pair.v_side]
+                if source_h ~= nil and source_v ~= nil then
+                    local resolved_h = source_h or false
+                    local resolved_v = source_v or false
+                    if resolved_h or resolved_v then
+                        active_corners[pair.corner] = {
+                            source_h = resolved_h,
+                            source_v = resolved_v
+                        }
+                    end
+                end
+            end
+
+            -- pass 1: centers, skipping positions covered by active corners
+            for side, source_path in pairs(closed) do
+                if source_path then
+                    apply_center(dst_map, source_path, side)
+                end
+            end
+
+            -- pass 2: corners
+            for corner, sources in pairs(active_corners) do
+                apply_corner(dst_map, corner, sources)
+            end
+
+            -- pass 3: transition tiles on open sides
+            for side, dir in pairs(directions) do
+                if closed[side] == nil then
+                    local neighbor_zone = get_neighbor_zone(zone_grid, row, col, dir.dr, dir.dc, grid_width, grid_height)
+                    local transition_source = transition_chunks[my_zone] and transition_chunks[my_zone][neighbor_zone] or nil
+                    if transition_source then
+                        -- paste the border first as a base, then the transition on top
+                        local border_source = border_chunks[my_zone] and border_chunks[my_zone][neighbor_zone] or nil
+                        if border_source then
+                            apply_center(dst_map, border_source, side)
+                            local pos = TRANSITION_DST[side]
+                            trim_objects_in_region(dst_map, pos.dst_x, pos.dst_y, CHUNK_SIZE, CHUNK_SIZE)
+                        end
+                        apply_transition(dst_map, transition_source, side)
+                    end
+                end
+            end
+
+            -- change the tileset path to only the basename
+            for _, ts in ipairs(dst_map.tilesets) do
+                ts.source = basename(ts.source)
+            end
+
+            src_map_cache = {}
+
+            local out_path = string.format("resources/tilemaps/generated/overworld/%s.json", node_name(row, col))
+            TilemapModifier.save(dst_map, out_path)
+            print(string.format("  saved %s (%s)", out_path, my_zone))
+
+            ::continue::
+        end
     end
 
-    local w = 20
-    local h = 20
+    -- build doors string for this room: [right][up][left][down]
+    local side_to_door_bit = {
+        east  = 1, -- right
+        north = 2, -- up
+        west  = 3, -- left
+        south = 4, -- down
+    }
 
-    -- top half: copy inner corners
-    local src_x = 0
-    local src_y = 0
-    TilemapModifier.copy_region(tilemap_dst, tilemap_src_inner, 0, 0, src_x, src_y, w, h)
-    TilemapModifier.copy_region(tilemap_dst, tilemap_src_inner, 20, 0, src_x + w, src_y, w, h)
-    -- bottom half: copy outer corners
-    TilemapModifier.copy_region(tilemap_dst, tilemap_src_outer, 0, 20, src_x, src_y, w, h)
-    TilemapModifier.copy_region(tilemap_dst, tilemap_src_outer, 20, 20, src_x + w, src_y, w, h)
+    -- load and update dungeons.json
+    local dungeons_path = "resources/dungeons.json"
+    local dungeons_file = io.open(dungeons_path, "r")
+    if not dungeons_file then
+        error("process_overworld: could not open " .. dungeons_path)
+    end
+    local all_dungeons = json.decode(dungeons_file:read("*a"))
+    dungeons_file:close()
 
-    TilemapModifier.save(tilemap_dst, "resources/tilemaps/fields_test_output.json")
-    print("done")
+    local ow_rooms = {}
 
+    for row = 0, grid_height - 1 do
+        for col = 0, grid_width - 1 do
+            local my_zone = zone_grid[row][col]
+            if not base_tilemaps[my_zone] then
+                goto continue_save
+            end
+
+            local door_bits = {1, 1, 1, 1} -- default all open
+            for side, dir in pairs(directions) do
+                local nr = row + dir.dr
+                local nc = col + dir.dc
+                local in_bounds = nr >= 0 and nr < grid_height and nc >= 0 and nc < grid_width
+                if in_bounds and not are_connected(edge_set, row, col, nr, nc) then
+                    door_bits[side_to_door_bit[side]] = 0
+                elseif not in_bounds then
+                    door_bits[side_to_door_bit[side]] = 0
+                end
+            end
+
+            table.insert(ow_rooms, {
+                row     = row,
+                column  = col,
+                doors   = table.concat(door_bits),
+                tilemap = node_name(row, col)
+            })
+
+            ::continue_save::
+        end
+    end
+
+    all_dungeons.overworld.levels[1].rooms = ow_rooms
+    all_dungeons.overworld.rooms_w = grid_width
+    all_dungeons.overworld.rooms_h = grid_height
+
+    local out = io.open(dungeons_path, "w")
+    out:write(json.encode(all_dungeons, 2))
+    out:close()
+    print("process_overworld: updated dungeons.json")
+
+    print("process_overworld: done")
 end
 
 return TilemapModifier

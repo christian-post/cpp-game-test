@@ -42,6 +42,7 @@
 -- in dungeons.json, store the x,y offset of a map if it's smaller or bigger than the adjacent maps?
 -- Add tile-based collision/behavior? (trees, water etc)
 -- rate overworld generation based on different factors (evenly spaced out zones, town not adjacent)
+-- refactor: make metatiles (boundaries, inner/outer corners) files smaller (put everything on one map)
 
 - Sprites
 -- drawing priority/layer system

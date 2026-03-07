@@ -244,6 +244,12 @@ void World::makeMapTextures()
         mapTextures[level].texture = flippedTex;
 
         // debug: save atlas to file
+        // draw room separator lines on debug export only
+        for (size_t col = 1; col < roomsW; ++col)
+            ImageDrawLine(&img, col * miniWidth, 0, col * miniWidth, atlasHeight, DARKGRAY);
+        for (size_t row = 1; row < roomsH; ++row)
+            ImageDrawLine(&img, 0, row * miniHeight, atlasWidth, row * miniHeight, DARKGRAY);
+
         std::filesystem::path debugPath = "debug";
         std::filesystem::create_directories(debugPath);
         std::string filename = debugPath.string() + "/map_atlas_level_" + std::to_string(level) + "_" + name + ".png";

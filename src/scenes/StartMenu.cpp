@@ -67,8 +67,8 @@ void StartMenu::startup() {
             [&]() {
                 uint32_t seed = game.getSetting<int>("dungeonRngSeed");
                 game.luaDungeonGen->setSeed(seed);
-                //game.luaDungeonGen->executeScript("scripts/test_overworld_generation.lua");
-                game.luaDungeonGen->executeScript("scripts/other_tests.lua");
+                game.luaDungeonGen->executeScript("scripts/test_overworld_generation.lua");
+                //game.luaDungeonGen->executeScript("scripts/other_tests.lua");
             }
         });
 
