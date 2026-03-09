@@ -8,7 +8,8 @@ function execute()
     print("=== Overworld Generation Test ===\n")
 
     -- TODO random seeding for testing different outcomes
-    set_dungeon_seed(os.time())
+    set_dungeon_seed(1773082251)
+    --set_dungeon_seed(os.time())
 
     -- some parameters for testing
     local width = 6

@@ -18,6 +18,12 @@ local border_tilemaps_inner = {
     lake_inverted = "resources/tilemaps/base/overworld/lake_base_inner_corners_inverted.json"
 }
 
+local border_tilemaps_outer = {
+    forest = "resources/tilemaps/base/overworld/forest_base_outer_corners.json",
+    mountain = "resources/tilemaps/base/overworld/mountain_base_outer_corners.json",
+    lake_inverted = "resources/tilemaps/base/overworld/lake_base_outer_corners_inverted.json"
+}
+
 local boundary_tilemaps = {
     lake = "resources/tilemaps/base/overworld/lake_world_boundaries.json",
     mountain = "resources/tilemaps/base/overworld/mountain_world_boundaries.json",
@@ -42,14 +48,14 @@ local CENTERS = {
     north = { src_x = 10, src_y = 0,  dst_positions = { {dst_x = 0,  dst_y = 0},  {dst_x = 20, dst_y = 0}  } },
     south = { src_x = 10, src_y = 20, dst_positions = { {dst_x = 0,  dst_y = 20}, {dst_x = 20, dst_y = 20} } },
     east  = { src_x = 20, src_y = 10, dst_positions = { {dst_x = 20, dst_y = 0},  {dst_x = 20, dst_y = 20} } },
-    west  = { src_x = 0,  src_y = 10, dst_positions = { {dst_x = 0,  dst_y = 0},  {dst_x = 0,  dst_y = 20} } },
+    west  = { src_x = 0,  src_y = 10, dst_positions = { {dst_x = 0,  dst_y = 0},  {dst_x = 0,  dst_y = 20} } }
 }
 
 local CORNERS = {
     NW = { src_x = 0,  src_y = 0,  dst_x = 0,  dst_y = 0  },
     NE = { src_x = 20, src_y = 0,  dst_x = 20, dst_y = 0  },
     SW = { src_x = 0,  src_y = 20, dst_x = 0,  dst_y = 20 },
-    SE = { src_x = 20, src_y = 20, dst_x = 20, dst_y = 20 },
+    SE = { src_x = 20, src_y = 20, dst_x = 20, dst_y = 20 }
 }
 
 -- which corner covers which center dst position
@@ -57,7 +63,7 @@ local corner_covers = {
     north = { [0] = "NW", [20] = "NE" },
     south = { [0] = "SW", [20] = "SE" },
     east  = { [0] = "NE", [20] = "SE" },
-    west  = { [0] = "NW", [20] = "SW" },
+    west  = { [0] = "NW", [20] = "SW" }
 }
 
 local border_chunks = {
@@ -96,7 +102,7 @@ local border_chunks = {
         mountain = border_tilemaps_inner.mountain,
         lake = border_tilemaps_inner.lake,
         boundary = boundary_tilemaps.field
-    },
+    }
 }
 
 -- transition_chunks[my_zone][neighbor_zone] = source path, or nil for no transition tile
@@ -124,7 +130,21 @@ local transition_chunks = {
         forest   = nil,
         mountain = nil,
         lake     = nil,
+    }
+}
+
+-- outer corners 
+local outer_corner_chunks = {
+    field = {
+        lake = border_tilemaps_outer.lake_inverted,
+        mountain = border_tilemaps_outer.mountain,
+        forest = border_tilemaps_outer.forest,
     },
+    mountain = {
+        lake = border_tilemaps_outer.lake_inverted,
+        forest = border_tilemaps_outer.forest,
+        field = nil
+    }
 }
 
 local TRANSITION_DST = {
@@ -150,6 +170,13 @@ function TilemapModifier.load(path)
     end
 
     return map
+end
+
+local function neighbor_has_border_or_transition(room_states, row, col, grid_width, grid_height, side)
+    if row < 0 or row >= grid_height or col < 0 or col >= grid_width then
+        return false
+    end
+    return room_states[row][col][side] ~= false and room_states[row][col][side] ~= nil
 end
 
 -- save a tilemap to a json file
@@ -499,6 +526,24 @@ function TilemapModifier.process_overworld(zone_grid, edges, grid_width, grid_he
 
     local edge_set = build_edge_set(edges)
 
+    -- make a room_states table that saved the adjacent zones
+    local room_states = {}
+    for row = 0, grid_height - 1 do
+        room_states[row] = {}
+        for col = 0, grid_width - 1 do
+            local my_zone = zone_grid[row][col]
+            local sides = {}
+            for side, dir in pairs(directions) do
+                local neighbor_zone = get_neighbor_zone(zone_grid, row, col, dir.dr, dir.dc, grid_width, grid_height)
+                local is_closed = neighbor_zone == "boundary" or not are_connected(edge_set, row, col, row + dir.dr, col + dir.dc)
+                local has_border = is_closed and (border_chunks[my_zone] and border_chunks[my_zone][neighbor_zone] or false)
+                local has_transition = not is_closed and (transition_chunks[my_zone] and transition_chunks[my_zone][neighbor_zone] or false)
+                sides[side] = has_border or has_transition
+            end
+            room_states[row][col] = sides
+        end
+    end
+
     local base_tilemap_cache = {}
 
     for row = 0, grid_height - 1 do
@@ -577,6 +622,61 @@ function TilemapModifier.process_overworld(zone_grid, edges, grid_width, grid_he
                 end
             end
 
+            -- pass 4: outer corners
+            local outer_corner_checks = {
+                NW = {
+                    { row = row - 1, col = col,     side = "west" },
+                    { row = row,     col = col - 1, side = "north" },
+                },
+                NE = {
+                    { row = row - 1, col = col,     side = "east" },
+                    { row = row,     col = col + 1, side = "north" },
+                },
+                SW = {
+                    { row = row + 1, col = col,     side = "west" },
+                    { row = row,     col = col - 1, side = "south" },
+                },
+                SE = {
+                    { row = row + 1, col = col,     side = "east" },
+                    { row = row,     col = col + 1, side = "south" },
+                },
+            }
+
+            -- check diagonally adjacent zones for correct outer corner placement
+            local corner_diagonal = {
+                NW = { row = row - 1, col = col - 1 },
+                NE = { row = row - 1, col = col + 1 },
+                SW = { row = row + 1, col = col - 1 },
+                SE = { row = row + 1, col = col + 1 },
+            }
+
+            for corner, checks in pairs(outer_corner_checks) do
+                local a = checks[1]
+                local b = checks[2]
+    
+                local a_result = neighbor_has_border_or_transition(room_states, a.row, a.col, grid_width, grid_height, a.side)
+                local b_result = neighbor_has_border_or_transition(room_states, b.row, b.col, grid_width, grid_height, b.side)
+    
+                print(string.format("  [%d,%d] corner %s: check a=[%d,%d].%s=%s, check b=[%d,%d].%s=%s",
+                    row, col, corner,
+                    a.row, a.col, a.side, tostring(a_result),
+                    b.row, b.col, b.side, tostring(b_result)))
+
+                if a_result and b_result then
+                    local diag = corner_diagonal[corner]
+                    local diag_zone = zone_grid[diag.row] and zone_grid[diag.row][diag.col] or nil
+                    print(string.format("    diag=[%d,%d] zone=%s", diag.row, diag.col, tostring(diag_zone)))
+
+                    local source_path = diag_zone and (outer_corner_chunks[my_zone] and outer_corner_chunks[my_zone][diag_zone] or nil) or nil
+                    local neighbor_zone = diag_zone
+
+                    if source_path then
+                        apply_corner(dst_map, corner, { source_h = source_path, source_v = source_path })
+                        print(string.format("  outer corner %s pasted at [%d,%d] (%s) neighbor zone: %s", corner, row, col, my_zone, tostring(neighbor_zone)))
+                    end
+                end
+            end
+
             -- change the tileset path to only the basename
             for _, ts in ipairs(dst_map.tilesets) do
                 ts.source = basename(ts.source)
@@ -644,6 +744,7 @@ function TilemapModifier.process_overworld(zone_grid, edges, grid_width, grid_he
     all_dungeons.overworld.levels[1].rooms = ow_rooms
     all_dungeons.overworld.rooms_w = grid_width
     all_dungeons.overworld.rooms_h = grid_height
+    all_dungeons.overworld.seed = dungeon_seed
 
     local out = io.open(dungeons_path, "w")
     out:write(json.encode(all_dungeons, 2))
