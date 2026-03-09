@@ -45,25 +45,17 @@ local transition_tilemaps = {
 local CHUNK_SIZE = 20
 
 local CENTERS = {
-    north = { src_x = 10, src_y = 0,  dst_positions = { {dst_x = 0,  dst_y = 0},  {dst_x = 20, dst_y = 0}  } },
-    south = { src_x = 10, src_y = 20, dst_positions = { {dst_x = 0,  dst_y = 20}, {dst_x = 20, dst_y = 20} } },
-    east  = { src_x = 20, src_y = 10, dst_positions = { {dst_x = 20, dst_y = 0},  {dst_x = 20, dst_y = 20} } },
-    west  = { src_x = 0,  src_y = 10, dst_positions = { {dst_x = 0,  dst_y = 0},  {dst_x = 0,  dst_y = 20} } }
+    north = { src_x = 10, src_y = 0, dst_positions = { {dst_x = 0, dst_y = 0}, {dst_x = 20, dst_y = 0} } },
+    south = { src_x = 10, src_y = 20, dst_positions = { {dst_x = 0, dst_y = 20}, {dst_x = 20, dst_y = 20} } },
+    east = { src_x = 20, src_y = 10, dst_positions = { {dst_x = 20, dst_y = 0}, {dst_x = 20, dst_y = 20} } },
+    west = { src_x = 0, src_y = 10, dst_positions = { {dst_x = 0, dst_y = 0}, {dst_x = 0, dst_y = 20} } }
 }
 
 local CORNERS = {
-    NW = { src_x = 0,  src_y = 0,  dst_x = 0,  dst_y = 0  },
-    NE = { src_x = 20, src_y = 0,  dst_x = 20, dst_y = 0  },
-    SW = { src_x = 0,  src_y = 20, dst_x = 0,  dst_y = 20 },
+    NW = { src_x = 0, src_y = 0, dst_x = 0, dst_y = 0 },
+    NE = { src_x = 20, src_y = 0, dst_x = 20, dst_y = 0 },
+    SW = { src_x = 0, src_y = 20, dst_x = 0, dst_y = 20 },
     SE = { src_x = 20, src_y = 20, dst_x = 20, dst_y = 20 }
-}
-
--- which corner covers which center dst position
-local corner_covers = {
-    north = { [0] = "NW", [20] = "NE" },
-    south = { [0] = "SW", [20] = "SE" },
-    east  = { [0] = "NE", [20] = "SE" },
-    west  = { [0] = "NW", [20] = "SW" }
 }
 
 local border_chunks = {
@@ -108,28 +100,28 @@ local border_chunks = {
 -- transition_chunks[my_zone][neighbor_zone] = source path, or nil for no transition tile
 local transition_chunks = {
     field = {
-        lake     = transition_tilemaps.field_to_lake,
+        lake = transition_tilemaps.field_to_lake,
         mountain = transition_tilemaps.field_to_mountain,
-        forest   = transition_tilemaps.field_to_forest,
+        forest = transition_tilemaps.field_to_forest,
     },
     forest = {
-        field    = transition_tilemaps.field_to_forest, -- symmetric, trees on both sides
+        field = transition_tilemaps.field_to_forest, -- symmetric, trees on both sides
         mountain = nil,
-        lake     = nil,
+        lake = nil,
     },
     mountain = {
-        field    = nil, -- transition is on the field map only
-        forest   = nil,
+        field = nil, -- transition is on the field map only
+        forest = nil,
     },
     lake = {
-        field    = nil, -- transition is on the field map only
-        town     = nil,
+        field = nil, -- transition is on the field map only
+        town = nil,
     },
     town = {
-        field    = nil,
-        forest   = nil,
+        field = nil,
+        forest = nil,
         mountain = nil,
-        lake     = nil,
+        lake = nil,
     }
 }
 
@@ -145,13 +137,6 @@ local outer_corner_chunks = {
         forest = border_tilemaps_outer.forest,
         field = nil
     }
-}
-
-local TRANSITION_DST = {
-    north = { dst_x = 10, dst_y = 0  },
-    south = { dst_x = 10, dst_y = 20 },
-    east  = { dst_x = 20, dst_y = 10 },
-    west  = { dst_x = 0,  dst_y = 10 },
 }
 
 -- load a tilemap from a json file
@@ -271,7 +256,7 @@ local function remap_gid(gid, src_tilesets, dst_tilesets)
     if not dst_ts then
         dst_ts = {
             firstgid = next_available_firstgid(dst_tilesets),
-            source   = src_ts.source
+            source = src_ts.source
         }
         table.insert(dst_tilesets, dst_ts)
     end
@@ -304,8 +289,8 @@ end
 -- objects are offset to match the destination position.
 local function merge_object_layer(dst_layer, src_layer, dst_x, dst_y, src_x, src_y, w, h, tile_w, tile_h, dst_map)
     -- region bounds in pixels
-    local rx  = src_x * tile_w
-    local ry  = src_y * tile_h
+    local rx = src_x * tile_w
+    local ry = src_y * tile_h
     local rx2 = (src_x + w) * tile_w
     local ry2 = (src_y + h) * tile_h
 
@@ -330,9 +315,9 @@ local function merge_object_layer(dst_layer, src_layer, dst_x, dst_y, src_x, src
             local clipped_x2 = math.min(ox2, rx2)
             local clipped_y2 = math.min(oy2, ry2)
 
-            clipped.x      = clipped_x + offset_x
-            clipped.y      = clipped_y + offset_y
-            clipped.width  = clipped_x2 - clipped_x
+            clipped.x = clipped_x + offset_x
+            clipped.y = clipped_y + offset_y
+            clipped.width = clipped_x2 - clipped_x
             clipped.height = clipped_y2 - clipped_y
 
             -- assign a fresh id
@@ -436,17 +421,16 @@ local function apply_corner(dst_map, corner, sources)
 end
 
 local function apply_transition(dst_map, source_path, side)
-    local pos = TRANSITION_DST[side]
     local center = CENTERS[side]
     local src_map = get_src_map(source_path)
-    TilemapModifier.copy_region(dst_map, src_map, pos.dst_x, pos.dst_y, center.src_x, center.src_y, CHUNK_SIZE, CHUNK_SIZE)
+    TilemapModifier.copy_region(dst_map, src_map, center.src_x, center.src_y, center.src_x, center.src_y, CHUNK_SIZE, CHUNK_SIZE)
 end
 
 local function trim_objects_in_region(dst_map, dst_x, dst_y, w, h)
     local tile_w = dst_map.tilewidth
     local tile_h = dst_map.tileheight
-    local rx  = dst_x * tile_w
-    local ry  = dst_y * tile_h
+    local rx = dst_x * tile_w
+    local ry = dst_y * tile_h
     local rx2 = (dst_x + w) * tile_w
     local ry2 = (dst_y + h) * tile_h
 
@@ -504,9 +488,9 @@ end
 
 local directions = {
     north = { dr = -1, dc = 0 },
-    south = { dr =  1, dc = 0 },
-    east  = { dr =  0, dc = 1 },
-    west  = { dr =  0, dc = -1 },
+    south = { dr = 1, dc = 0 },
+    east = { dr = 0, dc = 1 },
+    west = { dr = 0, dc = -1 },
 }
 
 -- corner combinations: which two sides must both be closed, and which corner piece to use
@@ -572,35 +556,54 @@ function TilemapModifier.process_overworld(zone_grid, edges, grid_width, grid_he
                 if is_closed then
                     local source_path = border_chunks[my_zone] and border_chunks[my_zone][neighbor_zone] or nil
                     -- use false as sentinel to distinguish "closed with no border" from "not closed"
-                    closed[side] = source_path or false
+                    closed[side] = { path = source_path or false, is_boundary = neighbor_zone == "boundary" }
                 end
             end
 
             local active_corners = {}
             for _, pair in ipairs(corner_pairs) do
-                local source_h = closed[pair.h_side]
-                local source_v = closed[pair.v_side]
+                local source_h = closed[pair.h_side] and closed[pair.h_side].path
+                local source_v = closed[pair.v_side] and closed[pair.v_side].path
                 if source_h ~= nil and source_v ~= nil then
-                    local resolved_h = source_h or false
-                    local resolved_v = source_v or false
-                    if resolved_h or resolved_v then
+                    if source_h or source_v then
                         active_corners[pair.corner] = {
-                            source_h = resolved_h,
-                            source_v = resolved_v
+                            source_h = source_h,
+                            source_v = source_v
                         }
                     end
                 end
             end
 
-            -- pass 1: centers, skipping positions covered by active corners
-            for side, source_path in pairs(closed) do
-                if source_path then
-                    apply_center(dst_map, source_path, side)
+            local has_boundary = false
+            for _, entry in pairs(closed) do
+                if entry.is_boundary then
+                    has_boundary = true
+                    break
+                end
+            end
+
+            -- pass 1a: zone border centers
+            for side, entry in pairs(closed) do
+                if has_boundary then
+                    print(string.format("  [%d,%d] pass1a: side=%s path=%s boundary=%s", row, col, side, tostring(entry.path), tostring(entry.is_boundary)))
+                end
+                if entry.path and not entry.is_boundary then
+                    local center = CENTERS[side]
+                    for _, pos in ipairs(center.dst_positions) do
+                        print(string.format("  [%d,%d] pass1a paste: %s side=%s dst=(%d,%d)", row, col, basename(entry.path), side, pos.dst_x, pos.dst_y))
+                    end
+                    apply_center(dst_map, entry.path, side)
                 end
             end
 
             -- pass 2: corners
             for corner, sources in pairs(active_corners) do
+                if has_boundary then
+                    local c = CORNERS[corner]
+                    print(string.format("  [%d,%d] pass2: corner=%s dst=(%d,%d) src_h=%s src_v=%s", row, col, corner, c.dst_x, c.dst_y,
+                        sources.source_h and basename(sources.source_h) or "nil",
+                        sources.source_v and basename(sources.source_v) or "nil"))
+                end
                 apply_corner(dst_map, corner, sources)
             end
 
@@ -613,32 +616,55 @@ function TilemapModifier.process_overworld(zone_grid, edges, grid_width, grid_he
                         -- paste the border first as a base, then the transition on top
                         local border_source = border_chunks[my_zone] and border_chunks[my_zone][neighbor_zone] or nil
                         if border_source then
+                            if has_boundary then
+                                local center = CENTERS[side]
+                                for _, pos in ipairs(center.dst_positions) do
+                                    print(string.format("  [%d,%d] pass3 border: %s side=%s dst=(%d,%d)", row, col, basename(border_source), side, pos.dst_x, pos.dst_y))
+                                end
+                            end
                             apply_center(dst_map, border_source, side)
-                            local pos = TRANSITION_DST[side]
-                            trim_objects_in_region(dst_map, pos.dst_x, pos.dst_y, CHUNK_SIZE, CHUNK_SIZE)
+                            local center = CENTERS[side]
+                            trim_objects_in_region(dst_map, center.src_x, center.src_y, CHUNK_SIZE, CHUNK_SIZE)
+                        end
+                        if has_boundary then
+                            local center = CENTERS[side]
+                            print(string.format("  [%d,%d] pass3 transition: %s side=%s dst=(%d,%d)", row, col, basename(transition_source), side, center.src_x, center.src_y))
                         end
                         apply_transition(dst_map, transition_source, side)
                     end
                 end
             end
 
+            -- pass 3b: boundary centers (after transitions so they sit on top)
+            for side, entry in pairs(closed) do
+                if entry.path and entry.is_boundary then
+                    if has_boundary then
+                        local center = CENTERS[side]
+                        for _, pos in ipairs(center.dst_positions) do
+                            print(string.format("  [%d,%d] pass3b paste: %s side=%s dst=(%d,%d)", row, col, basename(entry.path), side, pos.dst_x, pos.dst_y))
+                        end
+                    end
+                    apply_center(dst_map, entry.path, side)
+                end
+            end
+
             -- pass 4: outer corners
             local outer_corner_checks = {
                 NW = {
-                    { row = row - 1, col = col,     side = "west" },
-                    { row = row,     col = col - 1, side = "north" },
+                    { row = row - 1, col = col, side = "west" },
+                    { row = row, col = col - 1, side = "north" },
                 },
                 NE = {
-                    { row = row - 1, col = col,     side = "east" },
-                    { row = row,     col = col + 1, side = "north" },
+                    { row = row - 1, col = col, side = "east" },
+                    { row = row, col = col + 1, side = "north" },
                 },
                 SW = {
-                    { row = row + 1, col = col,     side = "west" },
-                    { row = row,     col = col - 1, side = "south" },
+                    { row = row + 1, col = col, side = "west" },
+                    { row = row, col = col - 1, side = "south" },
                 },
                 SE = {
-                    { row = row + 1, col = col,     side = "east" },
-                    { row = row,     col = col + 1, side = "south" },
+                    { row = row + 1, col = col, side = "east" },
+                    { row = row, col = col + 1, side = "south" },
                 },
             }
 
@@ -668,11 +694,10 @@ function TilemapModifier.process_overworld(zone_grid, edges, grid_width, grid_he
                     print(string.format("    diag=[%d,%d] zone=%s", diag.row, diag.col, tostring(diag_zone)))
 
                     local source_path = diag_zone and (outer_corner_chunks[my_zone] and outer_corner_chunks[my_zone][diag_zone] or nil) or nil
-                    local neighbor_zone = diag_zone
 
                     if source_path then
                         apply_corner(dst_map, corner, { source_h = source_path, source_v = source_path })
-                        print(string.format("  outer corner %s pasted at [%d,%d] (%s) neighbor zone: %s", corner, row, col, my_zone, tostring(neighbor_zone)))
+                        print(string.format("  outer corner %s pasted at [%d,%d] (%s) neighbor zone: %s", corner, row, col, my_zone, tostring(diag_zone)))
                     end
                 end
             end
@@ -694,9 +719,9 @@ function TilemapModifier.process_overworld(zone_grid, edges, grid_width, grid_he
 
     -- build doors string for this room: [right][up][left][down]
     local side_to_door_bit = {
-        east  = 1, -- right
+        east = 1, -- right
         north = 2, -- up
-        west  = 3, -- left
+        west = 3, -- left
         south = 4, -- down
     }
 
@@ -723,17 +748,15 @@ function TilemapModifier.process_overworld(zone_grid, edges, grid_width, grid_he
                 local nr = row + dir.dr
                 local nc = col + dir.dc
                 local in_bounds = nr >= 0 and nr < grid_height and nc >= 0 and nc < grid_width
-                if in_bounds and not are_connected(edge_set, row, col, nr, nc) then
-                    door_bits[side_to_door_bit[side]] = 0
-                elseif not in_bounds then
+                if not in_bounds or not are_connected(edge_set, row, col, nr, nc) then
                     door_bits[side_to_door_bit[side]] = 0
                 end
             end
 
             table.insert(ow_rooms, {
-                row     = row,
-                column  = col,
-                doors   = table.concat(door_bits),
+                row = row,
+                column = col,
+                doors = table.concat(door_bits),
                 tilemap = node_name(row, col)
             })
 
