@@ -59,6 +59,9 @@ public:
 
     bool lampIsOn = false; // dark rooms become lit up when the player equips the lamp
 
+    // debugging
+    bool godMode = false;
+
 private:
     void spawnWeapon(size_t index);
     void checkRoomTransition();

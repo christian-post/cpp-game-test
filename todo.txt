@@ -14,6 +14,7 @@
 -- rename "dungeons.json" to "worlds.json"
 
 - Gameplay
+-- add "god mode" for debugging
 -- Shop in town with randomized item
 -- Chest in overworld (integrate into graph)
 -- Continues after game over cost money
@@ -24,6 +25,7 @@
 --- etc
 -- fortune teller gives you one hint (that is solvable) for money. "you will get the XY in Z" Resets after some time. Rewards you if you actually got the item.
 --- show amount of arrows, bombs etc on the HUD
+-- camera pan feature (hold L and a direction to slightly move the camera)
 
 - Core
 -- load weapons.json data into weaponData structs in Preload

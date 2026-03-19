@@ -1,6 +1,17 @@
-local DungeonUtils = {}
+-- utility function specific to World generation
+local M = {}
 
-function DungeonUtils.count_table_entries(tbl)
+function M.get_node_at(layout, level, row, col)
+    -- reverse lookup: find node name at given position
+    for name, pos in pairs(layout.positions) do
+        if pos.level == level and pos.row == row and pos.col == col then
+            return name
+        end
+    end
+    return nil
+end
+
+function M.count_table_entries(tbl)
     local count = 0
     for _ in pairs(tbl) do
         count = count + 1
@@ -8,7 +19,7 @@ function DungeonUtils.count_table_entries(tbl)
     return count
 end
 
-function DungeonUtils.has_skippable_item(skippable, item_name)
+function M.has_skippable_item(skippable, item_name)
     for _, item_info in ipairs(skippable) do
         if item_info.item == item_name then
             return true
@@ -17,7 +28,7 @@ function DungeonUtils.has_skippable_item(skippable, item_name)
     return false
 end
 
-function DungeonUtils.is_bidirectional(graph, from_name, to_name, requirements)
+function M.is_bidirectional(graph, from_name, to_name, requirements)
     local from_node = graph.nodes[from_name]
     local to_node = graph.nodes[to_name]
 
@@ -42,7 +53,7 @@ function DungeonUtils.is_bidirectional(graph, from_name, to_name, requirements)
     return false
 end
 
-function DungeonUtils.sort_layout_entries(layout, graph)
+function M.sort_layout_entries(layout, graph)
     local entries = {}
     for name, pos in pairs(layout.positions) do
         local item = graph.nodes[name].value or "empty"
@@ -63,4 +74,28 @@ function DungeonUtils.sort_layout_entries(layout, graph)
     return entries
 end
 
-return DungeonUtils
+function M.count_connections(edges, node_names)
+    -- count how many edges each node has
+    local counts = {}
+    for _, name in ipairs(node_names) do
+        counts[name] = 0
+    end
+    
+    for _, edge in ipairs(edges) do
+        if counts[edge.from] then
+            counts[edge.from] = counts[edge.from] + 1
+        end
+        if counts[edge.to] then
+            counts[edge.to] = counts[edge.to] + 1
+        end
+    end
+    
+    return counts
+end
+
+function M.node_name(row, col)
+    -- constructs a unique key from a row,col pair
+    return string.format("OW_%d_%d", row, col)
+end
+
+return M

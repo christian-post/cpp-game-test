@@ -47,10 +47,10 @@ void DebugMenu::startup()
             return;
 
         player->isColliding = !player->isColliding;
-        if (player->iFrameTimer == 0)
+        if (player->iFrameTimer == 0.0f)
             player->iFrameTimer = FLT_MAX; // basically infinite
         else
-            player->iFrameTimer = 0;
+            player->iFrameTimer = 0.0f;
         };
     menus[static_cast<size_t>(MenuType::Main)]->addItem(noClip);
 

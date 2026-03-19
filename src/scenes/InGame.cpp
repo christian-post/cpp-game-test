@@ -12,6 +12,7 @@
 #include "raymath.h"
 #include "LuaEventManager.h"
 #include "EventTriggerManager.h"
+#include <cstdint>
 
 
 InGame::InGame(Game& game, const std::string& name) : Scene(game, name), tileMap(nullptr), tilemapRenderer(game), cameraController(game), luaEventManager(std::make_unique<LuaEventManager>(game, *this)), eventTriggerManager(std::make_unique<EventTriggerManager>(game)) 
@@ -26,6 +27,7 @@ void InGame::startup()
     game.spriteMap["player"] = player;
     player->health = game.getSetting<uint32_t>("playerStartingHealth");
     player->maxHealth = game.getSetting<uint32_t>("playerStartingMaxHealth");
+    player->speed = game.getSetting<float>("playerSpeed");
     player->persistent = true;
     game.sprites.emplace_back(player);  // add to the sprites vector
     player->setTextures({ "player_idle", "player_run", "player_hit" });
@@ -321,6 +323,7 @@ void InGame::onDebugButton1()
 {
     if (!game.debug)
         return;
+
     // advance room the index and immediately change the room 
     size_t maxIndex = game.currentWorld->getSize().first * game.currentWorld->getSize().second;
     size_t newIndex = (game.currentWorld->currentRoomIndex + 1) % maxIndex;
@@ -334,10 +337,20 @@ void InGame::onDebugButton3()
 {
     if (!game.debug)
         return;
-    cameraHasBounds = !cameraHasBounds;
-    player->isColliding = !player->isColliding;
-    TraceLog(LOG_INFO, "Toggled camera bounds, %d", cameraHasBounds);
-    TraceLog(LOG_INFO, "Toggled no clip, %d", player->isColliding);
+
+    // activate god mode
+    if (godMode)
+    {
+        godMode = false;
+        player->speed = game.getSetting<float>("playerSpeed");
+        player->iFrameTimer = 0.0f;
+    }
+    else
+    {
+        godMode = true;
+        player->speed = 100.0f;
+        player->iFrameTimer = FLT_MAX;
+    }
 }
 
 void InGame::handlePlayerInput(float deltaTime)

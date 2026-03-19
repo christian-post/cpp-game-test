@@ -1,18 +1,6 @@
 -- scripts/tilemap/object_templates.lua
+local utils = require("lib.utils")
 local ObjectTemplates = {}
-
--- deep copy helper
-local function deep_copy(obj)
-    if type(obj) ~= "table" then
-        return obj
-    end
-    
-    local copy = {}
-    for k, v in pairs(obj) do
-        copy[k] = deep_copy(v)
-    end
-    return copy
-end
 
 -- template definitions
 local templates = {
@@ -321,7 +309,7 @@ function ObjectTemplates.create(object_type)
         error("Unknown object type: " .. tostring(object_type))
     end
     
-    return deep_copy(template)
+    return utils.deep_copy(template)
 end
 
 return ObjectTemplates

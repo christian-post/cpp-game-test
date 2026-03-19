@@ -218,6 +218,9 @@ void Preload::startup()
             l.loadSpritesheet("./resources/textures/sprites/normal_dude_1_run.png", 16, 24, "normal_dude_1_run");
             l.loadSpritesheet("./resources/textures/sprites/normal_dude_2_idle.png", 16, 24, "normal_dude_2_idle");
             l.loadSpritesheet("./resources/textures/sprites/normal_dude_2_run.png", 16, 24, "normal_dude_2_run");
+            l.loadSpritesheet("./resources/textures/sprites/townsfolk_female_idle.png", 16, 16, "townsfolk_female_idle");
+            l.loadSpritesheet("./resources/textures/sprites/townsfolk_female_walk.png", 16, 16, "townsfolk_female_walk");
+            l.loadSpritesheet("./resources/textures/sprites/fortune_teller_idle.png", 16, 24, "fortune_teller_idle");
         });
 
     // load the tileset (the textures)
@@ -239,6 +242,7 @@ void Preload::startup()
         l.loadTilemapsFromDirectory("./resources/tilemaps");
         l.loadTilemapsFromDirectory("./resources/tilemaps/generated/lua_dungeon"); // TODO load the subfolders into a hash table with the dungeon name as key
         l.loadTilemapsFromDirectory("./resources/tilemaps/generated/overworld");
+        l.loadTilemapsFromDirectory("./resources/tilemaps/interior");
         });
     // load the font
     game.loader.loadQueue.emplace("Loading fonts", [&]() {

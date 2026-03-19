@@ -3,15 +3,7 @@
 local utils = require("lib.utils")
 local DungeonBuilder = {}
 
-local function get_node_at(layout, level, row, col)
-    -- reverse lookup: find node name at given position
-    for name, pos in pairs(layout.positions) do
-        if pos.level == level and pos.row == row and pos.col == col then
-            return name
-        end
-    end
-    return nil
-end
+
 
 local function count_connections(edges, node_names)
     -- count how many edges each node has
@@ -30,14 +22,6 @@ local function count_connections(edges, node_names)
     end
     
     return counts
-end
-
-local function shuffle(list)
-    -- fisher-yates shuffle
-    for i = #list, 2, -1 do
-        local j =dungeon_random(1, i)
-        list[i], list[j] = list[j], list[i]
-    end
 end
 
 local function build_graph_from_layout(WorldGraph, layout, edges)
@@ -155,11 +139,11 @@ local function lock_edges_with_items(edges, item_pool, stairway_rooms, boss_room
             table.insert(items, item)
         end
     end
-    shuffle(items)
+    utils.shuffle(items)
     
     -- lock random edges with items
     local num_locks = math.min(#items, #lockable_indices)
-    shuffle(lockable_indices)
+    utils.shuffle(lockable_indices)
     
     for i = 1, num_locks do
         local edge_index = lockable_indices[i]

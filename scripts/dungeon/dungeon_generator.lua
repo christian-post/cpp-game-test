@@ -1,43 +1,8 @@
 -- generates dungeon layout using BFS room expansion with stairways between levels
 
+local utils = require("lib.utils")
+local WorldUtils = require("lib.world_utils")
 local DungeonGenerator = {}
-
-local function get_node_at(layout, level, row, col)
-    -- reverse lookup: find node name at given position
-    for name, pos in pairs(layout.positions) do
-        if pos.level == level and pos.row == row and pos.col == col then
-            return name
-        end
-    end
-    return nil
-end
-
-local function count_connections(edges, node_names)
-    -- count how many edges each node has
-    local counts = {}
-    for _, name in ipairs(node_names) do
-        counts[name] = 0
-    end
-    
-    for _, edge in ipairs(edges) do
-        if counts[edge.from] then
-            counts[edge.from] = counts[edge.from] + 1
-        end
-        if counts[edge.to] then
-            counts[edge.to] = counts[edge.to] + 1
-        end
-    end
-    
-    return counts
-end
-
-local function shuffle(list)
-    -- fisher-yates shuffle
-    for i = #list, 2, -1 do
-        local j = dungeon_random(1, i)
-        list[i], list[j] = list[j], list[i]
-    end
-end
 
 local function generate_level(layout, edges, level, start_row, start_col, start_name, config)
     -- generates rooms for a single level using BFS expansion
@@ -83,7 +48,7 @@ local function generate_level(layout, edges, level, start_row, start_col, start_
         -- try to expand in random directions
         local directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}}
         local max_expands = dungeon_random(1, #directions)
-        shuffle(directions)
+        utils.shuffle(directions)
         
         local expand_count = 0
         for _, dir in ipairs(directions) do
@@ -129,7 +94,7 @@ local function find_dead_end_for_stairs(layout, edges, level, entry_position)
     table.sort(level_nodes)
     
     -- count connections for each node
-    local counts = count_connections(edges, level_nodes)
+    local counts = WorldUtils.count_connections(edges, level_nodes)
     
     -- find dead-end candidates (connection count = 1)
     local candidates = {}
@@ -217,8 +182,8 @@ function DungeonGenerator.generate(config)
     for level = 0, levels - 2 do
         local stair_pos = stairway_positions[level + 1]
         
-        local stairs_from = get_node_at(layout, level, stair_pos.row, stair_pos.col)
-        local stairs_to = get_node_at(layout, level + 1, stair_pos.row, stair_pos.col)
+        local stairs_from = WorldUtils.get_node_at(layout, level, stair_pos.row, stair_pos.col)
+        local stairs_to = WorldUtils.get_node_at(layout, level + 1, stair_pos.row, stair_pos.col)
         
         if stairs_from and stairs_to then
             table.insert(edges, {from = stairs_from, to = stairs_to, requirements = {}})
@@ -235,7 +200,7 @@ function DungeonGenerator.calculate_doors(layout, edges, level, row, col)
     -- calculates door pattern for a room based on edges
     -- returns binary represenation as string: "RULD" (right, up, left, down) with 1=door, 0=wall
     
-    local node_name = get_node_at(layout, level, row, col)
+    local node_name = WorldUtils.get_node_at(layout, level, row, col)
     if not node_name then
         return "0000"
     end

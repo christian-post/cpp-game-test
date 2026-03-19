@@ -38,8 +38,8 @@ end
 
 local function find_optimal_placement(graph, layout, item_pool, config)
     local Analyzer = require("dungeon.dungeon_analyzer")
-    local DungeonUtils = require("dungeon.dungeon_utils")
     local DebugHelper = require("dungeon.debug_helper")
+    local WorldUtils = require("lib.world_utils")
     
     print("\nStep 4: Finding optimal item placement...")
     update_progress("Placing Items...")
@@ -71,7 +71,7 @@ local function find_optimal_placement(graph, layout, item_pool, config)
                 
                 -- check for skippable items
                 local skippable = graph:find_skippable_items()
-                local has_skippable_sword = DungeonUtils.has_skippable_item(skippable, "weapon_sword")
+                local has_skippable_sword = WorldUtils.has_skippable_item(skippable, "weapon_sword")
                 
                 if not has_skippable_sword then
                     if score > best_score then
@@ -106,7 +106,7 @@ local function find_optimal_placement(graph, layout, item_pool, config)
             local skippable = graph:find_skippable_items()
             DebugHelper.print_skippable_warning(skippable)
             
-            if score >= target_score and not DungeonUtils.has_skippable_item(skippable, "weapon_sword") then
+            if score >= target_score and not WorldUtils.has_skippable_item(skippable, "weapon_sword") then
                 print(string.format("\nReached target score %.3f after %d iterations!", target_score, iteration))
                 break
             end

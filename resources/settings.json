@@ -91,13 +91,13 @@
       290
     ],
     [
-      323
-    ],
-    [
       321
     ],
     [
       322
+    ],
+    [
+      323
     ],
     [
       291
@@ -107,6 +107,7 @@
   "menuSlidingDuration": 0.4,
   "musicVolume": 100,
   "npcFollowSpeed": 18.0,
+  "playerSpeed": 20.0,
   "playerStartingHealth": 10,
   "playerStartingMaxHealth": 10,
   "screenShake": true,
@@ -148,6 +149,6 @@
   "vsync": true,
   "windowHeight": 820,
   "windowWidth": 1094,
-  "windowX": 1207.0,
-  "windowY": 331.0
+  "windowX": 1264.0,
+  "windowY": 344.0
 }

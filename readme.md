@@ -133,8 +133,7 @@ Debug Functions (won't be in the final game) - only available in debug mode
 | Debug Menu    | F2               | —                               | open debug menu             |
 | Debug 1       | Keypad 1         | —                               | teleport to next room       |
 | Debug 2       | Keypad 2         | —                               | Toggle sound on/off         |
-| Debug 3       | Keypad 3         | —                               | activate noclip mode        |
-
+| Debug 3       | Keypad 3         | —                               | activate god mode           |
 
 
 
@@ -147,6 +146,7 @@ Debug Functions (won't be in the final game) - only available in debug mode
 [JSON for Modern C++](https://github.com/nlohmann/json/) Copyright (c) 2013-2025 Niels Lohmann
 
 16x16 DungeonTileset II by [0x72](https://0x72.itch.io/dungeontileset-ii)</br>
+Fantasy RPG Characters by [superdark](https://superdark.itch.io/16x16-free-npc-pack)</br>
 Classic RPG Tileset by [Jestan](https://jestan.itch.io/classic-rpg)</br>
 Roguelike/RPG Items by [@JoeCreates}(https://opengameart.org/content/roguelikerpg-items)</br>
 "Dubious Dungeon" by [Bogart VGM](https://opengameart.org/content/dubious-dungeon)</br>

@@ -1,6 +1,8 @@
 -- generates overworld layout from a zone grid, building edges
 -- constrained by zone transition rules
 
+local utils = require("lib.utils")
+local WorldUtils = require("lib.world_utils")
 local OverworldGenerator = {}
 
 local default_transition_rules = {
@@ -18,20 +20,9 @@ local default_transition_rules = {
     town_to_town         = { { max = nil, requirement = nil } },
     town_to_field        = { { max = nil, requirement = nil } },
     town_to_forest       = { { max = 0,   requirement = nil } },
-    town_to_lake         = { { max = nil, requirement = nil } },
+    town_to_lake         = { { max = 0,   requirement = nil } },
     town_to_mountain     = { { max = 0,   requirement = nil } }
 }
-
-local function node_name(row, col)
-    return string.format("OW_%d_%d", row, col)
-end
-
-local function shuffle(list)
-    for i = #list, 2, -1 do
-        local j = dungeon_random(1, i)
-        list[i], list[j] = list[j], list[i]
-    end
-end
 
 local function get_rule(rules, zone_a, zone_b)
     local key = zone_a .. "_to_" .. zone_b
@@ -69,8 +60,8 @@ local function build_candidate_edges(zone_grid, width, height, rules)
                         end
 
                         table.insert(candidates_by_type[transition_key], {
-                            from = node_name(row, col),
-                            to = node_name(nr, nc),
+                            from = WorldUtils.node_name(row, col),
+                            to = WorldUtils.node_name(nr, nc),
                             requirement = rule.requirement
                         })
                     end
@@ -94,7 +85,7 @@ local function select_edges(candidates_by_type, rules)
 
     for _, transition_key in ipairs(keys) do
         local candidates = candidates_by_type[transition_key]
-        shuffle(candidates)
+        utils.shuffle(candidates)
 
         local tiers = rules[transition_key] -- { max usage, requirements }
         local remaining = candidates
@@ -164,7 +155,7 @@ local function ensure_connectivity(all_node_names, selected_edges, zone_grid, wi
             for _, n in ipairs(neighbors) do
                 local nr, nc = n[1], n[2]
                 if nr >= 0 and nr < height and nc >= 0 and nc < width then
-                    local neighbor_name = node_name(nr, nc)
+                    local neighbor_name = WorldUtils.node_name(nr, nc)
                     if visited[neighbor_name] then
                         local zone_a = zone_grid[row][col]
                         local zone_b = zone_grid[nr][nc]
@@ -216,7 +207,7 @@ function OverworldGenerator.generate(zone_grid, width, height, config)
     local all_node_names = {}
     for row = 0, height - 1 do
         for col = 0, width - 1 do
-            table.insert(all_node_names, node_name(row, col))
+            table.insert(all_node_names, WorldUtils.node_name(row, col))
         end
     end
 
@@ -231,15 +222,15 @@ function OverworldGenerator.generate(zone_grid, width, height, config)
 
     -- build layout compatible with DungeonBuilder/WorldGraph
     local layout = {
-        rows      = height,
-        cols      = width,
-        levels    = 1,
+        rows = height,
+        cols = width,
+        levels = 1,
         positions = {},
-        zones     = zone_grid
+        zones = zone_grid
     }
     for row = 0, height - 1 do
         for col = 0, width - 1 do
-            layout.positions[node_name(row, col)] = { row = row, col = col, level = 0 }
+            layout.positions[WorldUtils.node_name(row, col)] = { row = row, col = col, level = 0 }
         end
     end
 
@@ -288,7 +279,7 @@ function OverworldGenerator.print_layout(zone_grid, width, height, edges)
         for col = 0, width - 1 do
             line = line .. (zone_chars[zone_grid[row][col]] or "?")
             if col < width - 1 then
-                line = line .. edge_char(node_name(row, col), node_name(row, col + 1))
+                line = line .. edge_char(WorldUtils.node_name(row, col), WorldUtils.node_name(row, col + 1))
             end
         end
         print(line)
@@ -296,7 +287,7 @@ function OverworldGenerator.print_layout(zone_grid, width, height, edges)
         if row < height - 1 then
             local edge_line = "  "
             for col = 0, width - 1 do
-                edge_line = edge_line .. edge_char(node_name(row, col), node_name(row + 1, col))
+                edge_line = edge_line .. edge_char(WorldUtils.node_name(row, col), WorldUtils.node_name(row + 1, col))
                 if col < width - 1 then
                     edge_line = edge_line .. " "
                 end

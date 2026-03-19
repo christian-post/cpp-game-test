@@ -1,3 +1,4 @@
+local utils = require("lib.utils")
 local TilemapModifier = {}
 
 local door_tile_positions = {
@@ -43,6 +44,11 @@ local wall_configs = {
     {pos_range = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}, fixed_pos = 13, tile_idx = 8, is_vertical = false}, -- bottom inner
 }
 
+local base_wall_tiles = {54, 53, 4, 28, 50, 51, 100, 76}  -- right outer/inner, top outer/inner, left outer/inner, bottom outer/inner
+
+local next_object_id = 1000 -- unique identifier for objects on this tilemap
+-- TODO use the max(ID) of existing objects as a start? or is starting at 1000 always safe?
+
 local function is_floor_tile(tile_id)
     for _, floor_tile in ipairs(floor_tiles) do
         if tile_id == floor_tile then
@@ -51,11 +57,6 @@ local function is_floor_tile(tile_id)
     end
     return false
 end
-
-local base_wall_tiles = {54, 53, 4, 28, 50, 51, 100, 76}  -- right outer/inner, top outer/inner, left outer/inner, bottom outer/inner
-
-local next_object_id = 1000 -- unique identifier for objects on this tilemap
--- TODO use the max(ID) of existing objects as a start? or is starting at 1000 always safe?
 
 local function is_wall_tile(tile_id)
     for _, wall_tile in ipairs(base_wall_tiles) do
@@ -135,13 +136,7 @@ end
 
 local function load_tilemap(tilemap_base_path, doors, randomize)
     local tilemap_path = tilemap_base_path .. "/room_" .. doors .. ".json"
-    local file = io.open(tilemap_path, "r")
-    if not file then
-        error("Could not open tilemap: " .. tilemap_path)
-    end
-    local content = file:read("*all")
-    file:close()
-    local room = json.decode(content)
+    local room = utils.loadJSON(tilemap_path)
 
     normalize_sparse_layers(room)
 
@@ -407,22 +402,9 @@ end
 
 function TilemapModifier.process_dungeon(dungeon_json_path, dungeon_name, tilemap_base_path, output_path, ObjectTemplates, event_triggers_path)
     -- load event triggers
-    local triggers_file = io.open(event_triggers_path, "r")
-    if not triggers_file then
-        error("Could not open event triggers file: " .. event_triggers_path)
-    end
-    local triggers_content = triggers_file:read("*all")
-    triggers_file:close()
-    local event_triggers = json.decode(triggers_content)
-
+    local event_triggers = utils.loadJSON(event_triggers_path)
     -- load dungeon data
-    local file = io.open(dungeon_json_path, "r")
-    if not file then
-        error("Could not open dungeon file: " .. dungeon_json_path)
-    end
-    local content = file:read("*all")
-    file:close()
-    local all_dungeons = json.decode(content)
+    local all_dungeons = utils.loadJSON(dungeon_json_path)
     
     -- get the specific dungeon
     local dungeon_data = all_dungeons[dungeon_name]
@@ -553,27 +535,14 @@ function TilemapModifier.process_dungeon(dungeon_json_path, dungeon_name, tilema
             
             -- update tilemap reference in dungeon data
             room_data.tilemap = filename:gsub("%.json$", "")
-            
             -- save modified tilemap
-            local output_file = io.open(output_path .. "/" .. filename, "w")
-            if not output_file then
-                error("Could not write tilemap: " .. output_path .. "/" .. filename)
-            end
-            output_file:write(json.encode(room, 2))
-            output_file:close()
+            utils.saveJSON(output_path .. "/" .. filename, room)
         end
     end
-    
-    -- save updated event triggers
-    local triggers_out = io.open(event_triggers_path, "w")
-    triggers_out:write(json.encode(event_triggers, 2))
-    triggers_out:close()
 
-    -- save updated dungeon data
-    all_dungeons[dungeon_name] = dungeon_data
-    local dungeon_out = io.open(dungeon_json_path, "w")
-    dungeon_out:write(json.encode(all_dungeons, 2))
-    dungeon_out:close()
+    -- save updated event triggers and dungeon data
+    utils.saveJSON(event_triggers_path, event_triggers)
+    utils.saveJSON(dungeon_json_path, all_dungeons)
     
     print("Tilemap processing complete!")
 end

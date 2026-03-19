@@ -18,6 +18,11 @@
   "elfDialogue4": [
     ".....\fOh. Yeah, that's it for this demo. Thank you for playing, I guess."
   ],
+  "fortuneTellerPlaceholder": [
+    "Let me see your future.\f.... ....\fUnfortunately, your future is shrouded in uncerntanties.",
+    "Today is your lucky day!",
+    "Maybe you should just read your horoscope."
+  ],
   "hint_lua_dungeon_randomNPC1": [
     "Did you alread find the Sword in the Clifftop Fortress? That place is northwest of here."
   ],

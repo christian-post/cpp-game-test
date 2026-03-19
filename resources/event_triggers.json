@@ -33,6 +33,15 @@
       },
       "id": "test_room_trigger",
       "script": "scripts/cutscenes/test_cutscene.lua"
+    },
+    {
+      "conditions": {
+        "maxRoomState": 1,
+        "noEnemies": true,
+        "roomID": "L1_R1_C1_item"
+      },
+      "id": "L1_R1_C1_item_enemies_defeated",
+      "script": "scripts/cutscenes/enemies_defeated.lua"
     }
   ]
 }

@@ -152,7 +152,7 @@
   "randomNPC2": {
     "behaviorData": {
       "dialogue": "npcHintGeneric1",
-      "voice": "powerUp4"
+      "voice": "powerUp6"
     },
     "behaviors": [
       "RandomWalk",
@@ -162,6 +162,37 @@
     "textures": [
       "normal_dude_2_idle",
       "normal_dude_2_run"
+    ]
+  },
+  "randomNPC3": {
+    "behaviorData": {
+      "dialogue": "placeholder",
+      "voice": "powerUp4",
+      "watchTarget": "player"
+    },
+    "behaviors": [
+      "Dialogue",
+      "Watch"
+    ],
+    "inherits": "sprite_default",
+    "textures": [
+      "townsfolk_female_idle",
+      "townsfolk_female_walk"
+    ]
+  },
+  "fortuneTeller": {
+    "behaviorData": {
+      "dialogue": "fortuneTellerPlaceholder",
+      "voice": "powerUp4",
+      "watchTarget": "player"
+    },
+    "behaviors": [
+      "Dialogue",
+      "Watch"
+    ],
+    "inherits": "sprite_default",
+    "textures": [
+      "fortune_teller_idle"
     ]
   },
   "secretNPC": {

@@ -1,16 +1,7 @@
 -- exports generated dungeon to JSON format matching the required structure
 
+local WorldUtils = require("lib.world_utils")
 local DungeonExporter = {}
-
-local function get_node_at(layout, level, row, col)
-    -- reverse lookup: find node name at given position
-    for name, pos in pairs(layout.positions) do
-        if pos.level == level and pos.row == row and pos.col == col then
-            return name
-        end
-    end
-    return nil
-end
 
 function DungeonExporter.export(layout, edges, graph, item_pool, stairway_rooms, DungeonGenerator)
     -- converts dungeon to JSON structure
@@ -97,7 +88,7 @@ function DungeonExporter.export(layout, edges, graph, item_pool, stairway_rooms,
         -- collect all rooms for this level
         for row = 0, layout.rows - 1 do
             for col = 0, layout.cols - 1 do
-                local node_name = get_node_at(layout, level, row, col)
+                local node_name = WorldUtils.get_node_at(layout, level, row, col)
                 if node_name then
                     local doors = DungeonGenerator.calculate_doors(layout, edges, level, row, col)
             

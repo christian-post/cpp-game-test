@@ -1,3 +1,4 @@
+local utils = require("lib.utils")
 local GenerateBaseRooms = {}
 
 -- door tile configurations
@@ -193,13 +194,7 @@ end
 
 function GenerateBaseRooms.generate(empty_tilemap_path, output_path)
     -- load empty tilemap template
-    local file = io.open(empty_tilemap_path, "r")
-    if not file then
-        error("Could not open empty tilemap: " .. empty_tilemap_path)
-    end
-    local content = file:read("*all")
-    file:close()
-    local empty_tilemap = json.decode(content)
+    local empty_tilemap = utils.loadJSON(empty_tilemap_path)
     
     -- generate all door combinations (1-15, excluding 0)
     for door_combination = 1, 15 do
@@ -235,12 +230,7 @@ function GenerateBaseRooms.generate(empty_tilemap_path, output_path)
         
         -- save tilemap
         local output_file_path = output_path .. "/room_" .. door_string .. ".json"
-        local out_file = io.open(output_file_path, "w")
-        if not out_file then
-            error("Could not write tilemap: " .. output_file_path)
-        end
-        out_file:write(json.encode(room_data, 2))
-        out_file:close()
+        utils.saveJSON(output_file_path, room_data)
         
         print("Generated: room_" .. door_string .. ".json")
     end

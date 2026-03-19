@@ -1,4 +1,5 @@
 -- generates zone layout for the overworld grid
+local utils = require("lib.utils")
 local OverworldZoneGenerator = {}
 
 local function create_grid(width, height, default)
@@ -38,6 +39,7 @@ local function find_valid_placements(grid, w, h, width, height, min_row)
     local placements = {}
     for row = min_row, height - h do
         for col = 0, width - w do
+            -- check if this cell is a "field" cell
             if can_place(grid, row, col, w, h, width, height) then
                 table.insert(placements, {row = row, col = col})
             end
@@ -46,13 +48,20 @@ local function find_valid_placements(grid, w, h, width, height, min_row)
     return placements
 end
 
-local function place_random(grid, w, h, width, height, min_row, zone_type)
+local function find_random_pos(grid, w, h, width, height, min_row)
     local placements = find_valid_placements(grid, w, h, width, height, min_row)
     if #placements == 0 then
+        return nil
+    end
+    return placements[dungeon_random(1, #placements)]
+end
+
+local function place_random(grid, w, h, width, height, min_row, zone_type)
+    local pos = find_random_pos(grid, w, h, width, height, min_row)
+    if not pos then
         print(string.format("  Warning: could not find valid placement for zone: %s", zone_type))
         return nil
     end
-    local pos = placements[dungeon_random(1, #placements)]
     place_rect(grid, pos.row, pos.col, w, h, zone_type)
     return pos
 end
@@ -85,22 +94,27 @@ function OverworldZoneGenerator.generate(width, height)
     end
 
     -- place a town (1x2)
-    --[[
     local town_pos = place_random(grid, 1, 2, width, height, 5, "town")
     if not town_pos then
         return nil
     end
 
-    ]]
-
     -- place a second, smaller town (1x1)
-    --[[
-    local small_town_pos = place_random(grid, 1, 1, width, height, 5, "town")
+    -- TODO ensure minimal (manhattan) distance between towns
+    local min_dist = 4
+    local dist = 0
+    local small_town_pos
+    local attempts = 0
+    repeat
+        small_town_pos = find_random_pos(grid, 1, 1, width, height, 5)
+        attempts = attempts + 1
+    until (small_town_pos and utils.manhattan_dist(town_pos, small_town_pos) >= 4) or attempts >= 50
+
     if not small_town_pos then
         return nil
     end
 
-    ]]
+    place_rect(grid, small_town_pos.row, small_town_pos.col, 1, 1, "town")
 
     return grid
 end

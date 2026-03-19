@@ -1,5 +1,5 @@
--- builds a WorldGraph from an overworld layout and edges
-
+-- builds the first, simple WorldGraph from an overworld layout and edges
+local WorldUtils = require("lib.world_utils")
 local OverworldBuilder = {}
 
 local function build_graph_from_layout(WorldGraph, layout, edges)
@@ -23,7 +23,7 @@ end
 function OverworldBuilder.build(WorldGraph, layout, edges, item_pool)
     local graph = build_graph_from_layout(WorldGraph, layout, edges)
 
-    local start_name = string.format("OW_%d_%d", layout.start_row, layout.start_col)
+    local start_name = WorldUtils.node_name(layout.start_row, layout.start_col)
     graph:set_start(start_name)
     graph:exclude_room(start_name)
 
