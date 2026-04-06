@@ -1,4 +1,5 @@
 local utils = require("lib.utils")
+local WorldUtils = require("lib.world_utils")
 local GenerateBaseRooms = {}
 
 -- base tilemap for each zone, loaded once and reused
@@ -31,10 +32,15 @@ local boundary_tilemaps = {
 }
 
 -- transitions (free, or with requirement)
+-- TODO modify the transition based on item requirements (e.g. place rocks if the bombs are required)
 local transition_tilemaps = {
     field_to_lake = "resources/tilemaps/base/overworld/lake_base_transitions_inverted.json",
     field_to_mountain = "resources/tilemaps/base/overworld/mountain_base_transitions.json",
     field_to_forest = "resources/tilemaps/base/overworld/forest_base_transitions.json"
+}
+
+local metatiles_atlases = {
+    overworld = "resources/tilemaps/base/overworld/ow_metatiles.json",
 }
 
 -- border_chunks[this_zone][neighbor_zone][side] defines what chunk to paste onto THIS room
@@ -124,6 +130,11 @@ local transition_chunks = {
     }
 }
 
+-- TODO testing metatiles for item required transitions
+local item_required_transitions = {
+
+}
+
 -- outer corners 
 local outer_corner_chunks = {
     field = {
@@ -153,11 +164,6 @@ local function find_layer(map, name)
         end
     end
     return nil
-end
-
--- extract just the filename from a path, e.g. "../../foo/bar.tsj" -> "bar.tsj"
-local function basename(path)
-    return path:match("([^/\\]+)$") or path
 end
 
 -- find which tileset in a map owns a given gid.
@@ -206,12 +212,12 @@ local function remap_gid(gid, src_tilesets, dst_tilesets)
         error("tilemap: could not find owning tileset for gid " .. gid)
     end
 
-    local src_name = basename(src_ts.source)
+    local src_name = utils.basename(src_ts.source)
 
     -- find matching tileset in dst by filename
     local dst_ts = nil
     for _, ts in ipairs(dst_tilesets) do
-        if basename(ts.source) == src_name then
+        if utils.basename(ts.source) == src_name then
             dst_ts = ts
             break
         end
@@ -320,30 +326,28 @@ function GenerateBaseRooms.copy_region(dst, src, dst_x, dst_y, src_x, src_y, w, 
     end
 end
 
-local function node_name(row, col)
-    return string.format("OW_%d_%d", row, col)
-end
-
 local function build_edge_set(edges)
     local set = {}
     for _, edge in ipairs(edges) do
-        set[edge.from .. "->" .. edge.to] = true
+        set[edge.from .. "->" .. edge.to] = edge.requirements or {}
     end
     return set
 end
 
 local function are_connected(edge_set, from_row, from_col, to_row, to_col)
-    local key = node_name(from_row, from_col) .. "->" .. node_name(to_row, to_col)
-    return edge_set[key] == true
+    -- check if this edge exists
+    local key = WorldUtils.node_name(from_row, from_col) .. "->" .. WorldUtils.node_name(to_row, to_col)
+    return edge_set[key] ~= nil
 end
 
 local function get_neighbor_zone(zone_grid, row, col, dr, dc, grid_width, grid_height)
-    local nr = row + dr
-    local nc = col + dc
-    if nr < 0 or nr >= grid_height or nc < 0 or nc >= grid_width then
+    local neighbor_row = row + dr
+    local neighbor_col = col + dc
+    if neighbor_row < 0 or neighbor_row >= grid_height or neighbor_col < 0 or neighbor_col >= grid_width then
+        -- neighbor is outside the world grid
         return "boundary"
     end
-    return zone_grid[nr][nc]
+    return zone_grid[neighbor_row][neighbor_col]
 end
 
 -- cache of loaded source tilemaps to avoid redundant disk reads within a single room pass
@@ -357,6 +361,7 @@ local function get_src_map(path)
 end
 
 local function apply_center(dst_map, source_path, side)
+    -- pastes the border center part
     local center = CENTERS[side]
     local src_map = get_src_map(source_path)
     for _, dst_pos in ipairs(center.dst_positions) do
@@ -365,7 +370,8 @@ local function apply_center(dst_map, source_path, side)
 end
 
 local function apply_corner(dst_map, corner, sources)
-    local c = CORNERS[corner]
+    -- pastes a border corner
+    local c = CORNERS[corner] -- NW, NE, SW, or SE
     local half_h = CHUNK_SIZE / 2  -- 10
 
     if sources.source_h == sources.source_v then
@@ -451,7 +457,7 @@ local function trim_objects_in_region(dst_map, dst_x, dst_y, w, h)
 end
 
 
-local directions = {
+local DIRECTIONS = {
     north = { dr = -1, dc = 0 },
     south = { dr = 1, dc = 0 },
     east = { dr = 0, dc = 1 },
@@ -459,7 +465,7 @@ local directions = {
 }
 
 -- corner combinations: which two sides must both be closed, and which corner piece to use
-local corner_pairs = {
+local CORNER_PAIRS = {
     { corner = "NW", h_side = "north", v_side = "west" },
     { corner = "NE", h_side = "north", v_side = "east" },
     { corner = "SW", h_side = "south", v_side = "west" },
@@ -475,14 +481,14 @@ function GenerateBaseRooms.process_overworld(zone_grid, edges, grid_width, grid_
 
     local edge_set = build_edge_set(edges)
 
-    -- make a room_states table that saved the adjacent zones
+    -- make a room_states table that saves the adjacent zones
     local room_states = {}
     for row = 0, grid_height - 1 do
         room_states[row] = {}
         for col = 0, grid_width - 1 do
             local my_zone = zone_grid[row][col]
             local sides = {}
-            for side, dir in pairs(directions) do
+            for side, dir in pairs(DIRECTIONS) do
                 local neighbor_zone = get_neighbor_zone(zone_grid, row, col, dir.dr, dir.dc, grid_width, grid_height)
                 local is_closed = neighbor_zone == "boundary" or not are_connected(edge_set, row, col, row + dir.dr, col + dir.dc)
                 local has_border = is_closed and (border_chunks[my_zone] and border_chunks[my_zone][neighbor_zone] or false)
@@ -493,10 +499,12 @@ function GenerateBaseRooms.process_overworld(zone_grid, edges, grid_width, grid_
         end
     end
 
+    -- cache the base tilemaps to prevent loading the same one twice
     local base_tilemap_cache = {}
 
     for row = 0, grid_height - 1 do
         for col = 0, grid_width - 1 do
+            -- determine the current zone and get the empty map for that type
             local my_zone = zone_grid[row][col]
             local base_path = base_tilemaps[my_zone]
 
@@ -509,24 +517,31 @@ function GenerateBaseRooms.process_overworld(zone_grid, edges, grid_width, grid_
                 base_tilemap_cache[my_zone] = utils.loadJSON(base_path)
             end
 
-            local dst_map = json.decode(json.encode(base_tilemap_cache[my_zone]))
+            local dst_map = utils.deep_copy(base_tilemap_cache[my_zone])
 
             -- collect closed sides and their source paths
             local closed = {} -- closed[side] = source_path, or nil if no border needed
+            local has_boundary = false -- store whether this room is on the boundary
 
-            for side, dir in pairs(directions) do
+            for side, dir in pairs(DIRECTIONS) do
                 local neighbor_zone = get_neighbor_zone(zone_grid, row, col, dir.dr, dir.dc, grid_width, grid_height)
+                -- a side is closed if it's at the boundary, or if it's not connected by an edge
                 local is_closed = neighbor_zone == "boundary" or not are_connected(edge_set, row, col, row + dir.dr, col + dir.dc)
 
                 if is_closed then
                     local source_path = border_chunks[my_zone] and border_chunks[my_zone][neighbor_zone] or nil
                     -- use false as sentinel to distinguish "closed with no border" from "not closed"
+                    if neighbor_zone == "boundary" then
+                        has_boundary = true
+                    end
                     closed[side] = { path = source_path or false, is_boundary = neighbor_zone == "boundary" }
                 end
             end
 
             local active_corners = {}
-            for _, pair in ipairs(corner_pairs) do
+            -- collect the corner paths
+            -- h = horizontal, v = vertical
+            for _, pair in ipairs(CORNER_PAIRS) do
                 local source_h = closed[pair.h_side] and closed[pair.h_side].path
                 local source_v = closed[pair.v_side] and closed[pair.v_side].path
                 if source_h ~= nil and source_v ~= nil then
@@ -539,18 +554,9 @@ function GenerateBaseRooms.process_overworld(zone_grid, edges, grid_width, grid_
                 end
             end
 
-            local has_boundary = false
-            for _, entry in pairs(closed) do
-                if entry.is_boundary then
-                    has_boundary = true
-                    break
-                end
-            end
-
-            -- pass 1a: zone border centers
+            -- pass 1: paste zone border centers
             for side, entry in pairs(closed) do
                 if entry.path and not entry.is_boundary then
-                    local center = CENTERS[side]
                     apply_center(dst_map, entry.path, side)
                 end
             end
@@ -561,7 +567,8 @@ function GenerateBaseRooms.process_overworld(zone_grid, edges, grid_width, grid_
             end
 
             -- pass 3: transition tiles on open sides
-            for side, dir in pairs(directions) do
+            -- TODO check edge_set transition rules to add special metatiles (e.g. bombable rocks)
+            for side, dir in pairs(DIRECTIONS) do
                 if closed[side] == nil then
                     local neighbor_zone = get_neighbor_zone(zone_grid, row, col, dir.dr, dir.dc, grid_width, grid_height)
                     local transition_source = transition_chunks[my_zone] and transition_chunks[my_zone][neighbor_zone] or nil
@@ -573,7 +580,12 @@ function GenerateBaseRooms.process_overworld(zone_grid, edges, grid_width, grid_
                             local center = CENTERS[side]
                             trim_objects_in_region(dst_map, center.src_x, center.src_y, CHUNK_SIZE, CHUNK_SIZE)
                         end
+                        -- base transition (open in most cases)
                         apply_transition(dst_map, transition_source, side)
+                        -- get possible requirements
+                        local key = WorldUtils.node_name(row, col) .. "->" .. WorldUtils.node_name(row + dir.dr, col + dir.dc)
+                        local requirements = edge_set[key] or {}
+                        -- TODO paste corresponding chunk
                     end
                 end
             end
@@ -633,12 +645,12 @@ function GenerateBaseRooms.process_overworld(zone_grid, edges, grid_width, grid_
 
             -- change the tileset path to only the basename
             for _, ts in ipairs(dst_map.tilesets) do
-                ts.source = basename(ts.source)
+                ts.source = utils.basename(ts.source)
             end
 
             src_map_cache = {}
 
-            local out_path = string.format("resources/tilemaps/generated/overworld/%s.json", node_name(row, col))
+            local out_path = string.format("resources/tilemaps/generated/overworld/%s.json", WorldUtils.node_name(row, col))
             utils.saveJSON(out_path, dst_map)
             print(string.format("  saved %s (%s)", out_path, my_zone))
 
@@ -668,7 +680,7 @@ function GenerateBaseRooms.process_overworld(zone_grid, edges, grid_width, grid_
             end
 
             local door_bits = {1, 1, 1, 1} -- default all open
-            for side, dir in pairs(directions) do
+            for side, dir in pairs(DIRECTIONS) do
                 local nr = row + dir.dr
                 local nc = col + dir.dc
                 local in_bounds = nr >= 0 and nr < grid_height and nc >= 0 and nc < grid_width
@@ -681,7 +693,7 @@ function GenerateBaseRooms.process_overworld(zone_grid, edges, grid_width, grid_
                 row = row,
                 column = col,
                 doors = table.concat(door_bits),
-                tilemap = node_name(row, col)
+                tilemap = WorldUtils.node_name(row, col)
             })
 
             ::continue_save::

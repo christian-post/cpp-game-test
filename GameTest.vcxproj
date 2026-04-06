@@ -499,6 +499,7 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <None Include="scripts\other_tests.lua" />
     <None Include="scripts\overworld\ow_features.lua" />
     <None Include="scripts\overworld\ow_generate_base_rooms.lua" />
+    <None Include="scripts\overworld\ow_generate_base_rooms_NEW.lua" />
     <None Include="scripts\overworld\ow_metatiles.lua" />
     <None Include="scripts\overworld\ow_tilemap_modifier.lua" />
     <None Include="scripts\test_overworld_generation.lua" />

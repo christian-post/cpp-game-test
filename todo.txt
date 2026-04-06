@@ -8,6 +8,7 @@
 - bow weapon sprite is wrong
 - change how the weapon texture keys are obtained in HUD.cpp
 - room transitions break when the adjacent rooms are not of equal size (player position goes out of bounds?)
+- SetWindowPosition doesn't work sometimes (after monitor switch)
 
 ## FEATURES/REFACTORS:
 -- rename "npcs.json" to "sprites.json"

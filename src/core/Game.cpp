@@ -67,6 +67,21 @@ Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this), luaDungeonGen(
     SetWindowMaxSize(maxW, maxH);
     SetWindowMinSize(MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT);
 
+    // clamp window x and y positions
+    // (needed if the user switches monitors between playthroughs)
+    // if the x or y position exceeds the right or bottom, it's just reset to the top left as well for simplicity
+    Vector2 winPos = GetWindowPosition();
+    if (winPos.x < 0.0f || static_cast<int>(winPos.x) > maxW)
+    {
+        winPos.x = 10.0f; // small margin
+        writeSetting("windowX", winPos.x);
+    }
+    if (winPos.y < 0.0f || static_cast<int>(winPos.y) > maxH)
+    {
+        winPos.y = 20.0f;
+        writeSetting("windowY", winPos.y);
+    }
+
     isFullscreen = getSetting("fullscreen", false);
     if (isFullscreen)
     {
@@ -74,8 +89,8 @@ Game::Game() : buttonsDown{}, buttonsPressed{}, inventory(*this), luaDungeonGen(
     }
     else
     {
-        int x = getSetting("windowX", static_cast<int>(GetWindowPosition().x));
-        int y = getSetting("windowY", static_cast<int>(GetWindowPosition().y));
+        int x = getSetting("windowX", static_cast<int>(winPos.x));
+        int y = getSetting("windowY", static_cast<int>(winPos.y));
         SetWindowPosition(x, y);
     }
 

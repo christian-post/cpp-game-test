@@ -1,17 +1,29 @@
 -- generates overworld layout from a zone grid, building edges
 -- constrained by zone transition rules
-
 local utils = require("lib.utils")
 local WorldUtils = require("lib.world_utils")
 local OverworldGenerator = {}
 
+-- general zone transition rules
+-- if "max" not nil, it limits the number of transitions that can occur. max = 0 means the edge is always shut off
+-- when multiple rules are given, the algorithm always exhausts the first one.
+-- For example:
+--[[
+    mountain_to_mountain = {{ max = 2, requirement = "hookshot" },
+                            { max = 3, requirement = nil        }}
+    This ruleset means there will be two edges that require the hookshot for traversal.
+    Then, three other edges will be completely open.
+    All other remaining edges between mountain zones will be closed.
+]]
+-- IMPORTANT: when there are multiple rules, the first rule can't have max=0 or it will break the connectivity check
+-- max = nil means that the edge is always open
 local default_transition_rules = {
     field_to_field       = { { max = nil, requirement = nil } },
     field_to_forest      = { { max = 2,   requirement = nil } },
     forest_to_forest     = { { max = nil, requirement = nil } },
     field_to_mountain    = { { max = 2,   requirement = "bombs" } },
-    mountain_to_mountain = { { max = 2,   requirement = "hookshot" },
-                             { max = nil, requirement = nil } },
+    mountain_to_mountain = { { max = 3,   requirement = "hookshot" },
+                             { max = 2,   requirement = nil } },
     field_to_lake        = { { max = 1,   requirement = "boat" } },
     lake_to_lake         = { { max = nil, requirement = "boat" } },
     forest_to_mountain   = { { max = 1,   requirement = nil } },
@@ -21,10 +33,10 @@ local default_transition_rules = {
     town_to_field        = { { max = nil, requirement = nil } },
     town_to_forest       = { { max = 0,   requirement = nil } },
     town_to_lake         = { { max = 0,   requirement = nil } },
-    town_to_mountain     = { { max = 0,   requirement = nil } }
+    town_to_mountain     = { { max = 0,   requirement = nil } },
 }
 
-local function get_rule(rules, zone_a, zone_b)
+local function get_transition_rules(rules, zone_a, zone_b)
     local key = zone_a .. "_to_" .. zone_b
     local reverse_key = zone_b .. "_to_" .. zone_a
     -- try the key, e.g. "field_to_mountain" or, if that fails try the reverse key
@@ -52,9 +64,9 @@ local function build_candidate_edges(zone_grid, width, height, rules)
                     -- retrieves the zone edge rules from the transition_rules table
                     -- the returned key can either be "[zone_a]_to_[zone_b]" or the reverse case, 
                     -- depending on what's used in the table
-                    local rule, transition_key = get_rule(rules, zone_a, zone_b)
+                    local zone_rules, transition_key = get_transition_rules(rules, zone_a, zone_b)
 
-                    if rule and (rule.max == nil or rule.max > 0) then
+                    if zone_rules and (zone_rules[1].max == nil or zone_rules[1].max > 0) then
                         if not candidates_by_type[transition_key] then
                             candidates_by_type[transition_key] = {}
                         end
@@ -62,7 +74,7 @@ local function build_candidate_edges(zone_grid, width, height, rules)
                         table.insert(candidates_by_type[transition_key], {
                             from = WorldUtils.node_name(row, col),
                             to = WorldUtils.node_name(nr, nc),
-                            requirement = rule.requirement
+                            requirement = zone_rules[1].requirement
                         })
                     end
                 end
@@ -159,8 +171,8 @@ local function ensure_connectivity(all_node_names, selected_edges, zone_grid, wi
                     if visited[neighbor_name] then
                         local zone_a = zone_grid[row][col]
                         local zone_b = zone_grid[nr][nc]
-                        local rule, _ = get_rule(rules, zone_a, zone_b)
-                        local req = rule and rule.requirement or nil
+                        local zone_rules, _ = get_transition_rules(rules, zone_a, zone_b)
+                        local req = zone_rules and zone_rules[1].requirement or nil
 
                         local edge = { from = name, to = neighbor_name, requirement = req }
                         table.insert(selected_edges, edge)
@@ -254,6 +266,7 @@ function OverworldGenerator.generate(zone_grid, width, height, config)
 end
 
 function OverworldGenerator.print_layout(zone_grid, width, height, edges)
+    -- just for debugging
     local zone_chars = { mountain = "M", lake = "L", forest = "F", town = "T", field = "." }
 
     -- build edge lookup

@@ -57,6 +57,11 @@ function M.saveJSON(path, data)
     out_file:close()
 end
 
+function M.basename(path)
+    -- extract just the filename from a path, e.g. "../../foo/bar.tsj" -> "bar.tsj"
+    return path:match("([^/\\]+)$") or path
+end
+
 function M.manhattan_dist(a, b)
     return math.abs(a.row - b.row) + math.abs(a.col - b.col)
 end

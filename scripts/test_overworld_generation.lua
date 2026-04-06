@@ -3,7 +3,8 @@ function execute()
     local OverworldZoneGenerator = require("overworld.overworld_zone_generator")
     local OverworldGenerator = require("overworld.overworld_generator")
     local OverworldBuilder = require("overworld.overworld_builder")
-    local GenerateBaseRooms = require("overworld.ow_generate_base_rooms")
+    --local GenerateBaseRooms = require("overworld.ow_generate_base_rooms")
+    local GenerateBaseRooms = require("overworld.ow_generate_base_rooms_NEW")
     local TilemapModifier = require("overworld.ow_tilemap_modifier")
     local OWFeatures = require("overworld.ow_features")
 
@@ -30,24 +31,24 @@ function execute()
     for attempt = 1, max_attempts do
         print(string.format("Attempt %d...", attempt))
 
-        -- place the zones (terrain types have individual rules)
+        -- step 1: place the zones (terrain types have individual rules)
         zone_grid = OverworldZoneGenerator.generate(width, height)
         if not zone_grid then
             print("  Zone placement failed, retrying...")
             goto continue -- skip all further generation steps
         end
 
-        -- construct the overall room layout (close some edges randomly based on zone transition rules)
+        -- step 2: construct the overall room layout (close some edges randomly based on zone transition rules)
         layout, edges = OverworldGenerator.generate(zone_grid, width, height)
 
-        -- run world features (river, etc.), which may remove edges from the graph
+        -- step 2.1: run world feature generation (river, etc.), which may remove edges from the graph
         features_result = OWFeatures.generate(zone_grid, edges, width, height)
         if not features_result then
             print("  Feature placement failed, retrying...")
             goto continue
         end
 
-        -- build the graph, which already includes item requirements for some of the edges
+        -- step 3: build the graph, which already includes item requirements for some of the edges
         graph, excluded_rooms = OverworldBuilder.build(WorldGraph, layout, features_result.edges, item_pool)
 
         -- make sure that none of the rooms are completely shut off
@@ -121,14 +122,14 @@ function execute()
     reduced:print_graph()
 
     -- =====================================
-    -- Tilemap assignment
+    -- Tilemap building
     -- =====================================
 
     GenerateBaseRooms.process_overworld(zone_grid, edges, width, height)
 
     -- Tilemap modification
 
-    TilemapModifier.process_overworld(zone_grid, edges, width, height, features_result.overlays)
+    --TilemapModifier.process_overworld(zone_grid, edges, width, height, features_result.overlays)
 
     print("\n=== Overworld Generation Complete! ===")
 end

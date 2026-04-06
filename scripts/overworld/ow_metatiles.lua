@@ -1,3 +1,4 @@
+local utils = require("lib.utils")
 local OW_Metatiles = {}
 
 local atlases = {
@@ -26,6 +27,7 @@ local metatiles = {
     bridge_broken_horizontal = {atlas = "overworld", src_x = 12, src_y = 8, w = 8, h = 4},
     bridge_broken_vertical = {atlas = "overworld", src_x = 20, src_y = 8, w = 4, h = 10},
     -- lake
+    lake_base_tile = {atlas = "overworld", src_x = 1, src_y = 0, w = 5, h = 5},
     lake_boundary_corner_nw = {atlas = "overworld", src_x = 12, src_y = 12, w = 5, h = 5},
     lake_boundary_corner_ne = {atlas = "overworld", src_x = 1, src_y = 14, w = 5, h = 5},
     lake_boundary_corner_sw = {atlas = "overworld", src_x = 12, src_y = 13, w = 5, h = 5},
@@ -46,12 +48,8 @@ local metatiles = {
     lake_edge_straight_s = {atlas = "overworld", src_x = 8, src_y = 3, w = 5, h = 5},
     lake_edge_straight_w = {atlas = "overworld", src_x = 0, src_y = 0, w = 5, h = 5},
     lake_edge_straight_e = {atlas = "overworld", src_x = 3, src_y = 0, w = 5, h = 5},
-    -- lake edge is traversable if player has the boat
-    lake_landing_bridge_w = {atlas = "overworld", src_x = 0, src_y = 10, w = 4, h = 4},
-    lake_landing_bridge_e = {atlas = "overworld", src_x = 4, src_y = 10, w = 4, h = 4},
-    lake_landing_bridge_n = {atlas = "overworld", src_x = 24, src_y = 8, w = 4, h = 4},
-    lake_landing_bridge_s = {atlas = "overworld", src_x = 24, src_y = 12, w = 4, h = 5},
     -- field
+    field_base_tile = {atlas = "overworld", src_x = 82, src_y = 0, w = 5, h = 5},
     field_boundary_corner_nw = {atlas = "overworld", src_x = 39, src_y = 8, w = 5, h = 5},
     field_boundary_corner_ne = {atlas = "overworld", src_x = 44, src_y = 8, w = 5, h = 5},
     field_boundary_corner_sw = {atlas = "overworld", src_x = 39, src_y = 13, w = 5, h = 5},
@@ -60,33 +58,155 @@ local metatiles = {
     field_boundary_s = {atlas = "overworld", src_x = 49, src_y = 8, w = 5, h = 5},
     field_boundary_w = {atlas = "overworld", src_x = 55, src_y = 8, w = 5, h = 5},
     field_boundary_e = {atlas = "overworld", src_x = 54, src_y = 8, w = 5, h = 5},
+    -- short versions for compound tiles
+    field_boundary_short_n = {atlas = "overworld", src_x = 49, src_y = 9, w = 4, h = 5},
+    field_boundary_short_s = {atlas = "overworld", src_x = 49, src_y = 8, w = 3, h = 5},
+    field_boundary_short_w = {atlas = "overworld", src_x = 55, src_y = 8, w = 5, h = 4},
+    field_boundary_short_e = {atlas = "overworld", src_x = 54, src_y = 8, w = 5, h = 4},
     -- mountain
+    mountain_base_tile = {atlas = "overworld", src_x = 87, src_y = 0, w = 5, h = 5},
     mountain_boundary_corner_nw = {atlas = "overworld", src_x = 66, src_y = 0, w = 5, h = 5},
     mountain_boundary_corner_ne = {atlas = "overworld", src_x = 71, src_y = 0, w = 5, h = 5},
     mountain_boundary_corner_sw = {atlas = "overworld", src_x = 66, src_y = 5, w = 5, h = 5},
     mountain_boundary_corner_se = {atlas = "overworld", src_x = 71, src_y = 5, w = 5, h = 5},
     mountain_boundary_n = {atlas = "overworld", src_x = 76, src_y = 5, w = 5, h = 5},
     -- mountain has no southern boundary bc it's always in the north of the map
+    mountain_boundary_s = nil,
     mountain_boundary_w = {atlas = "overworld", src_x = 77, src_y = 0, w = 5, h = 5},
     mountain_boundary_e = {atlas = "overworld", src_x = 76, src_y = 0, w = 5, h = 5},
     -- forest
     -- (a lot of metatiles are the same 5x5 tiles, just offset by half a tree)
+    forest_base_tile = {atlas = "overworld", src_x = 82, src_y = 0, w = 5, h = 5},
     forest_inner_corner_nw = {atlas = "overworld", src_x = 34, src_y = 14, w = 5, h = 5},
     forest_inner_corner_ne = {atlas = "overworld", src_x = 34, src_y = 8, w = 5, h = 5},
     forest_inner_corner_sw = {atlas = "overworld", src_x = 34, src_y = 8, w = 5, h = 5},
     forest_inner_corner_se = {atlas = "overworld", src_x = 34, src_y = 14, w = 5, h = 5},
-    forest_edge_straight_n = {atlas = "overworld", src_x = 34, src_y = 8, w = 5, h = 5},
-    forest_edge_straight_s = {atlas = "overworld", src_x = 34, src_y = 13, w = 5, h = 6}, -- note that this has an extra row
-    forest_edge_straight_w = {atlas = "overworld", src_x = 29, src_y = 15, w = 5, h = 5},
-    forest_edge_straight_e = {atlas = "overworld", src_x = 28, src_y = 15, w = 5, h = 5},
+    forest_edge_straight_n = {atlas = "overworld", src_x = 34, src_y = 8, w = 4, h = 5},
+    forest_edge_straight_s = {atlas = "overworld", src_x = 34, src_y = 13, w = 4, h = 6}, -- note that this has an extra row
+    forest_edge_straight_w = {atlas = "overworld", src_x = 29, src_y = 15, w = 5, h = 4},
+    forest_edge_straight_e = {atlas = "overworld", src_x = 28, src_y = 15, w = 5, h = 4},
+    -- TODO forest_boundary
+    -- smaller landmarks and misc. pieces
+    cave_entrance = {atlas = "overworld", src_x = 49, src_y = 14, w = 6, h = 2},
+    house = {atlas = "overworld", src_x = 60, src_y = 13, w = 8, h = 7},
+    hill_corner_nw = {atlas = "overworld", src_x = 68, src_y = 10, w = 2, h = 2},
+    hill_corner_ne = {atlas = "overworld", src_x = 69, src_y = 10, w = 2, h = 2},
+    hill_corner_sw = {atlas = "overworld", src_x = 68, src_y = 11, w = 2, h = 2},
+    hill_corner_se = {atlas = "overworld", src_x = 69, src_y = 11, w = 2, h = 2},
     -- decorations
     cloud = {atlas = "overworld", src_x = 50, src_y = 4, w = 3, h = 2},
     tent = {atlas = "overworld", src_x = 53, src_y = 4, w = 2, h = 2},
     tree_small = {atlas = "overworld", src_x = 50, src_y = 6, w = 1, h = 2},
     tree_large = {atlas = "overworld", src_x = 51, src_y = 6, w = 2, h = 2},
+    -- item required transitions
+    bomb_rocks_horizontal = {atlas = "overworld", src_x = 60, src_y = 5, w = 4, h = 2},
+    bomb_rocks_vertical = {atlas = "overworld", src_x = 60, src_y = 5, w = 2, h = 4},
+    mountain_hookshot_bridge_n = {atlas = "overworld", src_x = 54, src_y = 13, w = 6, h = 11},
+    -- lake edge is traversable if player has the boat
+    lake_landing_bridge_w = {atlas = "overworld", src_x = 0, src_y = 10, w = 4, h = 4},
+    lake_landing_bridge_e = {atlas = "overworld", src_x = 4, src_y = 10, w = 4, h = 4},
+    lake_landing_bridge_n = {atlas = "overworld", src_x = 24, src_y = 8, w = 4, h = 4},
+    lake_landing_bridge_s = {atlas = "overworld", src_x = 24, src_y = 12, w = 4, h = 5},
+    
+}
+
+-- metatiles that are the same as others (keys need to be in here)
+metatiles["town_base_tile"] = metatiles["field_base_tile"]
+metatiles["town_boundary_n"] = metatiles["field_boundary_n"]
+metatiles["town_boundary_s"] = metatiles["field_boundary_s"]
+metatiles["town_boundary_w"] = metatiles["field_boundary_w"]
+metatiles["town_boundary_e"] = metatiles["field_boundary_e"]
+metatiles["forest_boundary_n"] = metatiles["forest_edge_straight_n"]
+metatiles["forest_boundary_s"] = metatiles["forest_edge_straight_s"]
+metatiles["forest_boundary_w"] = metatiles["forest_edge_straight_w"]
+metatiles["forest_boundary_e"] = metatiles["forest_edge_straight_e"]
+
+-- metatiles that consist of multiple metatiles
+-- TODO when they overlap, the first on gets drawn first and the others on top
+local compound_metatiles = {
+    -- TODO these two are just demo placeholders
+    river_crossing_horizontal = {
+        { key = "river_horizontal", offset_x = 0, offset_y = 0 },
+        { key = "bridge_horizontal", offset_x = 1, offset_y = 2 },
+    },
+    river_crossing_vertical = {
+        { key = "river_vertical",  offset_x = 0, offset_y = 0 },
+        { key = "bridge_vertical", offset_x = 2, offset_y = 1 },
+    },
+    -- corner pieces for zone to zone transitions
+    mountain_to_field_sw = {
+        { key = "field_boundary_short_s",  offset_x = 0, offset_y = 0 },
+        { key = "field_boundary_short_w", offset_x = 0, offset_y = 1 },
+        { key = "hill_corner_ne", offset_x = 3, offset_y = 0 },
+    },
+    mountain_to_field_se = {
+        { key = "field_boundary_short_s",  offset_x = 0, offset_y = 0 },
+        { key = "field_boundary_short_e", offset_x = 0, offset_y = 1 },
+        { key = "hill_corner_nw", offset_x = 0, offset_y = 0 },
+    },
 }
 
 -- helper functions that modify the tilemaps
+
+local function next_available_firstgid(tilesets)
+    local max_gid = 1
+    for _, ts in ipairs(tilesets) do
+        if ts.firstgid >= max_gid then
+            max_gid = ts.firstgid + TILESET_GID_GAP
+        end
+    end
+    return max_gid
+end
+
+local function find_layer(map, name)
+    for _, layer in ipairs(map.layers) do
+        if layer.name == name then
+            return layer
+        end
+    end
+    return nil
+end
+
+local function find_owning_tileset(tilesets, gid)
+    local owner = nil
+    for _, ts in ipairs(tilesets) do
+        if ts.firstgid <= gid then
+            if owner == nil or ts.firstgid > owner.firstgid then
+                owner = ts
+            end
+        end
+    end
+    if not owner then
+        return nil, nil
+    end
+    return owner, gid - owner.firstgid
+end
+
+
+local function remap_gid(gid, src_tilesets, dst_tilesets)
+    -- A remapping function in case the gids between the two tilesets don't match.
+    -- This is the case when a tilemap has multiple tilesets. They might not be in the same order either.
+    if gid == 0 then
+        return 0
+    end
+    local src_ts, local_id = find_owning_tileset(src_tilesets, gid)
+    if not src_ts then
+        error("ow_metatiles: could not find owning tileset for gid " .. gid)
+    end
+    local src_name = utils.basename(src_ts.source)
+    local dst_ts = nil
+    for _, ts in ipairs(dst_tilesets) do
+        if utils.basename(ts.source) == src_name then
+            dst_ts = ts
+            break
+        end
+    end
+    if not dst_ts then
+        dst_ts = { firstgid = next_available_firstgid(dst_tilesets), source = src_ts.source }
+        table.insert(dst_tilesets, dst_ts)
+    end
+    return dst_ts.firstgid + local_id
+end
 
 local function merge_tile_layer(dst_layer, src_layer, dst_x, dst_y, src_x, src_y, w, h, src_map, dst_map)
     -- merges the tiles from one tilemap to the other
@@ -147,10 +267,6 @@ local function merge_object_layer(dst_layer, src_layer, dst_x, dst_y, src_x, src
     end
 end
 
-local function basename(path)
-    return path:match("([^/\\]+)$") or path
-end
-
 local function load_atlas(key)
     if atlas_cache[key] then
         return atlas_cache[key]
@@ -169,63 +285,8 @@ local function load_atlas(key)
     return map
 end
 
-local function find_layer(map, name)
-    for _, layer in ipairs(map.layers) do
-        if layer.name == name then
-            return layer
-        end
-    end
-    return nil
-end
-
-local function find_owning_tileset(tilesets, gid)
-    local owner = nil
-    for _, ts in ipairs(tilesets) do
-        if ts.firstgid <= gid then
-            if owner == nil or ts.firstgid > owner.firstgid then
-                owner = ts
-            end
-        end
-    end
-    if not owner then
-        return nil, nil
-    end
-    return owner, gid - owner.firstgid
-end
-
-local function next_available_firstgid(tilesets)
-    local max_gid = 1
-    for _, ts in ipairs(tilesets) do
-        if ts.firstgid >= max_gid then
-            max_gid = ts.firstgid + TILESET_GID_GAP
-        end
-    end
-    return max_gid
-end
-
-local function remap_gid(gid, src_tilesets, dst_tilesets)
-    -- A remapping function in case the gids between the two tilesets don't match.
-    -- This is the case when a tilemap has multiple tilesets. They might not be in the same order either.
-    if gid == 0 then
-        return 0
-    end
-    local src_ts, local_id = find_owning_tileset(src_tilesets, gid)
-    if not src_ts then
-        error("ow_metatiles: could not find owning tileset for gid " .. gid)
-    end
-    local src_name = basename(src_ts.source)
-    local dst_ts = nil
-    for _, ts in ipairs(dst_tilesets) do
-        if basename(ts.source) == src_name then
-            dst_ts = ts
-            break
-        end
-    end
-    if not dst_ts then
-        dst_ts = { firstgid = next_available_firstgid(dst_tilesets), source = src_ts.source }
-        table.insert(dst_tilesets, dst_ts)
-    end
-    return dst_ts.firstgid + local_id
+function OW_Metatiles.get_metatile_data(key)
+    return metatiles[key]
 end
 
 function OW_Metatiles.place_metatiles(dst_map, list)
@@ -239,6 +300,7 @@ function OW_Metatiles.place_metatiles(dst_map, list)
     -- group by atlas to save iterations
     local by_atlas = {}
     for _, entry in ipairs(list) do
+        -- TODO check compound metatiles table
         local mt = metatiles[entry.key]
         if not mt then
             error("ow_metatiles: unknown metatile key: " .. entry.key)
@@ -270,6 +332,19 @@ end
 function OW_Metatiles.place_metatile(key, dst_map, dst_x, dst_y)
     -- wrapper for a single metatile
     OW_Metatiles.place_metatiles(dst_map, { { key = key, dst_x = dst_x, dst_y = dst_y } })
+end
+
+function OW_Metatiles.place_compound(key, dst_map, dst_x, dst_y)
+    -- places a compound metatile
+    local compound = compound_metatiles[key]
+    if not compound then
+        error("ow_metatiles: unknown compound metatile key: " .. key)
+    end
+    local list = {}
+    for _, entry in ipairs(compound) do
+        table.insert(list, { key = entry.key, dst_x = dst_x + entry.offset_x, dst_y = dst_y + entry.offset_y })
+    end
+    OW_Metatiles.place_metatiles(dst_map, list)
 end
 
 return OW_Metatiles

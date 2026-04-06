@@ -216,8 +216,8 @@ function GenerateBaseRooms.generate(empty_tilemap_path, output_path)
             end
         end
         
-        -- deep copy the empty tilemap
-        local room_data = json.decode(json.encode(empty_tilemap))
+        -- make a copy to prevent changes to the original
+        local room_data = utils.deep_copy(empty_tilemap)
         
         -- place door tiles
         place_door_tiles(room_data, selected_doors)

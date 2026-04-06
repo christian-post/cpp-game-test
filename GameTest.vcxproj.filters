@@ -685,6 +685,7 @@
     <None Include="scripts\overworld\ow_features.lua" />
     <None Include="scripts\overworld\ow_metatiles.lua" />
     <None Include="scripts\lib\world_utils.lua" />
+    <None Include="scripts\overworld\ow_generate_base_rooms_NEW.lua" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="github\hero.gif">
