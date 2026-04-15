@@ -21,6 +21,88 @@ local CORNER_COMBOS = {
     {a = "s", b = "e", corner = "se"},
 }
 
+local border_metatiles = {
+    field = {
+        forest = {
+            outer_corner_key = "forest_outer_corner_",
+            inner_corner_key = "forest_inner_corner_",
+            edge_key = "forest_edge_straight_"
+        },
+        mountain = {
+            outer_corner_key = "field_mountain_outer_corner_",
+            inner_corner_key = "field_boundary_corner_",
+            edge_key = "field_mountain_edge_straight_"
+        },
+        lake = {
+            outer_corner_key = "",
+            inner_corner_key = "",
+            edge_key = ""
+        },
+        town = nil
+    },
+    forest = {
+        field = {
+            outer_corner_key = "",
+            inner_corner_key = "",
+            edge_key = ""
+        },
+        mountain = {
+            outer_corner_key = "",
+            inner_corner_key = "",
+            edge_key = ""
+        },
+        town = {
+            outer_corner_key = "",
+            inner_corner_key = "",
+            edge_key = ""
+        },
+        lake = {
+            outer_corner_key = "",
+            inner_corner_key = "",
+            edge_key = ""
+        }
+    },
+    mountain = {
+        field = nil, -- cliff is on the field map
+        town = nil,
+        lake = nil,
+        forest = nil,
+        mountain = {
+            outer_corner_key = "",
+            inner_corner_key = "",
+            edge_key = ""
+        }
+    },
+    lake = {
+        field = nil, -- water edge is on the field map
+        town = nil,
+        forest = nil,
+        mountain = nil
+    },
+    town = {
+        field = {
+            outer_corner_key = "",
+            inner_corner_key = "",
+            edge_key = ""
+        },
+        forest = {
+            outer_corner_key = "",
+            inner_corner_key = "",
+            edge_key = ""
+        },
+        mountain = {
+            outer_corner_key = "",
+            inner_corner_key = "",
+            edge_key = ""
+        },
+        lake = {
+            outer_corner_key = "",
+            inner_corner_key = "",
+            edge_key = ""
+        }
+    }
+}
+
 
 -- helper functions
 local function build_edge_set(edges)
@@ -60,28 +142,6 @@ function GenerateBaseRooms.process_overworld(zone_grid, edges, grid_width, grid_
     -- store a lookup table of the graph's edges
     local edge_set = build_edge_set(edges)
 
-    -- make a room_states table that saves the adjacent zones for easy lookup
-    -- TODO seems too bloated
-    --[[
-    local room_states = {}
-    for row = 0, grid_height - 1 do
-        room_states[row] = {}
-        for col = 0, grid_width - 1 do
-            local my_zone = zone_grid[row][col]
-            local sides = {}
-            for side, dir in pairs(DIRECTIONS) do
-                local neighbor_zone = get_neighbor_zone(zone_grid, row, col, dir.dr, dir.dc, grid_width, grid_height)
-                local is_closed = neighbor_zone == "boundary" or not are_connected(edge_set, row, col, row + dir.dr, col + dir.dc)
-                local has_border = is_closed and (border_chunks[my_zone] and border_chunks[my_zone][neighbor_zone] or false)
-                local has_transition = not is_closed and (transition_chunks[my_zone] and transition_chunks[my_zone][neighbor_zone] or false)
-                sides[side] = has_border or has_transition
-            end
-            room_states[row][col] = sides
-        end
-    end
-
-    ]]
-
     local base_tilemap = utils.loadJSON(BASE_TILEMAP_PATH)
 
     for row = 0, grid_height - 1 do
@@ -94,9 +154,6 @@ function GenerateBaseRooms.process_overworld(zone_grid, edges, grid_width, grid_
             local metatiles_w = dst_map.width / 5
             local metatiles_h = dst_map.height / 5
 
-            print("metatiles_w: " .. metatiles_w)
-            print("metatiles_h: " .. metatiles_h)
-
             -- fill in the correct base tiles (sized 5x5)
             for x = 0, metatiles_w - 1 do
                 for y = 0, metatiles_h - 1 do
@@ -104,15 +161,19 @@ function GenerateBaseRooms.process_overworld(zone_grid, edges, grid_width, grid_
                 end
             end
 
-            -- handle edges to other rooms
+            -- handle edges to other rooms and the boundary
+
+            -- collect neighbor side types
             local boundary_sides = {}
+            local adjacent_zones = {}
             for side, dir in pairs(DIRECTIONS) do
                 local neighbor_zone = get_neighbor_zone(zone_grid, row, col, dir.dr, dir.dc, grid_width, grid_height)
                 if neighbor_zone == "boundary" then
                     boundary_sides[side] = true
+                else
+                    adjacent_zones[side] = neighbor_zone
                 end
             end
-
 
             for side, _ in pairs(boundary_sides) do
                 local key = my_zone .. "_boundary_" .. side
@@ -120,6 +181,7 @@ function GenerateBaseRooms.process_overworld(zone_grid, edges, grid_width, grid_
                 local mt_data = OW_Metatiles.get_metatile_data(key)
                 local count_x = dst_map.width / mt_data.w
                 local count_y = dst_map.height / mt_data.h
+                -- compile info about the metatiles that need to be pasted
                 local edge_info = {
                     n = {count = count_x, step_x = mt_data.w, step_y = 0, start_x = 0, start_y = 0},
                     s = {count = count_x, step_x = mt_data.w, step_y = 0, start_x = 0, start_y = dst_map.height - mt_data.h},
@@ -136,7 +198,47 @@ function GenerateBaseRooms.process_overworld(zone_grid, edges, grid_width, grid_
                 if boundary_sides[combo.a] and boundary_sides[combo.b] then
                     local key = my_zone .. "_boundary_corner_" .. combo.corner
                     -- paste meta onto tilemap at the corner position
+                    mt_data = OW_Metatiles.get_metatile_data(key)
+                    -- make sure the tile gets pasted snug into the corner
+                    local corner_info = {
+                        nw = { start_x = 0, start_y = 0 },
+                        ne = { start_x = dst_map.width - mt_data.w, start_y = 0 },
+                        sw = { start_x = 0, start_y = dst_map.height - mt_data.h },
+                        se = { start_x = dst_map.width - mt_data.w, start_y = dst_map.height - mt_data.h },
+                    }
+                    OW_Metatiles.place_metatile(key, dst_map, corner_info[combo.corner].start_x, corner_info[combo.corner].start_y)
                 end
+            end
+
+            -- adjacent zones
+            -- debugging
+            print("## Row: " .. row .. ", Col: " .. col .. ", zone: " .. my_zone)
+            for side, other_zone in pairs(adjacent_zones) do
+                print("side: ".. side .. ", other zone: " .. other_zone)
+                local keys = border_metatiles[my_zone][other_zone]
+                -- straight edges
+                if keys == nil or keys.edge_key == nil or keys.edge_key == "" then
+                    --print("skipping edge from " .. my_zone .. " to " .. other_zone .. " at " .. side)
+                    print("-- skipping this edge")
+                    goto continue
+                end
+
+                local edge_key = keys.edge_key .. side
+                mt_straight_edge_data = OW_Metatiles.get_metatile_data(edge_key)
+                local count_x = dst_map.width / mt_straight_edge_data.w
+                local count_y = dst_map.height / mt_straight_edge_data.h
+                local edge_placement_info = {
+                    n = {count = count_x, step_x = mt_straight_edge_data.w, step_y = 0, start_x = 0, start_y = 0},
+                    s = {count = count_x, step_x = mt_straight_edge_data.w, step_y = 0, start_x = 0, start_y = dst_map.height - mt_straight_edge_data.h},
+                    w = {count = count_y, step_x = 0, step_y = mt_straight_edge_data.h, start_x = 0, start_y = 0},
+                    e = {count = count_y, step_x = 0, step_y = mt_straight_edge_data.h, start_x = dst_map.width - mt_straight_edge_data.w, start_y = 0},
+                }
+                local e = edge_placement_info[side]
+                for i = 0, e.count - 1 do
+                    OW_Metatiles.place_metatile(edge_key, dst_map, e.start_x + i * e.step_x, e.start_y + i * e.step_y)
+                end
+
+                ::continue::
             end
             
             -- ### save the modified map ###

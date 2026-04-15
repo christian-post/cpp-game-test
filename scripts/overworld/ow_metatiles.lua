@@ -58,6 +58,7 @@ local metatiles = {
     field_boundary_s = {atlas = "overworld", src_x = 49, src_y = 8, w = 5, h = 5},
     field_boundary_w = {atlas = "overworld", src_x = 55, src_y = 8, w = 5, h = 5},
     field_boundary_e = {atlas = "overworld", src_x = 54, src_y = 8, w = 5, h = 5},
+    field_mountain_edge_straight_n = {atlas = "overworld", src_x = 49, src_y = 16, w = 5, h = 5},
     -- short versions for compound tiles
     field_boundary_short_n = {atlas = "overworld", src_x = 49, src_y = 9, w = 4, h = 5},
     field_boundary_short_s = {atlas = "overworld", src_x = 49, src_y = 8, w = 3, h = 5},
@@ -76,13 +77,17 @@ local metatiles = {
     mountain_boundary_e = {atlas = "overworld", src_x = 76, src_y = 0, w = 5, h = 5},
     -- forest
     -- (a lot of metatiles are the same 5x5 tiles, just offset by half a tree)
-    forest_base_tile = {atlas = "overworld", src_x = 82, src_y = 0, w = 5, h = 5},
+    forest_base_tile = {atlas = "overworld", src_x = 92, src_y = 0, w = 5, h = 5},
     forest_inner_corner_nw = {atlas = "overworld", src_x = 34, src_y = 14, w = 5, h = 5},
     forest_inner_corner_ne = {atlas = "overworld", src_x = 34, src_y = 8, w = 5, h = 5},
     forest_inner_corner_sw = {atlas = "overworld", src_x = 34, src_y = 8, w = 5, h = 5},
     forest_inner_corner_se = {atlas = "overworld", src_x = 34, src_y = 14, w = 5, h = 5},
+    forest_outer_corner_nw = {atlas = "overworld", src_x = 29, src_y = 10, w = 5, h = 5},
+    forest_outer_corner_ne = {atlas = "overworld", src_x = 28, src_y = 10, w = 5, h = 5},
+    forest_outer_corner_sw = {atlas = "overworld", src_x = 29, src_y = 8, w = 5, h = 6},
+    forest_outer_corner_se = {atlas = "overworld", src_x = 28, src_y = 8, w = 5, h = 6},
     forest_edge_straight_n = {atlas = "overworld", src_x = 34, src_y = 8, w = 4, h = 5},
-    forest_edge_straight_s = {atlas = "overworld", src_x = 34, src_y = 13, w = 4, h = 6}, -- note that this has an extra row
+    forest_edge_straight_s = {atlas = "overworld", src_x = 34, src_y = 13, w = 4, h = 6}, 
     forest_edge_straight_w = {atlas = "overworld", src_x = 29, src_y = 15, w = 5, h = 4},
     forest_edge_straight_e = {atlas = "overworld", src_x = 28, src_y = 15, w = 5, h = 4},
     -- TODO forest_boundary
@@ -116,10 +121,17 @@ metatiles["town_boundary_n"] = metatiles["field_boundary_n"]
 metatiles["town_boundary_s"] = metatiles["field_boundary_s"]
 metatiles["town_boundary_w"] = metatiles["field_boundary_w"]
 metatiles["town_boundary_e"] = metatiles["field_boundary_e"]
+metatiles["town_boundary_corner_ne"] = metatiles["field_boundary_corner_ne"]
+metatiles["town_boundary_corner_nw"] = metatiles["field_boundary_corner_nw"]
+metatiles["town_boundary_corner_sw"] = metatiles["field_boundary_corner_sw"]
+metatiles["town_boundary_corner_se"] = metatiles["field_boundary_corner_se"]
 metatiles["forest_boundary_n"] = metatiles["forest_edge_straight_n"]
 metatiles["forest_boundary_s"] = metatiles["forest_edge_straight_s"]
 metatiles["forest_boundary_w"] = metatiles["forest_edge_straight_w"]
 metatiles["forest_boundary_e"] = metatiles["forest_edge_straight_e"]
+metatiles["field_mountain_edge_straight_w"] = metatiles["field_boundary_w"]
+metatiles["field_mountain_edge_straight_e"] = metatiles["field_boundary_e"]
+metatiles["field_mountain_edge_straight_s"] = metatiles["field_boundary_s"]
 
 -- metatiles that consist of multiple metatiles
 -- TODO when they overlap, the first on gets drawn first and the others on top
@@ -134,16 +146,17 @@ local compound_metatiles = {
         { key = "bridge_vertical", offset_x = 2, offset_y = 1 },
     },
     -- corner pieces for zone to zone transitions
-    mountain_to_field_sw = {
+    field_mountain_outer_corner_sw = {
         { key = "field_boundary_short_s",  offset_x = 0, offset_y = 0 },
         { key = "field_boundary_short_w", offset_x = 0, offset_y = 1 },
         { key = "hill_corner_ne", offset_x = 3, offset_y = 0 },
     },
-    mountain_to_field_se = {
+    field_mountain_outer_corner_se = {
         { key = "field_boundary_short_s",  offset_x = 0, offset_y = 0 },
         { key = "field_boundary_short_e", offset_x = 0, offset_y = 1 },
         { key = "hill_corner_nw", offset_x = 0, offset_y = 0 },
     },
+    -- TODO north corners aren't needed at the moment
 }
 
 -- helper functions that modify the tilemaps
@@ -286,7 +299,13 @@ local function load_atlas(key)
 end
 
 function OW_Metatiles.get_metatile_data(key)
-    return metatiles[key]
+    if metatiles[key] then
+        return metatiles[key]
+    elseif compound_metatiles[key] then
+        return compound_metatiles[key]
+    else
+         error("ow_metatiles: unknown metatile key: " .. key)
+    end
 end
 
 function OW_Metatiles.place_metatiles(dst_map, list)
@@ -330,8 +349,14 @@ function OW_Metatiles.place_metatiles(dst_map, list)
 end
 
 function OW_Metatiles.place_metatile(key, dst_map, dst_x, dst_y)
-    -- wrapper for a single metatile
-    OW_Metatiles.place_metatiles(dst_map, { { key = key, dst_x = dst_x, dst_y = dst_y } })
+    -- wrapper for a single metatile or compound
+    if metatiles[key] then
+        OW_Metatiles.place_metatiles(dst_map, { { key = key, dst_x = dst_x, dst_y = dst_y } })
+    elseif compound_metatiles[key] then
+        OW_Metatiles.place_compound(key, dst_map, dst_x, dst_y)
+    else
+        error("ow_metatiles: unknown metatile key: " .. key)
+    end
 end
 
 function OW_Metatiles.place_compound(key, dst_map, dst_x, dst_y)
