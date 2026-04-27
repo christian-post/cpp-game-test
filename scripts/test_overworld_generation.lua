@@ -11,8 +11,10 @@ function execute()
     print("=== Overworld Generation Test ===\n")
 
     -- TODO random seeding for testing different outcomes
-    --set_dungeon_seed(1773925864)
-    set_dungeon_seed(os.time())
+    local seed = 1776768537
+    --local seed = os.time()
+    set_dungeon_seed(seed)
+    print("RNG seed: " .. seed)
 
     -- some parameters for testing
     local width = 6

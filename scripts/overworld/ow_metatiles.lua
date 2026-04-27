@@ -14,7 +14,7 @@ local TILESET_GID_GAP = 1000 -- arbitrary gid difference between two tilesets th
 
 local metatiles = {
     -- river
-    river_vertical = {atlas = "overworld", src_x = 0, src_y = 0, w = 8, h = 10},
+    river_vertical   = {atlas = "overworld", src_x = 0, src_y = 0, w = 8, h = 10},
     river_horizontal = {atlas = "overworld", src_x = 8, src_y = 0, w = 10, h = 8},
     river_corner_ne = {atlas = "overworld", src_x = 18, src_y = 0, w = 8, h = 8},
     river_corner_nw = {atlas = "overworld", src_x = 26, src_y = 0, w = 8, h = 8},
@@ -23,19 +23,19 @@ local metatiles = {
     waterfall = {atlas = "overworld", src_x = 50, src_y = 0, w = 6, h = 4},
     river_origin = {atlas = "overworld", src_x = 56, src_y = 0, w = 10, h = 5},
     bridge_horizontal = {atlas = "overworld", src_x = 0, src_y = 10, w = 8, h = 4},
-    bridge_vertical = {atlas = "overworld", src_x = 8, src_y = 8, w = 4, h = 10},
-    bridge_broken_horizontal = {atlas = "overworld", src_x = 12, src_y = 8, w = 8, h = 4},
-    bridge_broken_vertical = {atlas = "overworld", src_x = 20, src_y = 8, w = 4, h = 10},
+    bridge_vertical   = {atlas = "overworld", src_x = 8, src_y = 8, w = 4, h = 10},
+    bridge_broken_horizontal = {atlas = "overworld", src_x = 12, src_y = 8, w = 8, h =  4},
+    bridge_broken_vertical   = {atlas = "overworld", src_x = 20, src_y = 8, w = 4, h = 10},
     -- lake
     lake_base_tile = {atlas = "overworld", src_x = 1, src_y = 0, w = 5, h = 5},
     lake_boundary_corner_nw = {atlas = "overworld", src_x = 12, src_y = 12, w = 5, h = 5},
-    lake_boundary_corner_ne = {atlas = "overworld", src_x = 1, src_y = 14, w = 5, h = 5},
+    lake_boundary_corner_ne = {atlas = "overworld", src_x =  1, src_y = 14, w = 5, h = 5},
     lake_boundary_corner_sw = {atlas = "overworld", src_x = 12, src_y = 13, w = 5, h = 5},
-    lake_boundary_corner_se = {atlas = "overworld", src_x = 1, src_y = 16, w = 5, h = 5},
+    lake_boundary_corner_se = {atlas = "overworld", src_x =  1, src_y = 16, w = 5, h = 5},
     lake_boundary_n = {atlas = "overworld", src_x = 13, src_y = 12, w = 5, h = 5},
     lake_boundary_w = {atlas = "overworld", src_x = 12, src_y = 13, w = 5, h = 5},
-    lake_boundary_s = {atlas = "overworld", src_x = 0, src_y = 16, w = 5, h = 5},
-    lake_boundary_e = {atlas = "overworld", src_x = 1, src_y = 15, w = 5, h = 5},
+    lake_boundary_s = {atlas = "overworld", src_x =  0, src_y = 16, w = 5, h = 5},
+    lake_boundary_e = {atlas = "overworld", src_x =  1, src_y = 15, w = 5, h = 5},
     lake_inner_corner_inverted_nw = {atlas = "overworld", src_x = 29, src_y = 3, w = 5, h = 5},
     lake_inner_corner_inverted_ne = {atlas = "overworld", src_x = 18, src_y = 3, w = 5, h = 5},
     lake_inner_corner_inverted_sw = {atlas = "overworld", src_x = 45, src_y = 0, w = 5, h = 5},
@@ -48,10 +48,18 @@ local metatiles = {
     lake_edge_straight_s = {atlas = "overworld", src_x = 8, src_y = 3, w = 5, h = 5},
     lake_edge_straight_w = {atlas = "overworld", src_x = 0, src_y = 0, w = 5, h = 5},
     lake_edge_straight_e = {atlas = "overworld", src_x = 3, src_y = 0, w = 5, h = 5},
+    lake_field_edge_straight_n = {atlas = "overworld", src_x = 82, src_y = 1, w = 5, h = 6},
+    lake_field_edge_straight_s = {atlas = "overworld", src_x = 82, src_y = 7, w = 5, h = 5},
+    lake_field_edge_straight_e = {atlas = "overworld", src_x = 87, src_y = 5, w = 5, h = 5},
+    lake_field_edge_straight_w = {atlas = "overworld", src_x = 88, src_y = 5, w = 5, h = 5},
+    lake_forest_edge_straight_n = {atlas = "overworld", src_x = 87, src_y = 10, w = 4, h = 6},
+    lake_forest_edge_straight_s = {atlas = "overworld", src_x = 87, src_y = 16, w = 4, h = 5},
+    lake_forest_edge_straight_e = {atlas = "overworld", src_x = 92, src_y = 10, w = 5, h = 4},
+    lake_forest_edge_straight_w = {atlas = "overworld", src_x = 95, src_y = 10, w = 5, h = 4},
     -- field
     field_base_tile = {atlas = "overworld", src_x = 82, src_y = 0, w = 5, h = 5},
-    field_boundary_corner_nw = {atlas = "overworld", src_x = 39, src_y = 8, w = 5, h = 5},
-    field_boundary_corner_ne = {atlas = "overworld", src_x = 44, src_y = 8, w = 5, h = 5},
+    field_boundary_corner_nw = {atlas = "overworld", src_x = 39, src_y =  8, w = 5, h = 5},
+    field_boundary_corner_ne = {atlas = "overworld", src_x = 44, src_y =  8, w = 5, h = 5},
     field_boundary_corner_sw = {atlas = "overworld", src_x = 39, src_y = 13, w = 5, h = 5},
     field_boundary_corner_se = {atlas = "overworld", src_x = 44, src_y = 13, w = 5, h = 5},
     field_boundary_n = {atlas = "overworld", src_x = 49, src_y = 9, w = 5, h = 5},
@@ -75,21 +83,30 @@ local metatiles = {
     mountain_boundary_s = nil,
     mountain_boundary_w = {atlas = "overworld", src_x = 77, src_y = 0, w = 5, h = 5},
     mountain_boundary_e = {atlas = "overworld", src_x = 76, src_y = 0, w = 5, h = 5},
+    -- other corners
+    field_mountain_outer_corner_nw = {atlas = "overworld", src_x = 82, src_y = 12, w = 5, h = 5},
+    field_mountain_outer_corner_ne = {atlas = "overworld", src_x = 82, src_y = 17, w = 5, h = 5},
+    field_mountain_outer_corner_se = {atlas = "overworld", src_x =  0, src_y = 21, w = 5, h = 5},
+    field_mountain_outer_corner_sw = {atlas = "overworld", src_x =  1, src_y = 21, w = 5, h = 5},
     -- forest
     -- (a lot of metatiles are the same 5x5 tiles, just offset by half a tree)
     forest_base_tile = {atlas = "overworld", src_x = 92, src_y = 0, w = 5, h = 5},
     forest_inner_corner_nw = {atlas = "overworld", src_x = 34, src_y = 14, w = 5, h = 5},
-    forest_inner_corner_ne = {atlas = "overworld", src_x = 34, src_y = 8, w = 5, h = 5},
-    forest_inner_corner_sw = {atlas = "overworld", src_x = 34, src_y = 8, w = 5, h = 5},
+    forest_inner_corner_ne = {atlas = "overworld", src_x = 77, src_y = 10, w = 5, h = 5},
+    forest_inner_corner_sw = {atlas = "overworld", src_x = 34, src_y =  8, w = 5, h = 5}, -- TODO
     forest_inner_corner_se = {atlas = "overworld", src_x = 34, src_y = 14, w = 5, h = 5},
     forest_outer_corner_nw = {atlas = "overworld", src_x = 29, src_y = 10, w = 5, h = 5},
     forest_outer_corner_ne = {atlas = "overworld", src_x = 28, src_y = 10, w = 5, h = 5},
-    forest_outer_corner_sw = {atlas = "overworld", src_x = 29, src_y = 8, w = 5, h = 6},
-    forest_outer_corner_se = {atlas = "overworld", src_x = 28, src_y = 8, w = 5, h = 6},
-    forest_edge_straight_n = {atlas = "overworld", src_x = 34, src_y = 8, w = 4, h = 5},
+    forest_outer_corner_sw = {atlas = "overworld", src_x = 29, src_y =  8, w = 5, h = 6},
+    forest_outer_corner_se = {atlas = "overworld", src_x = 28, src_y =  8, w = 5, h = 6},
+    forest_edge_straight_n = {atlas = "overworld", src_x = 34, src_y =  8, w = 4, h = 5},
     forest_edge_straight_s = {atlas = "overworld", src_x = 34, src_y = 13, w = 4, h = 6}, 
     forest_edge_straight_w = {atlas = "overworld", src_x = 29, src_y = 15, w = 5, h = 4},
-    forest_edge_straight_e = {atlas = "overworld", src_x = 28, src_y = 15, w = 5, h = 4},
+    forest_edge_straight_e = {atlas = "overworld", src_x = 28, src_y = 16, w = 5, h = 4},
+    forest_inner_edge_straight_n = {atlas = "overworld", src_x = 78, src_y = 10, w = 4, h = 5},
+    forest_inner_edge_straight_s = {atlas = "overworld", src_x = 78, src_y = 15, w = 4, h = 6},
+    forest_inner_edge_straight_w = {atlas = "overworld", src_x = 72, src_y = 18, w = 5, h = 4},
+    forest_inner_edge_straight_e = {atlas = "overworld", src_x = 71, src_y = 12, w = 5, h = 4},
     -- TODO forest_boundary
     -- smaller landmarks and misc. pieces
     cave_entrance = {atlas = "overworld", src_x = 49, src_y = 14, w = 6, h = 2},
@@ -98,6 +115,10 @@ local metatiles = {
     hill_corner_ne = {atlas = "overworld", src_x = 69, src_y = 10, w = 2, h = 2},
     hill_corner_sw = {atlas = "overworld", src_x = 68, src_y = 11, w = 2, h = 2},
     hill_corner_se = {atlas = "overworld", src_x = 69, src_y = 11, w = 2, h = 2},
+    hill_inner_corner_single_nw = {atlas = "overworld", src_x = 68, src_y = 13, w = 1, h = 2},
+    hill_inner_corner_single_ne = {atlas = "overworld", src_x = 70, src_y = 13, w = 1, h = 2},
+    hill_inner_corner_single_sw = {atlas = "overworld", src_x = 68, src_y = 15, w = 1, h = 1},
+    hill_inner_corner_single_se = {atlas = "overworld", src_x = 70, src_y = 15, w = 1, h = 1},
     -- decorations
     cloud = {atlas = "overworld", src_x = 50, src_y = 4, w = 3, h = 2},
     tent = {atlas = "overworld", src_x = 53, src_y = 4, w = 2, h = 2},
@@ -108,11 +129,10 @@ local metatiles = {
     bomb_rocks_vertical = {atlas = "overworld", src_x = 60, src_y = 5, w = 2, h = 4},
     mountain_hookshot_bridge_n = {atlas = "overworld", src_x = 54, src_y = 13, w = 6, h = 11},
     -- lake edge is traversable if player has the boat
-    lake_landing_bridge_w = {atlas = "overworld", src_x = 0, src_y = 10, w = 4, h = 4},
-    lake_landing_bridge_e = {atlas = "overworld", src_x = 4, src_y = 10, w = 4, h = 4},
-    lake_landing_bridge_n = {atlas = "overworld", src_x = 24, src_y = 8, w = 4, h = 4},
+    lake_landing_bridge_w = {atlas = "overworld", src_x =  0, src_y = 10, w = 4, h = 4},
+    lake_landing_bridge_e = {atlas = "overworld", src_x =  4, src_y = 10, w = 4, h = 4},
+    lake_landing_bridge_n = {atlas = "overworld", src_x = 24, src_y =  8, w = 4, h = 4},
     lake_landing_bridge_s = {atlas = "overworld", src_x = 24, src_y = 12, w = 4, h = 5},
-    
 }
 
 -- metatiles that are the same as others (keys need to be in here)
@@ -129,21 +149,25 @@ metatiles["forest_boundary_n"] = metatiles["forest_edge_straight_n"]
 metatiles["forest_boundary_s"] = metatiles["forest_edge_straight_s"]
 metatiles["forest_boundary_w"] = metatiles["forest_edge_straight_w"]
 metatiles["forest_boundary_e"] = metatiles["forest_edge_straight_e"]
+-- TODO placeholders for the forest_boundary_corner
+metatiles["forest_boundary_corner_ne"] = metatiles["forest_inner_corner_ne"]
+metatiles["forest_boundary_corner_nw"] = metatiles["forest_inner_corner_nw"]
+metatiles["forest_boundary_corner_sw"] = metatiles["forest_inner_corner_sw"]
+metatiles["forest_boundary_corner_se"] = metatiles["forest_inner_corner_se"]
 metatiles["field_mountain_edge_straight_w"] = metatiles["field_boundary_w"]
 metatiles["field_mountain_edge_straight_e"] = metatiles["field_boundary_e"]
 metatiles["field_mountain_edge_straight_s"] = metatiles["field_boundary_s"]
 
+
 -- metatiles that consist of multiple metatiles
 -- TODO when they overlap, the first on gets drawn first and the others on top
+-- TODO calculate the w and height automatically?
 local compound_metatiles = {
-    -- TODO these two are just demo placeholders
-    river_crossing_horizontal = {
-        { key = "river_horizontal", offset_x = 0, offset_y = 0 },
-        { key = "bridge_horizontal", offset_x = 1, offset_y = 2 },
-    },
-    river_crossing_vertical = {
-        { key = "river_vertical",  offset_x = 0, offset_y = 0 },
-        { key = "bridge_vertical", offset_x = 2, offset_y = 1 },
+    -- straight edges
+    lake_field_edge_straight_n = {
+        { key = "field_base_tile", offset_x = 0, offset_y = 0 },
+        { key = "field_base_tile", offset_x = 3, offset_y = 0 },
+        { key = "field_base_tile", offset_x = 3, offset_y = 0 },
     },
     -- corner pieces for zone to zone transitions
     field_mountain_outer_corner_sw = {
@@ -156,7 +180,41 @@ local compound_metatiles = {
         { key = "field_boundary_short_e", offset_x = 0, offset_y = 1 },
         { key = "hill_corner_nw", offset_x = 0, offset_y = 0 },
     },
-    -- TODO north corners aren't needed at the moment
+    -- the n pieces need to be h = 6
+    lake_inner_corner_w_margin_nw = {
+        { key = "field_base_tile", offset_x = 0, offset_y = 0 },
+        { key = "field_base_tile", offset_x = 0, offset_y = 1 },
+        { key = "hill_inner_corner_single_nw", offset_x = 4, offset_y = 4 },
+        w = 5, h = 6
+    },
+    lake_inner_corner_w_margin_ne = {
+        { key = "field_base_tile", offset_x = 0, offset_y = 0 },
+        { key = "field_base_tile", offset_x = 0, offset_y = 1 },
+        { key = "hill_inner_corner_single_ne", offset_x = 0, offset_y = 4 },
+        w = 5, h = 6
+    },
+    lake_inner_corner_w_margin_sw = {
+        { key = "field_base_tile", offset_x = 0, offset_y = 0 },
+        { key = "hill_inner_corner_single_sw", offset_x = 4, offset_y = 0 },
+        w = 5, h = 5
+    },
+    lake_inner_corner_w_margin_se = {
+        { key = "field_base_tile", offset_x = 0, offset_y = 0 },
+        { key = "hill_inner_corner_single_se", offset_x = 0, offset_y = 0 },
+        w = 5, h = 5
+    },
+    -- boundary transitions from one zone to the other when at the boundary
+    lake_field_boundary_transition_se = {
+        { key = "field_mountain_outer_corner_se", offset_x = 0, offset_y = 0 },   
+        { key = "field_boundary_s", offset_x = 3, offset_y = 0 },   
+        w = 7, h = 5
+    },
+    lake_field_boundary_transition_sw = {
+        { key = "field_mountain_outer_corner_sw", offset_x = 3, offset_y = 0 },   
+        { key = "field_boundary_s", offset_x = 0, offset_y = 0 },   
+        w = 7, h = 5
+    },
+    -- TODO north
 }
 
 -- helper functions that modify the tilemaps
@@ -221,7 +279,7 @@ local function remap_gid(gid, src_tilesets, dst_tilesets)
     return dst_ts.firstgid + local_id
 end
 
-local function merge_tile_layer(dst_layer, src_layer, dst_x, dst_y, src_x, src_y, w, h, src_map, dst_map)
+local function merge_tile_layer(dst_layer, src_layer, dst_x, dst_y, src_x, src_y, w, h, src_map, dst_map, overwrite)
     -- merges the tiles from one tilemap to the other
     -- src overwrites the dst, except when the tile index of src is 0
     for row = 0, h - 1 do
@@ -232,13 +290,32 @@ local function merge_tile_layer(dst_layer, src_layer, dst_x, dst_y, src_x, src_y
             local src_tile = src_layer.data[src_index]
             local dst_tile = dst_layer.data[dst_index]
 
-            if src_tile and src_tile ~= 0 then
+            if overwrite then
+                dst_layer.data[dst_index] = remap_gid(src_tile or 0, src_map.tilesets, dst_map.tilesets)
+            elseif src_tile and src_tile ~= 0 then
                 dst_layer.data[dst_index] = remap_gid(src_tile, src_map.tilesets, dst_map.tilesets)
             elseif dst_tile == nil then
                 dst_layer.data[dst_index] = 0
             end
         end
     end
+end
+
+local function clip_object(obj, rx, ry, rx2, ry2)
+    local ox2 = obj.x + obj.width
+    local oy2 = obj.y + obj.height
+    if obj.x >= rx2 or ox2 <= rx or obj.y >= ry2 or oy2 <= ry then
+        return nil
+    end
+    local clipped = {}
+    for k, v in pairs(obj) do
+        clipped[k] = v
+    end
+    clipped.x = math.max(obj.x, rx)
+    clipped.y = math.max(obj.y, ry)
+    clipped.width = math.min(ox2, rx2) - clipped.x
+    clipped.height = math.min(oy2, ry2) - clipped.y
+    return clipped
 end
 
 local function merge_object_layer(dst_layer, src_layer, dst_x, dst_y, src_x, src_y, w, h, tile_w, tile_h, dst_map)
@@ -248,33 +325,15 @@ local function merge_object_layer(dst_layer, src_layer, dst_x, dst_y, src_x, src
     local ry = src_y * tile_h
     local rx2 = (src_x + w) * tile_w
     local ry2 = (src_y + h) * tile_h
-
     local offset_x = (dst_x - src_x) * tile_w
     local offset_y = (dst_y - src_y) * tile_h
-
     for _, obj in ipairs(src_layer.objects) do
-        local ox2 = obj.x + obj.width
-        local oy2 = obj.y + obj.height
-
-        if obj.x < rx2 and ox2 > rx and obj.y < ry2 and oy2 > ry then
-            local clipped = {}
-            for k, v in pairs(obj) do
-                clipped[k] = v
-            end
-
-            local clipped_x = math.max(obj.x, rx)
-            local clipped_y = math.max(obj.y, ry)
-            local clipped_x2 = math.min(ox2, rx2)
-            local clipped_y2 = math.min(oy2, ry2)
-
-            clipped.x = clipped_x + offset_x
-            clipped.y = clipped_y + offset_y
-            clipped.width = clipped_x2 - clipped_x
-            clipped.height = clipped_y2 - clipped_y
-
+        local clipped = clip_object(obj, rx, ry, rx2, ry2)
+        if clipped ~= nil then
+            clipped.x = clipped.x + offset_x
+            clipped.y = clipped.y + offset_y
             clipped.id = dst_map.nextobjectid
             dst_map.nextobjectid = dst_map.nextobjectid + 1
-
             table.insert(dst_layer.objects, clipped)
         end
     end
@@ -298,10 +357,82 @@ local function load_atlas(key)
     return map
 end
 
+function OW_Metatiles.erase_object_region(layer_name, erase_x, erase_y, erase_x2, erase_y2, dst_map)
+    local layer = nil
+    for _, l in ipairs(dst_map.layers) do
+        if l.name == layer_name then
+            layer = l
+        end
+    end
+
+    if layer == nil then
+        print("no olayer found with name: " .. layer_name)
+        return
+    end
+
+    local result = {}
+    for _, obj in ipairs(layer.objects) do
+        local obj_x2 = obj.x + obj.width
+        local obj_y2 = obj.y + obj.height
+        if obj.x >= erase_x2 or obj_x2 <= erase_x or obj.y >= erase_y2 or obj_y2 <= erase_y then
+            table.insert(result, obj)
+        elseif obj.x >= erase_x and obj_x2 <= erase_x2 and obj.y >= erase_y and obj_y2 <= erase_y2 then
+            -- fully inside: discard completely (don't insert)
+        else
+            local pieces = {}
+            local mid_x = math.max(obj.x, erase_x)
+            local mid_x2 = math.min(obj_x2, erase_x2)
+            if obj.x < erase_x then
+                local p = {}
+                for k, v in pairs(obj) do p[k] = v end
+                p.x = obj.x
+                p.y = obj.y
+                p.width = erase_x - obj.x
+                p.height = obj.height
+                table.insert(pieces, p)
+            end
+            if obj_x2 > erase_x2 then
+                local p = {}
+                for k, v in pairs(obj) do p[k] = v end
+                p.x = erase_x2
+                p.y = obj.y
+                p.width = obj_x2 - erase_x2
+                p.height = obj.height
+                table.insert(pieces, p)
+            end
+            if obj.y < erase_y then
+                local p = {}
+                for k, v in pairs(obj) do p[k] = v end
+                p.x = mid_x
+                p.y = obj.y
+                p.width = mid_x2 - mid_x
+                p.height = erase_y - obj.y
+                table.insert(pieces, p)
+            end
+            if obj_y2 > erase_y2 then
+                local p = {}
+                for k, v in pairs(obj) do p[k] = v end
+                p.x = mid_x
+                p.y = erase_y2
+                p.width = mid_x2 - mid_x
+                p.height = obj_y2 - erase_y2
+                table.insert(pieces, p)
+            end
+            for _, p in ipairs(pieces) do
+                p.id = dst_map.nextobjectid
+                dst_map.nextobjectid = dst_map.nextobjectid + 1
+                table.insert(result, p)
+            end
+        end
+    end
+    layer.objects = result
+end
+
 function OW_Metatiles.get_metatile_data(key)
     if metatiles[key] then
         return metatiles[key]
     elseif compound_metatiles[key] then
+        -- TODO compound metadata does not contain the w and h
         return compound_metatiles[key]
     else
          error("ow_metatiles: unknown metatile key: " .. key)
@@ -327,7 +458,7 @@ function OW_Metatiles.place_metatiles(dst_map, list)
         if not by_atlas[mt.atlas] then
             by_atlas[mt.atlas] = {}
         end
-        table.insert(by_atlas[mt.atlas], { mt = mt, dst_x = entry.dst_x, dst_y = entry.dst_y })
+        table.insert(by_atlas[mt.atlas], { mt = mt, dst_x = entry.dst_x, dst_y = entry.dst_y, overwrite = entry.overwrite })
     end
 
     for atlas_key, entries in pairs(by_atlas) do
@@ -338,7 +469,7 @@ function OW_Metatiles.place_metatiles(dst_map, list)
                 for _, entry in ipairs(entries) do
                     local mt = entry.mt
                     if src_layer.type == "tilelayer" then
-                        merge_tile_layer(dst_layer, src_layer, entry.dst_x, entry.dst_y, mt.src_x, mt.src_y, mt.w, mt.h, src_map, dst_map)
+                        merge_tile_layer(dst_layer, src_layer, entry.dst_x, entry.dst_y, mt.src_x, mt.src_y, mt.w, mt.h, src_map, dst_map, entry.overwrite)
                     elseif src_layer.type == "objectgroup" then
                         merge_object_layer(dst_layer, src_layer, entry.dst_x, entry.dst_y, mt.src_x, mt.src_y, mt.w, mt.h, src_map.tilewidth, src_map.tileheight, dst_map)
                     end
@@ -348,18 +479,23 @@ function OW_Metatiles.place_metatiles(dst_map, list)
     end
 end
 
-function OW_Metatiles.place_metatile(key, dst_map, dst_x, dst_y)
+function OW_Metatiles.place_metatile(key, dst_map, dst_x, dst_y, overwrite, verbose)
     -- wrapper for a single metatile or compound
+    
+    if verbose then
+        print("placing " .. key .. " at (" .. dst_x .. ", " .. dst_y .. ")")
+    end
+
     if metatiles[key] then
-        OW_Metatiles.place_metatiles(dst_map, { { key = key, dst_x = dst_x, dst_y = dst_y } })
+        OW_Metatiles.place_metatiles(dst_map, { { key = key, dst_x = dst_x, dst_y = dst_y, overwrite = overwrite } })
     elseif compound_metatiles[key] then
-        OW_Metatiles.place_compound(key, dst_map, dst_x, dst_y)
+        OW_Metatiles.place_compound(key, dst_map, dst_x, dst_y, overwrite)
     else
         error("ow_metatiles: unknown metatile key: " .. key)
     end
 end
 
-function OW_Metatiles.place_compound(key, dst_map, dst_x, dst_y)
+function OW_Metatiles.place_compound(key, dst_map, dst_x, dst_y, overwrite)
     -- places a compound metatile
     local compound = compound_metatiles[key]
     if not compound then
@@ -367,7 +503,7 @@ function OW_Metatiles.place_compound(key, dst_map, dst_x, dst_y)
     end
     local list = {}
     for _, entry in ipairs(compound) do
-        table.insert(list, { key = entry.key, dst_x = dst_x + entry.offset_x, dst_y = dst_y + entry.offset_y })
+        table.insert(list, { key = entry.key, dst_x = dst_x + entry.offset_x, dst_y = dst_y + entry.offset_y, overwrite = overwrite })
     end
     OW_Metatiles.place_metatiles(dst_map, list)
 end

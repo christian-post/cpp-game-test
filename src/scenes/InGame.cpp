@@ -15,6 +15,9 @@
 #include <cstdint>
 
 
+constexpr Color TRANSP_GRAY = { 200, 200, 200, 180 };
+
+
 InGame::InGame(Game& game, const std::string& name) : Scene(game, name), tileMap(nullptr), tilemapRenderer(game), cameraController(game), luaEventManager(std::make_unique<LuaEventManager>(game, *this)), eventTriggerManager(std::make_unique<EventTriggerManager>(game)) 
 {}
 
@@ -898,6 +901,21 @@ void InGame::draw()
     // draw debug information that is affected by the camera (hitboxes etc)
     if (game.debug)
     {
+        // draw lines to show the tile grid
+        if (tileMap)
+        {
+            size_t ts = tilemapRenderer.getTileSize();
+            for (size_t tx = 0; tx < tileMap->width; tx++)
+            {
+                DrawLine(tx * ts, 0, tx * ts, tileMap->height * ts, TRANSP_GRAY);
+            }
+            for (size_t ty = 0; ty < tileMap->height; ty++)
+            {
+                DrawLine(0, ty * ts, tileMap->width * ts, ty * ts, TRANSP_GRAY);
+            }
+        }
+        
+        // draw hitboxes
         for (const auto& wall : game.walls)
         {
             DrawRectangleLines((int)wall->x, (int)wall->y, (int)wall->width, (int)wall->height, BLUE);

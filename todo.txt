@@ -56,6 +56,7 @@
 - UI
 -- MenuSelect: Add Section headers that divide the menu items, but can't be selected themselves
 -- Command_Textbox: use a key to texts.json instead of a string as the second argument
+-- holding up or down in a menu should scroll continously
 
 - Assets
 -- Turn ItemData.cpp consumables callbacks into a Lua script as well, and use a json for the basic item data (type, texture, screen name)

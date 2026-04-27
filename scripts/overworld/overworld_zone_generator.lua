@@ -94,20 +94,24 @@ function OverworldZoneGenerator.generate(width, height)
         return nil
     end
 
-    -- place the lake (3x3)
-    local lake_pos = place_random(grid, 3, 3, width, height, 4, "lake", default_zone)
+    -- place the lake (2x2)
+    local lake_pos = place_random(grid, 2, 2, width, height, 4, "lake", default_zone)
     if not lake_pos then
         return nil
     end
 
     -- place a town (1x2)
+    --[[
+
     local town_pos = place_random(grid, 1, 2, width, height, 5, "town", default_zone)
     if not town_pos then
         return nil
     end
+    ]]
 
     -- place a second, smaller town (1x1)
     -- ensure minimal distance (manhattan) between towns
+    --[[
     local min_dist = 4
     local dist = 0
     local small_town_pos
@@ -122,6 +126,8 @@ function OverworldZoneGenerator.generate(width, height)
     end
 
     place_rect(grid, small_town_pos.row, small_town_pos.col, 1, 1, "town")
+
+    ]]
 
     return grid
 end
