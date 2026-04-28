@@ -13,6 +13,8 @@
 #include "LuaEventManager.h"
 #include "EventTriggerManager.h"
 #include <cstdint>
+#include <functional>
+#include <array>
 
 
 constexpr Color TRANSP_GRAY = { 200, 200, 200, 180 };
@@ -214,6 +216,13 @@ void InGame::setupEventListeners()
         auto [index, draw] = std::any_cast<std::pair<size_t, bool>>(data);
         renderLayers[index] = draw;
         TraceLog(LOG_INFO, "drawing of layer %d set to %d", index, (int)draw);
+        });
+
+    // InGame listener registration
+    game.eventManager.addListener(POLL_LAYER_DRAW_INFO, [this](std::any value)
+        {
+            auto callback = std::any_cast<std::function<void(const std::array<bool, 4>&)>>(value);
+            callback(renderLayers);
         });
 }
 

@@ -122,14 +122,20 @@ void DebugMenu::startup()
         });
 
     // submenu 4 lets you turn rendering on/off for all layers seperately
+    // 
+    // receive external data about the render status
+    std::array<bool, 4> result{};
+    game.eventManager.pushEvent(POLL_LAYER_DRAW_INFO,
+        std::function<void(const std::array<bool, 4>&)>{[&result](const std::array<bool, 4>& layers) { result = layers; }});
+
     for (size_t i = 0; i < 4; i++)
     {
         MenuItem item;
         item.displayName = "Layer " + std::to_string(i);
         item.type = MenuItemType::Cycle;
         item.options = { "Off", "On" };
-        item.currentOption = 1; // TODO get actual info
-        item.cycleCallback = [&, i](size_t index) {
+        item.currentOption = static_cast<size_t>(result[i]);
+        item.cycleCallback = [this, i](size_t index) {
             game.eventManager.pushEvent(SET_DRAW_LAYER, std::make_any<std::pair<size_t, bool>>(i, (bool)index));
             };
         menus[static_cast<size_t>(MenuType::DrawLayer)]->addItem(item);
