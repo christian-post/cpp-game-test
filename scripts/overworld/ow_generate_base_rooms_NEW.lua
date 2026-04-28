@@ -30,7 +30,8 @@ local border_metatiles = {
         forest = {
             outer_corner_key = "forest_outer_corner_",
             inner_corner_key = "forest_inner_corner_",
-            edge_key = "forest_edge_straight_"
+            edge_key = "forest_edge_straight_",
+            boundary_transition_key = "field_forest_boundary_transition_"
         },
         mountain = {
             outer_corner_key = "field_mountain_outer_corner_",
@@ -45,7 +46,7 @@ local border_metatiles = {
         town = nil,
         boundary = {
             outer_corner_key = "",
-            inner_corner_key = "",
+            inner_corner_key = "field_boundary_corner_",
             edge_key = "field_boundary_"
         },
     },
@@ -81,7 +82,7 @@ local border_metatiles = {
             outer_corner_key = "",
             inner_corner_key = "",
             edge_key = "",
-            boundary_transition_key = ""
+            boundary_transition_key = "mountain_field_boundary_transition_"
         },
         town = nil,
         lake = {
@@ -481,6 +482,12 @@ function GenerateBaseRooms.process_overworld(zone_grid, edges, grid_width, grid_
                     local other_zone = zone_grid[diagonal_row][diagonal_col]
 
                     local keys = border_metatiles[my_zone][other_zone]
+
+                    if keys == nil or keys.outer_corner_key == nil or keys.outer_corner_key == "" then
+                        print("-- skipping this outer corner because key is nil or keys.outer_corner_key is empty or nil." )
+                        goto continue
+                    end
+
                     local corner_key = keys.outer_corner_key .. combo.corner
                     mt_corner_data = OW_Metatiles.get_metatile_data(corner_key)
                     print("got outer corner data for " .. corner_key)
@@ -520,7 +527,7 @@ function GenerateBaseRooms.process_overworld(zone_grid, edges, grid_width, grid_
             end
             local out_path = string.format("resources/tilemaps/generated/overworld/%s.json", WorldUtils.node_name(row, col))
             utils.saveJSON(out_path, dst_map)
-            print(string.format("\n ==> saved %s (%s)", out_path, my_zone))
+            print(string.format("==> saved %s (%s)", out_path, my_zone))
         end
     end
 

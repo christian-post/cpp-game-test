@@ -6,6 +6,7 @@
 #include <map>
 #include <any>
 #include <tuple>
+#include <utility>
 #include <cstdint>
 
 DebugMenu::DebugMenu(Game& game, const std::string& name) : Scene(game, name) {
@@ -34,6 +35,10 @@ void DebugMenu::startup()
         });
     menus[static_cast<size_t>(MenuType::Main)]->addItem({ "Item Cheat", MenuItemType::Action, [&]() {
             activeMenu = MenuType::ItemCheat;
+        }
+        });
+    menus[static_cast<size_t>(MenuType::Main)]->addItem({ "Draw Layer On/Off", MenuItemType::Action, [&]() {
+            activeMenu = MenuType::DrawLayer;
         }
         });
     MenuItem noClip;
@@ -86,7 +91,7 @@ void DebugMenu::startup()
     size_t numLevels = game.currentWorld->getNumLevels();
     for (size_t i = 0; i < numLevels; i++)
     {
-        menus[static_cast<size_t>(MenuType::LevelSelect)]->addItem({ "Level: " + std::to_string(i), MenuItemType::Action, [&, i]() {
+        menus[static_cast<size_t>(MenuType::LevelSelect)]->addItem({ "Level: " + std::to_string(i), MenuItemType::Cycle, [&, i]() {
             // change to this room
             game.currentWorld->currentLevel = i;
             game.eventManager.pushEvent(RELOAD_ROOM);
@@ -116,7 +121,23 @@ void DebugMenu::startup()
         }
         });
 
-    // submenu 4 (test menu for new item types)
+    // submenu 4 lets you turn rendering on/off for all layers seperately
+    for (size_t i = 0; i < 4; i++)
+    {
+        MenuItem item;
+        item.displayName = "Layer " + std::to_string(i);
+        item.type = MenuItemType::Cycle;
+        item.options = { "Off", "On" };
+        item.currentOption = 1; // TODO get actual info
+        item.cycleCallback = [&, i](size_t index) {
+            game.eventManager.pushEvent(SET_DRAW_LAYER, std::make_any<std::pair<size_t, bool>>(i, (bool)index));
+            };
+        menus[static_cast<size_t>(MenuType::DrawLayer)]->addItem(item);
+    }
+    menus[static_cast<size_t>(MenuType::DrawLayer)]->addItem({ "Back", MenuItemType::Action, [&]() {
+            activeMenu = MenuType::Main;
+        }
+        });
 
 }
 

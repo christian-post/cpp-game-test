@@ -46,6 +46,7 @@ enum EventName
     HOOKSHOT_LATCHED,
     HOOKSHOT_MISSED,
     HOOKSHOT_RETRACT,
+    SET_DRAW_LAYER, // debug function, sets the drawing of single layers. data: [index: size_t, draw: bool]
     UNNAMED, // used whenever no name is needed (delayed or repeated events that have no listeners)
     STATIC_EVENT_COUNT // needs to be at the last position
 };
@@ -91,6 +92,7 @@ inline const char* EventNameStrings[] = {
     "HOOKSHOT_LATCHED",
     "HOOKSHOT_MISSED",
     "HOOKSHOT_RETRACT",
+    "SET_DRAW_LAYER",
     "UNNAMED"
 };
 

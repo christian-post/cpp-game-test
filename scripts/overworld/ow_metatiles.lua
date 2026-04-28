@@ -103,6 +103,8 @@ local metatiles = {
     forest_edge_straight_s = {atlas = "overworld", src_x = 34, src_y = 13, w = 4, h = 6}, 
     forest_edge_straight_w = {atlas = "overworld", src_x = 29, src_y = 15, w = 5, h = 4},
     forest_edge_straight_e = {atlas = "overworld", src_x = 28, src_y = 16, w = 5, h = 4},
+    forest_corner_variant_w = {atlas = "overworld", src_x = 77, src_y = 15, w = 5, h = 5},
+    forest_corner_variant_e = {atlas = "overworld", src_x = 77, src_y = 21, w = 5, h = 5},
     forest_inner_edge_straight_n = {atlas = "overworld", src_x = 78, src_y = 10, w = 4, h = 5},
     forest_inner_edge_straight_s = {atlas = "overworld", src_x = 78, src_y = 15, w = 4, h = 6},
     forest_inner_edge_straight_w = {atlas = "overworld", src_x = 72, src_y = 18, w = 5, h = 4},
@@ -157,6 +159,10 @@ metatiles["forest_boundary_corner_se"] = metatiles["forest_inner_corner_se"]
 metatiles["field_mountain_edge_straight_w"] = metatiles["field_boundary_w"]
 metatiles["field_mountain_edge_straight_e"] = metatiles["field_boundary_e"]
 metatiles["field_mountain_edge_straight_s"] = metatiles["field_boundary_s"]
+-- boundary transitions
+metatiles["mountain_field_boundary_transition_se"] = metatiles["field_mountain_outer_corner_se"]
+metatiles["mountain_field_boundary_transition_sw"] = metatiles["field_mountain_outer_corner_sw"]
+-- TODO north tiles not needed atm
 
 
 -- metatiles that consist of multiple metatiles
@@ -170,6 +176,7 @@ local compound_metatiles = {
         { key = "field_base_tile", offset_x = 3, offset_y = 0 },
     },
     -- corner pieces for zone to zone transitions
+    --[[
     field_mountain_outer_corner_sw = {
         { key = "field_boundary_short_s",  offset_x = 0, offset_y = 0 },
         { key = "field_boundary_short_w", offset_x = 0, offset_y = 1 },
@@ -180,6 +187,7 @@ local compound_metatiles = {
         { key = "field_boundary_short_e", offset_x = 0, offset_y = 1 },
         { key = "hill_corner_nw", offset_x = 0, offset_y = 0 },
     },
+    ]]
     -- the n pieces need to be h = 6
     lake_inner_corner_w_margin_nw = {
         { key = "field_base_tile", offset_x = 0, offset_y = 0 },
@@ -206,15 +214,35 @@ local compound_metatiles = {
     -- boundary transitions from one zone to the other when at the boundary
     lake_field_boundary_transition_se = {
         { key = "field_mountain_outer_corner_se", offset_x = 0, offset_y = 0 },   
-        { key = "field_boundary_s", offset_x = 3, offset_y = 0 },   
+        { key = "field_boundary_s", offset_x = 2, offset_y = 0 },   
         w = 7, h = 5
     },
     lake_field_boundary_transition_sw = {
-        { key = "field_mountain_outer_corner_sw", offset_x = 3, offset_y = 0 },   
+        { key = "field_mountain_outer_corner_sw", offset_x = 2, offset_y = 0 },   
         { key = "field_boundary_s", offset_x = 0, offset_y = 0 },   
         w = 7, h = 5
     },
     -- TODO north
+    field_forest_boundary_transition_se = {
+        { key = "field_mountain_outer_corner_ne", offset_x = 0, offset_y = 0 },
+        { key = "forest_corner_variant_e", offset_x = 0, offset_y = 4 },
+        w = 5, h = 9
+    },
+    field_forest_boundary_transition_sw = {
+        { key = "field_mountain_outer_corner_nw", offset_x = 0, offset_y = 0 },
+        { key = "forest_corner_variant_w", offset_x = 0, offset_y = 4 },
+        w = 5, h = 9
+    },
+    field_forest_boundary_transition_ne = {
+        { key = "forest_inner_corner_ne", offset_x = 0, offset_y = 0 },
+        { key = "field_mountain_outer_corner_se", offset_x = 0, offset_y = 3 },
+        w = 5, h = 8
+    },
+    field_forest_boundary_transition_nw = {
+        { key = "forest_inner_corner_nw", offset_x = 0, offset_y = 0 },
+        { key = "field_mountain_outer_corner_sw", offset_x = 0, offset_y = 3 },
+        w = 5, h = 8
+    }
 }
 
 -- helper functions that modify the tilemaps
@@ -282,8 +310,12 @@ end
 local function merge_tile_layer(dst_layer, src_layer, dst_x, dst_y, src_x, src_y, w, h, src_map, dst_map, overwrite)
     -- merges the tiles from one tilemap to the other
     -- src overwrites the dst, except when the tile index of src is 0
+
     for row = 0, h - 1 do
         for col = 0, w - 1 do
+            -- check out of bounds
+            assert(dst_x + col < dst_map.width and dst_y + row < dst_map.height, "merge_tile_layer: metatile placement out of bounds at dst (" .. dst_x + col .. ", " .. dst_y + row .. ")")
+
             local src_index = (src_y + row) * src_map.width + (src_x + col) + 1
             local dst_index = (dst_y + row) * dst_map.width + (dst_x + col) + 1
 

@@ -10,8 +10,9 @@ enum class MenuType {
     RoomSelect,
     LevelSelect,
     ItemCheat,
+    DrawLayer,
     NoClip,
-    Count
+    Count // last item = num of items
 };
 
 class DebugMenu : public Scene {

@@ -60,6 +60,7 @@ public:
     bool lampIsOn = false; // dark rooms become lit up when the player equips the lamp
 
     // debugging
+    bool renderLayers[4] = { true, true, true, true };
     bool godMode = false;
 
 private:

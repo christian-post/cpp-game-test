@@ -209,6 +209,12 @@ void InGame::setupEventListeners()
     game.eventManager.addListener(RELOAD_EVENT_TRIGGERS, [this](const std::any) {
         eventTriggerManager->loadTriggers("./resources/event_triggers.json");
         });
+
+    game.eventManager.addListener(SET_DRAW_LAYER, [this](const std::any& data) {
+        auto [index, draw] = std::any_cast<std::pair<size_t, bool>>(data);
+        renderLayers[index] = draw;
+        TraceLog(LOG_INFO, "drawing of layer %d set to %d", index, (int)draw);
+        });
 }
 
 void InGame::handleDeadSprites()
@@ -870,15 +876,19 @@ void InGame::draw()
     auto& cam = cameraController.getCamera();
     if (tileMap)
     {
-        tilemapRenderer.drawLayer(0, cam); // floor
+        
+        if (renderLayers[0]) 
+            tilemapRenderer.drawLayer(0, cam); // floor
         // now draw the shadows
         for (Sprite* sprite : drawOrder)
         {
             sprite->drawShadow();
         }
         // TODO make this dynamic
-        tilemapRenderer.drawLayer(1, cam); // walls
-        tilemapRenderer.drawLayer(2, cam); // walls2
+        if (renderLayers[1])
+            tilemapRenderer.drawLayer(1, cam); // walls
+        if (renderLayers[2])
+            tilemapRenderer.drawLayer(2, cam); // walls2
     }
 
     // draw the sprites
@@ -895,7 +905,7 @@ void InGame::draw()
     }
 
     // now draw the top layer above the sprites
-    if (tileMap)
+    if (tileMap && renderLayers[3])
         tilemapRenderer.drawLayer(3, cam); // top
 
     // draw debug information that is affected by the camera (hitboxes etc)
