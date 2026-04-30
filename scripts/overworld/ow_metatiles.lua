@@ -145,6 +145,14 @@ local metatiles = {
     lake_landing_bridge_e = {atlas = "overworld", src_x =  4, src_y = 10, w = 4, h = 4},
     lake_landing_bridge_n = {atlas = "overworld", src_x = 24, src_y =  8, w = 4, h = 4},
     lake_landing_bridge_s = {atlas = "overworld", src_x = 24, src_y = 12, w = 4, h = 5},
+    -- triple zone corners
+    lake_field_forest_field_corner_ne = {atlas = "overworld", src_x =  60, src_y = 20, w = 5, h = 5},
+
+    lake_field_forest_lake_corner_se = {atlas = "overworld", src_x =  60, src_y = 25, w = 5, h = 6},
+
+    lake_field_forest_forest_corner_ne = {atlas = "overworld", src_x =  65, src_y = 20, w = 5, h = 5},
+
+    lake_lake_forest_field_corner_ne = {atlas = "overworld", src_x =  87, src_y = 24, w = 5, h = 6},
 }
 
 -- metatiles that are the same as others (keys need to be in here)
@@ -495,6 +503,10 @@ function OW_Metatiles.get_metatile_data(key)
     else
          error("ow_metatiles: unknown metatile key: " .. key)
     end
+end
+
+function OW_Metatiles.metatile_exists(key)
+    return metatiles[key] ~= nil or compound_metatiles[key] ~= nil
 end
 
 function OW_Metatiles.place_metatiles(dst_map, list)

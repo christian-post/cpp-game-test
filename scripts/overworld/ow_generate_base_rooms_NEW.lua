@@ -311,7 +311,6 @@ function GenerateBaseRooms.process_overworld(zone_grid, edges, grid_width, grid_
                 if other_zone ~= "boundary" then
                     local opp_side = OPPOSITE_SIDES[side]
                     local dir = DIRECTIONS[side]
-                    --adjacent_edges_grid[row + dir.dr][col + dir.dc][side] = { opp_side = other_zone }
                     adjacent_edges_grid[row][col][side] = { side = other_zone }
                     print("this zone (" .. my_zone .. ") borders on a different zone (".. other_zone .. ") to the " .. side .. " which has a closed border to the " .. opp_side)
                 end
@@ -322,11 +321,12 @@ function GenerateBaseRooms.process_overworld(zone_grid, edges, grid_width, grid_
             print("\n== inner corners ==")
        
             for _, combo in ipairs(CORNER_COMBOS) do
+                print("corner: " .. combo.corner)
                 -- process the inner corners between adjacent zones
                 local zone_a = adjacent_zones[combo.a]
                 local zone_b = adjacent_zones[combo.b]
                 -- check if the zones are different on both sides
-                if zone_a ~= my_zone and zone_b ~= my_zone then
+                if zone_a ~= my_zone or zone_b ~= my_zone then
                     if zone_a == zone_b then
                         -- same zone on both sides of the corner
                         local keys = border_metatiles[my_zone][zone_a]
@@ -340,6 +340,20 @@ function GenerateBaseRooms.process_overworld(zone_grid, edges, grid_width, grid_
                         local corner_key = keys.inner_corner_key .. combo.corner
                         print("got inner corner data for " .. corner_key)
                         place_metatile_at(corner_key, dst_map, combo.corner, true, true, true)
+
+                    elseif zone_a ~= zone_b and zone_a ~= "boundary" and zone_b ~= "boundary" then
+                        -- triple or quadruple zone transitions
+                        -- TODO naming convention is: north/south, diagonal, east/west 
+                        local dir_a = DIRECTIONS[combo.a]
+                        local dir_b = DIRECTIONS[combo.b]
+                        local zone_diag = get_neighbor_zone(zone_grid, row, col, dir_a.dr + dir_b.dr, dir_a.dc + dir_b.dc, grid_width, grid_height)
+                        local key = string.format("%s_%s_%s_%s_corner_%s", my_zone, adjacent_zones[combo.a], zone_diag, adjacent_zones[combo.b], combo.corner)
+                        if not OW_Metatiles.metatile_exists(key) then
+                            print("-- skipping this mixed inner corner because no tile exists for " .. key)
+                            goto continue
+                        end
+                        print("got mixed inner corner data for " .. key)
+                        place_metatile_at(key, dst_map, combo.corner, true, true, true)
 
                     elseif zone_a == "boundary" and zone_b == "boundary" then
                         -- handle case where both sides are the boundary (boundary.inner_corner_key)
@@ -423,10 +437,9 @@ function GenerateBaseRooms.process_overworld(zone_grid, edges, grid_width, grid_
                     -- find out the diagonal neighbor's zone type
                     local diagonal_row = row + dir_a.dr + dir_b.dr
                     local diagonal_col = col + dir_a.dc + dir_b.dc
-                    local other_zone = zone_grid[diagonal_row][diagonal_col]
+                    local zone_diag = zone_grid[diagonal_row][diagonal_col]
 
-                    local keys = border_metatiles[my_zone][other_zone]
-
+                    local keys = border_metatiles[my_zone][zone_diag]
                     if keys == nil or keys.outer_corner_key == nil or keys.outer_corner_key == "" then
                         print("-- skipping this outer corner because key is nil or keys.outer_corner_key is empty or nil." )
                         goto continue
