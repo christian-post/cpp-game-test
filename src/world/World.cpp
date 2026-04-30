@@ -1,6 +1,7 @@
 #include "World.h"
 #include "Game.h"
 #include "TilemapRenderer.h"
+#include "rlgl.h"
 #include <filesystem>
 
 
@@ -255,5 +256,160 @@ void World::makeMapTextures()
         std::string filename = debugPath.string() + "/map_atlas_level_" + std::to_string(level) + "_" + name + ".png";
         ExportImage(img, filename.c_str());
         UnloadImage(img);
+    }
+}
+
+void World::saveDebugWorldImage()
+{
+    int maxRoomPixelW = 0;
+    int maxRoomPixelH = 0;
+    for (size_t level = 0; level < levels.size(); level++)
+    {
+        for (size_t i = 0; i < roomsW * roomsH; i++)
+        {
+            Room* room = getRoomAt(level, i);
+            if (!room)
+                continue;
+            maxRoomPixelW = std::max(maxRoomPixelW, (int)(room->tilemap.width * room->tilemap.tileWidth));
+            maxRoomPixelH = std::max(maxRoomPixelH, (int)(room->tilemap.height * room->tilemap.tileHeight));
+        }
+    }
+
+    if (maxRoomPixelW == 0 || maxRoomPixelH == 0)
+        return;
+
+    std::filesystem::path debugPath = "debug";
+    std::filesystem::create_directories(debugPath);
+
+    for (size_t level = 0; level < levels.size(); level++)
+    {
+        int atlasW = (int)roomsW * maxRoomPixelW;
+        int atlasH = (int)roomsH * maxRoomPixelH;
+
+        RenderTexture2D atlas = LoadRenderTexture(atlasW, atlasH);
+        BeginTextureMode(atlas);
+        ClearBackground(BLACK);
+        EndTextureMode();
+
+        for (size_t i = 0; i < roomsW * roomsH; i++)
+        {
+            Room* room = getRoomAt(level, i);
+            if (!room)
+                continue;
+
+            auto& tileMap = room->tilemap;
+            int tileSize = (int)tileMap.tileWidth;
+            int roomX = (int)(i % roomsW) * maxRoomPixelW;
+            int roomY = (int)(i / roomsW) * maxRoomPixelH;
+
+            const auto& tilesetInfos = tileMap.getTilesetNames();
+            std::vector<TilesetData> tilesetCache;
+            for (const auto& info : tilesetInfos)
+            {
+                const Tileset& tileset = game.loader.getTileset(info.first);
+                TilesetData data;
+                data.name = info.first;
+                data.tileset = &tileset;
+                data.texture = &game.loader.getTextures(tileset.name)[0];
+                data.tilesPerRow = tileset.columns;
+                data.firstGid = info.second;
+                tilesetCache.push_back(data);
+            }
+
+            BeginTextureMode(atlas);
+
+            for (size_t layerIndex = 0; layerIndex < tileMap.layers.size(); layerIndex++)
+            {
+                const auto& layer = tileMap.getLayer(layerIndex);
+                if (!layer.visible)
+                    continue;
+
+                for (size_t y = 0; y < tileMap.height; y++)
+                {
+                    for (size_t x = 0; x < tileMap.width; x++)
+                    {
+                        int tileId = layer.data[y][x];
+                        if (tileId == 0)
+                            continue;
+
+                        const TilesetData* tilesetData = nullptr;
+                        int tileIndex = 0;
+                        for (size_t k = 0; k < tilesetCache.size(); k++)
+                        {
+                            int curGid = tilesetCache[k].firstGid;
+                            int nextGid = (k + 1 < tilesetCache.size()) ? tilesetCache[k + 1].firstGid : INT_MAX;
+                            if (tileId >= curGid && tileId < nextGid)
+                            {
+                                tilesetData = &tilesetCache[k];
+                                tileIndex = tileId - curGid;
+                                break;
+                            }
+                        }
+
+                        if (!tilesetData)
+                            continue;
+
+                        int drawX = roomX + (int)x * tileSize;
+                        int drawY = roomY + (int)y * tileSize;
+                        int srcX = (tileIndex % (int)tilesetData->tilesPerRow) * tileSize;
+                        int srcY = (tileIndex / (int)tilesetData->tilesPerRow) * tileSize;
+
+                        Rectangle src = { (float)srcX, (float)srcY, (float)tileSize, (float)tileSize };
+                        Rectangle dst = { (float)drawX, (float)drawY, (float)tileSize, (float)tileSize };
+                        DrawTexturePro(*tilesetData->texture, src, dst, { 0, 0 }, 0.0f, WHITE);
+                    }
+                }
+            }
+
+            EndTextureMode();
+        }
+
+        // draw room boundary lines
+        Color boundaryColor = { 255, 0, 0, 255 };
+        BeginTextureMode(atlas);
+
+        // enable additive alpha drawing
+        rlSetBlendFactorsSeparate(RL_SRC_ALPHA, RL_ONE_MINUS_SRC_ALPHA, RL_ZERO, RL_ONE, RL_FUNC_ADD, RL_FUNC_ADD);
+        BeginBlendMode(BLEND_CUSTOM_SEPARATE);
+
+        for (size_t col = 0; col <= roomsW; col++)
+        {
+            int x = (int)col * maxRoomPixelW;
+            DrawRectangle(x, 0, 1, atlasH, boundaryColor);
+        }
+
+        for (size_t row = 0; row <= roomsH; row++)
+        {
+            int y = (int)row * maxRoomPixelH;
+            DrawRectangle(0, y, atlasW, 1, boundaryColor);
+        }
+
+        // draw tile grid semi transparent
+        Color gridColor = { 150, 150, 150, 100 };
+
+        for (size_t col = 0; col <= atlasW / 16; col++)
+        {
+            int x = (int)col * 16;
+            DrawRectangle(x, 0, 1, atlasH, gridColor);
+        }
+
+        for (size_t row = 0; row <= atlasH / 16; row++)
+        {
+            int y = (int)row * 16;
+            DrawRectangle(0, y, atlasW, 1, gridColor);
+        }
+
+        EndBlendMode();
+        EndTextureMode();
+
+        Image img = LoadImageFromTexture(atlas.texture);
+        ImageFlipVertical(&img);
+        UnloadRenderTexture(atlas);
+
+        std::string filename = debugPath.string() + "/world_" + name + "_level" + std::to_string(level) + ".png";
+        ExportImage(img, filename.c_str());
+        UnloadImage(img);
+
+        TraceLog(LOG_INFO, "saved world image: %s (%dx%d)", filename.c_str(), atlasW, atlasH);
     }
 }

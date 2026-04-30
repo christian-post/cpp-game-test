@@ -61,6 +61,9 @@ public:
     virtual void renderMinimap(float hudY, float gameScreenWidth) = 0;
     virtual void renderMapScreen(const MapRenderParams& params) = 0;
 
+    // debugging
+    void saveDebugWorldImage();
+
 protected:
     Game& game;
     size_t roomsW;

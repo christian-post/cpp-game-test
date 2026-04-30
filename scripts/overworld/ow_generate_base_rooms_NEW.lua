@@ -36,7 +36,8 @@ local border_metatiles = {
         mountain = {
             outer_corner_key = "field_mountain_outer_corner_",
             inner_corner_key = "field_boundary_corner_",
-            edge_key = "field_mountain_edge_straight_"
+            edge_key = "field_mountain_edge_straight_",
+            boundary_transition_key = "field_mountain_boundary_transition_"
         },
         lake = {
             outer_corner_key = "",
@@ -118,7 +119,8 @@ local border_metatiles = {
         forest = {
             outer_corner_key = "",
             inner_corner_key = "",
-            edge_key = "lake_forest_edge_straight_"
+            edge_key = "lake_forest_edge_straight_",
+            boundary_transition_key = "lake_forest_boundary_transition_"
         },
         mountain = nil,
         boundary = {
@@ -182,6 +184,36 @@ local function get_neighbor_zone(zone_grid, row, col, dr, dc, grid_width, grid_h
     return zone_grid[neighbor_row][neighbor_col]
 end
 
+local function build_placement_info(mt_data, dst_map)
+    -- tells the place_metatile_at function how to turn the metatile data into placement info (straight edges and corners)
+    local count_x = dst_map.width / mt_data.w
+    local count_y = dst_map.height / mt_data.h
+    return {
+        n  = {count = count_x, step_x = mt_data.w, step_y = 0, start_x = 0, start_y = 0},
+        s  = {count = count_x, step_x = mt_data.w, step_y = 0, start_x = 0, start_y = dst_map.height - mt_data.h},
+        w  = {count = count_y, step_x = 0, step_y = mt_data.h, start_x = 0, start_y = 0},
+        e  = {count = count_y, step_x = 0, step_y = mt_data.h, start_x = dst_map.width - mt_data.w, start_y = 0},
+        nw = {count = 1, step_x = 0, step_y = 0, start_x = 0, start_y = 0},
+        ne = {count = 1, step_x = 0, step_y = 0, start_x = dst_map.width - mt_data.w, start_y = 0},
+        sw = {count = 1, step_x = 0, step_y = 0, start_x = 0, start_y = dst_map.height - mt_data.h},
+        se = {count = 1, step_x = 0, step_y = 0, start_x = dst_map.width - mt_data.w, start_y = dst_map.height - mt_data.h},
+    }
+end
+
+local function place_metatile_at(key, dst_map, slot, erase_objects, ...)
+    local mt_data = OW_Metatiles.get_metatile_data(key)
+    local info = build_placement_info(mt_data, dst_map)[slot]
+    if erase_objects then
+        local px = info.start_x * 16
+        local py = info.start_y * 16
+        print("erasing objects here: x1 = " .. px .. ", y1 = " .. py .. ", x2 = " .. (px + mt_data.w * 16) .. ", y2 = " .. (py + mt_data.h * 16))
+        OW_Metatiles.erase_object_region("static_collision", px, py, px + mt_data.w * 16, py + mt_data.h * 16, dst_map)
+    end
+    for i = 0, info.count - 1 do
+        OW_Metatiles.place_metatile(key, dst_map, info.start_x + i * info.step_x, info.start_y + i * info.step_y, ...)
+    end
+end
+
 
 
 -- main function
@@ -235,53 +267,26 @@ function GenerateBaseRooms.process_overworld(zone_grid, edges, grid_width, grid_
             -- handle edges to other rooms and the boundary
 
             -- collect neighbor side types
-            -- TODO get rid of "boundary_sides and use adjacent_zones instead
-            local boundary_sides = {}
             local adjacent_zones = {}
-            --local adjacent_edges = {} -- store which neighbors have straight edges, to place outer corners
             for side, dir in pairs(DIRECTIONS) do
-                local neighbor_zone = get_neighbor_zone(zone_grid, row, col, dir.dr, dir.dc, grid_width, grid_height)
-                if neighbor_zone == "boundary" then
-                    boundary_sides[side] = true
-                end
-                adjacent_zones[side] = neighbor_zone
+                adjacent_zones[side] = get_neighbor_zone(zone_grid, row, col, dir.dr, dir.dc, grid_width, grid_height)
             end
 
             -- boundary straight edges
-            for side, _ in pairs(boundary_sides) do
-                --local key = my_zone .. "_boundary_" .. side
-                local key = border_metatiles[my_zone].boundary.edge_key .. side
-                -- get data because metatiles can have varying sizes depending on the zone
-                local mt_data = OW_Metatiles.get_metatile_data(key)
-                local count_x = dst_map.width / mt_data.w
-                local count_y = dst_map.height / mt_data.h
-                -- compile info about the metatiles that need to be pasted
-                local edge_info = {
-                    n = {count = count_x, step_x = mt_data.w, step_y = 0, start_x = 0, start_y = 0},
-                    s = {count = count_x, step_x = mt_data.w, step_y = 0, start_x = 0, start_y = dst_map.height - mt_data.h},
-                    w = {count = count_y, step_x = 0, step_y = mt_data.h, start_x = 0, start_y = 0},
-                    e = {count = count_y, step_x = 0, step_y = mt_data.h, start_x = dst_map.width - mt_data.w, start_y = 0},
-                }
-                local e = edge_info[side]
-                for i = 0, e.count - 1 do
-                    OW_Metatiles.place_metatile(key, dst_map, e.start_x + i * e.step_x, e.start_y + i * e.step_y)
+            for side, neighbor_zone in pairs(adjacent_zones) do
+                if neighbor_zone ~= "boundary" then
+                    goto continue
                 end
+                local key = border_metatiles[my_zone].boundary.edge_key .. side
+                place_metatile_at(key, dst_map, side, false)
+                ::continue::
             end
 
             -- boundary corners
             for _, combo in ipairs(CORNER_COMBOS) do
-                if boundary_sides[combo.a] and boundary_sides[combo.b] then
+                if adjacent_zones[combo.a] == "boundary" and adjacent_zones[combo.b] == "boundary" then
                     local key = my_zone .. "_boundary_corner_" .. combo.corner
-                    -- paste meta onto tilemap at the corner position
-                    mt_data = OW_Metatiles.get_metatile_data(key)
-                    -- make sure the tile gets pasted snug into the corner
-                    local corner_info = {
-                        nw = { start_x = 0, start_y = 0 },
-                        ne = { start_x = dst_map.width - mt_data.w, start_y = 0 },
-                        sw = { start_x = 0, start_y = dst_map.height - mt_data.h },
-                        se = { start_x = dst_map.width - mt_data.w, start_y = dst_map.height - mt_data.h },
-                    }
-                    OW_Metatiles.place_metatile(key, dst_map, corner_info[combo.corner].start_x, corner_info[combo.corner].start_y)
+                    place_metatile_at(key, dst_map, combo.corner, false)
                 end
             end
 
@@ -298,19 +303,7 @@ function GenerateBaseRooms.process_overworld(zone_grid, edges, grid_width, grid_
                 end
 
                 local edge_key = keys.edge_key .. side
-                mt_straight_edge_data = OW_Metatiles.get_metatile_data(edge_key)
-                local count_x = dst_map.width / mt_straight_edge_data.w
-                local count_y = dst_map.height / mt_straight_edge_data.h
-                local edge_placement_info = {
-                    n = {count = count_x, step_x = mt_straight_edge_data.w, step_y = 0, start_x = 0, start_y = 0},
-                    s = {count = count_x, step_x = mt_straight_edge_data.w, step_y = 0, start_x = 0, start_y = dst_map.height - mt_straight_edge_data.h},
-                    w = {count = count_y, step_x = 0, step_y = mt_straight_edge_data.h, start_x = 0, start_y = 0},
-                    e = {count = count_y, step_x = 0, step_y = mt_straight_edge_data.h, start_x = dst_map.width - mt_straight_edge_data.w, start_y = 0},
-                }
-                local e = edge_placement_info[side]
-                for i = 0, e.count - 1 do
-                    OW_Metatiles.place_metatile(edge_key, dst_map, e.start_x + i * e.step_x, e.start_y + i * e.step_y)
-                end
+                place_metatile_at(edge_key, dst_map, side, false)
 
                 -- add adjacent_edges_grid info
                 -- TODO are the offsets row and col correct?
@@ -345,25 +338,8 @@ function GenerateBaseRooms.process_overworld(zone_grid, edges, grid_width, grid_
                         end
 
                         local corner_key = keys.inner_corner_key .. combo.corner
-                        mt_corner_data = OW_Metatiles.get_metatile_data(corner_key)
                         print("got inner corner data for " .. corner_key)
-
-                        local corner_info = {
-                            nw = { start_x = 0, start_y = 0 },
-                            ne = { start_x = dst_map.width - mt_corner_data.w, start_y = 0 },
-                            sw = { start_x = 0, start_y = dst_map.height - mt_corner_data.h },
-                            se = { start_x = dst_map.width - mt_corner_data.w, start_y = dst_map.height - mt_corner_data.h },
-                        }
-                        -- clip the objects that are here from previous edge placements
-                        -- for the erase_object_region function the coordinates need to be converted from tiles to pixels
-                        local place_x = corner_info[combo.corner].start_x * 16
-                        local place_y = corner_info[combo.corner].start_y * 16
-                        local place_w = mt_corner_data.w * 16
-                        local place_h = mt_corner_data.h * 16
-                        print("erasing objects here: x1 = " .. place_x .. ", y1 = " .. place_y ..  ", x2 = " .. place_x + place_w .. ", y2 = " .. place_y + place_h)
-                        OW_Metatiles.erase_object_region("static_collision", place_x, place_y, place_x + place_w, place_y + place_h, dst_map)
-                        -- place the corner tile
-                        OW_Metatiles.place_metatile(corner_key, dst_map, corner_info[combo.corner].start_x, corner_info[combo.corner].start_y, true, true)
+                        place_metatile_at(corner_key, dst_map, combo.corner, true, true, true)
 
                     elseif zone_a == "boundary" and zone_b == "boundary" then
                         -- handle case where both sides are the boundary (boundary.inner_corner_key)
@@ -373,26 +349,10 @@ function GenerateBaseRooms.process_overworld(zone_grid, edges, grid_width, grid_
                             print("-- skipping this boundary corner because key is nil or keys.inner_corner_key is empty or nil." )
                             goto continue
                         end
-                        local corner_key = keys.inner_corner_key .. combo.corner
-                        mt_corner_data = OW_Metatiles.get_metatile_data(corner_key)
-                        print("got boundary corner data for " .. corner_key)
 
-                        local corner_info = {
-                            nw = { start_x = 0, start_y = 0 },
-                            ne = { start_x = dst_map.width - mt_corner_data.w, start_y = 0 },
-                            sw = { start_x = 0, start_y = dst_map.height - mt_corner_data.h },
-                            se = { start_x = dst_map.width - mt_corner_data.w, start_y = dst_map.height - mt_corner_data.h },
-                        }
-                        -- clip the objects that are here from previous edge placements
-                        -- for the erase_object_region function the coordinates need to be converted from tiles to pixels
-                        local place_x = corner_info[combo.corner].start_x * 16
-                        local place_y = corner_info[combo.corner].start_y * 16
-                        local place_w = mt_corner_data.w * 16
-                        local place_h = mt_corner_data.h * 16
-                        print("erasing objects here: x1 = " .. place_x .. ", y1 = " .. place_y ..  ", x2 = " .. place_x + place_w .. ", y2 = " .. place_y + place_h)
-                        OW_Metatiles.erase_object_region("static_collision", place_x, place_y, place_x + place_w, place_y + place_h, dst_map)
-                        -- place the corner tile
-                        OW_Metatiles.place_metatile(corner_key, dst_map, corner_info[combo.corner].start_x, corner_info[combo.corner].start_y, true, true)
+                        local corner_key = keys.inner_corner_key .. combo.corner
+                        print("got boundary corner data for " .. corner_key)
+                        place_metatile_at(corner_key, dst_map, combo.corner, true, true, true)
 
                     elseif zone_a == "boundary" and zone_b ~= my_zone or zone_b == "boundary" and zone_a ~=my_zone then
                         -- handle cases where one side is the boundary and the other side is a different zone
@@ -406,24 +366,8 @@ function GenerateBaseRooms.process_overworld(zone_grid, edges, grid_width, grid_
                         end
 
                         local boundary_key = keys.boundary_transition_key .. combo.corner
-                        mt_corner_data = OW_Metatiles.get_metatile_data(boundary_key)
                         print("got zone transition tile data for " .. boundary_key)
-
-                        local corner_info = {
-                            nw = { start_x = 0, start_y = 0 },
-                            ne = { start_x = dst_map.width - mt_corner_data.w, start_y = 0 },
-                            sw = { start_x = 0, start_y = dst_map.height - mt_corner_data.h },
-                            se = { start_x = dst_map.width - mt_corner_data.w, start_y = dst_map.height - mt_corner_data.h },
-                        }
-                        -- clip objects
-                        local place_x = corner_info[combo.corner].start_x * 16
-                        local place_y = corner_info[combo.corner].start_y * 16
-                        local place_w = mt_corner_data.w * 16
-                        local place_h = mt_corner_data.h * 16
-                        print("erasing objects here: x1 = " .. place_x .. ", y1 = " .. place_y ..  ", x2 = " .. place_x + place_w .. ", y2 = " .. place_y + place_h)
-                        OW_Metatiles.erase_object_region("static_collision", place_x, place_y, place_x + place_w, place_y + place_h, dst_map)
-                        -- place tiles
-                        OW_Metatiles.place_metatile(boundary_key, dst_map, corner_info[combo.corner].start_x, corner_info[combo.corner].start_y, true, true)
+                        place_metatile_at(boundary_key, dst_map, combo.corner, true, true, true)
                     end
 
                     ::continue::
@@ -489,25 +433,8 @@ function GenerateBaseRooms.process_overworld(zone_grid, edges, grid_width, grid_
                     end
 
                     local corner_key = keys.outer_corner_key .. combo.corner
-                    mt_corner_data = OW_Metatiles.get_metatile_data(corner_key)
                     print("got outer corner data for " .. corner_key)
-                    -- TODO repeated code
-                    local corner_info = {
-                        nw = { start_x = 0, start_y = 0 },
-                        ne = { start_x = dst_map.width - mt_corner_data.w, start_y = 0 },
-                        sw = { start_x = 0, start_y = dst_map.height - mt_corner_data.h },
-                        se = { start_x = dst_map.width - mt_corner_data.w, start_y = dst_map.height - mt_corner_data.h },
-                    }
-                    -- clip the objects that are here from previous edge placements
-                    -- for the erase_object_region function the coordinates need to be converted from tiles to pixels
-                    local place_x = corner_info[combo.corner].start_x * 16
-                    local place_y = corner_info[combo.corner].start_y * 16
-                    local place_w = mt_corner_data.w * 16
-                    local place_h = mt_corner_data.h * 16
-                    print("erasing objects here: x1 = " .. place_x .. ", y1 = " .. place_y ..  ", x2 = " .. place_x + place_w .. ", y2 = " .. place_y + place_h)
-                    OW_Metatiles.erase_object_region("static_collision", place_x, place_y, place_x + place_w, place_y + place_h, dst_map)
-                    -- place the corner tile
-                    OW_Metatiles.place_metatile(corner_key, dst_map, corner_info[combo.corner].start_x, corner_info[combo.corner].start_y, true)
+                    place_metatile_at(corner_key, dst_map, combo.corner, false, true)
                 end
 
                 ::continue::

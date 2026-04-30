@@ -56,6 +56,14 @@ local metatiles = {
     lake_forest_edge_straight_s = {atlas = "overworld", src_x = 87, src_y = 16, w = 4, h = 5},
     lake_forest_edge_straight_e = {atlas = "overworld", src_x = 92, src_y = 10, w = 5, h = 4},
     lake_forest_edge_straight_w = {atlas = "overworld", src_x = 95, src_y = 10, w = 5, h = 4},
+    lake_field_boundary_transition_ne = {atlas = "overworld", src_x = 91, src_y = 19, w = 5, h = 5},
+    lake_field_boundary_transition_nw = {atlas = "overworld", src_x = 91, src_y = 14, w = 5, h = 5},
+    -- south transitions are compound tiles
+    lake_forest_boundary_transition_sw = {atlas = "overworld", src_x = 71, src_y = 23, w = 5, h = 5},
+    --TODO SE lake forest boundary
+    -- triple edges
+    lake_forest_field_corner_ne = {atlas = "overworld", src_x = 87, src_y = 24, w = 5, h = 5},
+    lake_forest_field_corner_nw = {atlas = "overworld", src_x = 90, src_y = 24, w = 5, h = 5},
     -- field
     field_base_tile = {atlas = "overworld", src_x = 82, src_y = 0, w = 5, h = 5},
     field_boundary_corner_nw = {atlas = "overworld", src_x = 39, src_y =  8, w = 5, h = 5},
@@ -92,17 +100,17 @@ local metatiles = {
     -- (a lot of metatiles are the same 5x5 tiles, just offset by half a tree)
     forest_base_tile = {atlas = "overworld", src_x = 92, src_y = 0, w = 5, h = 5},
     forest_inner_corner_nw = {atlas = "overworld", src_x = 34, src_y = 14, w = 5, h = 5},
-    forest_inner_corner_ne = {atlas = "overworld", src_x = 77, src_y = 10, w = 5, h = 5},
-    forest_inner_corner_sw = {atlas = "overworld", src_x = 34, src_y =  8, w = 5, h = 5}, -- TODO
+    forest_inner_corner_ne = {atlas = "overworld", src_x = 82, src_y = 22, w = 5, h = 5},
+    forest_inner_corner_sw = {atlas = "overworld", src_x = 82, src_y = 22, w = 5, h = 5},
     forest_inner_corner_se = {atlas = "overworld", src_x = 34, src_y = 14, w = 5, h = 5},
     forest_outer_corner_nw = {atlas = "overworld", src_x = 29, src_y = 10, w = 5, h = 5},
     forest_outer_corner_ne = {atlas = "overworld", src_x = 28, src_y = 10, w = 5, h = 5},
-    forest_outer_corner_sw = {atlas = "overworld", src_x = 29, src_y =  8, w = 5, h = 6},
-    forest_outer_corner_se = {atlas = "overworld", src_x = 28, src_y =  8, w = 5, h = 6},
+    forest_outer_corner_sw = {atlas = "overworld", src_x = 34, src_y = 19, w = 5, h = 5},
+    forest_outer_corner_se = {atlas = "overworld", src_x = 28, src_y =  8, w = 5, h = 5}, 
     forest_edge_straight_n = {atlas = "overworld", src_x = 34, src_y =  8, w = 4, h = 5},
-    forest_edge_straight_s = {atlas = "overworld", src_x = 34, src_y = 13, w = 4, h = 6}, 
-    forest_edge_straight_w = {atlas = "overworld", src_x = 29, src_y = 15, w = 5, h = 4},
-    forest_edge_straight_e = {atlas = "overworld", src_x = 28, src_y = 16, w = 5, h = 4},
+    forest_edge_straight_s = {atlas = "overworld", src_x = 34, src_y = 13, w = 4, h = 5}, 
+    forest_edge_straight_w = {atlas = "overworld", src_x = 29, src_y = 16, w = 5, h = 4},
+    forest_edge_straight_e = {atlas = "overworld", src_x = 28, src_y = 16, w = 5, h = 4},  -- TODO shift tree pattern?
     forest_corner_variant_w = {atlas = "overworld", src_x = 77, src_y = 15, w = 5, h = 5},
     forest_corner_variant_e = {atlas = "overworld", src_x = 77, src_y = 21, w = 5, h = 5},
     forest_inner_edge_straight_n = {atlas = "overworld", src_x = 78, src_y = 10, w = 4, h = 5},
@@ -121,6 +129,8 @@ local metatiles = {
     hill_inner_corner_single_ne = {atlas = "overworld", src_x = 70, src_y = 13, w = 1, h = 2},
     hill_inner_corner_single_sw = {atlas = "overworld", src_x = 68, src_y = 15, w = 1, h = 1},
     hill_inner_corner_single_se = {atlas = "overworld", src_x = 70, src_y = 15, w = 1, h = 1},
+    hill_border_single_n = {atlas = "overworld", src_x = 69, src_y = 10, w = 1, h = 1},
+    hill_border_single_s = {atlas = "overworld", src_x = 69, src_y = 12, w = 1, h = 1},
     -- decorations
     cloud = {atlas = "overworld", src_x = 50, src_y = 4, w = 3, h = 2},
     tent = {atlas = "overworld", src_x = 53, src_y = 4, w = 2, h = 2},
@@ -162,6 +172,10 @@ metatiles["field_mountain_edge_straight_s"] = metatiles["field_boundary_s"]
 -- boundary transitions
 metatiles["mountain_field_boundary_transition_se"] = metatiles["field_mountain_outer_corner_se"]
 metatiles["mountain_field_boundary_transition_sw"] = metatiles["field_mountain_outer_corner_sw"]
+metatiles["field_mountain_boundary_transition_nw"] = metatiles["field_boundary_w"]
+metatiles["field_mountain_boundary_transition_ne"] = metatiles["field_boundary_e"]
+metatiles["field_mountain_boundary_transition_sw"] = metatiles["field_boundary_w"]
+metatiles["field_mountain_boundary_transition_se"] = metatiles["field_boundary_e"]
 -- TODO north tiles not needed atm
 
 
@@ -222,16 +236,28 @@ local compound_metatiles = {
         { key = "field_boundary_s", offset_x = 0, offset_y = 0 },   
         w = 7, h = 5
     },
-    -- TODO north
+    -- TODO somehow these break the system
+    --[[
+    lake_field_boundary_transition_nw = {
+        { key = "field_mountain_outer_corner_nw", offset_x = 0, offset_y = 0 },   
+        { key = "hill_border_single_s", offset_x = 4, offset_y = 4 },
+        w = 5, h = 5
+    },
+    lake_field_boundary_transition_ne = {
+        { key = "field_mountain_outer_corner_ne", offset_x = 0, offset_y = 0 },   
+        { key = "hill_border_single_s", offset_x = 4, offset_y = 4 },   
+        w = 5, h = 5
+    },
+    ]]
     field_forest_boundary_transition_se = {
         { key = "field_mountain_outer_corner_ne", offset_x = 0, offset_y = 0 },
         { key = "forest_corner_variant_e", offset_x = 0, offset_y = 4 },
         w = 5, h = 9
     },
     field_forest_boundary_transition_sw = {
-        { key = "field_mountain_outer_corner_nw", offset_x = 0, offset_y = 0 },
-        { key = "forest_corner_variant_w", offset_x = 0, offset_y = 4 },
-        w = 5, h = 9
+        -- TODO
+        { key = "field_mountain_outer_corner_se", offset_x = 0, offset_y = 0 },
+        w = 5, h = 5
     },
     field_forest_boundary_transition_ne = {
         { key = "forest_inner_corner_ne", offset_x = 0, offset_y = 0 },
@@ -501,7 +527,10 @@ function OW_Metatiles.place_metatiles(dst_map, list)
                 for _, entry in ipairs(entries) do
                     local mt = entry.mt
                     if src_layer.type == "tilelayer" then
-                        merge_tile_layer(dst_layer, src_layer, entry.dst_x, entry.dst_y, mt.src_x, mt.src_y, mt.w, mt.h, src_map, dst_map, entry.overwrite)
+                        -- TODO is it always correct to omit the floor layer when overwriting?
+                        local overwrite = src_layer.name ~= "floor" and entry.overwrite or false
+                        merge_tile_layer(dst_layer, src_layer, entry.dst_x, entry.dst_y, mt.src_x, mt.src_y, mt.w, mt.h, src_map, dst_map, overwrite)
+
                     elseif src_layer.type == "objectgroup" then
                         merge_object_layer(dst_layer, src_layer, entry.dst_x, entry.dst_y, mt.src_x, mt.src_y, mt.w, mt.h, src_map.tilewidth, src_map.tileheight, dst_map)
                     end

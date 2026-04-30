@@ -59,7 +59,12 @@ void DebugMenu::startup()
         };
     menus[static_cast<size_t>(MenuType::Main)]->addItem(noClip);
 
-    menus[static_cast<size_t>(MenuType::Main)]->addItem({ "Back to Game", MenuItemType::Action, [&]() {
+    menus[static_cast<size_t>(MenuType::Main)]->addItem({ "Save Debug World Image", MenuItemType::Action, [this]() {
+            game.currentWorld->saveDebugWorldImage();
+        }
+        });
+
+    menus[static_cast<size_t>(MenuType::Main)]->addItem({ "Back to Game", MenuItemType::Action, [this]() {
             game.eventManager.pushEvent(SELECT_MENU_DONE);
             game.stopScene(getName());
         }
