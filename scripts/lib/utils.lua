@@ -66,5 +66,27 @@ function M.manhattan_dist(a, b)
     return math.abs(a.row - b.row) + math.abs(a.col - b.col)
 end
 
+local log_file = nil
+
+function M.open_log(path)
+    log_file = io.open(path, "w")
+end
+
+function M.print_file(msg)
+    if not log_file then
+        M.open_log("last_generated.txt")
+    end
+    print(msg)
+    log_file:write(msg .. "\n")
+    log_file:flush()  -- flush the output in case of an error
+end
+
+function M.close_log()
+    if log_file then
+        log_file:close()
+        log_file = nil
+    end
+end
+
 
 return M

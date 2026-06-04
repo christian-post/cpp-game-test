@@ -7,14 +7,17 @@ function execute()
     local GenerateBaseRooms = require("overworld.ow_generate_base_rooms_NEW")
     local TilemapModifier = require("overworld.ow_tilemap_modifier")
     local OWFeatures = require("overworld.ow_features")
+    local utils = require("lib.utils")
+
+    utils.open_log("debug/last_generated.txt")
 
     print("=== Overworld Generation Test ===\n")
 
     -- TODO random seeding for testing different outcomes
-    local seed = 1777479151
+    local seed = 1779965548
     --local seed = os.time()
     set_dungeon_seed(seed)
-    print("RNG seed: " .. seed)
+    utils.print_file("RNG seed: " .. seed)
 
     -- some parameters for testing
     local width = 6
@@ -31,12 +34,12 @@ function execute()
 
     local max_attempts = 20
     for attempt = 1, max_attempts do
-        print(string.format("Attempt %d...", attempt))
+        utils.print_file(string.format("Attempt %d...", attempt))
 
         -- step 1: place the zones (terrain types have individual rules)
         zone_grid = OverworldZoneGenerator.generate(width, height)
         if not zone_grid then
-            print("  Zone placement failed, retrying...")
+            utils.print_file("  Zone placement failed, retrying...")
             goto continue -- skip all further generation steps
         end
 
@@ -46,7 +49,7 @@ function execute()
         -- step 2.1: run world feature generation (river, etc.), which may remove edges from the graph
         features_result = OWFeatures.generate(zone_grid, edges, width, height)
         if not features_result then
-            print("  Feature placement failed, retrying...")
+            utils.print_file("  Feature placement failed, retrying...")
             goto continue
         end
 
@@ -55,24 +58,24 @@ function execute()
 
         -- make sure that none of the rooms are completely shut off
         if graph:test_reachability() then
-            print(string.format("  Valid graph found on attempt %d\n", attempt))
+            utils.print_file(string.format("  Valid graph found on attempt %d\n", attempt))
             break
         end
 
         ::continue::
 
         if attempt == max_attempts then
-            print("ERROR: Could not generate valid overworld after " .. max_attempts .. " attempts")
+            utils.print_file("ERROR: Could not generate valid overworld after " .. max_attempts .. " attempts")
             return false
         end
     end
 
     -- step 4: forward fill nodes with items
-    print("\nStep 4: Forward fill...")
+    utils.print_file("\nStep 4: Forward fill...")
     local success = graph:forward_fill(false)
 
     if not success then
-        print("ERROR: Forward fill failed!")
+        utils.print_file("ERROR: Forward fill failed!")
         return false
     end
 
@@ -81,7 +84,7 @@ function execute()
     --===========
 
     -- print item placements for debugging
-    print("\nItem placement:")
+    utils.print_file("\nItem placement:")
     local sorted_names = {}
     for name, _ in pairs(graph.nodes) do
         table.insert(sorted_names, name)
@@ -91,35 +94,35 @@ function execute()
     for _, name in ipairs(sorted_names) do
         local node = graph.nodes[name]
         if node.value then
-            print(string.format("  %s: %s", name, node.value))
+            utils.print_file(string.format("  %s: %s", name, node.value))
         end
     end
 
     -- print zone grid
-    print("Zone layout:")
+    utils.print_file("Zone layout:")
     OverworldZoneGenerator.print_grid(zone_grid, width, height)
 
     -- print edge layout
-    print("\nEdge layout:")
+    utils.print_file("\nEdge layout:")
     OverworldGenerator.print_layout(zone_grid, width, height, edges)
 
     -- print graph info
-    print("\nGraph info:")
-    print(string.format("  Start: OW_%d_%d", layout.start_row, layout.start_col))
+    utils.print_file("\nGraph info:")
+    utils.print_file(string.format("  Start: OW_%d_%d", layout.start_row, layout.start_col))
 
     local node_count = 0
     for _ in pairs(graph.nodes) do
         node_count = node_count + 1
     end
-    print(string.format("  Nodes: %d", node_count))
+    utils.print_file(string.format("  Nodes: %d", node_count))
 
     local excluded_count = 0
     for _ in pairs(excluded_rooms) do
         excluded_count = excluded_count + 1
     end
-    print(string.format("  Excluded rooms: %d", excluded_count))
+    utils.print_file(string.format("  Excluded rooms: %d", excluded_count))
 
-    print("\nReduced graph:")
+    utils.print_file("\nReduced graph:")
     local reduced = graph:reduce()
     reduced:print_graph()
 
@@ -134,4 +137,6 @@ function execute()
     --TilemapModifier.process_overworld(zone_grid, edges, width, height, features_result.overlays)
 
     print("\n=== Overworld Generation Complete! ===")
+
+    utils.close_log()
 end

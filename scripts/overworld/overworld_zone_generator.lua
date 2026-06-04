@@ -65,7 +65,7 @@ end
 local function place_random(grid, w, h, width, height, min_row, zone_type, default)
     local pos = find_random_pos(grid, w, h, width, height, min_row, default)
     if not pos then
-        print(string.format("  Warning: could not find valid placement for zone: %s", zone_type))
+        utils.print_file(string.format("  Warning: could not find valid placement for zone: %s", zone_type))
         return nil
     end
     place_rect(grid, pos.row, pos.col, w, h, zone_type)
@@ -101,17 +101,14 @@ function OverworldZoneGenerator.generate(width, height)
     end
 
     -- place a town (1x2)
-    --[[
 
     local town_pos = place_random(grid, 1, 2, width, height, 5, "town", default_zone)
     if not town_pos then
         return nil
     end
-    ]]
 
     -- place a second, smaller town (1x1)
     -- ensure minimal distance (manhattan) between towns
-    --[[
     local min_dist = 4
     local dist = 0
     local small_town_pos
@@ -126,8 +123,6 @@ function OverworldZoneGenerator.generate(width, height)
     end
 
     place_rect(grid, small_town_pos.row, small_town_pos.col, 1, 1, "town")
-
-    ]]
 
     return grid
 end
@@ -147,7 +142,7 @@ function OverworldZoneGenerator.print_grid(grid, width, height)
         for col = 0, width - 1 do
             line = line .. (zone_chars[grid[row][col]] or "?") .. " "
         end
-        print(line)
+        utils.print_file(line)
     end
 end
 

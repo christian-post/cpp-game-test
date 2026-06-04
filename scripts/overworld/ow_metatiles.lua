@@ -56,11 +56,11 @@ local metatiles = {
     lake_forest_edge_straight_s = {atlas = "overworld", src_x = 87, src_y = 16, w = 4, h = 5},
     lake_forest_edge_straight_e = {atlas = "overworld", src_x = 92, src_y = 10, w = 5, h = 4},
     lake_forest_edge_straight_w = {atlas = "overworld", src_x = 95, src_y = 10, w = 5, h = 4},
-    lake_field_boundary_transition_ne = {atlas = "overworld", src_x = 91, src_y = 19, w = 5, h = 5},
-    lake_field_boundary_transition_nw = {atlas = "overworld", src_x = 91, src_y = 14, w = 5, h = 5},
-    -- south transitions are compound tiles
-    lake_forest_boundary_transition_sw = {atlas = "overworld", src_x = 71, src_y = 23, w = 5, h = 5},
-    --TODO SE lake forest boundary
+    --lake_field_boundary_transition_ne = {atlas = "overworld", src_x = 91, src_y = 19, w = 5, h = 5},
+    --lake_field_boundary_transition_nw = {atlas = "overworld", src_x = 91, src_y = 14, w = 5, h = 5},
+    --lake_field_boundary_transition_se = {atlas = "overworld", src_x =  0, src_y = 21, w = 5, h = 5},
+    --lake_field_boundary_transition_sw = {atlas = "overworld", src_x =  1, src_y = 21, w = 5, h = 5},
+    --lake_forest_boundary_transition_sw = {atlas = "overworld", src_x = 71, src_y = 23, w = 5, h = 5},
     -- triple edges
     lake_forest_field_corner_ne = {atlas = "overworld", src_x = 87, src_y = 24, w = 5, h = 5},
     lake_forest_field_corner_nw = {atlas = "overworld", src_x = 90, src_y = 24, w = 5, h = 5},
@@ -99,14 +99,14 @@ local metatiles = {
     -- forest
     -- (a lot of metatiles are the same 5x5 tiles, just offset by half a tree)
     forest_base_tile = {atlas = "overworld", src_x = 92, src_y = 0, w = 5, h = 5},
-    forest_inner_corner_nw = {atlas = "overworld", src_x = 34, src_y = 14, w = 5, h = 5},
+    forest_inner_corner_nw = {atlas = "overworld", src_x = 77, src_y = 26, w = 5, h = 5},
     forest_inner_corner_ne = {atlas = "overworld", src_x = 82, src_y = 22, w = 5, h = 5},
     forest_inner_corner_sw = {atlas = "overworld", src_x = 82, src_y = 22, w = 5, h = 5},
-    forest_inner_corner_se = {atlas = "overworld", src_x = 34, src_y = 14, w = 5, h = 5},
+    forest_inner_corner_se = {atlas = "overworld", src_x = 77, src_y = 26, w = 5, h = 5},
     forest_outer_corner_nw = {atlas = "overworld", src_x = 29, src_y = 10, w = 5, h = 5},
     forest_outer_corner_ne = {atlas = "overworld", src_x = 28, src_y = 10, w = 5, h = 5},
     forest_outer_corner_sw = {atlas = "overworld", src_x = 34, src_y = 19, w = 5, h = 5},
-    forest_outer_corner_se = {atlas = "overworld", src_x = 28, src_y =  8, w = 5, h = 5}, 
+    forest_outer_corner_se = {atlas = "overworld", src_x = 39, src_y = 18, w = 5, h = 5}, 
     forest_edge_straight_n = {atlas = "overworld", src_x = 34, src_y =  8, w = 4, h = 5},
     forest_edge_straight_s = {atlas = "overworld", src_x = 34, src_y = 13, w = 4, h = 5}, 
     forest_edge_straight_w = {atlas = "overworld", src_x = 29, src_y = 16, w = 5, h = 4},
@@ -146,13 +146,31 @@ local metatiles = {
     lake_landing_bridge_n = {atlas = "overworld", src_x = 24, src_y =  8, w = 4, h = 4},
     lake_landing_bridge_s = {atlas = "overworld", src_x = 24, src_y = 12, w = 4, h = 5},
     -- triple zone corners
-    lake_field_forest_field_corner_ne = {atlas = "overworld", src_x =  60, src_y = 20, w = 5, h = 5},
+    lake_field_forest_field_corner_ne = {atlas = "overworld", src_x = 60, src_y = 20, w = 5, h = 5},
 
-    lake_field_forest_lake_corner_se = {atlas = "overworld", src_x =  60, src_y = 25, w = 5, h = 6},
+    lake_field_forest_lake_corner_se = {atlas = "overworld", src_x = 10, src_y = 26, w = 5, h = 5},
 
-    lake_field_forest_forest_corner_ne = {atlas = "overworld", src_x =  65, src_y = 20, w = 5, h = 5},
+    lake_field_forest_forest_corner_ne = {atlas = "overworld", src_x = 65, src_y = 20, w = 5, h = 5},
+    lake_field_forest_forest_corner_nw = {atlas = "overworld", src_x = 95, src_y = 24, w = 5, h = 5},
+    -- TODO are these correct for diagonal corners?
+    lake_field_forest_field_corner_sw = {atlas = "overworld", src_x = 65, src_y = 25, w = 5, h = 5},
+    lake_field_forest_field_corner_se = {atlas = "overworld", src_x = 5, src_y = 26, w = 5, h = 5},
+    lake_field_forest_field_corner_nw = {atlas = "overworld", src_x = 87, src_y = 34, w = 5, h = 6}, -- TODO is this correct?
 
-    lake_lake_forest_field_corner_ne = {atlas = "overworld", src_x =  87, src_y = 24, w = 5, h = 6},
+    lake_lake_forest_field_corner_ne = {atlas = "overworld", src_x = 87, src_y = 24, w = 5, h = 6},
+    lake_lake_forest_field_corner_nw = {atlas = "overworld", src_x = 90, src_y = 24, w = 5, h = 6},
+
+    -- NEW boundary transitions
+    field_boundary_forest_boundary_corner_sw = {atlas = "overworld", src_x =  0, src_y = 21, w = 5, h = 5}, -- TODO correct order?
+    field_boundary_boundary_forest_corner_se = {atlas = "overworld", src_x =  1, src_y = 21, w = 5, h = 5},
+    field_boundary_boundary_forest_corner_sw = {atlas = "overworld", src_x = 87, src_y = 29, w = 5, h = 5},
+    field_forest_boundary_boundary_corner_sw = {atlas = "overworld", src_x = 92, src_y = 29, w = 5, h = 5},
+    field_forest_boundary_boundary_corner_nw = {atlas = "overworld", src_x = 54, src_y = 24, w = 6, h = 5},
+    lake_field_boundary_boundary_corner_sw = {atlas = "overworld", src_x =  1, src_y = 21, w = 5, h = 5},
+    lake_field_boundary_boundary_corner_ne = {atlas = "overworld", src_x =  6, src_y = 18, w = 5, h = 6},
+    lake_forest_forest_field_corner_nw = {atlas = "overworld", src_x = 82, src_y = 27, w = 5, h = 5},
+    lake_forest_field_field_corner_ne = {atlas = "overworld", src_x = 82, src_y = 32, w = 5, h = 6},
+    lake_forest_forest_field_corner_se = {atlas = "overworld", src_x = 92, src_y = 34, w = 5, h = 5},
 }
 
 -- metatiles that are the same as others (keys need to be in here)
@@ -178,12 +196,15 @@ metatiles["field_mountain_edge_straight_w"] = metatiles["field_boundary_w"]
 metatiles["field_mountain_edge_straight_e"] = metatiles["field_boundary_e"]
 metatiles["field_mountain_edge_straight_s"] = metatiles["field_boundary_s"]
 -- boundary transitions
-metatiles["mountain_field_boundary_transition_se"] = metatiles["field_mountain_outer_corner_se"]
-metatiles["mountain_field_boundary_transition_sw"] = metatiles["field_mountain_outer_corner_sw"]
-metatiles["field_mountain_boundary_transition_nw"] = metatiles["field_boundary_w"]
-metatiles["field_mountain_boundary_transition_ne"] = metatiles["field_boundary_e"]
+--[[
 metatiles["field_mountain_boundary_transition_sw"] = metatiles["field_boundary_w"]
 metatiles["field_mountain_boundary_transition_se"] = metatiles["field_boundary_e"]
+
+]]
+metatiles["field_mountain_boundary_boundary_corner_nw"] = metatiles["field_boundary_w"]
+metatiles["field_mountain_boundary_boundary_corner_ne"] = metatiles["field_boundary_e"]
+metatiles["mountain_field_boundary_boundary_corner_se"] = metatiles["field_mountain_outer_corner_se"]
+metatiles["mountain_field_boundary_boundary_corner_sw"] = metatiles["field_mountain_outer_corner_sw"]
 -- TODO north tiles not needed atm
 
 
@@ -198,18 +219,6 @@ local compound_metatiles = {
         { key = "field_base_tile", offset_x = 3, offset_y = 0 },
     },
     -- corner pieces for zone to zone transitions
-    --[[
-    field_mountain_outer_corner_sw = {
-        { key = "field_boundary_short_s",  offset_x = 0, offset_y = 0 },
-        { key = "field_boundary_short_w", offset_x = 0, offset_y = 1 },
-        { key = "hill_corner_ne", offset_x = 3, offset_y = 0 },
-    },
-    field_mountain_outer_corner_se = {
-        { key = "field_boundary_short_s",  offset_x = 0, offset_y = 0 },
-        { key = "field_boundary_short_e", offset_x = 0, offset_y = 1 },
-        { key = "hill_corner_nw", offset_x = 0, offset_y = 0 },
-    },
-    ]]
     -- the n pieces need to be h = 6
     lake_inner_corner_w_margin_nw = {
         { key = "field_base_tile", offset_x = 0, offset_y = 0 },
@@ -234,19 +243,24 @@ local compound_metatiles = {
         w = 5, h = 5
     },
     -- boundary transitions from one zone to the other when at the boundary
-    lake_field_boundary_transition_se = {
+    -- TODO these are for a different boundary transition...
+    lake_boundary_boundary_field_corner_se = {
         { key = "field_mountain_outer_corner_se", offset_x = 0, offset_y = 0 },   
         { key = "field_boundary_s", offset_x = 2, offset_y = 0 },   
         w = 7, h = 5
     },
-    lake_field_boundary_transition_sw = {
+    lake_boundary_boundary_field_corner_sw = {
         { key = "field_mountain_outer_corner_sw", offset_x = 2, offset_y = 0 },   
         { key = "field_boundary_s", offset_x = 0, offset_y = 0 },   
         w = 7, h = 5
     },
-    -- TODO somehow these break the system
-    --[[
-    lake_field_boundary_transition_nw = {
+    field_forest_boundary_boundary_corner_se = {
+        { key = "field_mountain_outer_corner_ne", offset_x = 0, offset_y = 0 },
+        { key = "forest_corner_variant_e", offset_x = 0, offset_y = 4 },
+        w = 5, h = 9
+    },
+
+    lake_field_boundary_boundary_corner_nw = {
         { key = "field_mountain_outer_corner_nw", offset_x = 0, offset_y = 0 },   
         { key = "hill_border_single_s", offset_x = 4, offset_y = 4 },
         w = 5, h = 5
@@ -256,27 +270,6 @@ local compound_metatiles = {
         { key = "hill_border_single_s", offset_x = 4, offset_y = 4 },   
         w = 5, h = 5
     },
-    ]]
-    field_forest_boundary_transition_se = {
-        { key = "field_mountain_outer_corner_ne", offset_x = 0, offset_y = 0 },
-        { key = "forest_corner_variant_e", offset_x = 0, offset_y = 4 },
-        w = 5, h = 9
-    },
-    field_forest_boundary_transition_sw = {
-        -- TODO
-        { key = "field_mountain_outer_corner_se", offset_x = 0, offset_y = 0 },
-        w = 5, h = 5
-    },
-    field_forest_boundary_transition_ne = {
-        { key = "forest_inner_corner_ne", offset_x = 0, offset_y = 0 },
-        { key = "field_mountain_outer_corner_se", offset_x = 0, offset_y = 3 },
-        w = 5, h = 8
-    },
-    field_forest_boundary_transition_nw = {
-        { key = "forest_inner_corner_nw", offset_x = 0, offset_y = 0 },
-        { key = "field_mountain_outer_corner_sw", offset_x = 0, offset_y = 3 },
-        w = 5, h = 8
-    }
 }
 
 -- helper functions that modify the tilemaps
@@ -556,7 +549,7 @@ function OW_Metatiles.place_metatile(key, dst_map, dst_x, dst_y, overwrite, verb
     -- wrapper for a single metatile or compound
     
     if verbose then
-        print("placing " .. key .. " at (" .. dst_x .. ", " .. dst_y .. ")")
+        utils.print_file("placing " .. key .. " at (" .. dst_x .. ", " .. dst_y .. ")")
     end
 
     if metatiles[key] then

@@ -31,18 +31,18 @@ local border_metatiles = {
             outer_corner_key = "forest_outer_corner_",
             inner_corner_key = "forest_inner_corner_",
             edge_key = "forest_edge_straight_",
-            boundary_transition_key = "field_forest_boundary_transition_"
+            --boundary_transition_key = "field_forest_boundary_transition_"
         },
         mountain = {
             outer_corner_key = "field_mountain_outer_corner_",
             inner_corner_key = "field_boundary_corner_",
             edge_key = "field_mountain_edge_straight_",
-            boundary_transition_key = "field_mountain_boundary_transition_"
+            --boundary_transition_key = "field_mountain_boundary_transition_"
         },
         lake = {
             outer_corner_key = "",
             inner_corner_key = "",
-            edge_key = "",
+            edge_key = ""
         },
         town = nil,
         boundary = {
@@ -83,14 +83,14 @@ local border_metatiles = {
             outer_corner_key = "",
             inner_corner_key = "",
             edge_key = "",
-            boundary_transition_key = "mountain_field_boundary_transition_"
+            --boundary_transition_key = "mountain_field_boundary_transition_"
         },
         town = nil,
         lake = {
             outer_corner_key = "",
             inner_corner_key = "",
             edge_key = "",
-            boundary_transition_key = ""
+            --boundary_transition_key = ""
         },
         forest = nil,
         mountain = {
@@ -109,7 +109,7 @@ local border_metatiles = {
             outer_corner_key = "",
             inner_corner_key = "lake_inner_corner_w_margin_",
             edge_key = "lake_field_edge_straight_",
-            boundary_transition_key = "lake_field_boundary_transition_"
+            --boundary_transition_key = "lake_field_boundary_transition_"
         },
         town = {
             outer_corner_key = "",
@@ -117,10 +117,10 @@ local border_metatiles = {
             edge_key = "lake_field_edge_straight_"
         },
         forest = {
-            outer_corner_key = "",
+            outer_corner_key = "lake_field_forest_field_corner_",
             inner_corner_key = "",
             edge_key = "lake_forest_edge_straight_",
-            boundary_transition_key = "lake_forest_boundary_transition_"
+            --boundary_transition_key = "lake_forest_boundary_transition_"
         },
         mountain = nil,
         boundary = {
@@ -206,7 +206,7 @@ local function place_metatile_at(key, dst_map, slot, erase_objects, ...)
     if erase_objects then
         local px = info.start_x * 16
         local py = info.start_y * 16
-        print("erasing objects here: x1 = " .. px .. ", y1 = " .. py .. ", x2 = " .. (px + mt_data.w * 16) .. ", y2 = " .. (py + mt_data.h * 16))
+        utils.print_file("erasing objects here: x1 = " .. px .. ", y1 = " .. py .. ", x2 = " .. (px + mt_data.w * 16) .. ", y2 = " .. (py + mt_data.h * 16))
         OW_Metatiles.erase_object_region("static_collision", px, py, px + mt_data.w * 16, py + mt_data.h * 16, dst_map)
     end
     for i = 0, info.count - 1 do
@@ -262,7 +262,7 @@ function GenerateBaseRooms.process_overworld(zone_grid, edges, grid_width, grid_
                 end
             end
 
-            print("\n### Row: " .. row .. ", Col: " .. col .. ", zone: " .. my_zone)
+            utils.print_file("\n### Row: " .. row .. ", Col: " .. col .. ", zone: " .. my_zone)
 
             -- handle edges to other rooms and the boundary
 
@@ -292,13 +292,13 @@ function GenerateBaseRooms.process_overworld(zone_grid, edges, grid_width, grid_
 
             -- adjacent zones
             for side, other_zone in pairs(adjacent_zones) do
-                print("side: ".. side .. ", other zone: " .. other_zone)
+                utils.print_file("side: ".. side .. ", other zone: " .. other_zone)
 
                 local keys = border_metatiles[my_zone][other_zone]
                 -- straight edges
                 if keys == nil or keys.edge_key == nil or keys.edge_key == "" then
                     --print("skipping edge from " .. my_zone .. " to " .. other_zone .. " at " .. side)
-                    print("-- skipping this edge")
+                    utils.print_file("-- skipping this edge")
                     goto continue
                 end
 
@@ -312,16 +312,16 @@ function GenerateBaseRooms.process_overworld(zone_grid, edges, grid_width, grid_
                     local opp_side = OPPOSITE_SIDES[side]
                     local dir = DIRECTIONS[side]
                     adjacent_edges_grid[row][col][side] = { side = other_zone }
-                    print("this zone (" .. my_zone .. ") borders on a different zone (".. other_zone .. ") to the " .. side .. " which has a closed border to the " .. opp_side)
+                    utils.print_file("this zone (" .. my_zone .. ") borders on a different zone (".. other_zone .. ") to the " .. side .. " which has a closed border to the " .. opp_side)
                 end
 
                 ::continue::
             end
 
-            print("\n== inner corners ==")
+            utils.print_file("\n== inner corners ==")
        
             for _, combo in ipairs(CORNER_COMBOS) do
-                print("corner: " .. combo.corner)
+                utils.print_file("corner: " .. combo.corner)
                 -- process the inner corners between adjacent zones
                 local zone_a = adjacent_zones[combo.a]
                 local zone_b = adjacent_zones[combo.b]
@@ -332,16 +332,15 @@ function GenerateBaseRooms.process_overworld(zone_grid, edges, grid_width, grid_
                         local keys = border_metatiles[my_zone][zone_a]
                         -- check if a metatile is needed
                         if keys == nil or keys.inner_corner_key == nil or keys.inner_corner_key == "" then
-                            --print("skipping edge from " .. my_zone .. " to " .. other_zone .. " at " .. side)
-                            print("-- skipping this inner corner because key is nil or keys.inner_corner_key is empty or nil." )
+                            utils.print_file("-- skipping this inner corner because key is nil or keys.inner_corner_key is empty or nil." )
                             goto continue
                         end
 
                         local corner_key = keys.inner_corner_key .. combo.corner
-                        print("got inner corner data for " .. corner_key)
+                        utils.print_file("got inner corner data for " .. corner_key)
                         place_metatile_at(corner_key, dst_map, combo.corner, true, true, true)
 
-                    elseif zone_a ~= zone_b and zone_a ~= "boundary" and zone_b ~= "boundary" then
+                    elseif zone_a ~= zone_b then
                         -- triple or quadruple zone transitions
                         -- TODO naming convention is: north/south, diagonal, east/west 
                         local dir_a = DIRECTIONS[combo.a]
@@ -349,39 +348,24 @@ function GenerateBaseRooms.process_overworld(zone_grid, edges, grid_width, grid_
                         local zone_diag = get_neighbor_zone(zone_grid, row, col, dir_a.dr + dir_b.dr, dir_a.dc + dir_b.dc, grid_width, grid_height)
                         local key = string.format("%s_%s_%s_%s_corner_%s", my_zone, adjacent_zones[combo.a], zone_diag, adjacent_zones[combo.b], combo.corner)
                         if not OW_Metatiles.metatile_exists(key) then
-                            print("-- skipping this mixed inner corner because no tile exists for " .. key)
+                            utils.print_file("-- skipping this mixed inner corner because no tile exists for " .. key)
                             goto continue
                         end
-                        print("got mixed inner corner data for " .. key)
+                        utils.print_file("got mixed inner corner data for " .. key)
                         place_metatile_at(key, dst_map, combo.corner, true, true, true)
 
                     elseif zone_a == "boundary" and zone_b == "boundary" then
                         -- handle case where both sides are the boundary (boundary.inner_corner_key)
                         local keys = border_metatiles[my_zone].boundary
                         if keys == nil or keys.inner_corner_key == nil or keys.inner_corner_key == "" then
-                            --print("skipping edge from " .. my_zone .. " to " .. other_zone .. " at " .. side)
-                            print("-- skipping this boundary corner because key is nil or keys.inner_corner_key is empty or nil." )
+                            utils.print_file("-- skipping this boundary corner because key is nil or keys.inner_corner_key is empty or nil." )
                             goto continue
                         end
 
                         local corner_key = keys.inner_corner_key .. combo.corner
-                        print("got boundary corner data for " .. corner_key)
+                        utils.print_file("got boundary corner data for " .. corner_key)
                         place_metatile_at(corner_key, dst_map, combo.corner, true, true, true)
 
-                    elseif zone_a == "boundary" and zone_b ~= my_zone or zone_b == "boundary" and zone_a ~=my_zone then
-                        -- handle cases where one side is the boundary and the other side is a different zone
-                        local other_zone = zone_a ~= "boundary" and zone_a or zone_b
-                        print(my_zone .. ", " .. other_zone)
-                        local keys = border_metatiles[my_zone][other_zone]
-                        if keys == nil or keys.boundary_transition_key == nil or keys.boundary_transition_key == "" then
-                            --print("skipping edge from " .. my_zone .. " to " .. other_zone .. " at " .. side)
-                            print("-- skipping this zone transition because key is nil or keys.boundary_transition_key is empty or nil." )
-                            goto continue
-                        end
-
-                        local boundary_key = keys.boundary_transition_key .. combo.corner
-                        print("got zone transition tile data for " .. boundary_key)
-                        place_metatile_at(boundary_key, dst_map, combo.corner, true, true, true)
                     end
 
                     ::continue::
@@ -401,7 +385,7 @@ function GenerateBaseRooms.process_overworld(zone_grid, edges, grid_width, grid_
     end
 
     -- second pass: outer corners
-    print("\n== outer corners ==")
+    utils.print_file("\n== outer corners ==")
     for row = 0, grid_height - 1 do
         for col = 0, grid_width - 1 do
             local dst_map = dst_maps[row][col]
@@ -430,7 +414,7 @@ function GenerateBaseRooms.process_overworld(zone_grid, edges, grid_width, grid_
                 -- for example, if the corner is nw, check if the room to the west has a border to north,  
                 -- and if the room to the north has a border to west
                 if neighbor_room_a[combo.b] and neighbor_room_b[combo.a] then
-                    print("there is an outer corner here (" .. combo.corner .. ") in row " .. row .. ", col " ..col)
+                    utils.print_file("there is an outer corner here (" .. combo.corner .. ") in row " .. row .. ", col " ..col)
 
                     -- place the correct tile
 
@@ -441,12 +425,12 @@ function GenerateBaseRooms.process_overworld(zone_grid, edges, grid_width, grid_
 
                     local keys = border_metatiles[my_zone][zone_diag]
                     if keys == nil or keys.outer_corner_key == nil or keys.outer_corner_key == "" then
-                        print("-- skipping this outer corner because key is nil or keys.outer_corner_key is empty or nil." )
+                        utils.print_file("-- skipping this outer corner because key is nil or keys.outer_corner_key is empty or nil." )
                         goto continue
                     end
 
                     local corner_key = keys.outer_corner_key .. combo.corner
-                    print("got outer corner data for " .. corner_key)
+                    utils.print_file("got outer corner data for " .. corner_key)
                     place_metatile_at(corner_key, dst_map, combo.corner, false, true)
                 end
 
@@ -467,12 +451,12 @@ function GenerateBaseRooms.process_overworld(zone_grid, edges, grid_width, grid_
             end
             local out_path = string.format("resources/tilemaps/generated/overworld/%s.json", WorldUtils.node_name(row, col))
             utils.saveJSON(out_path, dst_map)
-            print(string.format("==> saved %s (%s)", out_path, my_zone))
+            utils.print_file(string.format("==> saved %s (%s)", out_path, my_zone))
         end
     end
 
 
-    print("process_overworld: done")
+    utils.print_file("process_overworld: done")
 end
 
 return GenerateBaseRooms

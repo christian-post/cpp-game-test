@@ -55,8 +55,8 @@ void InGame::startup()
     {
         // start in the overworld
         // TODO just a placeholder
-        std::string worldKey = "overworld";
-        //std::string worldKey = "interior";
+        //std::string worldKey = "overworld";
+        std::string worldKey = "interior";
         game.createWorld(worldKey, false);
     }
     // retrieve the tilemap
@@ -67,6 +67,9 @@ void InGame::startup()
     // setup the camera
     cameraController.initialize(static_cast<float>(game.gameScreenWidth), static_cast<float>(game.gameScreenHeight));
     cameraController.setTarget(player.get());
+
+    playerOcclusionTexture = LoadRenderTexture(game.gameScreenWidth, game.gameScreenHeight);
+    topLayerTexture = LoadRenderTexture(game.gameScreenWidth, game.gameScreenHeight);
 
     // assign button functions
     setupInputCallbacks();
@@ -861,9 +864,39 @@ void InGame::update(float deltaTime)
 void InGame::draw()
 {
     ClearBackground(BLACK);
+
+    auto& cam = cameraController.getCamera();
+
+    EndTextureMode();
+
+    // build the player occlusion texture
+    BeginTextureMode(playerOcclusionTexture);
+        ClearBackground(BLANK);
+        BeginMode2D(cam);
+            player->draw();
+        EndMode2D();
+    EndTextureMode();
+
+    // build the top layer texture, with the player occlusion mask baked in
+    Rectangle src = { 0.0f, 0.0f, (float)playerOcclusionTexture.texture.width, -(float)playerOcclusionTexture.texture.height };
+    Rectangle dst = { 0.0f, 0.0f, (float)playerOcclusionTexture.texture.width, (float)playerOcclusionTexture.texture.height };
+    BeginTextureMode(topLayerTexture);
+        ClearBackground(BLANK);
+        BeginMode2D(cam);
+            if (tileMap && renderLayers[3])
+                tilemapRenderer.drawLayer(3, cam);
+        EndMode2D();
+        BeginBlendMode(BLEND_MULTIPLIED);
+            // only draw the player texture where there are non-transparent pixels on the top layer
+            // smaller alpha value = less visible shadow
+            DrawTexturePro(playerOcclusionTexture.texture, src, dst, { 0.0f, 0.0f }, 0.0f, { 0, 0, 0, 100 });
+        EndBlendMode();
+    EndTextureMode();
+
+    BeginTextureMode(game.target);
  
     // draw the textures that are affected by the camera
-    BeginMode2D(cameraController.getCamera());
+    BeginMode2D(cam);
 
     // Draw the sprites after sorting them by their bottom y position, also respect the drawing layer of each sprite (fixed)
     // TODO add a flag to sprite that makes an exception from this sorting
@@ -882,7 +915,7 @@ void InGame::draw()
         });
 
     // draw each tilemap layer except the top one
-    auto& cam = cameraController.getCamera();
+    
     if (tileMap)
     {
         
@@ -914,8 +947,9 @@ void InGame::draw()
     }
 
     // now draw the top layer above the sprites
-    if (tileMap && renderLayers[3])
-        tilemapRenderer.drawLayer(3, cam); // top
+    //if (tileMap && renderLayers[3])
+    //    tilemapRenderer.drawLayer(3, cam); // top
+
 
     // draw debug information that is affected by the camera (hitboxes etc)
     if (game.debug)
@@ -946,6 +980,12 @@ void InGame::draw()
         }
     }
     EndMode2D();
+
+    // TODO draw semi transparent mask when the player is behind tiles on the top layer
+    // draw the top layer from the pre-built texture (camera transform was already applied before)
+    BeginBlendMode(BLEND_ALPHA_PREMULTIPLY); // needed to correctly draw semi-transparent white
+        DrawTexturePro(topLayerTexture.texture, src, dst, { 0.0f, 0.0f }, 0.0f, WHITE);
+    EndBlendMode();
 
     // draw lighting in dark rooms
     Room* r = game.currentWorld->getCurrentRoom();
@@ -981,6 +1021,10 @@ void InGame::end()
     if (music) 
         StopMusicStream(*music);
     music = nullptr;
+
+    // texture clean up
+    UnloadRenderTexture(playerOcclusionTexture);
+    UnloadRenderTexture(topLayerTexture);
 }
 
 void InGame::onPause()

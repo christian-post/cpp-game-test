@@ -1,5 +1,5 @@
 local utils = require("lib.utils")
-local WorldUtils = require("lib.world_utils")
+local Worldutils = require("lib.world_utils")
 local GenerateBaseRooms = {}
 
 -- base tilemap for each zone, loaded once and reused
@@ -317,7 +317,7 @@ function GenerateBaseRooms.copy_region(dst, src, dst_x, dst_y, src_x, src_y, w, 
         local dst_layer = find_layer(dst, src_layer.name)
 
         if not dst_layer then
-            print("tilemap.copy_region: warning: layer '" .. src_layer.name .. "' not found in dst, skipping")
+            utils.print_file("tilemap.copy_region: warning: layer '" .. src_layer.name .. "' not found in dst, skipping")
         elseif src_layer.type == "tilelayer" then
             merge_tile_layer(dst_layer, src_layer, dst_x, dst_y, src_x, src_y, w, h, src, dst)
         elseif src_layer.type == "objectgroup" then
@@ -336,7 +336,7 @@ end
 
 local function are_connected(edge_set, from_row, from_col, to_row, to_col)
     -- check if this edge exists
-    local key = WorldUtils.node_name(from_row, from_col) .. "->" .. WorldUtils.node_name(to_row, to_col)
+    local key = Worldutils.node_name(from_row, from_col) .. "->" .. Worldutils.node_name(to_row, to_col)
     return edge_set[key] ~= nil
 end
 
@@ -509,7 +509,7 @@ function GenerateBaseRooms.process_overworld(zone_grid, edges, grid_width, grid_
             local base_path = base_tilemaps[my_zone]
 
             if not base_path then
-                print(string.format("process_overworld: warning: no base tilemap for zone '%s' at (%d,%d), skipping", my_zone, row, col))
+                utils.print_file(string.format("process_overworld: warning: no base tilemap for zone '%s' at (%d,%d), skipping", my_zone, row, col))
                 goto continue
             end
 
@@ -583,7 +583,7 @@ function GenerateBaseRooms.process_overworld(zone_grid, edges, grid_width, grid_
                         -- base transition (open in most cases)
                         apply_transition(dst_map, transition_source, side)
                         -- get possible requirements
-                        local key = WorldUtils.node_name(row, col) .. "->" .. WorldUtils.node_name(row + dir.dr, col + dir.dc)
+                        local key = Worldutils.node_name(row, col) .. "->" .. Worldutils.node_name(row + dir.dr, col + dir.dc)
                         local requirements = edge_set[key] or {}
                         -- TODO paste corresponding chunk
                     end
@@ -650,9 +650,9 @@ function GenerateBaseRooms.process_overworld(zone_grid, edges, grid_width, grid_
 
             src_map_cache = {}
 
-            local out_path = string.format("resources/tilemaps/generated/overworld/%s.json", WorldUtils.node_name(row, col))
+            local out_path = string.format("resources/tilemaps/generated/overworld/%s.json", Worldutils.node_name(row, col))
             utils.saveJSON(out_path, dst_map)
-            print(string.format("  saved %s (%s)", out_path, my_zone))
+            utils.print_file(string.format("  saved %s (%s)", out_path, my_zone))
 
             ::continue::
         end
@@ -693,7 +693,7 @@ function GenerateBaseRooms.process_overworld(zone_grid, edges, grid_width, grid_
                 row = row,
                 column = col,
                 doors = table.concat(door_bits),
-                tilemap = WorldUtils.node_name(row, col)
+                tilemap = Worldutils.node_name(row, col)
             })
 
             ::continue_save::
@@ -706,9 +706,9 @@ function GenerateBaseRooms.process_overworld(zone_grid, edges, grid_width, grid_
     all_dungeons.overworld.seed = dungeon_seed
 
     utils.saveJSON(dungeons_path, all_dungeons)
-    print("process_overworld: updated dungeons.json")
+    utils.print_file("process_overworld: updated dungeons.json")
 
-    print("process_overworld: done")
+    utils.print_file("process_overworld: done")
 end
 
 return GenerateBaseRooms

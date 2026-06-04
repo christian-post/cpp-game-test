@@ -295,7 +295,7 @@ function OverworldGenerator.print_layout(zone_grid, width, height, edges)
                 line = line .. edge_char(WorldUtils.node_name(row, col), WorldUtils.node_name(row, col + 1))
             end
         end
-        print(line)
+        utils.print_file(line)
 
         if row < height - 1 then
             local edge_line = "  "
@@ -305,7 +305,7 @@ function OverworldGenerator.print_layout(zone_grid, width, height, edges)
                     edge_line = edge_line .. " "
                 end
             end
-            print(edge_line)
+            utils.print_file(edge_line)
         end
     end
 end

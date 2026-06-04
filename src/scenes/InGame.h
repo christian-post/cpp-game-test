@@ -89,4 +89,8 @@ private:
     bool cameraHasBounds = true;  // only for debugging
     bool checkEnemyCount = true; // if true, checks if there are enemies on the map. reset when entering a new map 
     std::shared_ptr<Emitter> wpnHitEffect = nullptr;
+
+    // proxy textures for drawing the player's sprite mask behind the top layer tiles
+    RenderTexture2D playerOcclusionTexture = { 0 };
+    RenderTexture2D topLayerTexture = { 0 };
 };

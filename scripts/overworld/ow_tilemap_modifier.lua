@@ -304,7 +304,7 @@ local function copy_region(dst, src, dst_x, dst_y, src_x, src_y, w, h, overwrite
     for _, src_layer in ipairs(src.layers) do
         local dst_layer = find_layer(dst, src_layer.name)
         if not dst_layer then
-            print("tilemap_modifier.copy_region: warning: layer '" .. src_layer.name .. "' not found in dst, skipping")
+            utils.print_file("tilemap_modifier.copy_region: warning: layer '" .. src_layer.name .. "' not found in dst, skipping")
         elseif src_layer.type == "tilelayer" then
             merge_tile_layer(dst_layer, src_layer, dst_x, dst_y, src_x, src_y, w, h, src, dst, mask)
         elseif src_layer.type == "objectgroup" then
@@ -411,7 +411,7 @@ local function patch_interior_rooms(assignments)
         end
 
         utils.saveJSON(path, map)
-        print(string.format("  patched interior room %s/%s (index %d)", assignment.room.world_key, room_entry.tilemap, assignment.room.index))
+        utils.print_file(string.format("  patched interior room %s/%s (index %d)", assignment.room.world_key, room_entry.tilemap, assignment.room.index))
     end
 end
 
@@ -457,7 +457,7 @@ function TilemapModifier.process_overworld(zone_grid, edges, grid_width, grid_he
             end
 
             utils.saveJSON(room_path, dst_map)
-            print(string.format("  applied %s to %s (%s)", basename(content_path), WorldUtils.node_name(cell.row, cell.col), role))
+            utils.print_file(string.format("  applied %s to %s (%s)", basename(content_path), WorldUtils.node_name(cell.row, cell.col), role))
 
             ::continue_cell::
         end

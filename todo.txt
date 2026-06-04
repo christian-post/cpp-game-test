@@ -61,6 +61,9 @@
 - Assets
 -- Turn ItemData.cpp consumables callbacks into a Lua script as well, and use a json for the basic item data (type, texture, screen name)
 
+- Misc
+-- "World select" debug menu
+
 # NOT SO IMPORTANT:
 ## FEATURES/REFACTORS:
 - Too much coupling between Game and Sprite?
