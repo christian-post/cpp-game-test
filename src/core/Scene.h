@@ -25,6 +25,7 @@ public:
     virtual ~Scene() = default;
     virtual void startup() {}
     virtual void update(float deltaTime) {}
+    virtual void preDraw() {}  // texture construction etc that has to happen before BeginTextureMode
     virtual void draw() {}
     virtual void end() {}
     virtual void onPause() {}

@@ -861,13 +861,9 @@ void InGame::update(float deltaTime)
     }
 }
 
-void InGame::draw()
+void InGame::preDraw()
 {
-    ClearBackground(BLACK);
-
     auto& cam = cameraController.getCamera();
-
-    EndTextureMode();
 
     // build the player occlusion texture
     BeginTextureMode(playerOcclusionTexture);
@@ -892,8 +888,13 @@ void InGame::draw()
             DrawTexturePro(playerOcclusionTexture.texture, src, dst, { 0.0f, 0.0f }, 0.0f, { 0, 0, 0, 100 });
         EndBlendMode();
     EndTextureMode();
+}
 
-    BeginTextureMode(game.target);
+void InGame::draw()
+{
+    ClearBackground(BLACK);
+
+    auto& cam = cameraController.getCamera();
  
     // draw the textures that are affected by the camera
     BeginMode2D(cam);
@@ -983,6 +984,9 @@ void InGame::draw()
 
     // TODO draw semi transparent mask when the player is behind tiles on the top layer
     // draw the top layer from the pre-built texture (camera transform was already applied before)
+    Rectangle src = { 0.0f, 0.0f, (float)playerOcclusionTexture.texture.width, -(float)playerOcclusionTexture.texture.height };
+    Rectangle dst = { 0.0f, 0.0f, (float)playerOcclusionTexture.texture.width, (float)playerOcclusionTexture.texture.height };
+
     BeginBlendMode(BLEND_ALPHA_PREMULTIPLY); // needed to correctly draw semi-transparent white
         DrawTexturePro(topLayerTexture.texture, src, dst, { 0.0f, 0.0f }, 0.0f, WHITE);
     EndBlendMode();

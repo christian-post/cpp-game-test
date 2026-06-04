@@ -46,6 +46,7 @@
 -- Add tile-based collision/behavior? (trees, water etc)
 -- rate overworld generation based on different factors (evenly spaced out zones, town not adjacent)
 -- refactor: make metatiles (boundaries, inner/outer corners) files smaller (put everything on one map)
+-- actual drawing priority system for sprites and tiles (instead of hard-coding the drawing order)
 
 - Sprites
 -- drawing priority/layer system

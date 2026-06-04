@@ -23,6 +23,7 @@ public:
     InGame(Game& game, const std::string& name);
     void startup() override;
     void update(float deltaTime) override;
+    void preDraw() override;
     void draw() override;
     void end() override;
     void onPause() override;

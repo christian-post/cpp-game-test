@@ -609,21 +609,29 @@ void Game::draw()
 {
     // Compute required framebuffer scaling
     float scale = std::min((float)GetScreenWidth() / gameScreenWidth, (float)GetScreenHeight() / gameScreenHeight);
+
+
+    std::vector<Scene*> activeScenes;
+    for (auto& [name, scene] : scenes)
+    {
+        if (scene && scene->isActive())
+            activeScenes.push_back(scene.get());
+    }
+    // Sort active scenes by draw priority
+    std::sort(activeScenes.begin(), activeScenes.end(),
+        [](Scene* a, Scene* b) {
+            return a->getDrawPriority() < b->getDrawPriority();
+        });
+
+    // pre-draw step (doesn't draw on the target surface
+    for (Scene* scene : activeScenes)
+    {
+        scene->preDraw();
+    }
     
     // Draw everything in the render texture, note this will not be rendered on screen, yet
     // All the actual drawing logic is handled by each scene
     BeginTextureMode(target);
-        std::vector<Scene*> activeScenes;
-        for (auto& [name, scene] : scenes)
-        {
-            if (scene && scene->isActive())
-                activeScenes.push_back(scene.get());
-        }
-        // Sort active scenes by draw priority
-        std::sort(activeScenes.begin(), activeScenes.end(),
-            [](Scene* a, Scene* b) {
-                return a->getDrawPriority() < b->getDrawPriority();
-            });
         for (Scene* scene : activeScenes)
         {
             scene->draw();
