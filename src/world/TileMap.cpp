@@ -93,9 +93,9 @@ TileMap::TileMap(const nlohmann::json& jsonMap, std::string mapName)
 
     for (auto& t : jsonMap["tilesets"])
     {
-        // strip the ".tsj" from the filename
-        std::string srcName = t["source"];
-        tilesetNames.push_back(std::make_pair(srcName.substr(0, srcName.size() - 4), t["firstgid"])); 
+        // take only the stem without the ".tsj"
+        std::string srcName = std::filesystem::path(t["source"].get<std::string>()).stem().string();
+        tilesetNames.push_back(std::make_pair(srcName, t["firstgid"]));
     }
     //std::string srcName = jsonMap["tilesets"][0]["source"];
     //tilesetName = srcName.substr(0, srcName.size() - 4); // strip the ".tsj"

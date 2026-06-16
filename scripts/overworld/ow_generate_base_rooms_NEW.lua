@@ -442,6 +442,8 @@ function GenerateBaseRooms.process_overworld(zone_grid, edges, grid_width, grid_
     end
 
     -- save all maps
+    update_progress("Saving maps...")
+
     for row = 0, grid_height - 1 do
         for col = 0, grid_width - 1 do
             local dst_map = dst_maps[row][col]
@@ -452,6 +454,12 @@ function GenerateBaseRooms.process_overworld(zone_grid, edges, grid_width, grid_
             local out_path = string.format("resources/tilemaps/generated/overworld/%s.json", WorldUtils.node_name(row, col))
             utils.saveJSON(out_path, dst_map)
             utils.print_file(string.format("==> saved %s (%s)", out_path, my_zone))
+
+            -- tell the Game that this is still running
+            if not yield_to_engine() then
+                print("INFO: Window closed during generation")
+                return false
+            end
         end
     end
 

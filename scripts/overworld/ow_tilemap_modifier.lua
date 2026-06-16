@@ -12,9 +12,9 @@ local zone_content = {
 }
 
 -- pool of interior rooms assignable to town teleports.
--- each entry: { filename, index, x, y } where x/y are the spawn coords inside the interior room.
+-- each entry: { key, index, x, y } where x/y are the spawn coords inside the interior room.
 local room_pool = {
-    { world_key = "interior", index = 0, x = 158, y = 172 },
+    --{ world_key = "interior", index = 0, x = 158, y = 172 }, -- test room
     { world_key = "interior", index = 1, x = 158, y = 172 },
     { world_key = "interior", index = 2, x = 158, y = 172 },
     { world_key = "interior", index = 3, x = 158, y = 172 },
@@ -24,11 +24,11 @@ local room_pool = {
     { world_key = "interior", index = 7, x = 110, y = 172 },
     { world_key = "interior", index = 8, x = 158, y = 172 },
     { world_key = "interior", index = 9, x = 158, y = 172 },
-    -- TODO add more rooms
+    -- TODO add more rooms, the dungeons etc
 }
 
 local function pick_from_pool(pool)
-    -- picks a raandom entry from a list
+    -- picks a random entry from a list
     if #pool == 0 then
         return nil
     end
@@ -321,11 +321,13 @@ local function patch_teleports(dst_map, cell, pool, assignments)
         if layer.type == "objectgroup" and layer.name == "sprites" then
             for _, obj in ipairs(layer.objects) do
                 if obj.name == "teleport" then
+                    -- choose a random room
                     local room = pick_from_pool(pool)
                     if not room then
                         goto continue_obj
                     end
 
+                    -- modify the overworld teleport's properties to match the room
                     for _, prop in ipairs(obj.properties) do
                         if prop.name == "targetWorld" then
                             prop.value = "interior"
@@ -352,7 +354,7 @@ local function patch_teleports(dst_map, cell, pool, assignments)
     end
 end
 
--- for each assigned interior room, patch its teleport to return to the overworld.
+-- for each assigned interior room, patch its teleport to return to the correct overworld location.
 local function patch_interior_rooms(assignments)
     local dungeons_file = io.open("resources/dungeons.json", "r")
     if not dungeons_file then
@@ -422,7 +424,7 @@ function TilemapModifier.process_overworld(zone_grid, edges, grid_width, grid_he
     local edge_set = build_edge_set(edges)
     local clusters = find_zone_clusters(zone_grid, edge_set, grid_width, grid_height)
 
-    -- copy pool so the original is not mutated across runs
+    -- copy the room pool so the original is not mutated across runs
     local pool = {}
     for _, entry in ipairs(room_pool) do
         table.insert(pool, entry)

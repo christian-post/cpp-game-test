@@ -44,7 +44,7 @@ void DungeonMenu::startup()
     if (game.getSetting<bool>("useRngSeed"))
     {
         // TODO change to menu where the players can enter a seed
-        uint32_t seed = game.getSetting<int>("dungeonRngSeed");
+        uint32_t seed = game.getSetting<int>("worldRngSeed");
         std::string seedMenuText = format("Generate with seed: (%s)", seedToHexString(seed).c_str());
 
         menu.addItem({
@@ -55,7 +55,8 @@ void DungeonMenu::startup()
                 game.luaDungeonGen->setSeed(seed);
 
                 TraceLog(LOG_INFO, "Running Lua dungeon generation test");
-                game.luaDungeonGen->executeScript("scripts/test_dungeon_generation.lua");
+                //game.luaDungeonGen->executeScript("scripts/test_dungeon_generation.lua");
+                game.luaDungeonGen->executeScript("scripts/test_overworld_generation.lua");
                 TraceLog(LOG_INFO, "Dungeon generation completed!");
 
                 reloadRequired = true;
@@ -74,11 +75,17 @@ void DungeonMenu::startup()
                 game.luaDungeonGen->setSeed(seed);
 
                 TraceLog(LOG_INFO, "Running Lua dungeon generation test");
-                game.luaDungeonGen->executeScript("scripts/test_dungeon_generation.lua");
+                //game.luaDungeonGen->executeScript("scripts/test_dungeon_generation.lua");
+                game.luaDungeonGen->executeScript("scripts/test_overworld_generation.lua");
                 TraceLog(LOG_INFO, "Dungeon generation completed! Seed: %d", seed);
 
                 std::string seedStr = seedToHexString(seed);
                 lastSeedMessage = "Seed of generated dungeon: " + seedStr;
+
+                game.writeSetting("worldRngSeed", seed);
+                game.saveSettings();
+                // show the updated seed
+                menu.updateItemText(0, format("Generate with seed: (%s)", seedToHexString(seed).c_str()));
 
                 reloadRequired = true;
             }
@@ -151,17 +158,20 @@ void DungeonMenu::end()
 
         // JSON
         game.loader.loadQueue.emplace("Loading JSON files", [&]() {
+            TraceLog(LOG_INFO, "Loading JSON files");
             game.loader.loadSpriteData("./resources/npcs.json");
             game.loader.loadtextData("./resources/texts.json");
             game.loader.loadDungeonData("./resources/dungeons.json");
+            game.loader.loadSettings("./resources/settings.json");
             });
 
         // rooms
         game.loader.loadQueue.emplace("Loading tilemaps", [&]() {
-            game.loader.loadTilemapsFromDirectory("./resources/tilemaps/generated/lua_dungeon"); // TODO load subfolders recursively
+            game.loader.loadTilemapsFromDirectory("./resources/tilemaps/generated", true);
+            game.loader.loadTilemapsFromDirectory("./resources/tilemaps/interior", true);
             });
 
-        // TODO will this take time long enough so I need to show a loading message?
+        // TODO this takes quite long. go to the loading scene
         while (!game.loader.loadQueue.empty())
         {
             game.loader.loadQueue.front().second(); // execute callback

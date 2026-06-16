@@ -883,9 +883,9 @@ void InGame::preDraw()
                 tilemapRenderer.drawLayer(3, cam);
         EndMode2D();
         BeginBlendMode(BLEND_MULTIPLIED);
-            // only draw the player texture where there are non-transparent pixels on the top layer
-            // smaller alpha value = less visible shadow
             DrawTexturePro(playerOcclusionTexture.texture, src, dst, { 0.0f, 0.0f }, 0.0f, { 0, 0, 0, 100 });
+        EndBlendMode();
+        BeginBlendMode(BLEND_ALPHA);
         EndBlendMode();
     EndTextureMode();
 }

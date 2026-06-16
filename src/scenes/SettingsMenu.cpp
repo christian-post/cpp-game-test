@@ -12,6 +12,7 @@ void SettingsMenu::startup()
     // A bunch of settings
     // TODO to be continued
 
+    // Toggle Sound on/off
     MenuItem SoundOnItem;
     SoundOnItem.displayName = "Sound";
     SoundOnItem.type = MenuItemType::Cycle;
@@ -25,6 +26,7 @@ void SettingsMenu::startup()
         };
     menu.addItem(SoundOnItem);
 
+    // Set the master volume
     MenuItem volumeItem;
     volumeItem.displayName = "Master Volume";
     volumeItem.type = MenuItemType::Number;
@@ -38,6 +40,7 @@ void SettingsMenu::startup()
         };
     menu.addItem(volumeItem);
 
+    // Set the music volume
     MenuItem musicVolItem;
     musicVolItem.displayName = "Music Volume";
     musicVolItem.type = MenuItemType::Number;
@@ -50,6 +53,7 @@ void SettingsMenu::startup()
         };
     menu.addItem(musicVolItem);
 
+    // Set the sound volume
     MenuItem soundVolItem;
     soundVolItem.displayName = "Sound Effects Volume";
     soundVolItem.type = MenuItemType::Number;
@@ -66,6 +70,7 @@ void SettingsMenu::startup()
             game.toggleFullscreen();
         } });
 
+    // Set the FPS cap
     MenuItem fpsItem;
     fpsItem.displayName = "Max Refresh Rate";
     fpsItem.type = MenuItemType::Number;
@@ -79,6 +84,7 @@ void SettingsMenu::startup()
         };
     menu.addItem(fpsItem);
 
+    // Set the text speed
     MenuItem textSpeedItem;
     textSpeedItem.displayName = "Text Speed";
     textSpeedItem.type = MenuItemType::Cycle;
@@ -94,6 +100,7 @@ void SettingsMenu::startup()
         };
     menu.addItem(textSpeedItem);
 
+    // Toggle V-sync on/off
     MenuItem vsyncItem;
     vsyncItem.displayName = "V-Sync";
     vsyncItem.type = MenuItemType::Cycle;
@@ -106,6 +113,7 @@ void SettingsMenu::startup()
         };
     menu.addItem(vsyncItem);
 
+    // Toggle screen shake on/off
     MenuItem screenShakeItem;
     screenShakeItem.displayName = "Screen shake";
     screenShakeItem.type = MenuItemType::Cycle;
@@ -119,7 +127,7 @@ void SettingsMenu::startup()
         };
     menu.addItem(screenShakeItem);
 
-    // key bindings menu
+    // Enter the key bindings menu
     menu.addItem({ "Key Bindings", MenuItemType::Action, [&]() {
         game.setOnSceneComplete("KeyBindingMenu", [&]() {
             game.wakeScene("SettingsMenu");

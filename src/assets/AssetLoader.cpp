@@ -69,16 +69,15 @@ AssetLoader::~AssetLoader()
     }
 }
 
-void AssetLoader::loadTilemapsFromDirectory(const std::string& directory)
+void AssetLoader::loadTilemapsFromDirectory(const std::string& directory, bool recursive)
 {
     for (const auto& entry : fs::directory_iterator(directory))
     {
-        auto ext = entry.path().extension();
+        if (entry.is_directory() && recursive)
+            loadTilemapsFromDirectory(entry.path().string(), true);
+
         if (entry.path().extension() == ".json")
-        {
-            std::string filename = directory + "/" + entry.path().filename().string();
-            LoadtileMapFromTiled(filename);
-        }
+            LoadtileMapFromTiled(directory + "/" + entry.path().filename().string());
     }
 }
 

@@ -1,7 +1,6 @@
 {
   "HudHeight": 32.0,
   "PlayeriFrames": 1.0,
-  "dungeonRngSeed": 1775210716,
   "fullscreen": false,
   "gameScreenHeight": 192,
   "gameScreenWidth": 256,
@@ -150,5 +149,6 @@
   "windowHeight": 601,
   "windowWidth": 802,
   "windowX": 1075.0,
-  "windowY": 331.0
+  "windowY": 331.0,
+  "worldRngSeed": 1781597891
 }

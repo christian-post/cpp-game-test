@@ -33,6 +33,7 @@
 -- do I need a base GameObject class? Or is that too much overhead for too little gain?
 -- collision objects should be able to span multiple layers
 -- auto load most of the assets instead of manually adding them to Preload.cpp
+-- if the loadQueue is not empty and a scene starts, it should first go to a loading scene that shows the progress
 
 - Cutscenes
 -- modify sword_get.lua script from the dungeon generation script

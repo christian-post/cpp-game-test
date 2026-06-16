@@ -12,12 +12,7 @@ function execute()
     utils.open_log("debug/last_generated.txt")
 
     print("=== Overworld Generation Test ===\n")
-
-    -- TODO random seeding for testing different outcomes
-    local seed = 1779965548
-    --local seed = os.time()
-    set_dungeon_seed(seed)
-    utils.print_file("RNG seed: " .. seed)
+    dungeon_generation_start() -- emits DUNGEON_GENERATION_START event
 
     -- some parameters for testing
     local width = 6
@@ -32,8 +27,16 @@ function execute()
     local excluded_rooms -- currently only the starting room
     local features_result -- overworld features (show failed placements)
 
+    update_progress("Generating world layout...")
+
     local max_attempts = 20
     for attempt = 1, max_attempts do
+        -- tell the Game that this is still running
+        if not yield_to_engine() then
+            print("INFO: Window closed during generation")
+            return false
+        end
+
         utils.print_file(string.format("Attempt %d...", attempt))
 
         -- step 1: place the zones (terrain types have individual rules)
@@ -66,9 +69,12 @@ function execute()
 
         if attempt == max_attempts then
             utils.print_file("ERROR: Could not generate valid overworld after " .. max_attempts .. " attempts")
+            dungeon_generation_complete(false)
             return false
         end
     end
+
+    update_progress("Placing Items...")
 
     -- step 4: forward fill nodes with items
     utils.print_file("\nStep 4: Forward fill...")
@@ -76,6 +82,7 @@ function execute()
 
     if not success then
         utils.print_file("ERROR: Forward fill failed!")
+        dungeon_generation_complete(false)
         return false
     end
 
@@ -135,8 +142,10 @@ function execute()
     -- Tilemap modification
 
     --TilemapModifier.process_overworld(zone_grid, edges, width, height, features_result.overlays)
+    TilemapModifier.process_overworld(zone_grid, edges, width, height)
 
     print("\n=== Overworld Generation Complete! ===")
+    dungeon_generation_complete(true)
 
     utils.close_log()
 end
