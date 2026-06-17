@@ -7,6 +7,7 @@
 #include "CircleOverlay.h"
 #include "TilemapRenderer.h"
 #include "CameraController.h"
+#include "Terrain.h"
 #include "json.hpp"
 #include <memory>
 #include <utility>
@@ -37,6 +38,8 @@ public:
     CameraController cameraController;
     std::unique_ptr<LuaEventManager> luaEventManager; // Lua API layer
     std::unique_ptr<EventTriggerManager> eventTriggerManager; // processes event triggers for the luaEventManager
+
+    std::unordered_map<int, TerrainType> terrainLookup; // gid -> terrain for the current map's layer 0
 
     // keep a player variable for direct frequent access
     std::shared_ptr<Sprite> player;

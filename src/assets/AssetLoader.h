@@ -38,6 +38,7 @@ public:
     void LoadMusicFile(const std::string& filename, const float volume = 1.0f, const std::string& key = "");
     void LoadSoundFile(const std::string& filename, const float volume = 1.0f, const std::string& key = "");
     void LoadSavegameThumbnails(const std::string& filepath);
+    void loadTileProperties(const std::string& filename);
 
     const std::vector<Texture2D>& getTextures(const std::string& key);
     const TileMap& getTilemap(const std::string& key);
@@ -51,6 +52,7 @@ public:
     const nlohmann::json& getSpriteData();
     const nlohmann::json& getParticleData();
     const nlohmann::json& getDungeonData();
+    const nlohmann::json& getTileProperties();
 
     const std::vector<std::string>& getText(std::string& key);
     Texture2D fallbackTexture;
@@ -73,4 +75,5 @@ private:
     nlohmann::json spriteData;
     nlohmann::json particleData;
     nlohmann::json dungeonData;
+    nlohmann::json tileProperties;
 };

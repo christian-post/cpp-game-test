@@ -15,13 +15,13 @@ function execute()
     dungeon_generation_start() -- emits DUNGEON_GENERATION_START event
 
     -- some parameters for testing
-    local width = 6
-    local height = 8
-    local item_pool = { "hookshot", "bombs", "bow", "boat", "lamp" }
+    local world_width = 6
+    local world_height = 8
+    local ow_item_pool = { "hookshot", "bombs", "bow", "boat", "lamp" }
 
     -- steps 1-3: generate world until all rooms are reachable
     local layout -- contains: rows, cols, levels (only 1 level for overworld), positions (mapping from node names to grid coordinates), and zones (the zone grid) 
-    local zone_grid -- 2D grid (width x height), representing the "rooms" (=tilemaps) and their types (currently: mountain, field, lake, forest)
+    local zone_grid -- 2D grid (world_width x world_height), representing the "rooms" (=tilemaps) and their types (currently: mountain, field, lake, forest)
     local edges -- { from, to, requirements }
     local graph -- see WorldGraph for implementation details
     local excluded_rooms -- currently only the starting room
@@ -40,24 +40,24 @@ function execute()
         utils.print_file(string.format("Attempt %d...", attempt))
 
         -- step 1: place the zones (terrain types have individual rules)
-        zone_grid = OverworldZoneGenerator.generate(width, height)
+        zone_grid = OverworldZoneGenerator.generate(world_width, world_height)
         if not zone_grid then
             utils.print_file("  Zone placement failed, retrying...")
             goto continue -- skip all further generation steps
         end
 
         -- step 2: construct the overall room layout (close some edges randomly based on zone transition rules)
-        layout, edges = OverworldGenerator.generate(zone_grid, width, height)
+        layout, edges = OverworldGenerator.generate(zone_grid, world_width, world_height)
 
         -- step 2.1: run world feature generation (river, etc.), which may remove edges from the graph
-        features_result = OWFeatures.generate(zone_grid, edges, width, height)
+        features_result = OWFeatures.generate(zone_grid, edges, world_width, world_height)
         if not features_result then
             utils.print_file("  Feature placement failed, retrying...")
             goto continue
         end
 
         -- step 3: build the graph, which already includes item requirements for some of the edges
-        graph, excluded_rooms = OverworldBuilder.build(WorldGraph, layout, features_result.edges, item_pool)
+        graph, excluded_rooms = OverworldBuilder.build(WorldGraph, layout, features_result.edges, ow_item_pool)
 
         -- make sure that none of the rooms are completely shut off
         if graph:test_reachability() then
@@ -107,11 +107,11 @@ function execute()
 
     -- print zone grid
     utils.print_file("Zone layout:")
-    OverworldZoneGenerator.print_grid(zone_grid, width, height)
+    OverworldZoneGenerator.print_grid(zone_grid, world_width, world_height)
 
     -- print edge layout
     utils.print_file("\nEdge layout:")
-    OverworldGenerator.print_layout(zone_grid, width, height, edges)
+    OverworldGenerator.print_layout(zone_grid, world_width, world_height, edges)
 
     -- print graph info
     utils.print_file("\nGraph info:")
@@ -137,12 +137,12 @@ function execute()
     -- Tilemap building
     -- =====================================
 
-    GenerateBaseRooms.process_overworld(zone_grid, edges, width, height)
+    GenerateBaseRooms.process_overworld(zone_grid, edges, world_width, world_height)
 
     -- Tilemap modification
 
-    --TilemapModifier.process_overworld(zone_grid, edges, width, height, features_result.overlays)
-    TilemapModifier.process_overworld(zone_grid, edges, width, height)
+    --TilemapModifier.process_overworld(zone_grid, edges, world_width, world_height, features_result.overlays)
+    TilemapModifier.process_overworld(zone_grid, edges, world_width, world_height)
 
     print("\n=== Overworld Generation Complete! ===")
     dungeon_generation_complete(true)

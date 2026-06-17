@@ -446,6 +446,7 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <ClInclude Include="src\Utils.h" />
     <ClInclude Include="src\world\Dungeon.h" />
     <ClInclude Include="src\world\Overworld.h" />
+    <ClInclude Include="src\world\Terrain.h" />
     <ClInclude Include="src\world\TileMap.h" />
     <ClInclude Include="src\world\TilemapRenderer.h" />
     <ClInclude Include="src\world\World.h" />
@@ -481,6 +482,7 @@ xcopy /Y /E /I "$(ProjectDir)resources" "$(OutDir)resources"</Command>
     <None Include="resources\shaders\vignette.fs" />
     <None Include="resources\texts.json" />
     <None Include="resources\tilemaps\dungeon.tsj" />
+    <None Include="resources\tile_properties.json" />
     <None Include="resources\weapons.json" />
     <None Include="scripts\cutscenes\elf_sword_cutscene.lua" />
     <None Include="scripts\cutscenes\enemies_defeated.lua" />

@@ -260,6 +260,7 @@ void Preload::startup()
         l.loadtextData("./resources/texts.json");
         l.loadParticleData("./resources/particles.json");
         l.loadDungeonData("./resources/dungeons.json");
+        l.loadTileProperties("./resources/tile_properties.json");
         });
     // music and sfx
     // second argument is for adjusting the volume

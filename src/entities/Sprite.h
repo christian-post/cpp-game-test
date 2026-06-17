@@ -1,6 +1,7 @@
 #pragma once
 #include "Behavior.h"
 #include "StateMachine.h"
+#include "Terrain.h"
 #include "raylib.h"
 #include "json.hpp"
 #include <unordered_map>
@@ -99,6 +100,7 @@ public:
     int weight = 1; // influences the knockback that the sprite iselfs experiences
     bool dying = false; // flag for the death animation
     bool hookshottable = false; // can the hookshot's hook grab onto this?
+    uint32_t traversal = 0; // terrain capabilities (boat etc), see Traversal enum in Terrain.h
     
     Sprite(Game& game, float x, float y, float w, float h, const std::string& spriteName);
     ~Sprite();

@@ -583,6 +583,25 @@ void InGame::loadTilemap()
 
     tilemapRenderer.loadTilemap(tileMap);
 
+    // build the gid -> terrain lookup from the current map's tilesets
+    // authored ids are local (as shown in tiled); firstgid maps them to the gids stored in layer data
+    terrainLookup.clear();
+    const nlohmann::json& tileProps = game.loader.getTileProperties();
+    for (const auto& [tilesetName, firstgid] : tileMap->getTilesetNames())
+    {
+        if (!tileProps.contains(tilesetName))
+            continue;
+
+        for (auto& [terrainName, ids] : tileProps.at(tilesetName).items())
+        {
+            TerrainType type = terrainTypeFromString(terrainName);
+            for (int localId : ids)
+            {
+                terrainLookup[firstgid + localId] = type;
+            }
+        }
+    }
+
     size_t mapW = tilemapRenderer.getWorldWidth() * tilemapRenderer.getTileSize();
     size_t mapH = tilemapRenderer.getWorldHeight() * tilemapRenderer.getTileSize();
 
@@ -653,6 +672,13 @@ void InGame::update(float deltaTime)
     game.cutsceneManager.update(deltaTime); // checks if a cutscene should be played
     handlePlayerInput(deltaTime);
 
+    // special player checks (may influence the update method)
+
+    // define which terrain the player can traverse
+    player->traversal = TRAVERSE_NONE;
+    if (game.inventory.getItemQuantity("boat") > 0)
+        player->traversal |= TRAVERSE_WATER;
+
     // update the sprites
     for (const auto& sprite : game.sprites)
     {
@@ -717,6 +743,9 @@ void InGame::update(float deltaTime)
         {
             resolveAxisX(sprite, wall->getRect());
         }
+        // tile-based collision
+        if (tileMap)
+            resolveTerrainX(sprite, *tileMap, terrainLookup, (int)tilemapRenderer.getTileSize());
         for (const auto& other : game.sprites)
         {
             if (other != sprite && other->staticCollision && !other->isMarkedForDeletion())
@@ -728,6 +757,8 @@ void InGame::update(float deltaTime)
         {
             resolveAxisY(sprite, wall->getRect());
         }
+        if (tileMap)
+            resolveTerrainY(sprite, *tileMap, terrainLookup, (int)tilemapRenderer.getTileSize());
         for (const auto& other : game.sprites)
         {
             if (other != sprite && other->staticCollision && !other->isMarkedForDeletion())

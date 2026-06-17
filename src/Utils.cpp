@@ -1,6 +1,7 @@
 #include "Utils.h"
 #include "Sprite.h"
 #include "TileMap.h"
+#include "Terrain.h"
 #include "Game.h"
 #include "raylib.h"
 #include "raymath.h"
@@ -213,6 +214,53 @@ void resolveAxisY(const std::shared_ptr<Sprite>& sprite, const Rectangle& obstac
     sprite->rect.y = sprite->position.y + sprite->hitboxOffset.y;
 }
 
+void resolveTerrainX(const std::shared_ptr<Sprite>& sprite, const TileMap& map, const std::unordered_map<int, TerrainType>& lookup, int tileSize)
+{
+    if (lookup.empty() || !sprite->isColliding || sprite->isMarkedForDeletion())
+        return;
+
+    const auto& data = map.getLayer(0).data;
+    int left = std::max(0, (int)(sprite->rect.x) / tileSize);
+    int right = std::min((int)map.width - 1, (int)(sprite->rect.x + sprite->rect.width) / tileSize);
+    int top = std::max(0, (int)(sprite->rect.y) / tileSize);
+    int bottom = std::min((int)map.height - 1, (int)(sprite->rect.y + sprite->rect.height) / tileSize);
+
+    for (int ty = top; ty <= bottom; ty++)
+    {
+        for (int tx = left; tx <= right; tx++)
+        {
+            if (!isBlocking(getTerrainType(data[ty][tx], lookup), sprite->traversal))
+                continue;
+
+            Rectangle tile = { (float)(tx * tileSize), (float)(ty * tileSize), (float)tileSize, (float)tileSize };
+            resolveAxisX(sprite, tile);
+        }
+    }
+}
+
+void resolveTerrainY(const std::shared_ptr<Sprite>& sprite, const TileMap& map, const std::unordered_map<int, TerrainType>& lookup, int tileSize)
+{
+    if (lookup.empty() || !sprite->isColliding || sprite->isMarkedForDeletion())
+        return;
+
+    const auto& data = map.getLayer(0).data;
+    int left = std::max(0, (int)(sprite->rect.x) / tileSize);
+    int right = std::min((int)map.width - 1, (int)(sprite->rect.x + sprite->rect.width) / tileSize);
+    int top = std::max(0, (int)(sprite->rect.y) / tileSize);
+    int bottom = std::min((int)map.height - 1, (int)(sprite->rect.y + sprite->rect.height) / tileSize);
+
+    for (int ty = top; ty <= bottom; ty++)
+    {
+        for (int tx = left; tx <= right; tx++)
+        {
+            if (!isBlocking(getTerrainType(data[ty][tx], lookup), sprite->traversal))
+                continue;
+
+            Rectangle tile = { (float)(tx * tileSize), (float)(ty * tileSize), (float)tileSize, (float)tileSize };
+            resolveAxisY(sprite, tile);
+        }
+    }
+}
 
 bool isSubset(const std::unordered_set<std::string>& subset, const std::unordered_set<std::string>& superset) 
 {

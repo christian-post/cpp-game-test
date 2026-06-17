@@ -10,6 +10,8 @@
 
 class Sprite;
 class Game;
+class TileMap;
+enum class TerrainType;
 struct CollisionObject;
 
 Vector2 GetRectCenter(Rectangle rect);
@@ -26,6 +28,8 @@ std::string GetBaseName(const std::string& path);
 std::string GetLastWriteTime(const std::string& path);
 void resolveAxisX(const std::shared_ptr<Sprite>& sprite, const Rectangle& obstacle);
 void resolveAxisY(const std::shared_ptr<Sprite>& sprite, const Rectangle& obstacle);
+void resolveTerrainX(const std::shared_ptr<Sprite>& sprite, const TileMap& map, const std::unordered_map<int, TerrainType>& lookup, int tileSize);
+void resolveTerrainY(const std::shared_ptr<Sprite>& sprite, const TileMap& map, const std::unordered_map<int, TerrainType>& lookup, int tileSize);
 bool isSubset(const std::unordered_set<std::string>& subset, const std::unordered_set<std::string>& superset);
 
 struct CameraShake

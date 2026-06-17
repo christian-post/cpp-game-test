@@ -467,4 +467,18 @@ Sound& AssetLoader::getSound(const std::string& key)
     return sounds.at(key);
 }
 
+void AssetLoader::loadTileProperties(const std::string& filename)
+{
+    std::ifstream file(filename);
+    if (!file)
+    {
+        TraceLog(LOG_ERROR, "Failed to open tile properties data file %s", filename.c_str());
+        return;
+    }
+    file >> tileProperties;
+}
 
+const nlohmann::json& AssetLoader::getTileProperties()
+{
+    return tileProperties;
+}

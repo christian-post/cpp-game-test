@@ -31,13 +31,11 @@ local border_metatiles = {
             outer_corner_key = "forest_outer_corner_",
             inner_corner_key = "forest_inner_corner_",
             edge_key = "forest_edge_straight_",
-            --boundary_transition_key = "field_forest_boundary_transition_"
         },
         mountain = {
             outer_corner_key = "field_mountain_outer_corner_",
             inner_corner_key = "field_boundary_corner_",
             edge_key = "field_mountain_edge_straight_",
-            --boundary_transition_key = "field_mountain_boundary_transition_"
         },
         lake = {
             outer_corner_key = "",
@@ -65,7 +63,7 @@ local border_metatiles = {
         town = {
             outer_corner_key = "",
             inner_corner_key = "forest_inner_corner_",
-            edge_key = ""
+            edge_key = "forest_inner_edge_straight_"
         },
         lake = {
             outer_corner_key = "",
@@ -83,14 +81,12 @@ local border_metatiles = {
             outer_corner_key = "",
             inner_corner_key = "",
             edge_key = "",
-            --boundary_transition_key = "mountain_field_boundary_transition_"
         },
         town = nil,
         lake = {
             outer_corner_key = "",
             inner_corner_key = "",
             edge_key = "",
-            --boundary_transition_key = ""
         },
         forest = nil,
         mountain = {
@@ -109,7 +105,6 @@ local border_metatiles = {
             outer_corner_key = "",
             inner_corner_key = "lake_inner_corner_w_margin_",
             edge_key = "lake_field_edge_straight_",
-            --boundary_transition_key = "lake_field_boundary_transition_"
         },
         town = {
             outer_corner_key = "",
@@ -120,7 +115,6 @@ local border_metatiles = {
             outer_corner_key = "lake_field_forest_field_corner_",
             inner_corner_key = "",
             edge_key = "lake_forest_edge_straight_",
-            --boundary_transition_key = "lake_forest_boundary_transition_"
         },
         mountain = nil,
         boundary = {
@@ -138,7 +132,7 @@ local border_metatiles = {
         forest = {
             outer_corner_key = "",
             inner_corner_key = "",
-            edge_key = ""
+            edge_key = "forest_edge_straight_",
         },
         mountain = {
             outer_corner_key = "",
@@ -152,7 +146,7 @@ local border_metatiles = {
         },
         boundary = {
             outer_corner_key = "",
-            inner_corner_key = "",
+            inner_corner_key = "field_boundary_corner_",
             edge_key = "town_boundary_"
         },
     }

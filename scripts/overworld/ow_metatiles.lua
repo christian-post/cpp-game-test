@@ -5,6 +5,11 @@ local atlases = {
     overworld = "resources/tilemaps/base/overworld/ow_metatiles.json",
 }
 
+-- these zones have edges and corners exactly like other zones
+local zone_aliases = {
+    town = "field"
+}
+
 local atlas_cache = {} -- cache loaded tilemaps
 
 local TILESIZE = 16
@@ -146,7 +151,7 @@ local metatiles = {
     lake_landing_bridge_n = {atlas = "overworld", src_x = 24, src_y =  8, w = 4, h = 4},
     lake_landing_bridge_s = {atlas = "overworld", src_x = 24, src_y = 12, w = 4, h = 5},
     -- triple zone corners
-    lake_field_forest_field_corner_ne = {atlas = "overworld", src_x = 60, src_y = 20, w = 5, h = 5},
+    --lake_field_forest_field_corner_ne = {atlas = "overworld", src_x = 60, src_y = 20, w = 5, h = 5},
 
     lake_field_forest_lake_corner_se = {atlas = "overworld", src_x = 10, src_y = 26, w = 5, h = 5},
 
@@ -157,7 +162,7 @@ local metatiles = {
     lake_field_forest_field_corner_se = {atlas = "overworld", src_x = 5, src_y = 26, w = 5, h = 5},
     lake_field_forest_field_corner_nw = {atlas = "overworld", src_x = 87, src_y = 34, w = 5, h = 6}, -- TODO is this correct?
 
-    lake_lake_forest_field_corner_ne = {atlas = "overworld", src_x = 87, src_y = 24, w = 5, h = 6},
+    lake_lake_forest_field_corner_ne = {atlas = "overworld", src_x = 87, src_y = 24, w = 5, h = 5},
     lake_lake_forest_field_corner_nw = {atlas = "overworld", src_x = 90, src_y = 24, w = 5, h = 6},
 
     -- NEW boundary transitions
@@ -166,6 +171,7 @@ local metatiles = {
     field_boundary_boundary_forest_corner_sw = {atlas = "overworld", src_x = 87, src_y = 29, w = 5, h = 5},
     field_forest_boundary_boundary_corner_sw = {atlas = "overworld", src_x = 92, src_y = 29, w = 5, h = 5},
     field_forest_boundary_boundary_corner_nw = {atlas = "overworld", src_x = 54, src_y = 24, w = 6, h = 5},
+    field_forest_boundary_boundary_corner_ne = {atlas = "overworld", src_x = 54, src_y = 29, w = 6, h = 5},
     lake_field_boundary_boundary_corner_sw = {atlas = "overworld", src_x =  1, src_y = 21, w = 5, h = 5},
     lake_field_boundary_boundary_corner_ne = {atlas = "overworld", src_x =  6, src_y = 18, w = 5, h = 6},
     lake_forest_forest_field_corner_nw = {atlas = "overworld", src_x = 82, src_y = 27, w = 5, h = 5},
@@ -174,6 +180,8 @@ local metatiles = {
 }
 
 -- metatiles that are the same as others (keys need to be in here)
+metatiles["lake_field_forest_field_corner_ne"] = metatiles["lake_lake_forest_field_corner_ne"]
+--[[
 metatiles["town_base_tile"] = metatiles["field_base_tile"]
 metatiles["town_boundary_n"] = metatiles["field_boundary_n"]
 metatiles["town_boundary_s"] = metatiles["field_boundary_s"]
@@ -183,6 +191,7 @@ metatiles["town_boundary_corner_ne"] = metatiles["field_boundary_corner_ne"]
 metatiles["town_boundary_corner_nw"] = metatiles["field_boundary_corner_nw"]
 metatiles["town_boundary_corner_sw"] = metatiles["field_boundary_corner_sw"]
 metatiles["town_boundary_corner_se"] = metatiles["field_boundary_corner_se"]
+]]
 metatiles["forest_boundary_n"] = metatiles["forest_edge_straight_n"]
 metatiles["forest_boundary_s"] = metatiles["forest_edge_straight_s"]
 metatiles["forest_boundary_w"] = metatiles["forest_edge_straight_w"]
@@ -271,6 +280,35 @@ local compound_metatiles = {
         w = 5, h = 5
     },
 }
+
+-- compound_metatiles aliases
+compound_metatiles["lake_field_field_field_corner_sw"] = compound_metatiles["lake_inner_corner_w_margin_sw"]
+
+
+-- functions that resolve the key lookup with respect to the aliases
+local resolve_cache = {}
+
+local function resolve_key(key)
+    local cached = resolve_cache[key]
+    if cached ~= nil then return cached end
+    local resolved = (key:gsub("[^_]+", function(seg)
+        return zone_aliases[seg]  -- nil leaves the segment unchanged
+    end))
+    resolve_cache[key] = resolved
+    return resolved
+end
+
+-- single source of truth for "does this key resolve to anything?"
+local function lookup(key)
+    if metatiles[key] then return metatiles[key], false end
+    if compound_metatiles[key] then return compound_metatiles[key], true end
+    local rkey = resolve_key(key)
+    if rkey ~= key then
+        if metatiles[rkey] then return metatiles[rkey], false end
+        if compound_metatiles[rkey] then return compound_metatiles[rkey], true end
+    end
+    return nil
+end
 
 -- helper functions that modify the tilemaps
 
@@ -488,18 +526,15 @@ function OW_Metatiles.erase_object_region(layer_name, erase_x, erase_y, erase_x2
 end
 
 function OW_Metatiles.get_metatile_data(key)
-    if metatiles[key] then
-        return metatiles[key]
-    elseif compound_metatiles[key] then
-        -- TODO compound metadata does not contain the w and h
-        return compound_metatiles[key]
-    else
-         error("ow_metatiles: unknown metatile key: " .. key)
+    local data = lookup(key)
+    if not data then
+        error("ow_metatiles: unknown metatile key: " .. key)
     end
+    return data
 end
 
 function OW_Metatiles.metatile_exists(key)
-    return metatiles[key] ~= nil or compound_metatiles[key] ~= nil
+    return lookup(key) ~= nil
 end
 
 function OW_Metatiles.place_metatiles(dst_map, list)
@@ -513,8 +548,10 @@ function OW_Metatiles.place_metatiles(dst_map, list)
     -- group by atlas to save iterations
     local by_atlas = {}
     for _, entry in ipairs(list) do
-        -- TODO check compound metatiles table
-        local mt = metatiles[entry.key]
+        local mt = metatiles[entry.key] or metatiles[resolve_key(entry.key)]
+        if not mt then
+            error("ow_metatiles: unknown metatile key: " .. entry.key)
+        end
         if not mt then
             error("ow_metatiles: unknown metatile key: " .. entry.key)
         end
@@ -546,18 +583,18 @@ function OW_Metatiles.place_metatiles(dst_map, list)
 end
 
 function OW_Metatiles.place_metatile(key, dst_map, dst_x, dst_y, overwrite, verbose)
-    -- wrapper for a single metatile or compound
-    
     if verbose then
         utils.print_file("placing " .. key .. " at (" .. dst_x .. ", " .. dst_y .. ")")
     end
 
-    if metatiles[key] then
-        OW_Metatiles.place_metatiles(dst_map, { { key = key, dst_x = dst_x, dst_y = dst_y, overwrite = overwrite } })
-    elseif compound_metatiles[key] then
-        OW_Metatiles.place_compound(key, dst_map, dst_x, dst_y, overwrite)
-    else
+    local data, is_compound = lookup(key)
+    if not data then
         error("ow_metatiles: unknown metatile key: " .. key)
+    end
+    if is_compound then
+        OW_Metatiles.place_compound(resolve_key(key), dst_map, dst_x, dst_y, overwrite)
+    else
+        OW_Metatiles.place_metatiles(dst_map, { { key = key, dst_x = dst_x, dst_y = dst_y, overwrite = overwrite } })
     end
 end
 

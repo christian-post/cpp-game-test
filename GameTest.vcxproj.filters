@@ -626,6 +626,9 @@
     <ClInclude Include="src\entities\behaviors\HookshotProjectileBehavior.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\world\Terrain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="todo.txt" />
@@ -686,6 +689,7 @@
     <None Include="scripts\overworld\ow_metatiles.lua" />
     <None Include="scripts\lib\world_utils.lua" />
     <None Include="scripts\overworld\ow_generate_base_rooms_NEW.lua" />
+    <None Include="resources\tile_properties.json" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="github\hero.gif">
