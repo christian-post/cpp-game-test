@@ -1,6 +1,7 @@
 {
   "HudHeight": 32.0,
   "PlayeriFrames": 1.0,
+  "boatFriction": 0.95,
   "fullscreen": false,
   "gameScreenHeight": 192,
   "gameScreenWidth": 256,
@@ -106,6 +107,7 @@
   "menuSlidingDuration": 0.4,
   "musicVolume": 100,
   "npcFollowSpeed": 18.0,
+  "playerFriction": 0.8,
   "playerSpeed": 20.0,
   "playerStartingHealth": 10,
   "playerStartingMaxHealth": 10,

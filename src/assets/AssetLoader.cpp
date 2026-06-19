@@ -268,7 +268,18 @@ void AssetLoader::loadSettings(const std::string& filename)
     std::ifstream file(filename);
     if (!file)
     {
-        TraceLog(LOG_ERROR, "Failed to open settings file %s", filename.c_str());
+        // settings.json doesn't exist, load from the example and write a new settings.json
+        std::string exampleName = filename + ".example";
+        std::ifstream exampleFile(exampleName);
+        if (!exampleFile)
+        {
+            TraceLog(LOG_ERROR, "Failed to open settings example file %s", exampleName.c_str());
+            return;
+        }
+        exampleFile >> settings;
+
+        std::ofstream outFile(filename);
+        outFile << settings.dump(2);
         return;
     }
     file >> settings;

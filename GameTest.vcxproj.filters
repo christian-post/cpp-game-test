@@ -646,7 +646,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\shaders\crumble.fs" />
-    <None Include="resources\settings.json" />
     <None Include="resources\enemies.json" />
     <None Include="resources\weapons.json" />
     <None Include="readme.md" />
@@ -690,6 +689,7 @@
     <None Include="scripts\lib\world_utils.lua" />
     <None Include="scripts\overworld\ow_generate_base_rooms_NEW.lua" />
     <None Include="resources\tile_properties.json" />
+    <None Include="resources\settings.json.example" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="github\hero.gif">

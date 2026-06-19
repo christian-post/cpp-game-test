@@ -19,10 +19,6 @@
 
 constexpr Color TRANSP_GRAY = { 200, 200, 200, 180 };
 
-// physics constants
-constexpr float NORMAL_FRICTION = 0.8f;
-constexpr float BOAT_FRICTION = 0.9f;   
-
 
 InGame::InGame(Game& game, const std::string& name) : Scene(game, name), tileMap(nullptr), tilemapRenderer(game), cameraController(game), luaEventManager(std::make_unique<LuaEventManager>(game, *this)), eventTriggerManager(std::make_unique<EventTriggerManager>(game)) 
 {}
@@ -37,6 +33,7 @@ void InGame::startup()
     player->health = game.getSetting<uint32_t>("playerStartingHealth");
     player->maxHealth = game.getSetting<uint32_t>("playerStartingMaxHealth");
     player->speed = game.getSetting<float>("playerSpeed");
+    player->friction = game.getSetting<float>("playerFriction");
     player->persistent = true;
     game.sprites.emplace_back(player);  // add to the sprites vector
     player->setTextures({ "player_idle", "player_run", "player_hit", "", "player_boat" });
@@ -857,7 +854,8 @@ void InGame::update(float deltaTime)
             player->onWater = (getTerrainType(data[cy][cx], terrainLookup) == TerrainType::Water);
         }
     }
-    player->friction = player->onWater ? BOAT_FRICTION : NORMAL_FRICTION;
+    // TODO maybe store constants like these in a .h file instead of looking them up from json every frame... 
+    player->friction = player->onWater ? game.getSetting<float>("boatFriction") : game.getSetting<float>("playerFriction");
 
     // handle the particle effects
     for (auto& emitter : game.emitters)

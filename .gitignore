@@ -26,3 +26,4 @@ resources/tilemaps/generated/*/
 !resources/tilemaps/generated/*.txt
 resources/tilemaps/base/*.json
 resources/tilemaps/base/**/*.json
+resources/settings.json
