@@ -27,6 +27,7 @@ enum AnimState
     RUN,
     HIT,
     CHARGE,
+    BOAT,
     NUM_ANIM_STATES
 };
 
@@ -101,6 +102,7 @@ public:
     bool dying = false; // flag for the death animation
     bool hookshottable = false; // can the hookshot's hook grab onto this?
     uint32_t traversal = 0; // terrain capabilities (boat etc), see Traversal enum in Terrain.h
+    bool onWater = false; // set by InGame from terrain; drives the boat anim state
     
     Sprite(Game& game, float x, float y, float w, float h, const std::string& spriteName);
     ~Sprite();

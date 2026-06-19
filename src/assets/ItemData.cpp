@@ -57,6 +57,9 @@ std::map<std::string, ItemData> createItemData(Game& game)
 {
     std::map<std::string, ItemData> data;
 
+    // { type, key, displayName, textureKey }  
+    // textureKey refers to a key given in Preload. The other three args are defined here
+
     data["weapon_sword"] = ItemData{ WEAPON, "weapon_sword", "Sword", "weapon_sword" };
     data["weapon_double_axe"] = ItemData{ WEAPON, "weapon_double_axe", "Double Axe", "weapon_double_axe" };
     data["weapon_bow"] = ItemData{ WEAPON, "weapon_bow", "Bow", "weapon_bow" };
@@ -75,6 +78,7 @@ std::map<std::string, ItemData> createItemData(Game& game)
 
     data["bombs"] = ItemData{ PASSIVE, "bombs", "Bombs", "bomb" }; // TODO use different sprite
     data["arrows"] = ItemData{ PASSIVE, "arrows", "Arrows", "weapon_arrow" };
+    data["boat"] = ItemData{ PASSIVE, "boat", "Boat", "item_boat" };
     data["key"] = ItemData{ PASSIVE, "key", "Key", "item_key" };
     data["boss_key"] = ItemData{ PASSIVE, "boss_key", "Boss Key", "item_boss_key" };
     data["coin"] = ItemData{ PASSIVE, "coin", "Coin", "itemDropCoin" };

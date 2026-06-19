@@ -200,7 +200,7 @@ void Preload::startup()
             { "bomb", { "./resources/textures/sprites/bomb_f0.png" } },
             { "item_key", { "./resources/textures/sprites/item_key.png" } },
             { "item_boss_key", { "./resources/textures/sprites/item_boss_key.png" } },
-            //{ "item_lamp", { "./resources/textures/sprites/item_lamp_new_0.png" } },
+            { "item_boat", { "./resources/textures/sprites/item_boat.png" } },
             { "knight_map_mini", { "./resources/textures/sprites/knight_map_mini.png" }},
             // background images
             { "title_image", { "./resources/textures/images/title.png" }},
@@ -221,6 +221,7 @@ void Preload::startup()
             l.loadSpritesheet("./resources/textures/sprites/townsfolk_female_idle.png", 16, 16, "townsfolk_female_idle");
             l.loadSpritesheet("./resources/textures/sprites/townsfolk_female_walk.png", 16, 16, "townsfolk_female_walk");
             l.loadSpritesheet("./resources/textures/sprites/fortune_teller_idle.png", 16, 24, "fortune_teller_idle");
+            l.loadSpritesheet("./resources/textures/sprites/knight_f_boat_anim.png", 16, 24, "player_boat");
         });
 
     // load the tileset (the textures)

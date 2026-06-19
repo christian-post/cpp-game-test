@@ -19,6 +19,10 @@
 
 constexpr Color TRANSP_GRAY = { 200, 200, 200, 180 };
 
+// physics constants
+constexpr float NORMAL_FRICTION = 0.8f;
+constexpr float BOAT_FRICTION = 0.9f;   
+
 
 InGame::InGame(Game& game, const std::string& name) : Scene(game, name), tileMap(nullptr), tilemapRenderer(game), cameraController(game), luaEventManager(std::make_unique<LuaEventManager>(game, *this)), eventTriggerManager(std::make_unique<EventTriggerManager>(game)) 
 {}
@@ -35,10 +39,10 @@ void InGame::startup()
     player->speed = game.getSetting<float>("playerSpeed");
     player->persistent = true;
     game.sprites.emplace_back(player);  // add to the sprites vector
-    player->setTextures({ "player_idle", "player_run", "player_hit" });
+    player->setTextures({ "player_idle", "player_run", "player_hit", "", "player_boat" });
     player->emitsLight = true; // TODO: for debugging, until I program the lamp item
 
-    // instantiate a hit effect emitter
+    // instantiate a hit effect emitter for the player
     wpnHitEffect = createEmitter(game, "hitEffect");
     wpnHitEffect->persistent = true;
     wpnHitEffect->stop();
@@ -838,6 +842,22 @@ void InGame::update(float deltaTime)
             }
         }
     }
+
+    // is the player on water this frame? only possible with the boat, since water blocks otherwise
+    // drives both the boat animation and the slidey physics
+    player->onWater = false;
+    if (tileMap && !terrainLookup.empty())
+    {
+        int tileSize = (int)tilemapRenderer.getTileSize();
+        int cx = (int)(player->rect.x + player->rect.width * 0.5f) / tileSize;
+        int cy = (int)(player->rect.y + player->rect.height * 0.5f) / tileSize;
+        if (cx >= 0 && cx < (int)tileMap->width && cy >= 0 && cy < (int)tileMap->height)
+        {
+            const auto& data = tileMap->getLayer(0).data;
+            player->onWater = (getTerrainType(data[cy][cx], terrainLookup) == TerrainType::Water);
+        }
+    }
+    player->friction = player->onWater ? BOAT_FRICTION : NORMAL_FRICTION;
 
     // handle the particle effects
     for (auto& emitter : game.emitters)

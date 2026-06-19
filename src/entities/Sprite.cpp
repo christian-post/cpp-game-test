@@ -119,12 +119,13 @@ Sprite::Sprite(Game& game, float x, float y, float w, float h, const std::string
     maxHealth{ 10 }
 {
     // create placeholder textures in case loading goes wrong
-    // TODO: solve this differently!
+    // TODO: solve this differently, it's too much maintenance!
     frames.resize(static_cast<size_t>(NUM_ANIM_STATES));
     frames[IDLE] = { game.loader.fallbackTexture };
     frames[RUN] = { game.loader.fallbackTexture };
     frames[HIT] = { game.loader.fallbackTexture };
     frames[CHARGE] = { game.loader.fallbackTexture };
+    frames[BOAT] = { game.loader.fallbackTexture };
 }
 
 Sprite::~Sprite()
@@ -167,6 +168,18 @@ void Sprite::animate(float deltaTime)
     // Don't automatically change state if it's locked
     if (lockedAnimState)
         return;
+
+    // on water, show the boat state but keep latching facing direction
+    if (onWater)
+    {
+        currentAnimState = BOAT;
+        if (vel.x > 0.0f)
+            lastDirection = RIGHT;
+        else if (vel.x < 0.0f)
+            lastDirection = LEFT;
+        return; // skip the other animation checks
+        // TODO not sure how well this scales with future anim states...
+    }
 
     // latch the last direction (used for animation)
     if (vel.x == 0.0f && vel.y == 0.0f)
