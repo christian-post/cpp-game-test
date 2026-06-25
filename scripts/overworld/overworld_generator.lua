@@ -23,8 +23,8 @@ local default_transition_rules = {
     forest_to_forest     = { { max = nil, requirement = nil } },
     field_to_mountain    = { { max = 2,   requirement = "bombs" } },
     mountain_to_mountain = { { max = 3,   requirement = "hookshot" },
-                             { max = 2,   requirement = nil } },
-    field_to_lake        = { { max = 1,   requirement = "boat" } },
+                             { max = nil, requirement = nil } },
+    field_to_lake        = { { max = 2,   requirement = "boat" } },
     lake_to_lake         = { { max = nil, requirement = "boat" } },
     forest_to_mountain   = { { max = 1,   requirement = nil } },
     forest_to_lake       = { { max = 0,   requirement = nil } },
@@ -268,41 +268,83 @@ end
 function OverworldGenerator.print_layout(zone_grid, width, height, edges)
     -- just for debugging
     local zone_chars = { mountain = "M", lake = "L", forest = "F", town = "T", field = "." }
-
-    -- build edge lookup
+    -- build edge lookup and collect abbreviated requirements
     local edge_set = {}
+    local req_seen = {}
+    local req_list = {}
     for _, edge in ipairs(edges) do
         local req = edge.requirements
         edge_set[edge.from .. "->" .. edge.to] = req
+        if req and #req > 0 then
+            local name = req[1]
+            if not req_seen[name] then
+                req_seen[name] = true
+                req_list[#req_list + 1] = name
+            end
+        end
     end
-
+    table.sort(req_list)
+    -- group requirements by first letter
+    local by_letter = {}
+    for _, name in ipairs(req_list) do
+        local letter = string.sub(name, 1, 1):upper()
+        by_letter[letter] = by_letter[letter] or {}
+        table.insert(by_letter[letter], name)
+    end
+    -- assign codes: bare letter when unique, letter+index on collision
+    local req_code = {}
+    for letter, names in pairs(by_letter) do
+        table.sort(names)
+        if #names == 1 then
+            req_code[names[1]] = letter
+        else
+            for i, name in ipairs(names) do
+                req_code[name] = letter .. i
+            end
+        end
+    end
+    -- print legend
+    utils.print_file("legend:")
+    utils.print_file("  zones: M=mountain L=lake F=forest T=town .=field")
+    utils.print_file("  edges: +=no requirement  'x'=no edge")
+    if #req_list > 0 then
+        utils.print_file("  requirements:")
+        for _, name in ipairs(req_list) do
+            utils.print_file("    " .. req_code[name] .. "=" .. name)
+        end
+    end
     local function edge_char(a, b)
         local reqs = edge_set[a .. "->" .. b]
         if not reqs then
-            return " "
+            return "x"
         end
         if #reqs == 0 then
             return "+"
         end
-        return string.sub(reqs[1], 1, 1):upper()
+        return req_code[reqs[1]] or string.sub(reqs[1], 1, 1):upper()
     end
-
+    -- pad a cell to a fixed width of two so 1- and 2-char codes stay aligned
+    local function pad_cell(s)
+        if #s >= 2 then
+            return s
+        end
+        return s .. " "
+    end
     for row = 0, height - 1 do
         local line = "  "
         for col = 0, width - 1 do
-            line = line .. (zone_chars[zone_grid[row][col]] or "?")
+            line = line .. pad_cell(zone_chars[zone_grid[row][col]] or "?")
             if col < width - 1 then
-                line = line .. edge_char(WorldUtils.node_name(row, col), WorldUtils.node_name(row, col + 1))
+                line = line .. pad_cell(edge_char(WorldUtils.node_name(row, col), WorldUtils.node_name(row, col + 1)))
             end
         end
         utils.print_file(line)
-
         if row < height - 1 then
             local edge_line = "  "
             for col = 0, width - 1 do
-                edge_line = edge_line .. edge_char(WorldUtils.node_name(row, col), WorldUtils.node_name(row + 1, col))
+                edge_line = edge_line .. pad_cell(edge_char(WorldUtils.node_name(row, col), WorldUtils.node_name(row + 1, col)))
                 if col < width - 1 then
-                    edge_line = edge_line .. " "
+                    edge_line = edge_line .. "  "
                 end
             end
             utils.print_file(edge_line)

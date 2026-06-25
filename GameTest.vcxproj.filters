@@ -690,6 +690,7 @@
     <None Include="scripts\overworld\ow_generate_base_rooms_NEW.lua" />
     <None Include="resources\tile_properties.json" />
     <None Include="resources\settings.json.example" />
+    <None Include="scripts\lib\tilemap_utils.lua" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="github\hero.gif">
