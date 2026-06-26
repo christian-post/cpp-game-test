@@ -1493,7 +1493,7 @@
             {
               "name": "targetIndex",
               "type": "int",
-              "value": 36
+              "value": 41
             },
             {
               "name": "targetLevel",
@@ -1508,12 +1508,12 @@
             {
               "name": "targetX",
               "type": "float",
-              "value": 440.0
+              "value": 136.0
             },
             {
               "name": "targetY",
               "type": "float",
-              "value": 492
+              "value": 316
             }
           ],
           "rotation": 0,

@@ -1486,12 +1486,12 @@
             {
               "name": "targetX",
               "type": "float",
-              "value": 440.0
+              "value": 472.0
             },
             {
               "name": "targetY",
               "type": "float",
-              "value": 444
+              "value": 236
             }
           ],
           "rotation": 0,

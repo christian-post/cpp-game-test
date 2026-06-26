@@ -29,6 +29,42 @@ local room_pool = {
     -- TODO add more rooms, the dungeons etc
 }
 
+-- transition features: stamp a metatile onto the "to" room at the edge facing the "from" cell.
+-- keys maps orientation (w/e/n/s = side of the to-room that borders the from-cell) to a metatile key.
+local transition_features = {
+    {
+        from = "field",
+        to = "lake",
+        requires = "boat",
+        keys = { w = "lake_landing_bridge_w", e = "lake_landing_bridge_e", n = "lake_landing_bridge_n", s = "lake_landing_bridge_s" },
+    },
+}
+
+-- geometry per orientation: axis is perpendicular to the bordering edge (the metatile insets along it),
+-- side picks the near/far end of that axis, inset is the gap in tiles between edge and metatile.
+-- TODO insets are tuned to the bridge art; move them into the feature entry once a second feature needs its own
+local feature_orientations = {
+    w = { axis = "x", side = "near", inset = 4 },
+    e = { axis = "x", side = "far", inset = 4 },
+    n = { axis = "y", side = "near", inset = 3 },
+    s = { axis = "y", side = "far", inset = 3 },
+}
+
+local function orientation_from_dir(dir_row, dir_col)
+    -- direction from the to-room toward the from-cell -> which edge the feature sits on
+    if dir_col == -1 then
+        return "w"
+    elseif dir_col == 1 then
+        return "e"
+    elseif dir_row == -1 then
+        return "n"
+    elseif dir_row == 1 then
+        return "s"
+    end
+    return nil
+end
+
+
 local function pick_from_pool(pool)
     -- picks a random entry from a list
     if #pool == 0 then
@@ -260,8 +296,6 @@ local function patch_interior_teleports(assigned_teleports)
 end
 
 
--- inset (in tiles) from the room edge that borders the field cell
-local LANDING_EDGE_OFFSET = 4
 
 local function node_zone(zone_grid, name)
     -- resolves a node name like "OW_3_2" back to its zone and grid position
@@ -283,53 +317,48 @@ local function edge_requires(edge, requirement)
     return false
 end
 
-local function place_boat_landing(lake_row, lake_col, field_row, field_col)
-    -- stamps a landing bridge onto the lake room, on the edge facing the adjacent field cell
-    local room_path = string.format("resources/tilemaps/generated/overworld/%s.json", WorldUtils.node_name(lake_row, lake_col))
+local function place_transition_feature(feature, to_row, to_col, from_row, from_col)
+    -- stamps the feature's metatile onto the to-room, on the edge facing the from-cell
+    local orientation = orientation_from_dir(from_row - to_row, from_col - to_col)
+    if not orientation then
+        error("place_transition_feature: from and to cells are not adjacent")
+    end
+
+    local key = feature.keys[orientation]
+    if not key then
+        error(string.format("place_transition_feature: feature %s->%s has no key for orientation '%s'", feature.from, feature.to, orientation))
+    end
+
+    local room_path = string.format("resources/tilemaps/generated/overworld/%s.json", WorldUtils.node_name(to_row, to_col))
     local room_map = utils.loadJSON(room_path)
-
-    -- where the field cell sits relative to the lake room picks the bridge orientation
-    local dir_row = field_row - lake_row
-    local dir_col = field_col - lake_col
-
-    local key
-    if dir_col == -1 then
-        key = "lake_landing_bridge_w"
-    elseif dir_col == 1 then
-        key = "lake_landing_bridge_e"
-    elseif dir_row == -1 then
-        key = "lake_landing_bridge_n"
-    elseif dir_row == 1 then
-        key = "lake_landing_bridge_s"
-    else
-        error("place_boat_landing: lake and field cells are not adjacent")
-    end
-
     local metatile = OW_Metatiles.get_metatile_data(key)
+    local geom = feature_orientations[orientation]
 
-    -- inset from the bordering edge, centered along the axis parallel to that edge
+    -- inset along the perpendicular axis, centered along the parallel axis
     local dst_x, dst_y
-    if dir_col == -1 then
-        dst_x = LANDING_EDGE_OFFSET
+    if geom.axis == "x" then
+        if geom.side == "near" then
+            dst_x = geom.inset
+        else
+            dst_x = room_map.width - geom.inset - metatile.w
+        end
         dst_y = math.floor((room_map.height - metatile.h) / 2)
-    elseif dir_col == 1 then
-        dst_x = room_map.width - LANDING_EDGE_OFFSET - metatile.w
-        dst_y = math.floor((room_map.height - metatile.h) / 2)
-    elseif dir_row == -1 then
-        dst_y = LANDING_EDGE_OFFSET
-        dst_x = math.floor((room_map.width - metatile.w) / 2)
     else
-        dst_y = room_map.height - LANDING_EDGE_OFFSET - metatile.h
+        if geom.side == "near" then
+            dst_y = geom.inset
+        else
+            dst_y = room_map.height - geom.inset - metatile.h
+        end
         dst_x = math.floor((room_map.width - metatile.w) / 2)
     end
 
-    -- clear the lake's collision objects under the bridge footprint so it's walkable on foot.
+    -- clear collision objects under the footprint so the feature is walkable on foot.
     -- erase_object_region works in pixels, so convert the tile-space footprint
     local tile_w = room_map.tilewidth
     local tile_h = room_map.tileheight
     OW_Metatiles.erase_object_region("static_collision", dst_x * tile_w, dst_y * tile_h, (dst_x + metatile.w) * tile_w, (dst_y + metatile.h) * tile_h, room_map)
 
-    -- overwrite = false so the bridge overlays the water instead of clearing it
+    -- overwrite = false so the metatile overlays the terrain instead of clearing it
     OW_Metatiles.place_metatile(key, room_map, dst_x, dst_y, false)
 
     -- strip tileset paths down to filenames so the saved map references them locally
@@ -338,17 +367,19 @@ local function place_boat_landing(lake_row, lake_col, field_row, field_col)
     end
 
     utils.saveJSON(room_path, room_map)
-    utils.print_file(string.format("  placed %s on %s", key, WorldUtils.node_name(lake_row, lake_col)))
+    utils.print_file(string.format("  placed %s on %s", key, WorldUtils.node_name(to_row, to_col)))
 end
 
-local function place_boat_landings(zone_grid, edges)
-    -- finds every field->lake boat transition and stamps a landing bridge in the lake room
+local function place_transition_features(zone_grid, edges)
+    -- stamps a metatile for every edge that matches a transition feature's from/to/requires
     for _, edge in ipairs(edges) do
         local from_zone, from_row, from_col = node_zone(zone_grid, edge.from)
         local to_zone, to_row, to_col = node_zone(zone_grid, edge.to)
-        -- only the field->lake direction so each transition is handled once
-        if from_zone == "field" and to_zone == "lake" and edge_requires(edge, "boat") then
-            place_boat_landing(to_row, to_col, from_row, from_col)
+        for _, feature in ipairs(transition_features) do
+            -- edges are bidirectional, so only the from->to ordering matches: each transition handled once
+            if from_zone == feature.from and to_zone == feature.to and edge_requires(edge, feature.requires) then
+                place_transition_feature(feature, to_row, to_col, from_row, from_col)
+            end
         end
     end
 end
@@ -415,8 +446,8 @@ function TilemapModifier.process_overworld(zone_grid, edges, grid_width, grid_he
 
     patch_interior_teleports(assigned_teleports)
 
-    -- stamp boat landing bridges onto lake edges that border a field across a boat transition
-    place_boat_landings(zone_grid, edges)
+    -- stamp transitions onto the maps
+    place_transition_features(zone_grid, edges)
 
     -- apply feature overlays (e.g. river tiles) on top of zone content
     if overlays then
