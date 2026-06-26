@@ -182,15 +182,40 @@ void MenuSelect::update()
         return;
     }
 
-    // Normal navigation with up/down
-    if (game.buttonsPressed & CONTROL_DOWN)
+    // normal navigation with up/down, with hold-to-scroll auto-repeat
+    uint32_t navHeld = GetControlsDown() & (CONTROL_UP | CONTROL_DOWN);
+    bool shouldMove = false;
+
+    if (navHeld == 0)
     {
-        menuIndex = (menuIndex + 1) % menuItems.size();
-        game.playSound("menuCursor");
+        scrollPrimed = false;
+        scrollCurrentInterval = scrollRepeatInterval;
     }
-    if (game.buttonsPressed & CONTROL_UP)
+    else if (!scrollPrimed)
     {
-        menuIndex = (menuIndex + menuItems.size() - 1) % menuItems.size();
+        // first frame held: move once immediately, then wait the initial delay
+        scrollPrimed = true;
+        scrollTimer = scrollInitialDelay;
+        shouldMove = true;
+    }
+    else
+    {
+        scrollTimer -= GetFrameTime();
+        if (scrollTimer <= 0.0f)
+        {
+            scrollTimer = scrollCurrentInterval;
+            scrollCurrentInterval = std::max(scrollCurrentInterval * scrollAccel, scrollRepeatMinInterval);
+            shouldMove = true;
+        }
+    }
+
+    if (shouldMove)
+    {
+        if (navHeld & CONTROL_DOWN)
+            menuIndex = (menuIndex + 1) % menuItems.size();
+        else
+            menuIndex = (menuIndex + menuItems.size() - 1) % menuItems.size();
+
         game.playSound("menuCursor");
     }
 

@@ -81,4 +81,12 @@ private:
     size_t yMargin = 12; // space between elements
     size_t xMargin = 40; // only used when aliged LEFT or RIGHT
     MenuPosition position = MenuPosition::CENTER;
+
+    float scrollTimer = 0.0f; // counts down for hold-to-scroll auto-repeat
+    float scrollInitialDelay = 0.35f; // delay before auto-repeat kicks in
+    float scrollRepeatInterval = 0.08f; // time between repeats while held
+    bool scrollPrimed = false; // whether navigation has fired its first move while held
+    float scrollRepeatMinInterval = 0.03f; // fastest the auto-repeat is allowed to get
+    float scrollAccel = 0.85f; // multiplied into the interval each repeat (< 1 speeds up)
+    float scrollCurrentInterval = 0.08f; // runtime interval, decays from scrollRepeatInterval toward the min
 };
